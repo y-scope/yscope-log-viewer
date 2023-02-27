@@ -1,0 +1,115 @@
+@use "sass:color";
+
+$status-bar-background-color: #68217a;
+
+.status-bar {
+  margin: 0;
+  height: 23px;
+  line-height: 23px;
+  font-size: 14px;
+  color: white;
+  background-color: $status-bar-background-color;
+}
+
+.status-left {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.status-right {
+  float: right;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.status-item {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0 7px;
+}
+
+.status-item-button {
+  background-color: $status-bar-background-color;
+  border: none;
+  color: inherit;
+
+  &:hover {
+    background-color: color.adjust($status-bar-background-color, $lightness: 8%);
+  }
+}
+
+.status-prettify-accent {
+  $default-background-color: #125c3a;
+
+  background: $default-background-color;
+
+  &:hover {
+    background: #1b8152;
+
+    &:disabled {
+      background: $default-background-color;
+    }
+  }
+}
+
+.status-verbosity-accent {
+  $default-background-color: #34103d;
+
+  background: $default-background-color;
+
+  &:hover {
+    background: #842a9b;
+
+    &:disabled {
+      background: $default-background-color;
+    }
+  }
+}
+
+.status-bar-select {
+  color: white;
+  border: none;
+  padding: 0 !important;
+  margin: 0 0 0 3px;
+  background: #34103d;
+
+  & :focus {
+    border: none;
+    outline: 0;
+    box-shadow: none !important;
+  }
+
+  & :active {
+    border: none;
+    outline: none;
+    box-shadow: none !important;
+  }
+}
+
+.popover {
+  transform: translateX(23px);
+}
+
+.popover-body {
+  background: #68217a !important;
+  color: white !important;
+
+  option:hover {
+    background: #34103d;
+    cursor: pointer;
+  }
+}
+
+.popover-arrow::after {
+  border-width: 0 !important;
+}
+
+.tooltip-arrow {
+  display: none !important;
+}
