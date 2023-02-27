@@ -52,13 +52,14 @@ const modifyPage = (action, currentPage, requestedPage, pages) => {
  */
 const modifyFileMetadata = (fileMetadata, logEventIdx) => {
     if (fileMetadata && fileMetadata.filePath) {
-        let url = `${window.location.origin}?filePath=${fileMetadata.filePath}`;
+        let url = `${window.location.origin}${window.location.pathname}`;
+        url += `?filePath=${fileMetadata.filePath}`;
         if (0 !== logEventIdx) {
             url += `#logEventIdx=${logEventIdx}`;
         }
         window.history.pushState({path: url}, "", url);
     } else if (fileMetadata && !fileMetadata.filePath) {
-        let url = `${window.location.origin}`;
+        let url = `${window.location.origin}${window.location.pathname}`;
         if (0 !== logEventIdx) {
             url += `#logEventIdx=${logEventIdx}`;
         }
