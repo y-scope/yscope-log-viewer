@@ -38,11 +38,16 @@ export function App () {
         console.debug("Version:", config.version);
         const lsTheme = localStorage.getItem("ui-theme");
         switchTheme(lsTheme === THEME_STATES.LIGHT?THEME_STATES.LIGHT:THEME_STATES.DARK);
-        if (urlSearchParams.get("filePath")) {
-            setFileInfo(urlSearchParams.get("filePath"));
+        if (config.defaultFileUrl) {
+            setFileInfo(config.defaultFileUrl);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
-            setAppMode(APP_STATE.FILE_PROMPT);
+            if (urlSearchParams.get("filePath")) {
+                setFileInfo(urlSearchParams.get("filePath"));
+                setAppMode(APP_STATE.FILE_VIEW);
+            } else {
+                setAppMode(APP_STATE.FILE_PROMPT);
+            }
         }
     }, []);
 
