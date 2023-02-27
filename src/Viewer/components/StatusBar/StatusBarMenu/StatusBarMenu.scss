@@ -1,0 +1,12 @@
+.verbosity-menu-container {
+  background: #68217a;
+  position: absolute;
+}
+
+.verbosity-menu-container option {
+  cursor: pointer;
+}
+
+.verbosity-menu-container option:hover {
+  background: #34103d;
+}
