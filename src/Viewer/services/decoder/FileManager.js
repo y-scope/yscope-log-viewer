@@ -263,8 +263,9 @@ class FileManager {
             this._buildIndex();
             this._filterLogEvents(-1);
 
-            if (!this._state.logEventIdx) {
-                this._state.logEventIdx = this._logEventOffsets.length;
+            const numberOfEvents = this._logEventOffsets.length;
+            if (!this._state.logEventIdx || this._state.logEventIdx > numberOfEvents) {
+                this._state.logEventIdx = numberOfEvents;
             }
 
             this._createPages();
