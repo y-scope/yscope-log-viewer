@@ -7,7 +7,7 @@ module.exports = {
     entry: path.resolve(__dirname, "src", "index.js"),
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "src", "index.html")
+            template: path.resolve(__dirname, "src", "index.html"),
         }),
         new MiniCssExtractPlugin(),
         new MonacoWebpackPlugin({
@@ -18,6 +18,7 @@ module.exports = {
         path: path.join(__dirname, "dist"),
         filename: "[name].[contenthash].bundle.js",
         clean: true,
+        publicPath: "./",
     },
     module: {
         rules: [
