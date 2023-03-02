@@ -39,8 +39,8 @@ class SimplePrettifier {
         - After seeing '\', we ignore the next character.
         - After seeing '"', we only monitor for an unescaped '"'.
         - After seeing '\'', we only monitor for an unescaped '\''.
-            - After seeing '{'/'(', we *typically* add a newline and increase
-              the indentation level.
+        - After seeing '{'/'(', we *typically* add a newline and increase
+          the indentation level.
             - The one exception to this is if there is only one
               parameter/kv-pair in the region enclosed by "{}"/"()". However,
               this is hard to determine without reading ahead until the end of
@@ -110,6 +110,12 @@ class SimplePrettifier {
                 --squareBracketsLevel;
                 arrayIndentLevels.pop();
             } else if ("," === c) {
+                if (0 === squareBracketsLevel && 0 === indentLevel) {
+                    // Comma is not within a bracketed region, so it doesn't
+                    // need handling
+                    continue;
+                }
+
                 if (lineBreakPending) {
                     newString += this._getStartingWhitespaceOfNewLine(indentLevel);
                     lineBreakPending = false;
