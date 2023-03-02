@@ -35,11 +35,18 @@ const App = () => {
         FILE_VIEW: 1,
     };
 
-    const urlSearchParams = new URLSearchParams(window.location.search, "?");
-
+    const [appMode, setAppMode] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
+    const [logEventIdx, setLogEventIdx] = useState(null);
+    const [prettify, setPrettify] = useState(null);
     const [theme, setTheme] = useState(THEME_STATES.DARK);
-    const [appMode, setAppMode] = useState();
+
+    useEffect(() => {
+        console.debug("Version:", config.version);
+        const lsTheme = localStorage.getItem("ui-theme");
+        switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
+        init();
+    }, []);
 
     const switchTheme = (theme) => {
         localStorage.setItem("ui-theme", theme);
@@ -47,30 +54,54 @@ const App = () => {
         setTheme(theme);
     };
 
+    /**
+     * Initializes the applications state. The file to load is set based on
+     * this order of precedence:
+     * <ul>
+     *   <li>`filePath` from url if it is provided</li>
+     *   <li>`defaultFileUrl` if it is provided in config file</li>
+     * </ul>
+     * If neither are provided, we display a prompt to load a file.
+     */
+    const init = () => {
+        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
+        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
+
+        // Load the initial state of the viewer from url
+        setPrettify(urlSearchParams.get("prettify") === "true");
+        setLogEventIdx(urlHashParams.get("logEventIdx"));
+
+        const filePath = urlSearchParams.get("filePath");
+        console.log(filePath);
+        if (undefined !== filePath) {
+            setFileInfo(filePath);
+            setAppMode(APP_STATE.FILE_VIEW);
+        } else {
+            if (null !== config.defaultFileUrl) {
+                setFileInfo(config.defaultFileUrl);
+                setAppMode(APP_STATE.FILE_VIEW);
+            } else {
+                setAppMode(APP_STATE.FILE_PROMPT);
+            }
+        }
+    };
+
+    /**
+     * Handles the file being changed
+     * @param {File} file
+     */
     const handleFileChange = (file) => {
         setFileInfo(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
-    
-    useEffect(() => {
-        console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem("ui-theme");
-        switchTheme(lsTheme === THEME_STATES.LIGHT ? THEME_STATES.LIGHT : THEME_STATES.DARK);
-        if (urlSearchParams.get("filePath")) {
-            setFileInfo(urlSearchParams.get("filePath"));
-            setAppMode(APP_STATE.FILE_VIEW);
-        } else {
-            setAppMode(APP_STATE.FILE_PROMPT);
-        }
-    }, []);
 
     return (
         <div id="app">
             <ThemeContext.Provider value={{theme, switchTheme}}>
                 <DropFile handleFileDrop={handleFileChange}>
-                    {appMode === APP_STATE.VIEWER &&
-                        <Viewer logEventNumber={urlSearchParams.get("logEventIdx")}
-                            prettifyLog={urlSearchParams.get("prettify") === "true"}
+                    {(APP_STATE.FILE_VIEW === appMode) &&
+                        <Viewer logEventNumber={logEventIdx}
+                            prettifyLog={prettify}
                             fileInfo={fileInfo}/>
                     }
                 </DropFile>
