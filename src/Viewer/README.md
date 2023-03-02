@@ -35,11 +35,18 @@ const App = () => {
         FILE_VIEW: 1,
     };
 
-    const [fileInfo, setFileInfo] = useState(null);
-    const [theme, setTheme] = useState(THEME_STATES.DARK);
     const [appMode, setAppMode] = useState(null);
-    const [prettify, setPrettify] = useState(null);
+    const [fileInfo, setFileInfo] = useState(null);
     const [logEventIdx, setLogEventIdx] = useState(null);
+    const [prettify, setPrettify] = useState(null);
+    const [theme, setTheme] = useState(THEME_STATES.DARK);
+
+    useEffect(() => {
+        console.debug("Version:", config.version);
+        const lsTheme = localStorage.getItem("ui-theme");
+        switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
+        init();
+    }, []);
 
     const switchTheme = (theme) => {
         localStorage.setItem("ui-theme", theme);
@@ -48,39 +55,30 @@ const App = () => {
     };
 
     /**
-     * Loads the initial state of the viewer from url arguments.
-     *
-     * ### Example:
-     * localhost:3010/?filePath=/logs/sample.clp.zst&prettify=true&logEventIdx=1
-     *
-     * @return {[string,boolean,string]} [filePath,prettify,logEventIdx]
+     * Initializes the applications state. The file to load is set based on
+     * this order of precedence:
+     * <ul>
+     *   <li>`filePath` from url if it is provided</li>
+     *   <li>`defaultFileUrl` if it is provided in config file</li>
+     * </ul>
+     * If neither are provided, we display a prompt to load a file.
      */
-    const getInitialStateFormUrl = () => {
-        const urlSearchParams = new URLSearchParams(window.location.search, "?");
-        const hash = window.location.hash;
+    const init = () => {
+        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
+        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
+
+        // Load the initial state of the viewer from url
+        setPrettify(urlSearchParams.get("prettify") === "true");
+        setLogEventIdx(urlHashParams.get("logEventIdx"));
+
         const filePath = urlSearchParams.get("filePath");
-        const prettify = urlSearchParams.get("prettify") === "true";
-        const logEventIdx = (hash.includes("logEventIdx") ?hash.split("=").pop():null);
-        return [filePath, prettify, logEventIdx];
-    };
-
-    /**
-     * Load the file when app is rendered in this order of precedence:
-     * - Default file url is used if it is provided in config file.
-     * - File path from url if it is provided.
-     * - Provide prompt to load file.
-     */
-    const loadFileOnLoad = () => {
-        const [filePath, prettify, logEventIdx] = getInitialStateFormUrl();
-        setPrettify(prettify);
-        setLogEventIdx(logEventIdx);
-
-        if (config.defaultFileUrl) {
-            setFileInfo(config.defaultFileUrl);
+        console.log(filePath);
+        if (undefined !== filePath) {
+            setFileInfo(filePath);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
-            if (filePath) {
-                setFileInfo(filePath);
+            if (null !== config.defaultFileUrl) {
+                setFileInfo(config.defaultFileUrl);
                 setAppMode(APP_STATE.FILE_VIEW);
             } else {
                 setAppMode(APP_STATE.FILE_PROMPT);
@@ -96,13 +94,6 @@ const App = () => {
         setFileInfo(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
-
-    useEffect(() => {
-        console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem("ui-theme");
-        switchTheme(lsTheme === THEME_STATES.LIGHT?THEME_STATES.LIGHT:THEME_STATES.DARK);
-        loadFileOnLoad();
-    }, []);
 
     return (
         <div id="app">

@@ -232,6 +232,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber}) {
         const logEventIdx = urlHashParams.get("logEventIdx");
         if (isNumeric(logEventIdx)) {
             changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: Number(logEventIdx)});
+        } else {
+            changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: logFileState.logEventIdx});
         }
     };
 

@@ -23,14 +23,18 @@ export function App () {
         FILE_VIEW: 1,
     };
 
-    const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
-    const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
-
     const [appMode, setAppMode] = useState(null);
     const [fileInfo, setFileInfo] = useState(null);
     const [logEventIdx, setLogEventIdx] = useState(null);
     const [prettify, setPrettify] = useState(null);
     const [theme, setTheme] = useState(THEME_STATES.DARK);
+
+    useEffect(() => {
+        console.debug("Version:", config.version);
+        const lsTheme = localStorage.getItem("ui-theme");
+        switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
+        init();
+    }, []);
 
     const switchTheme = (theme) => {
         localStorage.setItem("ui-theme", theme);
@@ -39,22 +43,28 @@ export function App () {
     };
 
     /**
-     * Loads the file when app is rendered in this order of precedence:
-     * - File path from url if it is provided.
-     * - Default file url is used if it is provided in config file.
-     * - Provide prompt to load file.
+     * Initializes the application's state. The file to load is set based on
+     * this order of precedence:
+     * <ul>
+     *   <li>`filePath` from url if it is provided</li>
+     *   <li>`defaultFileUrl` if it is provided in config file</li>
+     * </ul>
+     * If neither are provided, we display a prompt to load a file.
      */
     const init = () => {
+        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
+        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
+
         // Load the initial state of the viewer from url
         setPrettify(urlSearchParams.get("prettify") === "true");
         setLogEventIdx(urlHashParams.get("logEventIdx"));
 
         const filePath = urlSearchParams.get("filePath");
-        if (filePath) {
+        if (undefined !== filePath) {
             setFileInfo(filePath);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
-            if (config.defaultFileUrl) {
+            if (null !== config.defaultFileUrl) {
                 setFileInfo(config.defaultFileUrl);
                 setAppMode(APP_STATE.FILE_VIEW);
             } else {
@@ -71,13 +81,6 @@ export function App () {
         setFileInfo(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
-
-    useEffect(() => {
-        console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem("ui-theme");
-        switchTheme(THEME_STATES.LIGHT === lsTheme? THEME_STATES.LIGHT: THEME_STATES.DARK);
-        init();
-    }, []);
 
     return (
         <div id="app">
