@@ -55,7 +55,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber}) {
         pages: null,
         page: null,
         prettify: prettifyLog ? prettifyLog : false,
-        logEventIdx: isNumeric(logEventNumber) ? logEventNumber : null,
+        logEventIdx: isNumeric(logEventNumber) ? Number(logEventNumber) : null,
         lineNumber: null,
         columnNumber: null,
         colNumber: null,
@@ -170,14 +170,12 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber}) {
                 });
                 break;
             case STATE_CHANGE_TYPE.logEventIdx:
-                if (args.logEventIdx) {
-                    setLoadingLogs(true);
-                    setStatusMessage(`Going to new log event ${args.logEventIdx}`);
-                    clpWorker.current.postMessage({
-                        code: CLP_WORKER_PROTOCOL.GET_LINE_FROM_EVENT,
-                        desiredLogEventIdx: Number(args.logEventIdx),
-                    });
-                }
+                setLoadingLogs(true);
+                setStatusMessage(`Going to new log event ${args.logEventIdx}`);
+                clpWorker.current.postMessage({
+                    code: CLP_WORKER_PROTOCOL.GET_LINE_FROM_EVENT,
+                    desiredLogEventIdx: args.logEventIdx,
+                });
                 break;
             default:
                 break;
@@ -232,7 +230,11 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber}) {
     window.onhashchange = () => {
         const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
         const logEventIdx = urlHashParams.get("logEventIdx");
-        changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: logEventIdx});
+        if (isNumeric(logEventIdx)) {
+            changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: Number(logEventIdx)});
+        } else {
+            changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: logFileState.logEventIdx});
+        }
     };
 
     return (

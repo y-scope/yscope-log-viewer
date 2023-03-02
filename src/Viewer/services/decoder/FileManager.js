@@ -156,8 +156,8 @@ class FileManager {
         }
         if (logEventIdx > this._state.numberOfEvents) {
             console.debug("Log event provided was larger than the number of events.");
-            console.debug(`Log event was limited to ${this._state.numberOfEvents}`);
-            this._state.logEventIdx = this._state.numberOfEvents;
+        } else if (logEventIdx <= 0) {
+            console.debug("Log event provided was less than or equal to zero.");
         } else {
             this._state.logEventIdx = logEventIdx;
         }
@@ -263,8 +263,10 @@ class FileManager {
             this._buildIndex();
             this._filterLogEvents(-1);
 
-            if (!this._state.logEventIdx) {
-                this._state.logEventIdx = this._logEventOffsets.length;
+            const numberOfEvents = this._logEventOffsets.length;
+            if (null === this._state.logEventIdx || this._state.logEventIdx > numberOfEvents ||
+                this._state.logEventIdx <= 0) {
+                this._state.logEventIdx = numberOfEvents;
             }
 
             this._createPages();
