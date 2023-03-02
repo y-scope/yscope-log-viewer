@@ -18,7 +18,7 @@ module.exports = {
         path: path.join(__dirname, "dist"),
         filename: "[name].[contenthash].bundle.js",
         clean: true,
-        publicPath: "./",
+        publicPath: "auto",
     },
     module: {
         rules: [
