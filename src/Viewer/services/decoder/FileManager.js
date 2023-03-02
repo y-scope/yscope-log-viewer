@@ -264,7 +264,8 @@ class FileManager {
             this._filterLogEvents(-1);
 
             const numberOfEvents = this._logEventOffsets.length;
-            if (!this._state.logEventIdx || this._state.logEventIdx > numberOfEvents) {
+            if (null === this._state.logEventIdx || this._state.logEventIdx > numberOfEvents ||
+                this._state.logEventIdx <= 0) {
                 this._state.logEventIdx = numberOfEvents;
             }
 
