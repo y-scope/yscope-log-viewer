@@ -156,8 +156,10 @@ class FileManager {
         }
         if (logEventIdx > this._state.numberOfEvents) {
             console.debug("Log event provided was larger than the number of events.");
-            console.debug(`Log event was limited to ${this._state.numberOfEvents}`);
-            this._state.logEventIdx = this._state.numberOfEvents;
+            this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
+        } else if (logEventIdx <= 0) {
+            console.debug("Log event provided was less than or equal to zero.");
+            this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
         } else {
             this._state.logEventIdx = logEventIdx;
         }
