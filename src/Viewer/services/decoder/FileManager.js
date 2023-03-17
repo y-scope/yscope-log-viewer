@@ -5,7 +5,7 @@ import {DataInputStream, DataInputStreamEOFError} from "./DataInputStream";
 import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
 import ResizableUint8Array from "./ResizableUint8Array";
 import SimplePrettifier from "./SimplePrettifier";
-import {formatSizeInBytes, isBoolean, isNumeric} from "./utils";
+import {formatSizeInBytes} from "./utils";
 
 /**
  * File manager to manage and track state of each file that is loaded.
@@ -16,15 +16,15 @@ class FileManager {
      *
      * @param {string} fileInfo
      * @param {boolean} prettify
-     * @param {function} loadingMessageCallback
      * @param {number} logEventIdx
      * @param {number} pageSize
+     * @param {function} loadingMessageCallback
      * @param {function} updateStateCallback
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, loadingMessageCallback, logEventIdx,
-        pageSize, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
+    constructor (fileInfo, prettify, logEventIdx, pageSize,
+        loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
         this._logEventOffsets = [];
@@ -69,141 +69,6 @@ class FileManager {
         this._updateFileInfoCallback = updateFileInfoCallback;
 
         this._PRETTIFICATION_THRESHOLD = 200;
-    }
-
-    /**
-     * Filters the events at the given verbosity and rebuilds the pages.
-     *
-     * @param {number} desiredVerbosity
-     */
-    changeVerbosity (desiredVerbosity) {
-        if (!isNumeric(desiredVerbosity)) {
-            throw (new Error("Invalid verbosity provided."));
-        }
-        this._state.verbosity = desiredVerbosity;
-        this._filterLogEvents(desiredVerbosity);
-        this._createPages();
-        this._getPageOfLogEvent();
-        this._decodePage();
-        const [colNumber, lineNumber] = this._getLineNumberOfLogEvent(this._state.logEventIdx);
-        this._state.columnNumber = colNumber;
-        this._state.lineNumber = lineNumber;
-
-        // When changing verbosity, if the current log event gets removed
-        // by the filter, get the new log event.
-        this._getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
-    }
-
-    /**
-     * Go to the selected page and decode the relevant logs. linePos
-     * indicates if the new page should be loaded with selected line
-     * on top or bottom of page.
-     *
-     * @param {number} page
-     * @param {string} linePos
-     */
-    changePage (page, linePos) {
-        if (!isNumeric(page)) {
-            throw (new Error("Invalid page number provided."));
-        }
-        if (page <= 0 || page > this._state.pages) {
-            throw (new Error("Invalid page number provided."));
-        }
-        this._state.page = page;
-        this._decodePage();
-
-        if (linePos === "top") {
-            this._state.lineNumber = 1;
-        } else if (linePos === "bottom") {
-            this._state.lineNumber = this._logEventMetadata.reduce( function (a, b) {
-                return a + b.numLines;
-            }, 0);
-        } else {
-            this._state.lineNumber = 1;
-        }
-
-        this._getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
-    }
-
-    /**
-     * Set prettify state, rebuild the page and update line number
-     * for the log event.
-     *
-     * @param {boolean} prettify
-     */
-    changePrettify (prettify) {
-        if (!isBoolean(prettify)) {
-            throw (new Error("Invalid prettify state provided"));
-        }
-        this._state.prettify = prettify;
-        this._decodePage();
-        const [colNumber, lineNumber] = this._getLineNumberOfLogEvent(this._state.logEventIdx);
-        this._state.columnNumber = colNumber;
-        this._state.lineNumber = lineNumber;
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
-    }
-
-    /**
-     * Goes to the specified log event. Go to new page if needed.
-     *
-     * @param {number} logEventIdx
-     */
-    changeEvent (logEventIdx) {
-        if (!isNumeric(logEventIdx)) {
-            throw (new Error("Invalid logEventIdx provided."));
-        }
-        if (logEventIdx > this._state.numberOfEvents) {
-            console.debug("Log event provided was larger than the number of events.");
-        } else if (logEventIdx <= 0) {
-            console.debug("Log event provided was less than or equal to zero.");
-        } else {
-            this._state.logEventIdx = logEventIdx;
-        }
-        const currentPage = this._state.page;
-        this._state.page = this._findPageFromEvent(this._state.logEventIdx);
-        if (currentPage !== this._state.page) {
-            this._decodePage();
-        }
-        const [colNumber, lineNumber] = this._getLineNumberOfLogEvent(this._state.logEventIdx);
-        this._state.columnNumber = colNumber;
-        this._state.lineNumber = lineNumber;
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
-    };
-
-    /**
-     * Get the log event given a line number.
-     *
-     * @param {number} lineNumber
-     * @param {number} columnNumber
-     */
-    changeLine (lineNumber, columnNumber) {
-        if (!isNumeric(lineNumber)) {
-            throw (new Error("Invalid line number provided."));
-        }
-        this._state.lineNumber = lineNumber;
-        this._state.columnNumber = columnNumber;
-        this._getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
-    };
-
-    /**
-     * Redraws the page with the new page size.
-     *
-     * @param {number} pageSize
-     */
-    redraw (pageSize) {
-        if (!isNumeric(pageSize)) {
-            throw (new Error("Invalid page size provided."));
-        }
-        this._state.pageSize = pageSize;
-        this._createPages();
-        this._decodePage();
-        const [colNumber, lineNumber] = this._getLineNumberOfLogEvent(this._state.logEventIdx);
-        this._state.columnNumber = colNumber;
-        this._state.lineNumber = lineNumber;
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
     }
 
     /**
@@ -261,7 +126,7 @@ class FileManager {
             this._loadingMessageCallback(`Decompressed ${decompressedBytes}.`);
 
             this._buildIndex();
-            this._filterLogEvents(-1);
+            this.filterLogEvents(-1);
 
             const numberOfEvents = this._logEventOffsets.length;
             if (null === this._state.logEventIdx || this._state.logEventIdx > numberOfEvents ||
@@ -269,19 +134,19 @@ class FileManager {
                 this._state.logEventIdx = numberOfEvents;
             }
 
-            this._createPages();
-            this._state.page = this._findPageFromEvent(this._state.logEventIdx);
+            this.createPages();
+            this._state.page = this.findPageFromEvent(this._state.logEventIdx);
 
-            this._decodePage();
+            this.decodePage();
 
-            const [colNumber, lineNumber] = this._getLineNumberOfLogEvent(this._state.logEventIdx);
+            const [colNumber, lineNumber] = this.getLineNumberOfLogEvent(this._state.logEventIdx);
             this._state.columnNumber = colNumber;
             this._state.lineNumber = lineNumber;
             this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
         }).catch((reason) => {
             if (reason instanceof DataInputStreamEOFError) {
                 // If the file is truncated, send back a user-friendly error
-                this._loadingMessageCallback("Error: IRStream truncated", true);
+                this._loadingMessageCallback("IRStream truncated", true);
             } else {
                 this._loadingMessageCallback(reason.message, true);
             }
@@ -303,6 +168,7 @@ class FileManager {
         try {
             while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {}
         } catch (error) {
+            console.log(error);
             // Ignore EOF errors since we should still be able
             // to print the decoded messages
             if (error instanceof DataInputStreamEOFError) {
@@ -319,7 +185,7 @@ class FileManager {
     /**
      * Gets the page of the current log event
      */
-    _getPageOfLogEvent () {
+    getPageOfLogEvent () {
         for (let index = 0; index < this._logEventOffsetsFiltered.length; index++) {
             const event = this._logEventOffsetsFiltered[index];
             const logEventIndex = event.mappedIndex + 1;
@@ -333,7 +199,7 @@ class FileManager {
     /**
      * Creates pages from the filtered log events and the page size.
      */
-    _createPages () {
+    createPages () {
         if (this._logEventOffsetsFiltered.length <= this._state.pageSize) {
             this._state.page = 1;
             this._state.pages = 1;
@@ -355,7 +221,7 @@ class FileManager {
      * @param {number} logEventIdx
      * @return {null|number}
      */
-    _findPageFromEvent (logEventIdx) {
+    findPageFromEvent (logEventIdx) {
         // If logEventIdx is greater than the total
         // number of log events, limit the logEventIdx
         if (logEventIdx && logEventIdx > this._logEventOffsets.length) {
@@ -375,37 +241,33 @@ class FileManager {
     /**
      * Decodes the logs for the selected page (_state.page).
      */
-    _decodePage () {
-        const numOfEvents = this._logEventOffsetsFiltered.length;
-        let logs;
+    decodePage () {
+        const numEventsAtLevel = this._logEventOffsetsFiltered.length;
 
         // If there are no logs at this verbosity level, return
-        if (0 === numOfEvents) {
-            logs = "No logs at selected verbosity level";
+        if (0 === numEventsAtLevel) {
+            const logs = "No logs at selected verbosity level";
             this._updateLogsCallback(logs);
             return;
         }
 
         // Calculate where to start decoding from and how many events to decode
-        // Corner case for the final page where the number of
-        // events is likely less than pageSize.
-        let logEventTarget;
-        let numberOfEvents;
-        if (this._state.page === this._state.pages) {
-            numberOfEvents = numOfEvents - ((this._state.page-1) * this._state.pageSize);
-            logEventTarget = numOfEvents - numberOfEvents;
-        } else {
-            numberOfEvents = (numOfEvents > this._state.pageSize)?this._state.pageSize:numOfEvents;
-            logEventTarget = ((this._state.page-1) * this._state.pageSize);
-        }
+        // On final page, the numberOfEvents is likely less than pageSize
+        const logEventTarget = ((this._state.page-1) * this._state.pageSize);
+        const numberOfEvents = (logEventTarget + this._state.pageSize >= numEventsAtLevel)
+            ?numEventsAtLevel - logEventTarget
+            :this._state.pageSize;
 
+        // Create IRStream Reader with the input stream
         const dataInputStream = new DataInputStream(this._arrayBuffer);
-        this._outputResizableBuffer = new ResizableUint8Array(511000000);
         this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
             this._state.prettify ? this._prettifyLogEventContent : null);
 
+        // Create variables to store output from reader
+        this._outputResizableBuffer = new ResizableUint8Array(511000000);
         this._availableVerbosityIndexes = new Set();
         this._logEventMetadata = [];
+
         for (let i = logEventTarget; i < logEventTarget + numberOfEvents; i++) {
             const event = this._logEventOffsetsFiltered[i];
             const decoder = this._irStreamReader._streamProtocolDecoder;
@@ -442,7 +304,7 @@ class FileManager {
         }
 
         // Decode the text and set the available verbosities
-        logs = this._textDecoder.decode(this._outputResizableBuffer.getUint8Array());
+        const logs = this._textDecoder.decode(this._outputResizableBuffer.getUint8Array());
 
         for (const verbosityIx of this._availableVerbosityIndexes) {
             if (verbosityIx < this._minAvailableVerbosityIx) {
@@ -457,7 +319,7 @@ class FileManager {
     /**
      * Get the long event from the selected line number
      */
-    _getLogEventFromLineNumber () {
+    getLogEventFromLineNumber () {
         // If there are no logs, return
         if (this._logEventMetadata.length === 0) {
             this._state.logEventIdx = null;
@@ -484,7 +346,7 @@ class FileManager {
      * @param {number} logEventIdx
      * @return {[number,number]}
      */
-    _getLineNumberOfLogEvent (logEventIdx) {
+    getLineNumberOfLogEvent (logEventIdx) {
         // If there are no logs, go to line 1
         if (0 === this._logEventOffsetsFiltered.length) {
             return [1, 1];
@@ -514,7 +376,7 @@ class FileManager {
      *
      * @param {number} desiredMinVerbosityIx
      */
-    _filterLogEvents (desiredMinVerbosityIx) {
+    filterLogEvents (desiredMinVerbosityIx) {
         this._state.verbosity = desiredMinVerbosityIx;
         this._logEventOffsetsFiltered = [];
         for (let i = 0; i < this._logEventOffsets.length; i++) {
