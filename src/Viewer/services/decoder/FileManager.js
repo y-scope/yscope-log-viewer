@@ -135,13 +135,10 @@ class FileManager {
             }
 
             this.createPages();
-            this._state.page = this.findPageFromEvent(this._state.logEventIdx);
-
+            this.getPageOfLogEvent();
             this.decodePage();
+            this.getLineNumberOfLogEvent();
 
-            const [colNumber, lineNumber] = this.getLineNumberOfLogEvent(this._state.logEventIdx);
-            this._state.columnNumber = colNumber;
-            this._state.lineNumber = lineNumber;
             this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._state);
         }).catch((reason) => {
             if (reason instanceof DataInputStreamEOFError) {
@@ -191,9 +188,10 @@ class FileManager {
             const logEventIndex = event.mappedIndex + 1;
             if (logEventIndex >= this._state.logEventIdx) {
                 this._state.page = Math.floor(index / this._state.pageSize)+1;
-                break;
+                return;
             }
         }
+        this._state.page = this._state.pages;
     };
 
     /**
@@ -213,29 +211,6 @@ class FileManager {
 
             this._state.page = this._state.pages;
         }
-    };
-
-    /**
-     * Finds the page where the selected event is on.
-     *
-     * @param {number} logEventIdx
-     * @return {null|number}
-     */
-    findPageFromEvent (logEventIdx) {
-        // If logEventIdx is greater than the total
-        // number of log events, limit the logEventIdx
-        if (logEventIdx && logEventIdx > this._logEventOffsets.length) {
-            logEventIdx = this._logEventOffsetsFiltered.length;
-        }
-
-        for (let eventIndex = 0; eventIndex < this._logEventOffsetsFiltered.length; eventIndex++) {
-            const mappedIndex = this._logEventOffsetsFiltered[eventIndex].mappedIndex;
-            if (mappedIndex >= logEventIdx) {
-                return Math.floor(eventIndex / this._state.pageSize) + 1;
-            }
-        }
-
-        return this._state.pages;
     };
 
     /**
@@ -342,24 +317,22 @@ class FileManager {
 
     /**
      * Get the line number from the log event.
-     *
-     * @param {number} logEventIdx
-     * @return {[number,number]}
      */
-    getLineNumberOfLogEvent (logEventIdx) {
+    getLineNumberOfLogEvent () {
         // If there are no logs, go to line 1
         if (0 === this._logEventOffsetsFiltered.length) {
-            return [1, 1];
+            this._state.columnNumber = 1;
+            this._state.lineNumber = 1;
         }
 
-        if (0 === logEventIdx) {
+        if (0 === this._state.logEventIdx) {
             throw new Error("0 is not a valid logEventIdx");
         }
 
         let lineNumberFound = 1;
         for (let i = 0; i < this._logEventMetadata.length; ++i) {
             // Mapped index is zero indexed, so we need to add one more to it
-            if (this._logEventMetadata[i].mappedIndex + 1 >= logEventIdx) {
+            if (this._logEventMetadata[i].mappedIndex + 1 >= this._state.logEventIdx) {
                 // We"ve passed the log event
                 // foundLogEventIdx = this._logEventMetadata[i].mappedIndex + 1;
                 break;
@@ -367,8 +340,8 @@ class FileManager {
             lineNumberFound += this._logEventMetadata[i].numLines;
         }
 
-        const colNumber = 1;
-        return [colNumber, lineNumberFound];
+        this._state.columnNumber = 1;
+        this._state.lineNumber = lineNumberFound;
     };
 
     /**

@@ -49,11 +49,7 @@ class ActionHandler {
         this._logFile.createPages();
         this._logFile.getPageOfLogEvent();
         this._logFile.decodePage();
-        const [colNumber, lineNumber] = this._logFile.getLineNumberOfLogEvent(
-            this._logFile._state.logEventIdx
-        );
-        this._logFile._state.columnNumber = colNumber;
-        this._logFile._state.lineNumber = lineNumber;
+        this._logFile.getLineNumberOfLogEvent();
 
         // When changing verbosity, if the current log event gets removed
         // by the filter, get the new log event.
@@ -106,11 +102,7 @@ class ActionHandler {
         }
         this._logFile._state.prettify = prettify;
         this._logFile.decodePage();
-        const [colNumber, lineNumber] = this._logFile.getLineNumberOfLogEvent(
-            this._logFile._state.logEventIdx
-        );
-        this._logFile._state.columnNumber = colNumber;
-        this._logFile._state.lineNumber = lineNumber;
+        this._logFile.getLineNumberOfLogEvent();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
     }
 
@@ -131,17 +123,12 @@ class ActionHandler {
             this._logFile._state.logEventIdx = logEventIdx;
         }
         const currentPage = this._logFile._state.page;
-        this._logFile._state.page = this._logFile.findPageFromEvent(
-            this._logFile._state.logEventIdx
-        );
+        this._logFile.getPageOfLogEvent();
+        // If the new event is on a new page, decode the page
         if (currentPage !== this._logFile._state.page) {
             this._logFile.decodePage();
         }
-        const [colNumber, lineNumber] = this._logFile.getLineNumberOfLogEvent(
-            this._logFile._state.logEventIdx
-        );
-        this._logFile._state.columnNumber = colNumber;
-        this._logFile._state.lineNumber = lineNumber;
+        this._logFile.getLineNumberOfLogEvent();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
     };
 
@@ -172,12 +159,9 @@ class ActionHandler {
         }
         this._logFile._state.pageSize = pageSize;
         this._logFile.createPages();
+        this._logFile.getPageOfLogEvent();
         this._logFile.decodePage();
-        const [colNumber, lineNumber] = this._logFile.getLineNumberOfLogEvent(
-            this._logFile._state.logEventIdx
-        );
-        this._logFile._state.columnNumber = colNumber;
-        this._logFile._state.lineNumber = lineNumber;
+        this._logFile.getLineNumberOfLogEvent();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
     }
 
