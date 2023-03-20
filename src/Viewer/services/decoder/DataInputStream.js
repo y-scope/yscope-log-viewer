@@ -86,6 +86,19 @@ class DataInputStream {
     }
 
     /**
+     * Reads a signed byte
+     * @return {number} The read byte
+     */
+    readSignedByte () {
+        const requiredLen = this._byteIx + 1;
+        if (this._dataView.byteLength < requiredLen) {
+            this._byteIx = this._dataView.byteLength;
+            throw new DataInputStreamEOFError(this._dataView.byteLength, requiredLen);
+        }
+        return this._dataView.getInt8(this._byteIx++);
+    }
+
+    /**
      * Reads an unsigned short
      * @return {number} The read short
      */
@@ -96,6 +109,21 @@ class DataInputStream {
             throw new DataInputStreamEOFError(this._dataView.byteLength, requiredLen);
         }
         const val = this._dataView.getUint16(this._byteIx, false);
+        this._byteIx += 2;
+        return val;
+    }
+
+    /**
+     * Reads a signed short
+     * @return {number} The read short
+     */
+    readSignedShort () {
+        const requiredLen = this._byteIx + 2;
+        if (this._dataView.byteLength < requiredLen) {
+            this._byteIx = this._dataView.byteLength;
+            throw new DataInputStreamEOFError(this._dataView.byteLength, requiredLen);
+        }
+        const val = this._dataView.getInt16(this._byteIx, false);
         this._byteIx += 2;
         return val;
     }
