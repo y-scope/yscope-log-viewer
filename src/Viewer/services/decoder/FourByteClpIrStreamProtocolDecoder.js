@@ -110,10 +110,10 @@ class FourByteClpIrStreamProtocolDecoder {
         let timestampDelta;
         switch (this.readTag(dataInputStream)) {
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_BYTE:
-                timestampDelta = dataInputStream.readUnsignedByte();
+                timestampDelta = dataInputStream.readSignedByte();
                 break;
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_SHORT:
-                timestampDelta = dataInputStream.readUnsignedShort();
+                timestampDelta = dataInputStream.readSignedShort();
                 break;
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_INT:
                 timestampDelta = dataInputStream.readInt();
