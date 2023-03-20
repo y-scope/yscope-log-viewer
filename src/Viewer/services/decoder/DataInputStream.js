@@ -86,7 +86,7 @@ class DataInputStream {
     }
 
     /**
-     * Reads an unsigned byte
+     * Reads a signed byte
      * @return {number} The read byte
      */
     readSignedByte () {
@@ -114,7 +114,7 @@ class DataInputStream {
     }
 
     /**
-     * Reads an unsigned short
+     * Reads a signed short
      * @return {number} The read short
      */
     readSignedShort () {
