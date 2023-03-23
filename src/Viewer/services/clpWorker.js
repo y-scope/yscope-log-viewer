@@ -19,12 +19,11 @@ onmessage = function (e) {
     switch (e.data.code) {
         case CLP_WORKER_PROTOCOL.LOAD_FILE:
             try {
-                handler = new ActionHandler();
                 const fileInfo = e.data.fileInfo;
                 const prettify = e.data.prettify;
                 const logEventIdx = e.data.logEventIdx;
                 const pageSize = e.data.pageSize;
-                handler.loadFile(fileInfo, prettify, logEventIdx, pageSize);
+                handler = new ActionHandler(fileInfo, prettify, logEventIdx, pageSize);
             } catch (e) {
                 sendError(e);
             }

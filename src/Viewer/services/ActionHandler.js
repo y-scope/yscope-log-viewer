@@ -14,21 +14,13 @@ import {isBoolean, isNumeric} from "./decoder/utils";
  */
 class ActionHandler {
     /**
-     * Initialize the action handler.
-     */
-    constructor () {
-        this._logFile = null;
-    }
-
-    /**
      * Creates a new FileManager object and initiates the download.
-     *
      * @param {String|File} fileInfo
      * @param {boolean} prettify
      * @param {Number} logEventIdx
      * @param {Number} pageSize
      */
-    loadFile (fileInfo, prettify, logEventIdx, pageSize) {
+    constructor (fileInfo, prettify, logEventIdx, pageSize) {
         this._logFile = new FileManager(fileInfo, prettify,
             logEventIdx, pageSize, this._loadingMessageCallback, this._updateStateCallback,
             this._updateLogsCallback, this._updateFileInfoCallback);
@@ -44,17 +36,17 @@ class ActionHandler {
         if (!isNumeric(desiredVerbosity)) {
             throw (new Error("Invalid verbosity provided."));
         }
-        this._logFile._state.verbosity = desiredVerbosity;
+        this._logFile.state.verbosity = desiredVerbosity;
         this._logFile.filterLogEvents(desiredVerbosity);
         this._logFile.createPages();
-        this._logFile.getPageOfLogEvent();
+        this._logFile.computePageNumFromLogEventIdx();
         this._logFile.decodePage();
-        this._logFile.getLineNumberOfLogEvent();
+        this._logFile.computeLineNumberFromLogEventIdx();
 
         // When changing verbosity, if the current log event gets removed
         // by the filter, get the new log event.
-        this._logFile.getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._logFile.computeLogEventIdxFromLineNumber();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
@@ -69,25 +61,25 @@ class ActionHandler {
         if (!isNumeric(page)) {
             throw (new Error("Invalid page number provided."));
         }
-        if (page <= 0 || page > this._logFile._state.pages) {
+        if (page <= 0 || page > this._logFile.state.pages) {
             throw (new Error("Invalid page number provided."));
         }
-        this._logFile._state.page = page;
+        this._logFile.state.page = page;
         this._logFile.decodePage();
 
         if (linePos === "top") {
-            this._logFile._state.lineNumber = 1;
+            this._logFile.state.lineNumber = 1;
         } else if (linePos === "bottom") {
-            this._logFile._state.lineNumber = this._logFile._logEventMetadata.reduce(
+            this._logFile.state.lineNumber = this._logFile.logEventMetadata.reduce(
                 function (a, b) {
                     return a + b.numLines;
                 }, 0);
         } else {
-            this._logFile._state.lineNumber = 1;
+            this._logFile.state.lineNumber = 1;
         }
 
-        this._logFile.getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._logFile.computeLogEventIdxFromLineNumber();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
@@ -100,10 +92,10 @@ class ActionHandler {
         if (!isBoolean(prettify)) {
             throw (new Error("Invalid prettify state provided"));
         }
-        this._logFile._state.prettify = prettify;
+        this._logFile.state.prettify = prettify;
         this._logFile.decodePage();
-        this._logFile.getLineNumberOfLogEvent();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._logFile.computeLineNumberFromLogEventIdx();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
@@ -115,21 +107,21 @@ class ActionHandler {
         if (!isNumeric(logEventIdx)) {
             throw (new Error("Invalid logEventIdx provided."));
         }
-        if (logEventIdx > this._logFile._state.numberOfEvents) {
+        if (logEventIdx > this._logFile.state.numberOfEvents) {
             console.debug("Log event provided was larger than the number of events.");
         } else if (logEventIdx <= 0) {
             console.debug("Log event provided was less than or equal to zero.");
         } else {
-            this._logFile._state.logEventIdx = logEventIdx;
+            this._logFile.state.logEventIdx = logEventIdx;
         }
-        const currentPage = this._logFile._state.page;
-        this._logFile.getPageOfLogEvent();
+        const currentPage = this._logFile.state.page;
+        this._logFile.computePageNumFromLogEventIdx();
         // If the new event is on a new page, decode the page
-        if (currentPage !== this._logFile._state.page) {
+        if (currentPage !== this._logFile.state.page) {
             this._logFile.decodePage();
         }
         this._logFile.getLineNumberOfLogEvent();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     };
 
     /**
@@ -142,10 +134,10 @@ class ActionHandler {
         if (!isNumeric(lineNumber)) {
             throw (new Error("Invalid line number provided."));
         }
-        this._logFile._state.lineNumber = lineNumber;
-        this._logFile._state.columnNumber = columnNumber;
-        this._logFile.getLogEventFromLineNumber();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._logFile.state.lineNumber = lineNumber;
+        this._logFile.state.columnNumber = columnNumber;
+        this._logFile.computeLogEventIdxFromLineNumber();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     };
 
     /**
@@ -157,12 +149,12 @@ class ActionHandler {
         if (!isNumeric(pageSize)) {
             throw (new Error("Invalid page size provided."));
         }
-        this._logFile._state.pageSize = pageSize;
+        this._logFile.state.pageSize = pageSize;
         this._logFile.createPages();
-        this._logFile.getPageOfLogEvent();
+        this._logFile.computePageNumFromLogEventIdx();
         this._logFile.decodePage();
-        this._logFile.getLineNumberOfLogEvent();
-        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile._state);
+        this._logFile.computeLineNumberFromLogEventIdx();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
