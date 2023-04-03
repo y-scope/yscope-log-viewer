@@ -90,7 +90,7 @@ are rendered to the UI.
 
 # Validation
 
-Currently, there is no automated testing to verify that changes don't cause 
+Currently, there is limited automated testing to verify that changes don't cause 
 bugs. While this is being developed, the following tests can be run manually:
 
 * Verify that the following features work:
@@ -102,6 +102,15 @@ bugs. While this is being developed, the following tests can be run manually:
   * Prettifying logs 
   * Using the keyboard shortcuts
 * Perform a build and verify that all features are functional
+
+## Running tests
+
+We use [`jest`](https://jestjs.io/docs/getting-started) as our testing
+framework. Tests can be run with:
+
+```shell
+npm test
+```
 
 # Features in Development
 
