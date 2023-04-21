@@ -29,7 +29,6 @@ class ActionHandler {
 
     /**
      * Filters the events at the given verbosity and rebuilds the pages.
-     *
      * @param {number} desiredVerbosity
      */
     changeVerbosity (desiredVerbosity) {
@@ -41,11 +40,11 @@ class ActionHandler {
         this._logFile.createPages();
         this._logFile.computePageNumFromLogEventIdx();
         this._logFile.decodePage();
-        this._logFile.computeLineNumberFromLogEventIdx();
+        this._logFile.computeLineNumFromLogEventIdx();
 
         // When changing verbosity, if the current log event gets removed
         // by the filter, get the new log event.
-        this._logFile.computeLogEventIdxFromLineNumber();
+        this._logFile.computeLogEventIdxFromLineNum();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
@@ -53,7 +52,6 @@ class ActionHandler {
      * Go to the selected page and decode the relevant logs. linePos
      * indicates if the new page should be loaded with selected line
      * on top or bottom of page.
-     *
      * @param {number} page
      * @param {string} linePos
      */
@@ -78,14 +76,13 @@ class ActionHandler {
             this._logFile.state.lineNumber = 1;
         }
 
-        this._logFile.computeLogEventIdxFromLineNumber();
+        this._logFile.computeLogEventIdxFromLineNum();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
      * Set prettify state, rebuild the page and update line number
      * for the log event.
-     *
      * @param {boolean} prettify
      */
     changePrettify (prettify) {
@@ -94,13 +91,12 @@ class ActionHandler {
         }
         this._logFile.state.prettify = prettify;
         this._logFile.decodePage();
-        this._logFile.computeLineNumberFromLogEventIdx();
+        this._logFile.computeLineNumFromLogEventIdx();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
      * Goes to the specified log event. Go to new page if needed.
-     *
      * @param {number} logEventIdx
      */
     changeEvent (logEventIdx) {
@@ -126,7 +122,6 @@ class ActionHandler {
 
     /**
      * Get the log event given a line number.
-     *
      * @param {number} lineNumber
      * @param {number} columnNumber
      */
@@ -136,13 +131,12 @@ class ActionHandler {
         }
         this._logFile.state.lineNumber = lineNumber;
         this._logFile.state.columnNumber = columnNumber;
-        this._logFile.computeLogEventIdxFromLineNumber();
+        this._logFile.computeLogEventIdxFromLineNum();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     };
 
     /**
      * Redraws the page with the new page size.
-     *
      * @param {number} pageSize
      */
     redraw (pageSize) {
@@ -153,13 +147,12 @@ class ActionHandler {
         this._logFile.createPages();
         this._logFile.computePageNumFromLogEventIdx();
         this._logFile.decodePage();
-        this._logFile.computeLineNumberFromLogEventIdx();
+        this._logFile.computeLineNumFromLogEventIdx();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     }
 
     /**
      * Send the newly decoded logs
-     *
      * @param {string} logs
      */
     _updateLogsCallback = (logs) => {
@@ -171,7 +164,6 @@ class ActionHandler {
 
     /**
      * Send the updated state.
-     *
      * @param {number} code
      * @param {object} state
      */
@@ -184,7 +176,6 @@ class ActionHandler {
 
     /**
      * Sends loading status update and displays message in console.
-     *
      * @param {string} msg
      * @param {boolean} error
      */
@@ -200,7 +191,6 @@ class ActionHandler {
 
     /**
      * Send the file information.
-     *
      * @param {string} fileState
      */
     _updateFileInfoCallback = (fileState) => {

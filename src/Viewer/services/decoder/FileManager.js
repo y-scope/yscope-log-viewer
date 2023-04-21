@@ -73,7 +73,6 @@ class FileManager {
 
     /**
      * Callback when progress is updated in file getXMLHttpRequest.
-     *
      * @param {number} numBytesDownloaded Number of bytes downloaded
      * @param {number} fileSizeBytes Total file size
      * @private
@@ -95,7 +94,6 @@ class FileManager {
 
     /**
      * Callback when file is size is received from getXMLHttpRequest.
-     *
      * @param {event} evt
      * @private
      */
@@ -137,7 +135,7 @@ class FileManager {
             this.createPages();
             this.computePageNumFromLogEventIdx();
             this.decodePage();
-            this.computeLineNumberFromLogEventIdx();
+            this.computeLineNumFromLogEventIdx();
 
             this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this.state);
         }).catch((reason) => {
@@ -290,7 +288,7 @@ class FileManager {
     /**
      * Get the long event from the selected line number
      */
-    computeLogEventIdxFromLineNumber () {
+    computeLogEventIdxFromLineNum () {
         // If there are no logs, return
         if (this.logEventMetadata.length === 0) {
             this.state.logEventIdx = null;
@@ -314,7 +312,7 @@ class FileManager {
     /**
      * Get the line number from the log event.
      */
-    computeLineNumberFromLogEventIdx () {
+    computeLineNumFromLogEventIdx () {
         // If there are no logs, go to line 1
         if (0 === this._logEventOffsetsFiltered.length) {
             this.state.columnNumber = 1;
@@ -342,7 +340,6 @@ class FileManager {
 
     /**
      * Filters the log events with the given verbosity.
-     *
      * @param {number} desiredMinVerbosityIx
      */
     filterLogEvents (desiredMinVerbosityIx) {
@@ -364,7 +361,6 @@ class FileManager {
 
     /**
      * Prettifies the given log event content, if necessary
-     *
      * @param {Uint8Array} contentUint8Array The content as a Uint8Array
      * @return {[boolean, (string|*)]} A tuple containing a boolean indicating
      * whether the content was prettified, and if so, the prettified content.

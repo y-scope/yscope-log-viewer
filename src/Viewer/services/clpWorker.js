@@ -3,7 +3,6 @@ import CLP_WORKER_PROTOCOL from "./CLP_WORKER_PROTOCOL";
 
 /**
  * Send error to component which created worker.
- *
  * @param {string} error
  */
 const sendError = (error) => {
