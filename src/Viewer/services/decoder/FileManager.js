@@ -17,16 +17,18 @@ class FileManager {
      * @param {string} fileInfo
      * @param {boolean} prettify
      * @param {number} logEventIdx
+     * @param {number} initTimestamp
      * @param {number} pageSize
      * @param {function} loadingMessageCallback
      * @param {function} updateStateCallback
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, pageSize, loadingMessageCallback,
+    constructor (fileInfo, prettify, logEventIdx, initTimestamp, pageSize, loadingMessageCallback,
         updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
+        this._initTimestamp = initTimestamp;
         this._logEventOffsets = [];
         this._logEventOffsetsFiltered = [];
         this.logEventMetadata = [];
@@ -127,7 +129,19 @@ class FileManager {
             this.filterLogEvents(-1);
 
             const numberOfEvents = this._logEventOffsets.length;
-            if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
+            if (null !== this._initTimestamp) {
+                console.debug(`Timestamp: ${this._initTimestamp}`);
+                const targetIdx = this._findFirstLogEventWithTimestamp(this._initTimestamp);
+                if (targetIdx !== numberOfEvents) {
+                    // We find a valid index.
+                    // Increment by 1 to build the logEventIdx.
+                    this.state.logEventIdx = targetIdx + 1;
+                } else {
+                    // Otherwise, set logEventIdx to the last event.
+                    this.state.logEventIdx = numberOfEvents;
+                }
+                console.debug(`Idx: ${this.state.logEventIdx}`);
+            } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
                 this.state.logEventIdx <= 0) {
                 this.state.logEventIdx = numberOfEvents;
             }
@@ -175,6 +189,38 @@ class FileManager {
 
         this.state.numberOfEvents = this._logEventOffsets.length;
     };
+
+    /**
+     * Given a ref timestamp, find the first log event whose timestamp is 
+     * greater or equal to the ref timestamp.
+     * Since all the log events are naturally sorted w.r.t. the timestamp,
+     * we can use binary search.
+     * Return the index of the log event.
+     * If the log event doesn't exist, the function should return the total
+     * number of events.
+     */
+    _findFirstLogEventWithTimestamp (refTimestamp) {
+        const numberOfEvents = this._logEventOffsets.length;
+        let left = 0;
+        let right = numberOfEvents - 1;
+        let mid;
+
+        while (left <= right) {
+            mid = left + Math.floor((right - left) / 2); // To avoid overflow.
+            if (this._logEventOffsets[mid].timestamp >= refTimestamp) {
+                if (mid === 0 || this._logEventOffsets[mid - 1].timestamp < refTimestamp) {
+                    return mid;
+                } else {
+                    right = mid - 1;
+                }
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        // Not found
+        return numberOfEvents;
+    }
 
     /**
      * Gets the page of the current log event

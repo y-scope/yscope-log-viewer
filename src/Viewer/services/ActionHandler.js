@@ -18,11 +18,13 @@ class ActionHandler {
      * @param {String|File} fileInfo
      * @param {boolean} prettify
      * @param {Number} logEventIdx
+     * @param {Number} initTimestamp
      * @param {Number} pageSize
      */
-    constructor (fileInfo, prettify, logEventIdx, pageSize) {
+    constructor (fileInfo, prettify, logEventIdx, initTimestamp, pageSize) {
         this._logFile = new FileManager(fileInfo, prettify,
-            logEventIdx, pageSize, this._loadingMessageCallback, this._updateStateCallback,
+            logEventIdx, initTimestamp, pageSize,
+            this._loadingMessageCallback, this._updateStateCallback,
             this._updateLogsCallback, this._updateFileInfoCallback);
         this._logFile.decompressAndLoadFile();
     }

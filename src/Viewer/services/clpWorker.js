@@ -22,7 +22,9 @@ onmessage = function (e) {
                 const prettify = e.data.prettify;
                 const logEventIdx = e.data.logEventIdx;
                 const pageSize = e.data.pageSize;
-                handler = new ActionHandler(fileInfo, prettify, logEventIdx, pageSize);
+                const initTimestamp = e.data.initTimestamp
+                handler = new ActionHandler(fileInfo, prettify, logEventIdx,
+                    initTimestamp, pageSize);
             } catch (e) {
                 sendError(e);
             }
