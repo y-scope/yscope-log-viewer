@@ -118,7 +118,7 @@ class ActionHandler {
         if (currentPage !== this._logFile.state.page) {
             this._logFile.decodePage();
         }
-        this._logFile.getLineNumberOfLogEvent();
+        this._logFile.computeLineNumFromLogEventIdx();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this._logFile.state);
     };
 
