@@ -6,6 +6,7 @@ import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
 import ResizableUint8Array from "./ResizableUint8Array";
 import SimplePrettifier from "./SimplePrettifier";
 import {formatSizeInBytes} from "./utils";
+import {binarySearchWithTimestamp} from "../utils";
 
 /**
  * File manager to manage and track state of each file that is loaded.
@@ -37,6 +38,7 @@ class FileManager {
         this._arrayBuffer;
         this._outputResizableBuffer = null;
         this._availableVerbosityIndexes = new Set();
+        this._timestampSorted = false;
 
         this._fileState = {
             name: null,
@@ -130,14 +132,8 @@ class FileManager {
 
             const numberOfEvents = this._logEventOffsets.length;
             if (null !== this._initialTimestamp) {
+                this._setLogEventIdxWithInitialTimestamp();
                 console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
-                const targetIdx = this._findFirstLogEventWithTimestamp(this._initialTimestamp);
-                if (targetIdx !== null) {
-                    // Increment by 1 to build the logEventIdx
-                    this.state.logEventIdx = targetIdx + 1;
-                } else {
-                    this.state.logEventIdx = numberOfEvents;
-                }
                 console.debug(`logEventIdx: ${this.state.logEventIdx}`);
             } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
                 this.state.logEventIdx <= 0) {
@@ -171,9 +167,17 @@ class FileManager {
         this._outputResizableBuffer = new ResizableUint8Array(511000000);
         this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
             this._prettify ? this._prettifyLogEventContent : null);
+        this._timestampSorted = true;
+        let prevTimestamp = 0;
 
         try {
-            while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {}
+            while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {
+                let timestamp = this._logEventOffsets[this._logEventOffsets.length - 1].timestamp;
+                if (timestamp < prevTimestamp) {
+                    this._timestampSorted = false;
+                }
+                prevTimestamp = timestamp;
+            }
         } catch (error) {
             // Ignore EOF errors since we should still be able
             // to print the decoded messages
@@ -189,42 +193,25 @@ class FileManager {
     };
 
     /**
-     * Given a timestamp, find the first log event whose timestamp is 
-     * greater or equal to the timestamp.
-     * Since all the log events are naturally sorted w.r.t. the timestamp,
-     * we can use binary search.
-     * Return the index of the log event.
-     * If the log event doesn't exist, the function should return null
+     * Set the logEventIdx with the initial timestamp. If the log is sorted
+     * in timestamp, binary search will be used.
      */
-    _findFirstLogEventWithTimestamp (timestamp) {
-        let left = 0;
-        let right = this._logEventOffsets.length - 1;
-        let mid;
-
-        // Early exit
-        if (this._logEventOffsets[left] >= timestamp) {
-            return left;
-        }
-        if (this._logEventOffsets[right] < timestamp) {
-            return null;
-        }
-
-        while (left <= right) {
-            mid = Math.floor((left + right) / 2);
-            if (this._logEventOffsets[mid].timestamp >= timestamp) {
-                if (mid === 0 || this._logEventOffsets[mid - 1].timestamp < timestamp) {
-                    return mid;
-                } else {
-                    right = mid - 1;
+    _setLogEventIdxWithInitialTimestamp () {
+        const numberOfEvents = this._logEventOffsets.length;
+        if (this._timestampSorted) {
+            const targetIdx = binarySearchWithTimestamp(this._initialTimestamp,
+                this._logEventOffsets);
+            this.state.logEventIdx = null === targetIdx ? numberOfEvents : targetIdx + 1;
+        } else {
+            for (let idx = 0; idx < numberOfEvents; idx++) {
+                if (this._logEventOffsets[idx].timestamp >= this._initialTimestamp) {
+                    this.state.logEventIdx = idx + 1;
+                    return;
                 }
-            } else {
-                left = mid + 1;
             }
+            this.state.logEventIdx = numberOfEvents;
         }
-
-        // Not found
-        return null;
-    }
+    };
 
     /**
      * Gets the page of the current log event
