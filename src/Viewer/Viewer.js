@@ -32,7 +32,8 @@ Viewer.propTypes = {
  * @param {File|String} fileInfo File object to read or file path to load
  * @param {boolean} prettifyLog Whether to prettify the log file
  * @param {Number} logEventNumber The initial log event number
- * @param {Number} timestamp The minimum timestamp initially to show
+ * @param {Number} timestamp The initial timestamp to show. If this field is
+ * valid, logEventNumber will be ignored.
  * @return {JSX.Element}
  */
 export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
@@ -93,13 +94,13 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
         clpWorker.current.onmessage = handleWorkerMessage;
         // If file was loaded using file dialog or drag/drop, reset logEventIdx
         const logEvent = (typeof fileInfo === "string") ? logFileState.logEventIdx : null;
-        const initTimestamp = isNumeric(timestamp) ? Number(timestamp) : null;
+        const initialTimestamp = isNumeric(timestamp) ? Number(timestamp) : null;
         clpWorker.current.postMessage({
             code: CLP_WORKER_PROTOCOL.LOAD_FILE,
             fileInfo: fileInfo,
             prettify: logFileState.prettify,
             logEventIdx: logEvent,
-            initTimestamp: initTimestamp,
+            initialTimestamp: initialTimestamp,
             pageSize: logFileState.pageSize,
         });
     };

@@ -17,18 +17,18 @@ class FileManager {
      * @param {string} fileInfo
      * @param {boolean} prettify
      * @param {number} logEventIdx
-     * @param {number} initTimestamp
+     * @param {number} initialTimestamp
      * @param {number} pageSize
      * @param {function} loadingMessageCallback
      * @param {function} updateStateCallback
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, initTimestamp, pageSize, loadingMessageCallback,
-        updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
+    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize, 
+        loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
-        this._initTimestamp = initTimestamp;
+        this._initialTimestamp = initialTimestamp;
         this._logEventOffsets = [];
         this._logEventOffsetsFiltered = [];
         this.logEventMetadata = [];
@@ -129,18 +129,16 @@ class FileManager {
             this.filterLogEvents(-1);
 
             const numberOfEvents = this._logEventOffsets.length;
-            if (null !== this._initTimestamp) {
-                console.debug(`Timestamp: ${this._initTimestamp}`);
-                const targetIdx = this._findFirstLogEventWithTimestamp(this._initTimestamp);
+            if (null !== this._initialTimestamp) {
+                console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
+                const targetIdx = this._findFirstLogEventWithTimestamp(this._initialTimestamp);
                 if (targetIdx !== null) {
-                    // We find a valid index.
-                    // Increment by 1 to build the logEventIdx.
+                    // Increment by 1 to build the logEventIdx
                     this.state.logEventIdx = targetIdx + 1;
                 } else {
-                    // Otherwise, set logEventIdx to the last event.
                     this.state.logEventIdx = numberOfEvents;
                 }
-                console.debug(`Idx: ${this.state.logEventIdx}`);
+                console.debug(`logEventIdx: ${this.state.logEventIdx}`);
             } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
                 this.state.logEventIdx <= 0) {
                 this.state.logEventIdx = numberOfEvents;
@@ -191,23 +189,30 @@ class FileManager {
     };
 
     /**
-     * Given a ref timestamp, find the first log event whose timestamp is 
-     * greater or equal to the ref timestamp.
+     * Given a timestamp, find the first log event whose timestamp is 
+     * greater or equal to the timestamp.
      * Since all the log events are naturally sorted w.r.t. the timestamp,
      * we can use binary search.
      * Return the index of the log event.
      * If the log event doesn't exist, the function should return null
      */
-    _findFirstLogEventWithTimestamp (refTimestamp) {
-        const numberOfEvents = this._logEventOffsets.length;
+    _findFirstLogEventWithTimestamp (timestamp) {
         let left = 0;
-        let right = numberOfEvents - 1;
+        let right = this._logEventOffsets.length - 1;
         let mid;
 
+        // Early exit
+        if (this._logEventOffsets[left] >= timestamp) {
+            return left;
+        }
+        if (this._logEventOffsets[right] < timestamp) {
+            return null;
+        }
+
         while (left <= right) {
-            mid = left + Math.floor((right - left) / 2); // To avoid overflow.
-            if (this._logEventOffsets[mid].timestamp >= refTimestamp) {
-                if (mid === 0 || this._logEventOffsets[mid - 1].timestamp < refTimestamp) {
+            mid = Math.floor((left + right) / 2);
+            if (this._logEventOffsets[mid].timestamp >= timestamp) {
+                if (mid === 0 || this._logEventOffsets[mid - 1].timestamp < timestamp) {
                     return mid;
                 } else {
                     right = mid - 1;
