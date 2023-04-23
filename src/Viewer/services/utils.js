@@ -81,4 +81,52 @@ function isNumeric (value) {
     }
 }
 
-export {isNumeric, modifyFileMetadata, modifyPage};
+/**
+ * Given a timestamp, find the first log event whose timestamp is greater or 
+ * equal to the timestamp, using binary search. It is assumed the given list
+ * is sorted with an increasing timestamp.
+ * @param {number} timestamp
+ * @param {Array} logEventMetadata An array to store metadata objects with the
+ * timestamp stored as the key:
+ * "timestamp": The event's timestamp as milliseconds since the UNIX epoch.
+ * @return {number|null} Index of the log event if found, or null otherwise
+*/
+function binarySearchWithTimestamp (timestamp, logEventMetadata) {
+    const length = logEventMetadata.length;
+
+    let low = 0;
+    let high = length - 1;
+    let mid;
+
+    // Early exit
+    if (length === 0) {
+        return null;
+    }
+    if (logEventMetadata[low].timestamp >= timestamp) {
+        return low;
+    }
+    if (logEventMetadata[high].timestamp < timestamp) {
+        return null;
+    }
+
+    // Notice that the given timestamp might not show up in the events
+    // Suppose we have a list of timestamp: [2, 4, 4, 5, 6, 7],
+    // if timestamp = 3 is given, we should return the index of the first "4"
+    while (low <= high) {
+        mid = Math.floor((low + high) / 2);
+        if (logEventMetadata[mid].timestamp >= timestamp) {
+            if (logEventMetadata[mid - 1].timestamp < timestamp) {
+                return mid;
+            } else {
+                high = mid - 1;
+            }
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    // Not found
+    return null;
+}
+
+export {binarySearchWithTimestamp, isNumeric, modifyFileMetadata, modifyPage};
