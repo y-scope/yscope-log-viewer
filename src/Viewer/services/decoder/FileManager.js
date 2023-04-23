@@ -132,7 +132,7 @@ class FileManager {
             if (null !== this._initTimestamp) {
                 console.debug(`Timestamp: ${this._initTimestamp}`);
                 const targetIdx = this._findFirstLogEventWithTimestamp(this._initTimestamp);
-                if (targetIdx !== numberOfEvents) {
+                if (targetIdx !== null) {
                     // We find a valid index.
                     // Increment by 1 to build the logEventIdx.
                     this.state.logEventIdx = targetIdx + 1;
@@ -196,8 +196,7 @@ class FileManager {
      * Since all the log events are naturally sorted w.r.t. the timestamp,
      * we can use binary search.
      * Return the index of the log event.
-     * If the log event doesn't exist, the function should return the total
-     * number of events.
+     * If the log event doesn't exist, the function should return null
      */
     _findFirstLogEventWithTimestamp (refTimestamp) {
         const numberOfEvents = this._logEventOffsets.length;
@@ -219,7 +218,7 @@ class FileManager {
         }
 
         // Not found
-        return numberOfEvents;
+        return null;
     }
 
     /**
