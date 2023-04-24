@@ -1,14 +1,13 @@
 import {binarySearchWithTimestamp} from "./utils";
 
-// This file tests the helper functions inside utils.
-
 /**
- * Using timestampArray as a reference, create an array named logEvents which
- * every single element in this array has a key named "timestamp".
+ * Using timestampArray as a reference, fill logEvents so that each element is
+ * an object with the key "timestamp" and the value of the corresponding
+ * timestampArray element.
  * @param {Array} logEvents
  * @param {Array} timestampArray Array of integers
  */
-function _loadLogEvents(logEvents, timestampArray) {
+function _loadLogEvents (logEvents, timestampArray) {
     logEvents.length = 0;
     for (let i = 0; i < timestampArray.length; ++i) {
         logEvents.push({"timestamp": timestampArray[i]});
@@ -16,10 +15,10 @@ function _loadLogEvents(logEvents, timestampArray) {
 }
 
 test("binarySearchWithTimestamp", () => {
-    let logEvents = [];
+    const logEvents = [];
     let timestampArray = [];
     let retval;
-    
+
     // Test if the logEvent array is empty
     retval = binarySearchWithTimestamp(0, logEvents);
     expect(retval).toBe(null);
@@ -35,7 +34,7 @@ test("binarySearchWithTimestamp", () => {
     expect(retval).toBe(null);
 
     // Test when the logEvent array has multiple elements but no duplicates
-    timestampArray = [3, 7, 9, 11, 14, 17, 20, 23, 31]
+    timestampArray = [3, 7, 9, 11, 14, 17, 20, 23, 31];
     _loadLogEvents(logEvents, timestampArray);
     retval = binarySearchWithTimestamp(1, logEvents);
     expect(retval).toBe(0);
@@ -53,7 +52,7 @@ test("binarySearchWithTimestamp", () => {
     expect(retval).toBe(null);
 
     // Test when the logEvent array has multiple elements and duplicates
-    timestampArray = [3, 7, 9, 11, 11, 11, 14, 17, 31, 31, 31, 39, 39, 40, 41, 41]
+    timestampArray = [3, 7, 9, 11, 11, 11, 14, 17, 31, 31, 31, 39, 39, 40, 41, 41];
     _loadLogEvents(logEvents, timestampArray);
     retval = binarySearchWithTimestamp(1, logEvents);
     expect(retval).toBe(0);

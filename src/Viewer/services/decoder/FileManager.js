@@ -1,12 +1,12 @@
 import {ZstdCodec} from "../../../../customized-packages/zstd-codec/js";
 import CLP_WORKER_PROTOCOL from "../CLP_WORKER_PROTOCOL";
 import {readFile} from "../GetFile";
+import {binarySearchWithTimestamp} from "../utils";
 import {DataInputStream, DataInputStreamEOFError} from "./DataInputStream";
 import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
 import ResizableUint8Array from "./ResizableUint8Array";
 import SimplePrettifier from "./SimplePrettifier";
 import {formatSizeInBytes} from "./utils";
-import {binarySearchWithTimestamp} from "../utils";
 
 /**
  * File manager to manage and track state of each file that is loaded.
@@ -25,7 +25,7 @@ class FileManager {
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize, 
+    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
         loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
@@ -132,7 +132,7 @@ class FileManager {
 
             const numberOfEvents = this._logEventOffsets.length;
             if (null !== this._initialTimestamp) {
-                this._setLogEventIdxWithInitialTimestamp();
+                this.state.logEventIdx = this.getLogEventIdxFromTimestamp(this._initialTimestamp);
                 console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
                 console.debug(`logEventIdx: ${this.state.logEventIdx}`);
             } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
@@ -167,12 +167,12 @@ class FileManager {
         this._outputResizableBuffer = new ResizableUint8Array(511000000);
         this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
             this._prettify ? this._prettifyLogEventContent : null);
-        this._timestampSorted = true;
-        let prevTimestamp = 0;
 
         try {
+            this._timestampSorted = true;
+            let prevTimestamp = 0;
             while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {
-                let timestamp = this._logEventOffsets[this._logEventOffsets.length - 1].timestamp;
+                const timestamp = this._logEventOffsets[this._logEventOffsets.length - 1].timestamp;
                 if (timestamp < prevTimestamp) {
                     this._timestampSorted = false;
                 }
@@ -193,25 +193,27 @@ class FileManager {
     };
 
     /**
-     * Set the logEventIdx with the initial timestamp. If the log is sorted
-     * in timestamp, binary search will be used.
+     * Gets the logEventIdx with the timestamp as milliseconds since the UNIX
+     * epoch.
+     * @param {number} timestamp The timestamp to search for as milliseconds
+     * since the UNIX epoch.
+     * @return {number} logEventIdx whose timestamp is greater than or equal to
+     * the given timestamp
      */
-    _setLogEventIdxWithInitialTimestamp () {
+    getLogEventIdxFromTimestamp (timestamp) {
         const numberOfEvents = this._logEventOffsets.length;
         if (this._timestampSorted) {
-            const targetIdx = binarySearchWithTimestamp(this._initialTimestamp,
-                this._logEventOffsets);
-            this.state.logEventIdx = null === targetIdx ? numberOfEvents : targetIdx + 1;
+            const targetIdx = binarySearchWithTimestamp(timestamp, this._logEventOffsets);
+            return null === targetIdx ? numberOfEvents : targetIdx + 1;
         } else {
             for (let idx = 0; idx < numberOfEvents; idx++) {
                 if (this._logEventOffsets[idx].timestamp >= this._initialTimestamp) {
-                    this.state.logEventIdx = idx + 1;
-                    return;
+                    return idx + 1;
                 }
             }
-            this.state.logEventIdx = numberOfEvents;
+            return numberOfEvents;
         }
-    };
+    }
 
     /**
      * Gets the page of the current log event

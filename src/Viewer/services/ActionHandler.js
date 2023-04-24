@@ -23,7 +23,7 @@ class ActionHandler {
      */
     constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize) {
         this._logFile = new FileManager(fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
-            this._loadingMessageCallback, this._updateStateCallback, this._updateLogsCallback, 
+            this._loadingMessageCallback, this._updateStateCallback, this._updateLogsCallback,
             this._updateFileInfoCallback);
         this._logFile.decompressAndLoadFile();
     }

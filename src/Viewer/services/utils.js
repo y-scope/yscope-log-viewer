@@ -82,13 +82,14 @@ function isNumeric (value) {
 }
 
 /**
- * Given a timestamp, find the first log event whose timestamp is greater or 
- * equal to the timestamp, using binary search. It is assumed the given list
- * is sorted with an increasing timestamp.
- * @param {number} timestamp
- * @param {Array} logEventMetadata An array to store metadata objects with the
- * timestamp stored as the key:
- * "timestamp": The event's timestamp as milliseconds since the UNIX epoch.
+ * Given a list of log events, finds the first log event whose timestamp is
+ * greater than or equal to the given timestamp, using binary search. The given
+ * list must be sorted in increasing timestamp order.
+ * @param {number} timestamp The timestamp to search for as milliseconds since
+ * the UNIX epoch.
+ * @param {Object[]} logEventMetadata An array containing log event metadata
+ * objects, where the "timestamp" key in each object is the event's timestamp as
+ * milliseconds since the UNIX epoch.
  * @return {number|null} Index of the log event if found, or null otherwise
 */
 function binarySearchWithTimestamp (timestamp, logEventMetadata) {
@@ -102,7 +103,7 @@ function binarySearchWithTimestamp (timestamp, logEventMetadata) {
     if (length === 0) {
         return null;
     }
-    if (logEventMetadata[low].timestamp >= timestamp) {
+    if (timestamp <= logEventMetadata[low].timestamp) {
         return low;
     }
     if (logEventMetadata[high].timestamp < timestamp) {
