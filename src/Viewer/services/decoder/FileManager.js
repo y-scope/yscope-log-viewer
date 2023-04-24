@@ -1,6 +1,7 @@
 import {ZstdCodec} from "../../../../customized-packages/zstd-codec/js";
 import CLP_WORKER_PROTOCOL from "../CLP_WORKER_PROTOCOL";
 import {readFile} from "../GetFile";
+import {binarySearchWithTimestamp} from "../utils";
 import {DataInputStream, DataInputStreamEOFError} from "./DataInputStream";
 import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
 import ResizableUint8Array from "./ResizableUint8Array";
@@ -17,16 +18,18 @@ class FileManager {
      * @param {string} fileInfo
      * @param {boolean} prettify
      * @param {number} logEventIdx
+     * @param {number} initialTimestamp
      * @param {number} pageSize
      * @param {function} loadingMessageCallback
      * @param {function} updateStateCallback
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, pageSize, loadingMessageCallback,
-        updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
+    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
+        loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
+        this._initialTimestamp = initialTimestamp;
         this._logEventOffsets = [];
         this._logEventOffsetsFiltered = [];
         this.logEventMetadata = [];
@@ -35,6 +38,7 @@ class FileManager {
         this._arrayBuffer;
         this._outputResizableBuffer = null;
         this._availableVerbosityIndexes = new Set();
+        this._timestampSorted = false;
 
         this._fileState = {
             name: null,
@@ -127,7 +131,11 @@ class FileManager {
             this.filterLogEvents(-1);
 
             const numberOfEvents = this._logEventOffsets.length;
-            if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
+            if (null !== this._initialTimestamp) {
+                this.state.logEventIdx = this.getLogEventIdxFromTimestamp(this._initialTimestamp);
+                console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
+                console.debug(`logEventIdx: ${this.state.logEventIdx}`);
+            } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
                 this.state.logEventIdx <= 0) {
                 this.state.logEventIdx = numberOfEvents;
             }
@@ -161,7 +169,15 @@ class FileManager {
             this._prettify ? this._prettifyLogEventContent : null);
 
         try {
-            while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {}
+            this._timestampSorted = true;
+            let prevTimestamp = 0;
+            while (this._irStreamReader.indexNextLogEvent(this._logEventOffsets)) {
+                const timestamp = this._logEventOffsets[this._logEventOffsets.length - 1].timestamp;
+                if (timestamp < prevTimestamp) {
+                    this._timestampSorted = false;
+                }
+                prevTimestamp = timestamp;
+            }
         } catch (error) {
             // Ignore EOF errors since we should still be able
             // to print the decoded messages
@@ -175,6 +191,27 @@ class FileManager {
 
         this.state.numberOfEvents = this._logEventOffsets.length;
     };
+
+    /**
+     * @param {number} timestamp The timestamp to search for as milliseconds
+     * since the UNIX epoch.
+     * @return {number} The logEventIdx for the log event whose timestamp is
+     * greater than or equal to the given timestamp
+     */
+    getLogEventIdxFromTimestamp (timestamp) {
+        const numberOfEvents = this._logEventOffsets.length;
+        if (this._timestampSorted) {
+            const targetIdx = binarySearchWithTimestamp(timestamp, this._logEventOffsets);
+            return null === targetIdx ? numberOfEvents : targetIdx + 1;
+        } else {
+            for (let idx = 0; idx < numberOfEvents; idx++) {
+                if (this._logEventOffsets[idx].timestamp >= this._initialTimestamp) {
+                    return idx + 1;
+                }
+            }
+            return numberOfEvents;
+        }
+    }
 
     /**
      * Gets the page of the current log event

@@ -31,7 +31,7 @@ module.exports = {
         "key-spacing": "warn",
         "keyword-spacing": "warn",
         "max-len": ["warn", {
-            "code": 99,
+            "code": 100,
             "comments": 80,
             "ignoreComments": false,
             "ignoreTrailingComments": false,
