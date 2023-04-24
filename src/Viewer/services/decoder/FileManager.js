@@ -193,12 +193,10 @@ class FileManager {
     };
 
     /**
-     * Gets the logEventIdx with the timestamp as milliseconds since the UNIX
-     * epoch.
      * @param {number} timestamp The timestamp to search for as milliseconds
      * since the UNIX epoch.
-     * @return {number} logEventIdx whose timestamp is greater than or equal to
-     * the given timestamp
+     * @return {number} The logEventIdx for the log event whose timestamp is
+     * greater than or equal to the given timestamp
      */
     getLogEventIdxFromTimestamp (timestamp) {
         const numberOfEvents = this._logEventOffsets.length;
