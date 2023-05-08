@@ -78,6 +78,14 @@ onmessage = function (e) {
             }
             break;
 
+        case CLP_WORKER_PROTOCOL.CHANGE_TIMESTAMP:
+            try {
+                handler.changeEventWithTimestamp(e.data.timestamp);
+            } catch (e) {
+                sendError(e);
+            }
+            break;
+
         default:
             break;
     }

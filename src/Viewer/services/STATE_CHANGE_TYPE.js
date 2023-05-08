@@ -5,6 +5,7 @@ let STATE_CHANGE_TYPE = {
     pageSize: "pageSize",
     prettify: "prettify",
     verbosity: "verbosity",
+    timestamp: "timestamp",
 };
 STATE_CHANGE_TYPE = Object.freeze(STATE_CHANGE_TYPE);
 

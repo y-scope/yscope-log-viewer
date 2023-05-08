@@ -28,8 +28,8 @@ class IRTokenDecoder {
     decodeTimestamp (outputResizableBuffer, timestamp) {
         if (timestamp >= BigInt(0) && PROTOCOL.PAYLOAD.TIMESTAMP_NULL_VAL !== timestamp) {
             // NOTE: Since we don't specify a timezone, JavaScript will use the
-            // user's local  timezone. This should be more convenient for the
-            // user.
+            // user's local timezone. Using `toISOString` will convert the given
+            // timestamp to UTC timezone.
             const date = new Date(0);
             date.setUTCMilliseconds(Number(timestamp));
             outputResizableBuffer.pushString(date.toISOString());

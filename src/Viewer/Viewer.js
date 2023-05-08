@@ -182,6 +182,14 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                     desiredLogEventIdx: args.logEventIdx,
                 });
                 break;
+            case STATE_CHANGE_TYPE.timestamp:
+                setLoadingLogs(true);
+                setStatusMessage(`Jump to timestamp: ${args.timestamp}`);
+                clpWorker.current.postMessage({
+                    code: CLP_WORKER_PROTOCOL.CHANGE_TIMESTAMP,
+                    timestamp: Number(args.timestamp),
+                });
+                break;
             default:
                 break;
         }

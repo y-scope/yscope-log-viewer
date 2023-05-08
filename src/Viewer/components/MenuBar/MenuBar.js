@@ -2,8 +2,19 @@ import React, {useContext, useRef, useState} from "react";
 
 import PropTypes from "prop-types";
 import {Button, Form, Modal, ProgressBar, Table} from "react-bootstrap";
-import {ChevronDoubleLeft, ChevronDoubleRight, ChevronLeft, ChevronRight,
-    FileText, Folder, Gear, Keyboard, Moon, Sun} from "react-bootstrap-icons";
+import {
+    CalendarEvent,
+    ChevronDoubleLeft,
+    ChevronDoubleRight,
+    ChevronLeft,
+    ChevronRight,
+    FileText,
+    Folder,
+    Gear,
+    Keyboard,
+    Moon,
+    Sun
+} from "react-bootstrap-icons";
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
@@ -11,6 +22,11 @@ import MODIFY_PAGE_ACTION from "../../services/MODIFY_PAGE_ACTION";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
 import {EditableInput} from "./EditableInput/EditableInput";
 
+import DateTimePicker from "react-datetime-picker";
+import "react-datetime-picker/dist/DateTimePicker.css";
+import "react-calendar/dist/Calendar.css";
+import "react-clock/dist/Clock.css";
+import {convertDateToUTCTimestamp} from "../../services/utils";
 import "./MenuBar.scss";
 
 MenuBar.propTypes = {
@@ -51,8 +67,14 @@ export function MenuBar ({
     const {theme, switchTheme} = useContext(ThemeContext);
 
     const [eventsPerPage, setEventsPerPage] = useState(logFileState.pages);
+    const [calendarDateTime, setCalendarDateTime] = useState(
+        new Date(Math.floor(Date.now() / 1000) * 1000)
+    );
     const [showSettings, setShowSettings] = useState(false);
+    const [showCalendar, setShowCalendar] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+    const handleCloseCalendar = () => setShowCalendar(false);
+    const handleShowCalendar = () => setShowCalendar(true);
 
     const handleCloseSettings = () => setShowSettings(false);
     const handleShowSettings = () => setShowSettings(true);
@@ -135,6 +157,29 @@ export function MenuBar ({
         }
     };
 
+    const openCalendar = () => {
+        handleShowCalendar();
+    };
+
+    const closeCalendar = () => {
+        handleCloseCalendar();
+    };
+
+    const handleCalendarChange = (newDate) => {
+        if (newDate instanceof Date) {
+            setCalendarDateTime(newDate);
+        } else {
+            console.warn(`Invalid input date: ${newDate}`);
+        }
+    };
+
+    const submitCalendarChanges = (e) => {
+        e.preventDefault();
+        handleCloseCalendar();
+        const timestamp = convertDateToUTCTimestamp(calendarDateTime);
+        changeStateCallback(STATE_CHANGE_TYPE.timestamp, {timestamp: timestamp});
+    };
+
     const getPageNav = () => {
         return (
             <>
@@ -183,6 +228,10 @@ export function MenuBar ({
                     <div className="menu-right">
                         {getPageNav()}
                         <div className="menu-divider"></div>
+                        <div className="menu-item menu-item-btn" onClick={openCalendar}>
+                            <CalendarEvent title="Calendar"/>
+                        </div>
+                        <div className="menu-divider"></div>
                         <div className="menu-item menu-item-btn" onClick={openModal}>
                             <Gear/>
                         </div>
@@ -227,6 +276,28 @@ export function MenuBar ({
                         Save Changes
                     </Button>
                     <Button className="btn-sm" variant="secondary" onClick={closeModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showCalendar} className="border-0" onHide={handleCloseCalendar}>
+                <Modal.Header className="modal-background border-0" >
+                    <div className="float-left">
+                        Timestamp Selection
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="modal-background p-3 pt-1" >
+                    <DateTimePicker onChange={handleCalendarChange}
+                        clearIcon={null}
+                        format="y-MM-dd h:mm:ss a"
+                        value={calendarDateTime}/>
+                </Modal.Body>
+                <Modal.Footer className="modal-background border-0" >
+                    <Button className="btn-sm" variant="success" onClick={submitCalendarChanges}>
+                        Submit
+                    </Button>
+                    <Button className="btn-sm" variant="secondary" onClick={closeCalendar}>
                         Close
                     </Button>
                 </Modal.Footer>

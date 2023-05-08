@@ -1,4 +1,4 @@
-import {binarySearchWithTimestamp} from "./utils";
+import {binarySearchWithTimestamp, convertDateToUTCTimestamp} from "./utils";
 
 /**
  * Using timestampArray as a reference, fill logEvents so that each element is
@@ -78,4 +78,17 @@ test("binarySearchWithTimestamp", () => {
     expect(retval).toBe(null);
     retval = binarySearchWithTimestamp(1000, logEvents);
     expect(retval).toBe(null);
+});
+
+test("convertDateToUTCTimestamp", () => {
+    let time;
+    let retval;
+
+    time = "2023-05-07T14:30:00.000";
+    retval = convertDateToUTCTimestamp(new Date(time));
+    expect(retval).toBe(1683469800000);
+
+    time = "1999-07-23T18:31:13.913";
+    retval = convertDateToUTCTimestamp(new Date(time));
+    expect(retval).toBe(932754673913);
 });
