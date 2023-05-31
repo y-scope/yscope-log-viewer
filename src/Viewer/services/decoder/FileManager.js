@@ -205,7 +205,7 @@ class FileManager {
             return null === targetIdx ? numberOfEvents : targetIdx + 1;
         } else {
             for (let idx = 0; idx < numberOfEvents; idx++) {
-                if (this._logEventOffsets[idx].timestamp >= this._initialTimestamp) {
+                if (this._logEventOffsets[idx].timestamp >= timestamp) {
                     return idx + 1;
                 }
             }
