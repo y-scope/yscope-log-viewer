@@ -47,7 +47,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
 
     // Callbacks for adding and clearing folding ranges
     const addFolding = useRef(undefined);
-    const clearFolding = useRef(undefined);
+    const resetFolding = useRef(undefined);
 
     // Loading States
     const [loadingFile, setLoadingFile] = useState(true);
@@ -227,8 +227,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
-                if (clearFolding.current !== undefined) {
-                    clearFolding.current();
+                if (resetFolding.current !== undefined) {
+                    resetFolding.current();
                 }
                 setLogData(event.data.logs);
                 setLoadingLogs(false);

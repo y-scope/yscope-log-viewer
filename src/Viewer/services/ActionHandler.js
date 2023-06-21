@@ -159,7 +159,7 @@ class ActionHandler {
      * @param  {number} lineNumber
      */
     getSimilarLines(lineNumber) {
-        const range = this._logFile.getSimilarLines();
+        const range = this._logFile.querySimilarRange();
         this._updateStateCallback(CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES, { range });
     }
 

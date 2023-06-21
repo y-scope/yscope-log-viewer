@@ -82,7 +82,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
 
     const [language, setLanguage] = useState("");
 
-    const updateFolding = useRef(undefined);
+    const foldingCallback = useRef(undefined);
     const foldingRanges = useRef([]);
 
     loader.config({monaco});
@@ -116,15 +116,27 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
         });
 
         monaco.languages.registerFoldingRangeProvider("logLanguage", {
-            onDidChange: (callback) => {
-                updateFolding.current = callback;
-            },
             provideFoldingRanges: (model, context, token) => {
                 return foldingRanges.current;
+            },
+            onDidChange: (callback) => {
+                // When a new range is added to `foldingRanges`, the editor will not automatically
+                // refresh, and it provides no API to do so. Hence we rip the callback off this
+                // `onDidChange` hook. Specifically, `onDidChange` is called when this provider
+                // is registered and the `callback` function updates the code folding. We store this
+                // `callback` so that, whenever we add a new range, we could manually call it to
+                // update the folding.
+                foldingCallback.current = callback;
             },
         });
 
         setLanguage("logLanguage");
+    }
+
+    const updateFolding = () => {
+        if (foldingCallback.current !== undefined) {
+            foldingCallback.current()
+        }
     }
 
     /**
@@ -167,19 +179,17 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                             kind: monaco.languages.FoldingRangeKind.Comment,
                         });
                     }
-                    if (updateFolding.current !== undefined) {
-                        updateFolding.current();
-                    }
+                    // This adds the range to Monaco's internal states.
+                    updateFolding();
+                    // This trigger actually folds the range.
                     editor.trigger('fold', 'editor.fold');
                 };
-                const clearFolding = () => {
+                const resetFolding = () => {
                     foldingRanges.current = [];
-                    if (updateFolding.current !== undefined) {
-                        updateFolding.current();
-                    }
+                    updateFolding();
                 }
                 const lineNumber = editor.getPosition().lineNumber;
-                const callback = { addFolding, clearFolding };
+                const callback = { addFolding, resetFolding };
 
                 /* We need to first change the lineNumber so as to update the logEventIdx in logFileState. */
                 changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {

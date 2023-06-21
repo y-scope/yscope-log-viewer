@@ -396,7 +396,11 @@ class FileManager {
         }
     };
 
-    getSimilarLines() {
+    /**
+     * Find the range of log lines that have the similar log type as the current line.
+     * @return {Object} A two-entry Object in the format of { begin: <Number>, end: <Number> }
+     */
+    querySimilarRange() {
         const num = this.state.lineNumber;
         const meta = this.logEventMetadata;
         const cur = this.state.logEventIdx - (this.state.page - 1) * this.state.pageSize - 1;
@@ -415,6 +419,7 @@ class FileManager {
             end = l - 1;
         }
 
+        // Scan upwards for similar lines.
         for (let i = cur + 1; i < meta.length; i++) {
             if (meta[i].typeIndex === type) {
                 end += meta[i].numLines;
@@ -423,6 +428,7 @@ class FileManager {
             }
         }
 
+        // Scan downwards.
         for (let i = cur - 1; i >= 0; i--) {
             if (meta[i].typeIndex === type) {
                 start -= meta[i].numLines;
@@ -431,7 +437,6 @@ class FileManager {
             }
         }
 
-        console.log({ start, end });
         return { start, end }
     };
 
