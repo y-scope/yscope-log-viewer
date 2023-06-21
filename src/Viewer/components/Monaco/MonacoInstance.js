@@ -82,6 +82,9 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
 
     const [language, setLanguage] = useState("");
 
+    const updateFolding = useRef(undefined);
+    const foldingRanges = useRef([]);
+
     loader.config({monaco});
 
     /**
@@ -106,14 +109,23 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     ["WARN", "custom-warn"],
                     ["FATAL", "custom-fatal"],
                     [/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z/, "custom-date"],
-                    [/^[\t ]*at.*$/, "custom-exception"],
-                    [/(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/, "custom-number"],
+                    // [/^[\t ]*at.*$/, "custom-exception"],
+                    // [/(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/, "custom-number"],
                 ],
             },
         });
+
+        monaco.languages.registerFoldingRangeProvider("logLanguage", {
+            onDidChange: (callback) => {
+                updateFolding.current = callback;
+            },
+            provideFoldingRanges: (model, context, token) => {
+                return foldingRanges.current;
+            },
+        });
+
         setLanguage("logLanguage");
     }
-
 
     /**
      * Called when editor is finished mounting.
@@ -121,7 +133,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} editor
      * @param {object} monaco
      */
-    const handleEditorDidMount =(editor, monaco) => {
+    const handleEditorDidMount = (editor, monaco) => {
         monacoRef.current = monaco;
         editorRef.current = editor;
         editorRef.current.setValue(logData);
@@ -143,6 +155,40 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     });
                 }, 50);
             }
+        });
+        editorRef.current.addAction({
+            id: 'collapseLogType',
+            label: 'Collapse Similar (beta)',
+            run: function(editor) {
+                const addFolding = (range) => {
+                    if (!foldingRanges.current.find((e) => (e.start == range.start && e.end == range.end))) {
+                        foldingRanges.current.push({
+                            ...range,
+                            kind: monaco.languages.FoldingRangeKind.Comment,
+                        });
+                    }
+                    if (updateFolding.current !== undefined) {
+                        updateFolding.current();
+                    }
+                    editor.trigger('fold', 'editor.fold');
+                };
+                const clearFolding = () => {
+                    foldingRanges.current = [];
+                    if (updateFolding.current !== undefined) {
+                        updateFolding.current();
+                    }
+                }
+                const lineNumber = editor.getPosition().lineNumber;
+                const callback = { addFolding, clearFolding };
+
+                /* We need to first change the lineNumber so as to update the logEventIdx in logFileState. */
+                changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
+                    lineNumber: lineNumber,
+                    columnNumber: 1,
+                });
+                changeStateCallback(STATE_CHANGE_TYPE.collapse, { callback, lineNumber });
+            },
+            contextMenuGroupId: "highlight",
         });
     };
 
@@ -170,7 +216,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -185,7 +231,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });
@@ -223,8 +269,8 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
 
     useEffect(() => {
         setMonacoTheme((theme === THEME_STATES.LIGHT)
-            ?"customLogLanguageLight"
-            :"customLogLanguageDark");
+            ? "customLogLanguageLight"
+            : "customLogLanguageDark");
     }, [theme]);
 
     // Shortcut for focusing on the monaco editor and to enable

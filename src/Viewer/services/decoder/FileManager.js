@@ -396,6 +396,45 @@ class FileManager {
         }
     };
 
+    getSimilarLines() {
+        const num = this.state.lineNumber;
+        const meta = this.logEventMetadata;
+        const cur = this.state.logEventIdx - (this.state.page - 1) * this.state.pageSize - 1;
+
+        let start = num,
+            end = num,
+            type = meta[cur].typeIndex;
+
+        // For multi-line log, first find its start and end lines.
+        if (meta[cur].numLines > 1) {
+            let l = 1;
+            for (let i = 0; i < meta.length && l < num; i++) {
+                l += meta[i].numLines;
+            }
+            start = l - meta[cur].numLines;
+            end = l - 1;
+        }
+
+        for (let i = cur + 1; i < meta.length; i++) {
+            if (meta[i].typeIndex === type) {
+                end += meta[i].numLines;
+            } else {
+                break;
+            }
+        }
+
+        for (let i = cur - 1; i >= 0; i--) {
+            if (meta[i].typeIndex === type) {
+                start -= meta[i].numLines;
+            } else {
+                break;
+            }
+        }
+
+        console.log({ start, end });
+        return { start, end }
+    };
+
     /**
      * Prettifies the given log event content, if necessary
      * @param {Uint8Array} contentUint8Array The content as a Uint8Array

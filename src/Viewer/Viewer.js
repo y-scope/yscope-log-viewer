@@ -45,6 +45,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     // Logger used to track of all loading messages and state transitions
     const msgLogger = useRef(new MessageLogger());
 
+    // Callbacks for adding and clearing folding ranges
+    const addFolding = useRef(undefined);
+    const clearFolding = useRef(undefined);
+
     // Loading States
     const [loadingFile, setLoadingFile] = useState(true);
     const [loadingLogs, setLoadingLogs] = useState(true);
@@ -182,6 +186,14 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                     desiredLogEventIdx: args.logEventIdx,
                 });
                 break;
+            case STATE_CHANGE_TYPE.collapse:
+                addFolding.current = args.callback.addFolding;
+                clearFolding.current = args.callback.clearFolding;
+                clpWorker.current.postMessage({
+                    code: CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES,
+                    lineNumber: args.lineNumber,
+                })
+                break;
             default:
                 break;
         }
@@ -215,12 +227,20 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
+                if (clearFolding.current !== undefined) {
+                    clearFolding.current();
+                }
                 setLogData(event.data.logs);
                 setLoadingLogs(false);
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.UPDATE_FILE_INFO:
                 setFileMetadata(event.data.fileState);
+                break;
+            case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
+                if (addFolding.current !== undefined) {
+                    addFolding.current(event.data.state.range);
+                }
                 break;
             default:
                 break;

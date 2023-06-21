@@ -153,6 +153,17 @@ class ActionHandler {
     }
 
     /**
+     * Get the range of log lines that are similar (i.e., with the same log type) to the
+     * specified line.
+     *
+     * @param  {number} lineNumber
+     */
+    getSimilarLines(lineNumber) {
+        const range = this._logFile.getSimilarLines();
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES, { range });
+    }
+
+    /**
      * Send the newly decoded logs
      * @param {string} logs
      */

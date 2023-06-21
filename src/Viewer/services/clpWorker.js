@@ -78,6 +78,14 @@ onmessage = function (e) {
             }
             break;
 
+        case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
+            try {
+                handler.getSimilarLines(e.data.lineNumber);
+            } catch (e) {
+                sendError(e);
+            }
+            break;
+
         default:
             break;
     }

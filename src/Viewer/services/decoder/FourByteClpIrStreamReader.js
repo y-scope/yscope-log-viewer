@@ -36,6 +36,7 @@ class FourByteClpIrStreamReader {
         {label: "≤ FATAL", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("FATAL")},
         {label: "UNKNOWN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("UNKNOWN")},
     ];
+    static typeIndexDict = new Map();
 
     /**
      * @callback LogEventContentFormatter
@@ -184,6 +185,7 @@ class FourByteClpIrStreamReader {
             "endOffset": outputResizableBuffer.getLength(),
             "numLines": numLines,
             "verbosityIx": verbosityIx,
+            "typeIndex": this._getTypeIndex(this._logtype),
         });
 
         return true;
@@ -209,6 +211,20 @@ class FourByteClpIrStreamReader {
 
         // Return UNKNOWN verbosity
         return FourByteClpIrStreamReader.VERBOSITIES.length - 1;
+    }
+
+    /**
+     * We store the log templates in `typeIndexDict` and assign each of them a unique index.
+     * This functions return the corresponding index of the current `this._logtype`.
+     */
+    _getTypeIndex () {
+        const s = FourByteClpIrStreamReader.textDecoder.decode(this._logtype._valueUint8Array);
+        const d = FourByteClpIrStreamReader.typeIndexDict;
+
+        if (!d.has(s)) {
+            d.set(s, d.size);
+        }
+        return d.get(s);
     }
 
     /**
