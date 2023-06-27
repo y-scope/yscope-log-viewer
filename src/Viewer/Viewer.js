@@ -188,7 +188,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 break;
             case STATE_CHANGE_TYPE.collapse:
                 addFolding.current = args.callback.addFolding;
-                clearFolding.current = args.callback.clearFolding;
+                resetFolding.current = args.callback.resetFolding;
                 clpWorker.current.postMessage({
                     code: CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES,
                     lineNumber: args.lineNumber,
