@@ -46,8 +46,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     const msgLogger = useRef(new MessageLogger());
 
     // Callbacks for adding and clearing folding ranges
-    const addFolding = useRef(undefined);
-    const resetFolding = useRef(undefined);
+    const addFolding = useRef(null);
+    const resetFolding = useRef(null);
 
     // Loading States
     const [loadingFile, setLoadingFile] = useState(true);
@@ -227,7 +227,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
-                if (resetFolding.current !== undefined) {
+                if (null !== resetFolding.current) {
                     resetFolding.current();
                 }
                 setLogData(event.data.logs);
@@ -238,7 +238,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setFileMetadata(event.data.fileState);
                 break;
             case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
-                if (addFolding.current !== undefined) {
+                if (null !== addFolding.current) {
                     const range = event.data.state.range;
                     if (range.events <= 1) {
                         setStatusMessage("No similar logs found.");

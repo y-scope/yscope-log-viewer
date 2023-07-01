@@ -218,13 +218,13 @@ class FourByteClpIrStreamReader {
      * This functions return the corresponding index of the current `this._logtype`.
      */
     _getTypeIndex () {
-        const s = FourByteClpIrStreamReader.textDecoder.decode(this._logtype._valueUint8Array);
-        const d = FourByteClpIrStreamReader.typeIndexDict;
+        const type = FourByteClpIrStreamReader.textDecoder.decode(this._logtype._valueUint8Array);
+        const dict = FourByteClpIrStreamReader.typeIndexDict;
 
-        if (!d.has(s)) {
-            d.set(s, d.size);
+        if (!dict.has(type)) {
+            dict.set(type, dict.size);
         }
-        return d.get(s);
+        return dict.get(type);
     }
 
     /**
