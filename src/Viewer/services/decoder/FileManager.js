@@ -398,15 +398,20 @@ class FileManager {
 
     /**
      * Find the range of log lines that have the similar log type as the current line.
-     * @return {Object} A two-entry Object in the format of { begin: <Number>, end: <Number> }
+     * @return {Object} An Object in the format of { begin: <Number>, end: <Number>, events: <Number> }
      */
     querySimilarRange() {
         const num = this.state.lineNumber;
         const meta = this.logEventMetadata;
-        const cur = this.state.logEventIdx - (this.state.page - 1) * this.state.pageSize - 1;
+        const cur = meta.findIndex((e) => e.mappedIndex + 1 === this.state.logEventIdx);
+
+        if (cur < 0) { // `findIndex` returns -1
+            return { start: num, end: num, events: 1 };
+        }
 
         let start = num,
             end = num,
+            events = 1,
             type = meta[cur].typeIndex;
 
         // For multi-line log, first find its start and end lines.
@@ -423,6 +428,7 @@ class FileManager {
         for (let i = cur + 1; i < meta.length; i++) {
             if (meta[i].typeIndex === type) {
                 end += meta[i].numLines;
+                events += 1;
             } else {
                 break;
             }
@@ -432,12 +438,13 @@ class FileManager {
         for (let i = cur - 1; i >= 0; i--) {
             if (meta[i].typeIndex === type) {
                 start -= meta[i].numLines;
+                events += 1;
             } else {
                 break;
             }
         }
 
-        return { start, end }
+        return { start, end, events }
     };
 
     /**

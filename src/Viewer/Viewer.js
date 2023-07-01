@@ -240,13 +240,12 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
             case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
                 if (addFolding.current !== undefined) {
                     const range = event.data.state.range;
-                    const lines = range.end - range.start + 1;
-                    if (lines <= 1) {
+                    if (range.events <= 1) {
                         setStatusMessage("No similar logs found.");
                     } else {
-                        setStatusMessage(`Collapsed ${lines} lines.`);
+                        setStatusMessage(`Collapsed ${range.events} log messages.`);
+                        addFolding.current(range);
                     }
-                    addFolding.current(range);
                 }
                 break;
             default:
