@@ -45,10 +45,6 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     // Logger used to track of all loading messages and state transitions
     const msgLogger = useRef(new MessageLogger());
 
-    // Callbacks for adding and clearing folding ranges
-    const addFolding = useRef(null);
-    const resetFolding = useRef(null);
-
     // Loading States
     const [loadingFile, setLoadingFile] = useState(true);
     const [loadingLogs, setLoadingLogs] = useState(true);
@@ -71,6 +67,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     });
     const [fileMetadata, setFileMetadata] = useState(null);
     const [logData, setLogData] = useState("");
+    const [foldingRanges, setRanges] = useState([]);
 
     useEffect(() => {
         // Cleanup
@@ -187,8 +184,6 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 });
                 break;
             case STATE_CHANGE_TYPE.collapse:
-                addFolding.current = args.callback.addFolding;
-                resetFolding.current = args.callback.resetFolding;
                 clpWorker.current.postMessage({
                     code: CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES,
                     lineNumber: args.lineNumber,
@@ -227,10 +222,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
-                if (null !== resetFolding.current) {
-                    resetFolding.current();
-                }
                 setLogData(event.data.logs);
+                setRanges([]);
                 setLoadingLogs(false);
                 setStatusMessage("");
                 break;
@@ -238,20 +231,18 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setFileMetadata(event.data.fileState);
                 break;
             case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
-                if (null !== addFolding.current) {
-                    const range = event.data.state.range;
-                    if (range.events <= 1) {
-                        setStatusMessage("No similar logs found.");
-                    } else {
-                        setStatusMessage(`Collapsed ${range.events} log messages.`);
-                        addFolding.current(range);
-                    }
+                const range = event.data.state.range;
+                if (range.events <= 1) {
+                    setStatusMessage("No similar logs found.");
+                } else {
+                    setRanges(arr => [ ...arr, range ]);
+                    setStatusMessage(`Collapsed ${range.events} log messages.`);
                 }
                 break;
             default:
                 break;
         }
-    }, [logFileState, logData]);
+    }, [logFileState, logData, foldingRanges]);
 
     useEffect(() => {
         modifyFileMetadata(fileMetadata, logFileState.logEventIdx);
@@ -300,7 +291,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                             logData={logData}
                             loadingLogs={loadingLogs}
                             changeStateCallback={changeState}
-                            logFileState={logFileState}/>
+                            logFileState={logFileState}
+                            foldingRanges={foldingRanges}/>
                     </div>
 
                     <StatusBar

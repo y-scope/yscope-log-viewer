@@ -73,16 +73,15 @@ MonacoInstance.propTypes = {
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData}) {
+function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData, foldingRanges}) {
     const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
     const timeoutRef = useRef(null);
+    const currentFolding = useRef([]);
     const [monacoTheme, setMonacoTheme] = useState("customLogLanguageLight");
 
     const [language, setLanguage] = useState("");
-
-    const foldingRanges = useRef([]);
 
     loader.config({monaco});
 
@@ -114,43 +113,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
             },
         });
 
-        monaco.languages.registerFoldingRangeProvider("logLanguage", {
-            provideFoldingRanges: (model, context, token) => {
-                return foldingRanges.current;
-            },
-        });
-
         setLanguage("logLanguage");
-    }
-
-    const updateFolding = () => {
-        if (null !== editorRef.current) {
-            const foldingController = editorRef.current.getContribution('editor.contrib.folding');
-            foldingController.triggerFoldingModelChanged();
-        }
-    }
-
-    const addFolding = (range) => {
-        const sameRange = (e) => (e.start === range.start && e.end === range.end)
-        if (undefined === foldingRanges.current.find(sameRange)) {
-            foldingRanges.current.push({
-                ...range,
-                kind: monaco.languages.FoldingRangeKind.Comment,
-            });
-        }
-
-        // This adds the range to Monaco's internal states.
-        updateFolding();
-
-        if (null !== editorRef.current) {
-            // This trigger actually folds the range.
-            editorRef.current.trigger("fold", "editor.fold");
-        }
-    };
-
-    const resetFolding = () => {
-        foldingRanges.current = [];
-        updateFolding();
     }
 
     /**
@@ -186,15 +149,23 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
             id: "collapseSimilar",
             label: "Collapse Similar (beta)",
             run: function(editor) {
-                const lineNumber = editor.getPosition().lineNumber;
-                const callback = { addFolding, resetFolding };
+                const num = editor.getPosition().lineNumber;
 
-                /* We need to first change the lineNumber so as to update the logEventIdx in logFileState. */
+                // Check if lines has already been folded before.
+                const inRange = (e) => (e.start <= num && e.end >= num)
+                if (undefined !== currentFolding.current.find(inRange)) {
+                    // If the range already exists, we only need to fold it.
+                    editor.trigger("fold", "editor.fold");
+                    return;
+                }
+
+                // We need to first change the lineNumber so as to update the logEventIdx in logFileState.
                 changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
-                    lineNumber: lineNumber,
+                    lineNumber: num,
                     columnNumber: 1,
                 });
-                changeStateCallback(STATE_CHANGE_TYPE.collapse, { callback, lineNumber });
+
+                changeStateCallback(STATE_CHANGE_TYPE.collapse, { lineNumber: num });
             },
             contextMenuGroupId: "highlight",
         });
@@ -280,6 +251,33 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
             ? "customLogLanguageLight"
             : "customLogLanguageDark");
     }, [theme]);
+
+    useEffect(() => {
+        if (null === editorRef.current) {
+            return;
+        }
+
+        if (foldingRanges.length != currentFolding.current.length) {
+            monaco.languages.registerFoldingRangeProvider("logLanguage", {
+                provideFoldingRanges: (model, context, token) => {
+                    return foldingRanges;
+                },
+            });
+
+            // Add the range to Monaco's internal states. (But it will not fold the range automatically, so
+            // we have to manually do it below.)
+            const foldingController = editorRef.current.getContribution('editor.contrib.folding');
+            foldingController.triggerFoldingModelChanged();
+
+            if (foldingRanges.length > currentFolding.current.length) {
+                // Folds the range at the cursor.
+                editorRef.current.trigger("fold", "editor.fold");
+            }
+
+            currentFolding.current = foldingRanges;
+        }
+
+    }, [foldingRanges]);
 
     // Shortcut for focusing on the monaco editor and to enable
     // keyboard shortcuts
