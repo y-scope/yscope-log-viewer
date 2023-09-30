@@ -1,21 +1,20 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 
-import PropTypes, { oneOfType } from "prop-types";
-import { Row } from "react-bootstrap";
+import PropTypes, {oneOfType} from "prop-types";
+import {Row} from "react-bootstrap";
 import LoadingIcons from "react-loading-icons";
-import { Resizable } from "re-resizable";
 
-import { THEME_STATES } from "../ThemeContext/THEME_STATES";
-import { ThemeContext } from "../ThemeContext/ThemeContext";
-import { MenuBar } from "./components/MenuBar/MenuBar";
-import { SideBar } from "./components/SideBar/SideBar";
+import {THEME_STATES} from "../ThemeContext/THEME_STATES";
+import {ThemeContext} from "../ThemeContext/ThemeContext";
+import {MenuBar} from "./components/MenuBar/MenuBar";
 import MonacoInstance from "./components/Monaco/MonacoInstance";
-import { StatusBar } from "./components/StatusBar/StatusBar";
+import {SideBar} from "./components/SideBar/SideBar";
+import {StatusBar} from "./components/StatusBar/StatusBar";
 import CLP_WORKER_PROTOCOL from "./services/CLP_WORKER_PROTOCOL";
 import FourByteClpIrStreamReader from "./services/decoder/FourByteClpIrStreamReader";
 import MessageLogger from "./services/MessageLogger";
 import STATE_CHANGE_TYPE from "./services/STATE_CHANGE_TYPE";
-import { isNumeric, modifyFileMetadata, modifyPage } from "./services/utils";
+import {isNumeric, modifyFileMetadata, modifyPage} from "./services/utils";
 import VerbatimURLParams from "./services/VerbatimURLParams";
 
 import "./Viewer.scss";
@@ -38,8 +37,8 @@ Viewer.propTypes = {
  * valid, logEventNumber will be ignored.
  * @return {JSX.Element}
  */
-export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
-    const { theme } = useContext(ThemeContext);
+export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
+    const {theme} = useContext(ThemeContext);
 
     // Ref hook used to reference worker used for loading and decoding
     const clpWorker = useRef(null);
@@ -195,7 +194,6 @@ export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
                 break;
             case STATE_CHANGE_TYPE.search:
                 setSearchResults([]);
-                console.log(searchResults)
                 clpWorker.current.postMessage({
                     code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING,
                     searchString: args.searchString,
@@ -247,7 +245,10 @@ export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
                 break;
             case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING:
                 console.log(event.data.page_num, event.data.searchResults);
-                setSearchResults(prevArray => [...prevArray, { page_num: event.data.page_num, searchResults: event.data.searchResults }]);
+                setSearchResults((prevArray) => [...prevArray, {
+                    page_num: event.data.page_num,
+                    searchResults: event.data.searchResults,
+                }]);
                 break;
             default:
                 break;
@@ -263,9 +264,9 @@ export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
         const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
         const logEventIdx = urlHashParams.get("logEventIdx");
         if (isNumeric(logEventIdx)) {
-            changeState(STATE_CHANGE_TYPE.logEventIdx, { logEventIdx: Number(logEventIdx) });
+            changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: Number(logEventIdx)});
         } else {
-            changeState(STATE_CHANGE_TYPE.logEventIdx, { logEventIdx: logFileState.logEventIdx });
+            changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: logFileState.logEventIdx});
         }
     };
 
@@ -276,7 +277,7 @@ export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
                     <Row className="m-0">
                         <LoadingIcons.Oval height="5em" stroke={
                             (THEME_STATES.LIGHT === theme) ? "black" : "white"
-                        } />
+                        }/>
                     </Row>
                     <Row className="loading-container">
                         <ul>
@@ -297,28 +298,28 @@ export function Viewer({ fileInfo, prettifyLog, logEventNumber, timestamp }) {
                         />
                     </div>
 
-                    <div style={{width:"100%", height: "100%", overflow:"hidden"}}>
+                    <div style={{width: "100%", height: "100%", overflow: "hidden"}}>
                         <div className="d-flex h-100 flex-column">
                             <MenuBar
                                 loadingLogs={loadingLogs}
                                 fileMetaData={fileMetadata}
                                 logFileState={logFileState}
                                 changeStateCallback={changeState}
-                                loadFileCallback={loadFile} />
+                                loadFileCallback={loadFile}/>
 
                             <div className="flex-fill h-100 overflow-hidden">
                                 <MonacoInstance
                                     logData={logData}
                                     loadingLogs={loadingLogs}
                                     changeStateCallback={changeState}
-                                    logFileState={logFileState} />
+                                    logFileState={logFileState}/>
                             </div>
 
                             <StatusBar
                                 status={statusMessage}
                                 logFileState={logFileState}
                                 loadingLogs={loadingLogs}
-                                changeStateCallback={changeState} />
+                                changeStateCallback={changeState}/>
                         </div>
                     </div>
                 </div>
