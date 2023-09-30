@@ -3,7 +3,7 @@ import React, {useContext, useRef, useState} from "react";
 import PropTypes from "prop-types";
 import {Button, Form, Modal, ProgressBar, Table} from "react-bootstrap";
 import {ChevronDoubleLeft, ChevronDoubleRight, ChevronLeft, ChevronRight,
-    FileText, Folder, Gear, Keyboard, Moon, Sun} from "react-bootstrap-icons";
+    FileText, Folder, Gear, Keyboard, Moon, Sun, Search} from "react-bootstrap-icons";
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
@@ -51,11 +51,16 @@ export function MenuBar ({
     const {theme, switchTheme} = useContext(ThemeContext);
 
     const [eventsPerPage, setEventsPerPage] = useState(logFileState.pages);
+    const [searchString, setSearchString] = useState("");
     const [showSettings, setShowSettings] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
     const handleCloseSettings = () => setShowSettings(false);
     const handleShowSettings = () => setShowSettings(true);
+
+    const handleCloseSearch = () => setShowSearch(false);
+    const handleShowSearch = () => setShowSearch(true);
 
     const handleCloseHelp = () => setShowHelp(false);
     const handleShowHelp = () => setShowHelp(true);
@@ -112,13 +117,27 @@ export function MenuBar ({
         localStorage.setItem("pageSize", String(eventsPerPage));
     };
 
+    const saveSearchChanges = (e) => {
+        e.preventDefault();
+        handleCloseSearch();
+        changeStateCallback(STATE_CHANGE_TYPE.search, {searchString: searchString});
+    };
+
     const closeModal = () => {
         handleCloseSettings();
+    };
+
+    const closeSearchModal = () => {
+        handleCloseSearch();
     };
 
     const openModal = () => {
         handleShowSettings();
         setEventsPerPage(logFileState.pageSize);
+    };
+
+    const openSearchModal = () => {
+        handleShowSearch();
     };
 
     const getThemeIcon = () => {
@@ -187,6 +206,10 @@ export function MenuBar ({
                             <Gear/>
                         </div>
                         <div className="menu-divider"></div>
+                        <div className="menu-item menu-item-btn" onClick={openSearchModal}>
+                            <Search/>
+                        </div>
+                        <div className="menu-divider"></div>
                         <div className="menu-item menu-item-btn" onClick={openFile}
                             title="Open File (or Drag and Drop File)">
                             <Folder/>
@@ -227,6 +250,31 @@ export function MenuBar ({
                         Save Changes
                     </Button>
                     <Button className="btn-sm" variant="secondary" onClick={closeModal}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showSearch} className="border-0" onHide={handleCloseSearch}
+            contentClassName={getModalClass()}>
+                <Modal.Header className="modal-background" >
+                    <div className="float-left">
+                        Search String
+                    </div>
+                </Modal.Header>
+                <Modal.Body className="modal-background p-3 pt-1" >
+                    <Form onSubmit={saveSearchChanges}>
+                        <Form.Control type="text"
+                            value={searchString}
+                            onChange={(e) => setSearchString(e.target.value)}
+                            className="input-sm num-event-input" />
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer className="modal-background border-0" >
+                    <Button className="btn-sm" variant="success" onClick={saveSearchChanges}>
+                        Go
+                    </Button>
+                    <Button className="btn-sm" variant="secondary" onClick={closeSearchModal}>
                         Close
                     </Button>
                 </Modal.Footer>

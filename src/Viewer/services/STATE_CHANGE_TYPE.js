@@ -4,6 +4,7 @@ let STATE_CHANGE_TYPE = {
     page: "page",
     pageSize: "pageSize",
     prettify: "prettify",
+    search: "search",
     verbosity: "verbosity",
 };
 STATE_CHANGE_TYPE = Object.freeze(STATE_CHANGE_TYPE);

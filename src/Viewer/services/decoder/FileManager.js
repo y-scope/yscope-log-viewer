@@ -25,8 +25,8 @@ class FileManager {
      * @param {function} updateLogsCallback
      * @param {updateFileInfoCallback} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
-        loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
+    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize, loadingMessageCallback,
+        updateStateCallback, updateLogsCallback, updateFileInfoCallback, updateSearchResultsCallback) {
         this._fileInfo = fileInfo;
         this._prettify = prettify;
         this._initialTimestamp = initialTimestamp;
@@ -71,6 +71,7 @@ class FileManager {
         this._updateStateCallback = updateStateCallback;
         this._updateLogsCallback = updateLogsCallback;
         this._updateFileInfoCallback = updateFileInfoCallback;
+        this._updateSearchResultsCallback = updateSearchResultsCallback;
 
         this._PRETTIFICATION_THRESHOLD = 200;
     }
@@ -321,6 +322,79 @@ class FileManager {
         this._logs = logs.trim();
         this._updateLogsCallback(this._logs);
     };
+
+    searchLogEvents (searchString, isRegex, matchCase) {
+        const numEventsAtLevel = this._logEventOffsetsFiltered.length;
+
+        // If there are no logs at this verbosity level, return
+        if (0 === numEventsAtLevel) {
+            this._updateLogsCallback("No logs at selected verbosity level");
+            return;
+        }
+
+        let numSearchResults = 0;
+
+        this._outputResizableBuffer = new ResizableUint8Array(1000000);
+
+        for (let i = 0; i < this.state.pages; i++) {
+            let searchResults = [];
+            const logEventsBeginIdx = i * this.state.pageSize;
+            const numOfEvents = Math.min(this.state.pageSize, numEventsAtLevel - logEventsBeginIdx);
+
+            const dataInputStream = new DataInputStream(this._arrayBuffer);
+            this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
+                this.state.prettify ? this._prettifyLogEventContent : null);
+
+            for (let j = logEventsBeginIdx; j < logEventsBeginIdx + numOfEvents; j++) {
+                const event = this._logEventOffsetsFiltered[j];
+                const decoder = this._irStreamReader._streamProtocolDecoder;
+
+                this._irStreamReader._dataInputStream.seek(event.startIndex);
+                this._outputResizableBuffer.clear();
+
+                // Set the timestamp before decoding the message.
+                // If it is first message, use timestamp in metadata.
+                if (event.mappedIndex === 0) {
+                    decoder._reset();
+                } else {
+                    decoder._setTimestamp(this._logEventOffsets[event.mappedIndex-1].timestamp);
+                }
+
+                try {
+                    let match;
+                    let contentString;
+                    ({match, contentString} = this._irStreamReader.decodeAndMatchLogEvent(this._outputResizableBuffer,
+                        searchString, isRegex, matchCase));
+
+                    const lastEvent = this.logEventMetadata[this.logEventMetadata.length - 1];
+                    lastEvent.mappedIndex = event.mappedIndex;
+
+                    if (match) {
+                        searchResults.push({eventIndex: j, content: contentString});
+                        numSearchResults++;
+                        if (numSearchResults >= 1000 && searchResults.length > 0) {
+                            this._updateSearchResultsCallback(i, searchResults);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    // Ignore EOF errors since we should still be able
+                    // to print the decoded messages
+                    if (error instanceof DataInputStreamEOFError) {
+                        // TODO Give visual indication that the stream is truncated
+                        console.error("Stream truncated.");
+                    } else {
+                        console.log("random error");
+                        throw error;
+                    }
+                }
+            }
+
+            if (searchResults.length > 0)
+                this._updateSearchResultsCallback(i, searchResults);
+        }
+
+    }
 
     /**
      * Get the long event from the selected line number

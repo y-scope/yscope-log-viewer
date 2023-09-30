@@ -189,6 +189,51 @@ class FourByteClpIrStreamReader {
         return true;
     }
 
+    decodeAndMatchLogEvent (outputResizableBuffer, searchString, isRegex, matchCase) {
+        let timestamp;
+        let verbosityIx;
+        let numValidVars;
+
+        ({timestamp, verbosityIx, numValidVars} = this._readLogEvent());
+        this._tokenDecoder.decodeTimestamp(outputResizableBuffer, timestamp);
+
+        // Decode logtype and variables
+        this._tokenDecoder.loadLogtype(this._logtype);
+        for (let i = 0; i < numValidVars; ++i) {
+            const v = this._varPool.get(i);
+            switch (this._tokenDecoder.decodeUpToNextVar(outputResizableBuffer)) {
+                case LogtypeBuf.INTEGER_VARIABLE_DELIMITER:
+                    v.decodeAsIntegerType();
+                    break;
+                case LogtypeBuf.FLOAT_VARIABLE_DELIMITER:
+                    v.decodeAsFloatType();
+                    break;
+                case LogtypeBuf.VARIABLE_ID_DELIMITER:
+                    // Do nothing
+                    break;
+                default:
+                    throw new Error("Unexpected variable delimiter in logtype.");
+            }
+
+            // Output variable
+            outputResizableBuffer.push(v.getValueUint8Array());
+        }
+        this._tokenDecoder.drainLogtype(outputResizableBuffer);
+
+        const contentUint8Array = outputResizableBuffer.getUint8Array();
+        const contentString = FourByteClpIrStreamReader.textDecoder.decode(contentUint8Array);
+
+        let contentLowerCaseString = contentString;
+        if (matchCase === false) {
+            searchString = searchString.toLowerCase();
+            contentLowerCaseString = contentLowerCaseString.toLowerCase();
+        }
+
+        let match = isRegex ? contentLowerCaseString.match(searchString) : contentLowerCaseString.includes(searchString);
+
+        return {match, contentString};
+    }
+
     /**
      * @return {number} The Log4j verbosity index of the current log event
      * (if it can be detected)

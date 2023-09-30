@@ -16,6 +16,10 @@ class ResizableUint8Array {
         }
     }
 
+    clear () {
+        this._length = 0;
+    }
+
     push (uint8Array) {
         this._growIfNecessary(this._length + uint8Array.length);
 

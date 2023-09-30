@@ -37,7 +37,14 @@ onmessage = function (e) {
                 sendError(e);
             }
             break;
-
+        case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING:
+            try {
+                console.debug("search string: " + e.data.searchString);
+                handler.changeSearchString(e.data.searchString, e.data.isRegex, e.data.matchCase);
+            } catch (e) {
+                sendError(e);
+            }
+            break;
         case CLP_WORKER_PROTOCOL.CHANGE_PAGE:
             try {
                 handler.changePage(e.data.page, e.data.linePos);
@@ -45,7 +52,6 @@ onmessage = function (e) {
                 sendError(e);
             }
             break;
-
         case CLP_WORKER_PROTOCOL.PRETTY_PRINT:
             try {
                 handler.changePrettify(e.data.prettify);
