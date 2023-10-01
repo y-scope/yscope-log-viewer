@@ -6,9 +6,10 @@ import LoadingIcons from "react-loading-icons";
 
 import {THEME_STATES} from "../ThemeContext/THEME_STATES";
 import {ThemeContext} from "../ThemeContext/ThemeContext";
+import {LEFT_PANEL_TAB_IDS, LeftPanel} from "./components/LeftPanel/LeftPanel";
 import {MenuBar} from "./components/MenuBar/MenuBar";
 import MonacoInstance from "./components/Monaco/MonacoInstance";
-import {SideBar} from "./components/SideBar/SideBar";
+import {SearchPanel} from "./components/SearchPanel/SearchPanel";
 import {StatusBar} from "./components/StatusBar/StatusBar";
 import CLP_WORKER_PROTOCOL from "./services/CLP_WORKER_PROTOCOL";
 import FourByteClpIrStreamReader from "./services/decoder/FourByteClpIrStreamReader";
@@ -69,6 +70,9 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     const [fileMetadata, setFileMetadata] = useState(null);
     const [logData, setLogData] = useState("");
 
+    const [leftPanelActiveTabId, setLeftPanelActiveTabId] = useState(LEFT_PANEL_TAB_IDS.SEARCH);
+    const [leftPanelWidth, setLeftPanelWidth] = useState(0);
+    const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
     useEffect(() => {
@@ -117,13 +121,6 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     useEffect(() => {
         msgLogger.current.add(statusMessage);
     }, [statusMessage]);
-
-    const clickItem = useCallback((eventIndex) => {
-        clpWorker.current.postMessage({
-            code: CLP_WORKER_PROTOCOL.GET_LINE_FROM_EVENT,
-            desiredLogEventIdx: eventIndex,
-        });
-    }, [logFileState, loadingLogs]);
 
     /**
      * Passes state changes to the worker. Worker performs operation
@@ -244,7 +241,6 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setFileMetadata(event.data.fileState);
                 break;
             case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING:
-                console.log(event.data.page_num, event.data.searchResults);
                 setSearchResults((prevArray) => [...prevArray, {
                     page_num: event.data.page_num,
                     searchResults: event.data.searchResults,
@@ -270,6 +266,28 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
         }
     };
 
+    const searchQueryChangeHandler = (newQuery) => {
+        setSearchQuery(newQuery);
+        changeState(STATE_CHANGE_TYPE.search, {searchString: newQuery});
+    };
+
+    const goToEventCallback = (logEventIdx) => {
+        changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: logEventIdx});
+    };
+
+    let leftPanelContent = (<></>);
+    if (0 !== leftPanelWidth) {
+        if (LEFT_PANEL_TAB_IDS.SEARCH === leftPanelActiveTabId) {
+            leftPanelContent = (
+                <SearchPanel
+                    query={searchQuery} searchResults={searchResults}
+                    queryChangeHandler={searchQueryChangeHandler}
+                    searchResultClickHandler={goToEventCallback}
+                />
+            );
+        }
+    }
+
     return (
         <div data-theme={theme} className="viewer-container">
             {loadingFile &&
@@ -289,40 +307,69 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 </div>
             }
             {false === loadingFile &&
-                <div className="d-flex h-100 flex-row overflow-hidden">
-                    <div className="h-100">
-                        <SideBar
-                            changeStateCallback={changeState}
-                            searchResults={searchResults}
-                            clickItemCallback={clickItem}
-                        />
-                    </div>
+                <>
+                    <div style={{
+                        display: "flex",
+                        flexGrow: 1,
+                        height: "100%",
+                        // Without this, if this element's content exceeds the
+                        // size of this element's parent, flex-grow won't shrink
+                        // this element to fit within the parent.
+                        minHeight: 0,
+                        overflow: "hidden",
+                        width: "100%",
+                    }}>
+                        <LeftPanel
+                            panelWidth={leftPanelWidth}
+                            setPanelWidth={setLeftPanelWidth}
+                            activeTabId={leftPanelActiveTabId}
+                            setActiveTabId={setLeftPanelActiveTabId}
+                        >
+                            {leftPanelContent}
+                        </LeftPanel>
 
-                    <div style={{width: "100%", height: "100%", overflow: "hidden"}}>
-                        <div className="d-flex h-100 flex-column">
-                            <MenuBar
-                                loadingLogs={loadingLogs}
-                                fileMetaData={fileMetadata}
-                                logFileState={logFileState}
-                                changeStateCallback={changeState}
-                                loadFileCallback={loadFile}/>
-
-                            <div className="flex-fill h-100 overflow-hidden">
-                                <MonacoInstance
-                                    logData={logData}
+                        <div style={{
+                            flexGrow: 1,
+                            height: "100%",
+                            overflow: "hidden",
+                        }}>
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                height: "100%",
+                            }}>
+                                <MenuBar
                                     loadingLogs={loadingLogs}
+                                    fileMetaData={fileMetadata}
+                                    logFileState={logFileState}
                                     changeStateCallback={changeState}
-                                    logFileState={logFileState}/>
-                            </div>
+                                    loadFileCallback={loadFile}/>
 
-                            <StatusBar
-                                status={statusMessage}
-                                logFileState={logFileState}
-                                loadingLogs={loadingLogs}
-                                changeStateCallback={changeState}/>
+                                <div style={{
+                                    flexGrow: 1,
+                                    // Without this, if this element's content
+                                    // exceeds the size of this element's
+                                    // parent, flex-grow won't shrink this
+                                    // element to fit within the parent.
+                                    minHeight: 0,
+                                    height: "100%",
+                                }}>
+                                    <MonacoInstance
+                                        logData={logData}
+                                        loadingLogs={loadingLogs}
+                                        changeStateCallback={changeState}
+                                        logFileState={logFileState}/>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <StatusBar
+                        status={statusMessage}
+                        logFileState={logFileState}
+                        loadingLogs={loadingLogs}
+                        changeStateCallback={changeState}/>
+                </>
             }
         </div>
     );

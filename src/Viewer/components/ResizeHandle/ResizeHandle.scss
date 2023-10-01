@@ -1,0 +1,17 @@
+.resize-handle {
+  position: absolute;
+  cursor: ew-resize;
+  width: 4px;
+  height: 100%;
+  z-index: 1;
+  right: 0;
+  top: 0;
+}
+
+.resize-handle:hover, .resize-handle-selected {
+  background-color: #0078d4;
+}
+
+.resize-handle:hover {
+  transition: background-color 250ms linear 500ms;
+}

@@ -1,0 +1,77 @@
+.left-panel-tabs-container {
+  border-right: 1px solid;
+  width: 47px;
+}
+
+.left-panel-tab {
+  background-color: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  padding: 10px 12px 10px 8px;
+}
+
+.left-panel-tab-selected, .left-panel-tab:hover, .left-panel-tab:focus-visible {
+  border-left-color: #0078d4;
+  outline: none;
+}
+
+.left-panel-container {
+  border-right: 1px solid;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  /* To allow the resize handle to be absolutely positioned */
+  position: relative;
+}
+
+.left-panel-content-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+$darkModeBackgroundColor: #181818;
+$darkModeBorderColor: #2a2a2a;
+.viewer-container[data-theme="dark"] {
+  .left-panel-container {
+    background-color: $darkModeBackgroundColor;
+    border-color: $darkModeBorderColor;
+    color: #8d8d8d;
+  }
+
+  .left-panel-tab {
+    color: #8c8c8c;
+  }
+
+  .left-panel-tabs-container {
+    background-color: $darkModeBackgroundColor;
+    border-color: $darkModeBorderColor;
+  }
+
+  .left-panel-tab-selected, .left-panel-tab:hover, .left-panel-tab:focus-visible {
+    color: #d6d6d6;
+  }
+}
+
+$lightModeBackgroundColor: #f8f8f8;
+$lightModeBorderColor: #d5d5d5;
+.viewer-container[data-theme="light"] {
+  .left-panel-container {
+    background-color: $lightModeBackgroundColor;
+    border-color: $lightModeBorderColor;
+    color: #3b3b3b;
+  }
+
+  .left-panel-tabs-container {
+    background-color: $lightModeBackgroundColor;
+    border-color: $lightModeBorderColor;
+  }
+
+  .left-panel-tab {
+    color: #737373;
+  }
+
+  .left-panel-tab-selected, .left-panel-tab:hover, .left-panel-tab:focus-visible {
+    color: #1f1f1f;
+  }
+}

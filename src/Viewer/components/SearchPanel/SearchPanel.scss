@@ -1,0 +1,113 @@
+.search-input-label {
+  display: block;
+  font-size: 0.753rem;
+  padding: 10px 0;
+}
+
+.search-input {
+  border: 1px solid;
+  border-radius: 2px;
+  height: calc(3rem + 2px);
+  overflow-y: hidden;
+  padding: 0 5px;
+  resize: none;
+  width: 100%;
+}
+
+.search-input:focus, .search-input:focus-visible {
+  outline: 1px solid #0078d4;
+}
+
+.search-result-button {
+  background-color: transparent;
+  border: none;
+  overflow: hidden;
+  padding: 0 2px 0 0;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.search-result-button:hover, .search-result-button:focus-visible {
+  outline: none;
+}
+
+.search-results-container {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  padding-left: 15px;
+}
+
+.search-results-container::-webkit-scrollbar {
+  width: 9px;
+}
+
+.search-results-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-results-page-num {
+  font-size: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+$lightModeColor: #8c8c8c;
+.viewer-container[data-theme="dark"] {
+  .search-input {
+    background-color: #2a2a2a;
+    border-color: #444444;
+    color: $lightModeColor;
+  }
+
+  .search-result-button {
+    color: $lightModeColor;
+  }
+
+  .search-result-button:hover, .search-result-button:focus-visible {
+    color: #d6d6d6;
+  }
+
+  .search-results-container {
+    scrollbar-color: #292929 transparent;
+  }
+
+  .search-results-container::-webkit-scrollbar-thumb {
+    background-color: #292929;
+  }
+
+  .search-results-container::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #303030;
+  }
+}
+
+$lightModeScrollBarColor: #d8d8d8;
+$lightModeColor: #3b3b3b;
+.viewer-container[data-theme="light"] {
+  .search-input {
+    background-color: #fff;
+    border-color: #cecece;
+    color: $lightModeColor;
+  }
+
+  .search-result-button {
+    color: #737373;
+  }
+
+  .search-result-button:hover, .search-result-button:focus-visible {
+    color: #1f1f1f;
+  }
+
+  .search-results-container {
+    scrollbar-color: $lightModeScrollBarColor transparent;
+  }
+
+  .search-results-container::-webkit-scrollbar-thumb {
+    background-color: $lightModeScrollBarColor;
+  }
+
+  .search-results-container::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #a8a8a8;
+  }
+}
