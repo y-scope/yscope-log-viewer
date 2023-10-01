@@ -73,7 +73,7 @@ export function SearchPanel ({
 
 SearchResultsGroup.propTypes = {
     pageNum: PropTypes.number,
-    results: PropTypes.array,
+    results: PropTypes.object,
     resultClickHandler: PropTypes.func,
 };
 
@@ -86,7 +86,7 @@ SearchResultsGroup.propTypes = {
 /**
  * The search results on a page
  * @param {number} pageNum
- * @param {array} results
+ * @param {object} results
  * @param {ResultClickHandler} resultClickHandler
  * @return {JSX.Element}
  */
