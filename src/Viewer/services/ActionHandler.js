@@ -84,14 +84,12 @@ class ActionHandler {
     /**
      * Search for the given string and go to the next result.
      * @param {string} searchString
+     * @param {boolean} isRegex
+     * @param {boolean} matchCase
      */
-    changeSearchString (searchString, isRegex, matchCase) {
-        if (searchString === "") {
-            return;
-        }
-
+    changeSearchString = (searchString, isRegex, matchCase) => {
         this._logFile.searchLogEvents(searchString, isRegex, matchCase);
-    }
+    };
 
     /**
      * Set prettify state, rebuild the page and update line number
@@ -215,11 +213,11 @@ class ActionHandler {
 
     _updateSearchResultsCallback = (i, searchResults) => {
         postMessage({
-            code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING,
+            code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_RESULTS,
             page_num: i,
             searchResults: searchResults,
         });
-    }
+    };
 }
 
 export default ActionHandler;

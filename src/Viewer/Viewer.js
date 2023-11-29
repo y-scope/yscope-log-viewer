@@ -240,13 +240,14 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
             case CLP_WORKER_PROTOCOL.UPDATE_FILE_INFO:
                 setFileMetadata(event.data.fileState);
                 break;
-            case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING:
+            case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_RESULTS:
                 setSearchResults((prevArray) => [...prevArray, {
                     page_num: event.data.page_num,
                     searchResults: event.data.searchResults,
                 }]);
                 break;
             default:
+                console.error("Unhandled code:", event.data);
                 break;
         }
     }, [logFileState, logData]);
@@ -281,6 +282,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
             leftPanelContent = (
                 <SearchPanel
                     query={searchQuery} searchResults={searchResults}
+                    totalPages={logFileState.pages}
                     queryChangeHandler={searchQueryChangeHandler}
                     searchResultClickHandler={goToEventCallback}
                 />

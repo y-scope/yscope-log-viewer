@@ -37,13 +37,13 @@ LeftPanel.propTypes = {
  * @return {JSX.Element}
  */
 export function LeftPanel ({panelWidth, setPanelWidth, activeTabId, setActiveTabId, children}) {
-    const handleLeftPanelResize = useCallback((sizeDelta) => {
+    const handleLeftPanelResize = useCallback((newWidth) => {
         setPanelWidth((prev) => {
-            const newWidth = prev + sizeDelta;
-            if (newWidth > window.innerWidth / 2) {
+            if (newWidth > window.innerWidth * 0.8) {
                 return prev;
             }
-            if (newWidth < 0) {
+            // get panel to snap if it gets too small
+            if (newWidth < 20) {
                 return 0;
             }
             return newWidth;
@@ -56,7 +56,7 @@ export function LeftPanel ({panelWidth, setPanelWidth, activeTabId, setActiveTab
             if (prev > 0) {
                 return 0;
             } else {
-                return 200;
+                return window.innerWidth * 0.2;
             }
         });
     };

@@ -1,13 +1,15 @@
-import React from "react";
+import React, {useState} from "react";
 
 import PropTypes from "prop-types";
+import {ProgressBar} from "react-bootstrap";
 
 import "./SearchPanel.scss";
 
 SearchPanel.propTypes = {
     query: PropTypes.string,
-    queryChangeHandler: PropTypes.func,
     searchResults: PropTypes.array,
+    totalPages: PropTypes.number,
+    queryChangeHandler: PropTypes.func,
     searchResultClickHandler: PropTypes.func,
 };
 
@@ -26,18 +28,24 @@ SearchPanel.propTypes = {
 /**
  * The search panel
  * @param {string} query
- * @param {QueryChangeHandler} queryChangeHandler
  * @param {array} searchResults
+ * @param {number} totalPages
+ * @param {QueryChangeHandler} queryChangeHandler
  * @param {SearchResultClickHandler} searchResultClickHandler
  * @return {JSX.Element}
  */
 export function SearchPanel ({
     query,
-    queryChangeHandler,
     searchResults,
+    totalPages,
+    queryChangeHandler,
     searchResultClickHandler,
 }) {
     const queryInputChangeHandler = (e) => {
+        // auto resize height of the input box
+        e.target.style.height = 0;
+        e.target.style.height = e.target.scrollHeight + 6 + "px";
+
         const newQuery = e.target.value;
         queryChangeHandler(newQuery);
     };
@@ -51,6 +59,10 @@ export function SearchPanel ({
         />
     ));
 
+    let progress = null;
+    if (searchResults.length) {
+        progress = (searchResults[searchResults.length - 1].page_num + 1) / totalPages * 100;
+    }
     return (
         <>
             <div style={{padding: "0 15px"}}>
@@ -63,6 +75,8 @@ export function SearchPanel ({
                         value={query}
                     />
                 </form>
+                {(progress !== null) &&
+                    <ProgressBar animated={progress !== 100} now={progress} style={{height: "3px"}}/>}
             </div>
             <div className={"search-results-container"}>
                 {resultGroups}
@@ -91,24 +105,40 @@ SearchResultsGroup.propTypes = {
  * @return {JSX.Element}
  */
 function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
-    const onClickHandler = (e) => {
-        const logEventIdx = Number(e.target.dataset.logeventidx) + 1;
-        resultClickHandler(logEventIdx);
+    if (results.searchResults.length === 0) {
+        return <></>;
+    }
+
+    const [expanded, setExpanded] = useState(true);
+    const onHeaderClickHandler = () => {
+        setExpanded(!expanded);
     };
 
-    const resultsRows = results.searchResults.map((result, index) => (
-        <button
-            className={"search-result-button"}
-            data-logeventidx={result.eventIndex}
-            key={index}
-            onClick={onClickHandler}
-        >{result["content"]}</button>
-    ));
+    const resultsRows = results.searchResults.map((result, index) => {
+        const [prefix, postfix] = result["content"].split(result["match"]);
+        return (
+            <button
+                className={"search-result-button"}
+                key={result.eventIndex}
+                onClick={()=>{
+                    resultClickHandler(result.eventIndex + 1);
+                }}
+            >
+                <span>{prefix.slice(-25)}</span>
+                <span className={"search-result-highlight"}>{result["match"]}</span>
+                <span>{postfix}</span>
+            </button>
+        );
+    });
+
     return (
         <>
-            <div className={"search-results-page-num"}>PAGE {pageNum + 1}</div>
+            <button className={"search-results-page-header"} onClick={onHeaderClickHandler}>
+                <div className={"search-results-page-header-page-num"}>{expanded?"⮞":"⮟"} PAGE {pageNum + 1}</div>
+                <div className={"search-results-page-header-result-count"}>{results.searchResults.length}</div>
+            </button>
             <div>
-                {resultsRows}
+                {expanded && resultsRows}
             </div>
         </>
     );

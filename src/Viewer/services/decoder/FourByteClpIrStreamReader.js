@@ -224,12 +224,18 @@ class FourByteClpIrStreamReader {
         const contentString = FourByteClpIrStreamReader.textDecoder.decode(contentUint8Array);
 
         let contentLowerCaseString = contentString;
+        let searchLowerCaseString = searchString;
         if (matchCase === false) {
-            searchString = searchString.toLowerCase();
             contentLowerCaseString = contentLowerCaseString.toLowerCase();
+            searchLowerCaseString = searchString.toLowerCase();
         }
 
-        let match = isRegex ? contentLowerCaseString.match(searchString) : contentLowerCaseString.includes(searchString);
+        let match;
+        if (isRegex) {
+            match = contentLowerCaseString.match(searchString);
+        } else if (contentLowerCaseString.includes(searchLowerCaseString)) {
+            match = searchString;
+        }
 
         return {match, contentString};
     }
@@ -246,8 +252,7 @@ class FourByteClpIrStreamReader {
             // FIXME: This only supports verbosity levels starting at the 2nd
             //  character of the log type
             if (uint8ArrayContains(this._logtype.getValueUint8Array(), 1,
-                verbosityUint8Array, 0))
-            {
+                verbosityUint8Array, 0)) {
                 return i;
             }
         }

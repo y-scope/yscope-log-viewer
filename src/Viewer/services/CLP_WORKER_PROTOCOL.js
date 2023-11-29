@@ -1,17 +1,19 @@
+let enumClpWorkerProtocol = 0;
 let CLP_WORKER_PROTOCOL = {
-    LOADING_MESSAGES: 0,
-    LOAD_FILE: 1,
-    UPDATE_VERBOSITY: 2,
-    GET_LINE_FROM_EVENT: 3,
-    GET_EVENT_FROM_LINE: 4,
-    CHANGE_PAGE: 5,
-    LOAD_LOGS: 6,
-    REDRAW_PAGE: 7,
-    PRETTY_PRINT: 8,
-    UPDATE_STATE: 9,
-    UPDATE_FILE_INFO: 10,
-    UPDATE_SEARCH_STRING: 11,
-    ERROR: 12,
+    ERROR: enumClpWorkerProtocol++,
+    LOADING_MESSAGES: enumClpWorkerProtocol++,
+    LOAD_FILE: enumClpWorkerProtocol++,
+    UPDATE_VERBOSITY: enumClpWorkerProtocol++,
+    GET_LINE_FROM_EVENT: enumClpWorkerProtocol++,
+    GET_EVENT_FROM_LINE: enumClpWorkerProtocol++,
+    CHANGE_PAGE: enumClpWorkerProtocol++,
+    LOAD_LOGS: enumClpWorkerProtocol++,
+    REDRAW_PAGE: enumClpWorkerProtocol++,
+    PRETTY_PRINT: enumClpWorkerProtocol++,
+    UPDATE_STATE: enumClpWorkerProtocol++,
+    UPDATE_FILE_INFO: enumClpWorkerProtocol++,
+    UPDATE_SEARCH_STRING: enumClpWorkerProtocol++,
+    UPDATE_SEARCH_RESULTS: enumClpWorkerProtocol++,
 };
 CLP_WORKER_PROTOCOL = Object.freeze(CLP_WORKER_PROTOCOL);
 

@@ -7,7 +7,7 @@
 .search-input {
   border: 1px solid;
   border-radius: 2px;
-  height: calc(3rem + 2px);
+  height: calc(1.5rem + 6px);
   overflow-y: hidden;
   padding: 0 5px;
   resize: none;
@@ -48,9 +48,25 @@
   background: transparent;
 }
 
-.search-results-page-num {
-  font-size: 0.75rem;
-  padding-top: 0.5rem;
+.search-results-page-header {
+  background-color: transparent;
+  text-align: left;
+  padding: 0;
+  border: none;
+  width: 100%;
+  display: flex;
+}
+
+.search-results-page-header-page-num {
+  flex-grow: 1;
+}
+
+.search-results-page-header-result-count {
+  margin-right: 4px;
+  border-radius: 5px;
+  height: 1.4rem;
+  min-width: 1.5rem;
+  text-align: center;
 }
 
 $lightModeColor: #8c8c8c;
@@ -59,6 +75,15 @@ $lightModeColor: #8c8c8c;
     background-color: #2a2a2a;
     border-color: #444444;
     color: $lightModeColor;
+  }
+
+  .search-results-page-header-page-num {
+    color: $lightModeColor;
+  }
+
+  .search-results-page-header-result-count {
+    background: #a0a0a0;
+    color: #1e1e1e;
   }
 
   .search-result-button {
@@ -80,6 +105,10 @@ $lightModeColor: #8c8c8c;
   .search-results-container::-webkit-scrollbar-thumb:vertical:hover {
     background-color: #303030;
   }
+
+  .search-result-highlight {
+    background-color: #603A23;
+  }
 }
 
 $lightModeScrollBarColor: #d8d8d8;
@@ -88,6 +117,19 @@ $lightModeColor: #3b3b3b;
   .search-input {
     background-color: #fff;
     border-color: #cecece;
+    color: $lightModeColor;
+  }
+
+  .search-results-page-header-page-num {
+    color: $lightModeColor;
+  }
+
+    .search-results-page-header-result-count {
+    background: #dcdcdc;
+    color: #1e1e1e;
+  }
+
+  .search-result-button {
     color: $lightModeColor;
   }
 
@@ -109,5 +151,9 @@ $lightModeColor: #3b3b3b;
 
   .search-results-container::-webkit-scrollbar-thumb:vertical:hover {
     background-color: #a8a8a8;
+  }
+
+  .search-result-highlight {
+    background-color: #E3BDA6;
   }
 }
