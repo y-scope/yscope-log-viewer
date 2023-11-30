@@ -83,7 +83,6 @@ onmessage = function (e) {
                 sendError(e);
             }
             break;
-
         default:
             break;
     }

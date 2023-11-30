@@ -344,6 +344,9 @@ class FileManager {
     };
 
     searchLogEvents = (searchString, isRegex, matchCase) => {
+        // increment job id for every new query
+        //  so the last job can be interrupted by itself checking
+        //  if the job id matches
         this._logSearchJobId++;
         const currentLogSearchJobId = this._logSearchJobId;
 
@@ -360,8 +363,8 @@ class FileManager {
         const dataInputStream = new DataInputStream(this._arrayBuffer);
         this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
             this.state.prettify ? this._prettifyLogEventContent : null);
-        let numSearchResults = 0;
-        let pageIdx = 0;
+        let numSearchResults = 0; // counter to limit max count of matching logs
+        let pageIdx = 0; // current page being searched
         const searchOnPage = (i)=>{
             if (numSearchResults >= FILE_MANAGER_LOG_SEARCH_MAX_RESULTS) {
                 // signal search is done by sending results from "last page"
@@ -423,6 +426,8 @@ class FileManager {
             // schedule the iterations one-by-one to avoid clogging up
             setTimeout(()=>{
                 if (currentLogSearchJobId === this._logSearchJobId) {
+                    // to report progress,
+                    //  always send search results even if it is empty
                     this._updateSearchResultsCallback(i, searchResults);
                     pageIdx++;
 

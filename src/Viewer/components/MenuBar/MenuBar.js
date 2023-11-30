@@ -1,9 +1,15 @@
-import React, {useContext, useRef, useState} from "react";
+import React, {useContext, useState} from "react";
 
 import PropTypes from "prop-types";
-import {Button, Form, Modal, ProgressBar, Table} from "react-bootstrap";
-import {ChevronDoubleLeft, ChevronDoubleRight, ChevronLeft, ChevronRight,
-    FileText, Folder, Gear, Keyboard, Moon, Sun} from "react-bootstrap-icons";
+import {Button, Modal, ProgressBar, Table} from "react-bootstrap";
+import {
+    ChevronDoubleLeft,
+    ChevronDoubleRight,
+    ChevronLeft,
+    ChevronRight,
+    FileText,
+    Keyboard
+} from "react-bootstrap-icons";
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
@@ -18,7 +24,6 @@ MenuBar.propTypes = {
     fileMetaData: PropTypes.object,
     loadingLogs: PropTypes.bool,
     changeStateCallback: PropTypes.func,
-    loadFileCallback: PropTypes.func,
 };
 
 /**
@@ -29,38 +34,31 @@ MenuBar.propTypes = {
  */
 
 /**
- * This callback is used to load a new file.
- *
- * @callback LoadFileCallback
- * @param {File|String} fileInfo File object or file path to load.
- */
-
-/**
  * Menu bar used to navigate the log file.
  * @param {object} logFileState Current state of the log file
  * @param {object} fileMetaData Object containing file metadata
  * @param {boolean} loadingLogs Indicates if logs are being decoded and
  *                              loaded by worker.
  * @param {ChangeStateCallback} changeStateCallback
- * @param {LoadFileCallback} loadFileCallback
  * @return {JSX.Element}
  */
 export function MenuBar ({
-    logFileState, fileMetaData, loadingLogs, changeStateCallback, loadFileCallback,
+    logFileState,
+    fileMetaData,
+    loadingLogs,
+    changeStateCallback,
 }) {
-    const {theme, switchTheme} = useContext(ThemeContext);
-
-    const [eventsPerPage, setEventsPerPage] = useState(logFileState.pages);
-    const [showSettings, setShowSettings] = useState(false);
+    const {theme} = useContext(ThemeContext);
     const [showHelp, setShowHelp] = useState(false);
-
-    const handleCloseSettings = () => setShowSettings(false);
-    const handleShowSettings = () => setShowSettings(true);
 
     const handleCloseHelp = () => setShowHelp(false);
     const handleShowHelp = () => setShowHelp(true);
 
-    const inputFile = useRef(null);
+
+    // Modal Functions
+    const getModalClass = () => {
+        return (THEME_STATES.LIGHT === theme)?"modal-light":"modal-dark";
+    };
 
     const goToFirstPage = () => {
         if (logFileState.page !== 1) {
@@ -87,52 +85,6 @@ export function MenuBar ({
             action: MODIFY_PAGE_ACTION.newPage,
             requestedPage: page,
         });
-    };
-
-    // File functions
-    const openFile = () => {
-        inputFile.current.click();
-    };
-
-    const loadFile = (e) => {
-        loadFileCallback(e.target.files[0]);
-    };
-
-    // Modal Functions
-    const getModalClass = () => {
-        return (THEME_STATES.LIGHT === theme)?"modal-light":"modal-dark";
-    };
-
-    const saveModalChanges = (e) => {
-        // TODO Can't backspace 0 from the number input
-        // TODO What is the maximum number of events monaco can support?
-        e.preventDefault();
-        handleCloseSettings();
-        changeStateCallback(STATE_CHANGE_TYPE.pageSize, {pageSize: eventsPerPage});
-        localStorage.setItem("pageSize", String(eventsPerPage));
-    };
-
-    const closeModal = () => {
-        handleCloseSettings();
-    };
-
-    const openModal = () => {
-        handleShowSettings();
-        setEventsPerPage(logFileState.pageSize);
-    };
-
-    const getThemeIcon = () => {
-        if (THEME_STATES.LIGHT === theme) {
-            return (
-                <Moon className="cursor-pointer" title="Set Light Mode"
-                    onClick={() => switchTheme(THEME_STATES.DARK)}/>
-            );
-        } else if (THEME_STATES.DARK === theme) {
-            return (
-                <Sun className="cursor-pointer" title="Set Dark Mode"
-                    onClick={() => switchTheme(THEME_STATES.LIGHT)}/>
-            );
-        }
     };
 
     const getPageNav = () => {
@@ -183,17 +135,6 @@ export function MenuBar ({
                     <div className="menu-right">
                         {getPageNav()}
                         <div className="menu-divider"></div>
-                        <div className="menu-item menu-item-btn" onClick={openModal}>
-                            <Gear/>
-                        </div>
-                        <div className="menu-divider"></div>
-                        <div className="menu-item menu-item-btn" onClick={openFile}
-                            title="Open File (or Drag and Drop File)">
-                            <Folder/>
-                        </div>
-                        <input type='file' id='file' onChange={loadFile} ref={inputFile}
-                            style={{display: "none"}}/>
-                        <div className="menu-divider"></div>
                         <div className="menu-item menu-item-btn" onClick={handleShowHelp}
                             title="Show Help">
                             <Keyboard/>
@@ -202,35 +143,6 @@ export function MenuBar ({
                 </div>
                 {getLoadingBar()}
             </div>
-
-            <Modal show={showSettings} className="border-0" onHide={handleCloseSettings}
-                contentClassName={getModalClass()}>
-                <Modal.Header className="modal-background border-0" >
-                    <div className="float-left">
-                        App Settings
-                    </div>
-                    <div className="float-right">
-                        {getThemeIcon()}
-                    </div>
-                </Modal.Header>
-                <Modal.Body className="modal-background p-3 pt-1" >
-                    <label className="mb-2">Log Events per Page</label>
-                    <Form onSubmit={saveModalChanges}>
-                        <Form.Control type="number"
-                            value={eventsPerPage}
-                            onChange={(e) => setEventsPerPage(Number(e.target.value))}
-                            className="input-sm num-event-input" />
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer className="modal-background border-0" >
-                    <Button className="btn-sm" variant="success" onClick={saveModalChanges}>
-                        Save Changes
-                    </Button>
-                    <Button className="btn-sm" variant="secondary" onClick={closeModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
 
             <Modal show={showHelp} className="help-modal border-0" onHide={handleCloseHelp}
                 contentClassName={getModalClass()} data-theme={theme}>

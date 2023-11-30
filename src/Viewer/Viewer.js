@@ -322,10 +322,13 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                         width: "100%",
                     }}>
                         <LeftPanel
+                            logFileState={logFileState}
                             panelWidth={leftPanelWidth}
                             setPanelWidth={setLeftPanelWidth}
                             activeTabId={leftPanelActiveTabId}
                             setActiveTabId={setLeftPanelActiveTabId}
+                            loadFileCallback={loadFile}
+                            changeStateCallback={changeState}
                         >
                             {leftPanelContent}
                         </LeftPanel>
@@ -345,8 +348,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                                     fileMetaData={fileMetadata}
                                     logFileState={logFileState}
                                     changeStateCallback={changeState}
-                                    loadFileCallback={loadFile}/>
-
+                                />
                                 <div style={{
                                     flexGrow: 1,
                                     // Without this, if this element's content

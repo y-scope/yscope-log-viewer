@@ -124,6 +124,8 @@ function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
                     resultClickHandler(result.eventIndex + 1);
                 }}
             >
+                {/* Cap prefix length to be 25 characters
+                     so highlighted text can be shown */}
                 <span>{prefix.slice(-25)}</span>
                 <span className={"search-result-highlight"}>{result["match"]}</span>
                 <span>{postfix}</span>
@@ -134,8 +136,12 @@ function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
     return (
         <>
             <button className={"search-results-page-header"} onClick={onHeaderClickHandler}>
-                <div className={"search-results-page-header-page-num"}>{expanded?"⮞":"⮟"} PAGE {pageNum + 1}</div>
-                <div className={"search-results-page-header-result-count"}>{results.searchResults.length}</div>
+                <div className={"search-results-page-header-page-num"}>
+                    {expanded?"⮞":"⮟"} PAGE {pageNum + 1}
+                </div>
+                <div className={"search-results-page-header-result-count"}>
+                    {results.searchResults.length}
+                </div>
             </button>
             <div>
                 {expanded && resultsRows}

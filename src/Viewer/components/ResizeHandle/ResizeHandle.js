@@ -33,7 +33,8 @@ export function ResizeHandle ({resizeCallback}) {
 
         const handleMouseMove = (e) => {
             e.preventDefault();
-            const tabContainerWidth = document.getElementsByClassName("left-panel-tabs-container")[0].clientWidth;
+            const tabContainerWidth =
+                document.getElementsByClassName("left-panel-tabs-container")[0].clientWidth;
             resizeCallback(e.clientX - tabContainerWidth);
         };
         window.addEventListener("mousemove", handleMouseMove);
