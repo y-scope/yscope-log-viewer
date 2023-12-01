@@ -1,7 +1,12 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 import PropTypes from "prop-types";
 import {ProgressBar} from "react-bootstrap";
+import {
+    ArrowsCollapse,
+    ArrowsExpand, CaretDownFill,
+    CaretRightFill
+} from "react-bootstrap-icons";
 
 import "./SearchPanel.scss";
 
@@ -41,6 +46,11 @@ export function SearchPanel ({
     queryChangeHandler,
     searchResultClickHandler,
 }) {
+    const [collapseAll, setCollapseAll] = useState(false);
+    const handleCollapseAllClick = () => {
+        setCollapseAll(!collapseAll);
+    };
+
     const queryInputChangeHandler = (e) => {
         // auto resize height of the input box
         e.target.style.height = 0;
@@ -55,18 +65,27 @@ export function SearchPanel ({
             key={index}
             pageNum={resultGroup.page_num}
             results={resultGroup}
+            collapseAll={collapseAll}
+            setCollapseAll={setCollapseAll}
             resultClickHandler={searchResultClickHandler}
         />
     ));
 
     let progress = null;
     if (searchResults.length) {
-        progress = (searchResults[searchResults.length - 1].page_num + 1) / totalPages * 100;
+        progress = (searchResults[searchResults.length - 1].page_num + 1) /
+            totalPages * 100;
     }
     return (
         <>
             <div style={{padding: "0 15px"}}>
-                <span className={"search-input-label"}>SEARCH</span>
+                <div className={"tab-search-header"}>
+                    <div className={"tab-search-header-text"}>SEARCH</div>
+                    <button className={"tab-search-header-button"}
+                        onClick={handleCollapseAllClick}>
+                        {collapseAll ? <ArrowsExpand/> : <ArrowsCollapse/>}
+                    </button>
+                </div>
                 <form>
                     <textarea
                         className={"search-input"}
@@ -76,7 +95,8 @@ export function SearchPanel ({
                     />
                 </form>
                 {(progress !== null) &&
-                    <ProgressBar animated={progress !== 100} now={progress} style={{height: "3px"}}/>}
+                    <ProgressBar animated={progress !== 100} now={progress}
+                        style={{height: "3px"}}/>}
             </div>
             <div className={"search-results-container"}>
                 {resultGroups}
@@ -88,8 +108,16 @@ export function SearchPanel ({
 SearchResultsGroup.propTypes = {
     pageNum: PropTypes.number,
     results: PropTypes.object,
+    collapseAll: PropTypes.bool,
+    setCollapseAll: PropTypes.func,
     resultClickHandler: PropTypes.func,
 };
+
+/**
+ * Callback used to set collapse all flag
+ * @callback SetCollapseAll
+ * @param {boolean} collapseAll
+ */
 
 /**
  * Callback when a result is clicked
@@ -101,18 +129,29 @@ SearchResultsGroup.propTypes = {
  * The search results on a page
  * @param {number} pageNum
  * @param {object} results
+ * @param {boolean} collapseAll
+ * @param {SetCollapseAll} setCollapseAll
  * @param {ResultClickHandler} resultClickHandler
  * @return {JSX.Element}
  */
-function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
+function SearchResultsGroup ({
+    pageNum,
+    results,
+    collapseAll,
+    setCollapseAll,
+    resultClickHandler}) {
     if (results.searchResults.length === 0) {
         return <></>;
     }
 
-    const [expanded, setExpanded] = useState(true);
+    const [collapsed, setCollapsed] = useState(true);
     const onHeaderClickHandler = () => {
-        setExpanded(!expanded);
+        setCollapsed(!collapsed);
     };
+
+    useEffect(()=>{
+        setCollapsed(collapseAll);
+    }, [collapseAll]);
 
     const resultsRows = results.searchResults.map((result, index) => {
         const [prefix, postfix] = result["content"].split(result["match"]);
@@ -120,14 +159,15 @@ function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
             <button
                 className={"search-result-button"}
                 key={result.eventIndex}
-                onClick={()=>{
+                onClick={() => {
                     resultClickHandler(result.eventIndex + 1);
                 }}
             >
                 {/* Cap prefix length to be 25 characters
                      so highlighted text can be shown */}
                 <span>{prefix.slice(-25)}</span>
-                <span className={"search-result-highlight"}>{result["match"]}</span>
+                <span
+                    className={"search-result-highlight"}>{result["match"]}</span>
                 <span>{postfix}</span>
             </button>
         );
@@ -135,16 +175,20 @@ function SearchResultsGroup ({pageNum, results, resultClickHandler}) {
 
     return (
         <>
-            <button className={"search-results-page-header"} onClick={onHeaderClickHandler}>
+            <button className={"search-results-page-header"}
+                onClick={onHeaderClickHandler}>
                 <div className={"search-results-page-header-page-num"}>
-                    {expanded?"⮞":"⮟"} PAGE {pageNum + 1}
+                    {collapsed ?
+                        <CaretDownFill size={14}/> :
+                        <CaretRightFill size={14}/>}
+                    &nbsp;PAGE {pageNum + 1}
                 </div>
                 <div className={"search-results-page-header-result-count"}>
                     {results.searchResults.length}
                 </div>
             </button>
             <div>
-                {expanded && resultsRows}
+                {!collapsed && resultsRows}
             </div>
         </>
     );

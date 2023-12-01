@@ -22,7 +22,7 @@ LeftPanel.propTypes = {
     activeTabId: PropTypes.number,
     setActiveTabId: PropTypes.func,
     loadFileCallback: PropTypes.func,
-    ChangeStateCallback: PropTypes.func,
+    changeStateCallback: PropTypes.func,
     children: PropTypes.element,
 };
 
