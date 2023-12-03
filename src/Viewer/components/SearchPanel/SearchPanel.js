@@ -113,6 +113,11 @@ export function SearchPanel ({
                         style={{paddingRight: "66px"}}
                         className={"search-input"}
                         onChange={queryInputChangeHandler}
+                        onKeyDown={(event)=>{
+                            if (event.key === "Enter" && !event.shiftKey) {
+                                event.preventDefault();
+                            }
+                        }}
                         placeholder={"Query"}
                         value={query.searchString}
                     />
