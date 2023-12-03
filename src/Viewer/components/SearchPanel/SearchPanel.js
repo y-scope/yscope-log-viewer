@@ -18,6 +18,7 @@ SearchPanel.propTypes = {
     searchResultClickHandler: PropTypes.func,
 };
 
+
 /**
  * Callback when the query is changed
  * @callback QueryChangeHandler
@@ -60,21 +61,26 @@ export function SearchPanel ({
         queryChangeHandler(newQuery);
     };
 
-    const resultGroups = searchResults.map((resultGroup, index) => (
-        <SearchResultsGroup
-            key={index}
-            pageNum={resultGroup.page_num}
-            results={resultGroup}
-            collapseAll={collapseAll}
-            setCollapseAll={setCollapseAll}
-            resultClickHandler={searchResultClickHandler}
-        />
-    ));
-
+    let resultGroups = <></>;
     let progress = null;
-    if (searchResults.length) {
-        progress = (searchResults[searchResults.length - 1].page_num + 1) /
+    if (searchResults !== null) {
+        resultGroups = searchResults.map((resultGroup, index) => (
+            <SearchResultsGroup
+                key={index}
+                pageNum={resultGroup.page_num}
+                results={resultGroup}
+                collapseAll={collapseAll}
+                setCollapseAll={setCollapseAll}
+                resultClickHandler={searchResultClickHandler}
+            />
+        ));
+        if (searchResults.length) {
+            progress = (searchResults[searchResults.length - 1].page_num + 1) /
             totalPages * 100;
+        } else {
+            // instead of 0 set progress as 5% to show something is being loaded
+            progress = 5;
+        }
     }
     return (
         <>
@@ -153,7 +159,7 @@ function SearchResultsGroup ({
         setCollapsed(collapseAll);
     }, [collapseAll]);
 
-    const resultsRows = results.searchResults.map((result, index) => {
+    const resultsRows = results.searchResults.map((result) => {
         const [prefix, postfix] = result["content"].split(result["match"]);
         return (
             <button

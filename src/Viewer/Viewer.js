@@ -50,6 +50,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     // Loading States
     const [loadingFile, setLoadingFile] = useState(true);
     const [loadingLogs, setLoadingLogs] = useState(true);
+    const [shouldReloadSearch, setShouldReloadSearch] = useState(false);
     const [statusMessage, setStatusMessage] = useState("");
     const [statusMessageLogs, setStatusMessageLogs] = useState([]);
 
@@ -73,7 +74,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     const [leftPanelActiveTabId, setLeftPanelActiveTabId] = useState(LEFT_PANEL_TAB_IDS.SEARCH);
     const [leftPanelWidth, setLeftPanelWidth] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState(null);
 
     useEffect(() => {
         // Cleanup
@@ -95,10 +96,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
         setStatusMessageLogs([...msgLogger.current.reset()]);
         setLoadingLogs(false);
         setLoadingFile(true);
+        setShouldReloadSearch(true);
 
         // Create new worker and pass args to worker to load file
         clpWorker.current = new Worker(new URL("./services/clpWorker.js", import.meta.url));
-        clpWorker.current.onmessage = handleWorkerMessage;
         // If file was loaded using file dialog or drag/drop, reset logEventIdx
         const logEvent = (typeof fileInfo === "string") ? logFileState.logEventIdx : null;
         const initialTimestamp = isNumeric(timestamp) ? Number(timestamp) : null;
@@ -121,6 +122,23 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     useEffect(() => {
         msgLogger.current.add(statusMessage);
     }, [statusMessage]);
+
+    const handleStateChangeSearch = (args) => {
+        if (args.searchString === "") {
+            setSearchResults(null);
+        } else {
+            setSearchResults([]);
+        }
+
+        clpWorker.current.postMessage({
+            code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING,
+            searchString: args.searchString,
+            isRegex: false,
+            matchCase: false,
+            // isRegex: args.isRegex,
+            // matchCase: args.matchCase,
+        });
+    };
 
     /**
      * Passes state changes to the worker. Worker performs operation
@@ -148,6 +166,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 break;
             case STATE_CHANGE_TYPE.verbosity:
                 if (args.verbosity !== logFileState.verbosity) {
+                    setShouldReloadSearch(true);
+                    handleStateChangeSearch({searchString: ""});
                     setLoadingLogs(true);
                     const verbosity = (args.verbosity === -1) ? "ALL"
                         : FourByteClpIrStreamReader.VERBOSITIES[args.verbosity].label;
@@ -159,12 +179,16 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 }
                 break;
             case STATE_CHANGE_TYPE.pageSize:
-                setLoadingLogs(true);
-                setStatusMessage(`Changing events per page to ${args.pageSize}`);
-                clpWorker.current.postMessage({
-                    code: CLP_WORKER_PROTOCOL.REDRAW_PAGE,
-                    pageSize: Number(args.pageSize),
-                });
+                if (args.pageSize !== logFileState.pageSize) {
+                    setShouldReloadSearch(true);
+                    handleStateChangeSearch({searchString: ""});
+                    setLoadingLogs(true);
+                    setStatusMessage(`Changing events per page to ${args.pageSize}`);
+                    clpWorker.current.postMessage({
+                        code: CLP_WORKER_PROTOCOL.REDRAW_PAGE,
+                        pageSize: Number(args.pageSize),
+                    });
+                }
                 break;
             case STATE_CHANGE_TYPE.prettify:
                 setLoadingLogs(true);
@@ -190,15 +214,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 });
                 break;
             case STATE_CHANGE_TYPE.search:
-                setSearchResults([]);
-                clpWorker.current.postMessage({
-                    code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING,
-                    searchString: args.searchString,
-                    isRegex: false,
-                    matchCase: false,
-                    // isRegex: args.isRegex,
-                    // matchCase: args.matchCase,
-                });
+                handleStateChangeSearch(args);
                 break;
             default:
                 break;
@@ -231,6 +247,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setLoadingFile(false);
                 setLoadingLogs(false);
                 setStatusMessage("");
+                if (shouldReloadSearch) {
+                    handleStateChangeSearch({searchString: searchQuery});
+                    setShouldReloadSearch(false);
+                }
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
                 setLogData(event.data.logs);
@@ -250,7 +270,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 console.error("Unhandled code:", event.data);
                 break;
         }
-    }, [logFileState, logData]);
+    }, [logFileState, logData, searchQuery, shouldReloadSearch]);
+    useEffect(()=>{
+        clpWorker.current.onmessage = handleWorkerMessage;
+    }, [logFileState, logData, searchQuery, shouldReloadSearch]);
 
     useEffect(() => {
         modifyFileMetadata(fileMetadata, logFileState.logEventIdx);
