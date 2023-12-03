@@ -190,11 +190,7 @@ class FourByteClpIrStreamReader {
     }
 
     decodeAndMatchLogEvent (outputResizableBuffer, searchString, isRegex, matchCase) {
-        let timestamp;
-        let verbosityIx;
-        let numValidVars;
-
-        ({timestamp, verbosityIx, numValidVars} = this._readLogEvent());
+        const {timestamp, _, numValidVars} = this._readLogEvent();
         this._tokenDecoder.decodeTimestamp(outputResizableBuffer, timestamp);
 
         // Decode logtype and variables

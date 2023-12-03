@@ -3,6 +3,7 @@
   padding: 10px 0;
   align-items: center;
 }
+
 .tab-search-header-text {
   flex-grow: 1;
   font-size: 0.8rem;
@@ -10,7 +11,6 @@
 }
 
 .tab-search-header-button {
-  color: #8c8c8c;
   border: none;
   background-color: transparent;
 }
@@ -23,6 +23,11 @@
   padding: 0 5px;
   resize: none;
   width: 100%;
+}
+
+.search-input-button {
+  background-color: transparent;
+  border: none;
 }
 
 .search-input:focus, .search-input:focus-visible {
@@ -82,12 +87,33 @@
   text-align: center;
 }
 
-$lightModeColor: #8c8c8c;
+$lightModeColor: #b4b4b4;
+$lightModeBackgroundColor: #8c8c8c;
 .viewer-container[data-theme="dark"] {
+  .tab-search-header-button {
+    color: $lightModeColor;
+  }
+
+  .tab-search-header-button:hover {
+    background-color: $lightModeBackgroundColor;
+  }
+
   .search-input {
     background-color: #2a2a2a;
     border-color: #444444;
     color: $lightModeColor;
+  }
+
+  .search-input-button {
+    color: $lightModeColor;
+  }
+
+  .search-input-button:hover {
+    background-color: $lightModeBackgroundColor;
+  }
+
+  .search-input-button-active {
+    background-color: #245779;
   }
 
   .search-results-page-header-page-num {
@@ -95,7 +121,7 @@ $lightModeColor: #8c8c8c;
   }
 
   .search-results-page-header-result-count {
-    background: #a0a0a0;
+    background: $lightModeBackgroundColor;
     color: #1e1e1e;
   }
 
@@ -126,19 +152,40 @@ $lightModeColor: #8c8c8c;
 
 $lightModeScrollBarColor: #d8d8d8;
 $lightModeColor: #3b3b3b;
+$lightModeBackgroundColor: #dcdcdc;
 .viewer-container[data-theme="light"] {
+  .tab-search-header-button {
+    color: $lightModeColor;
+  }
+
+  .tab-search-header-button:hover {
+    background-color: $lightModeBackgroundColor;
+  }
+
   .search-input {
     background-color: #fff;
     border-color: #cecece;
     color: $lightModeColor;
   }
 
+  .search-input-button {
+    color: $lightModeColor;
+  }
+
+  .search-input-button:hover {
+    background-color: $lightModeBackgroundColor;
+  }
+
+  .search-input-button-active {
+    background-color: #d9e9fb;
+  }
+
   .search-results-page-header-page-num {
     color: $lightModeColor;
   }
 
-    .search-results-page-header-result-count {
-    background: #dcdcdc;
+  .search-results-page-header-result-count {
+    background: $lightModeBackgroundColor;
     color: #1e1e1e;
   }
 

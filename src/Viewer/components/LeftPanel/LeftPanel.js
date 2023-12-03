@@ -12,7 +12,7 @@ import {ResizeHandle} from "../ResizeHandle/ResizeHandle";
 import "./LeftPanel.scss";
 
 const LEFT_PANEL_WIDTH_LIMIT_FACTOR = 0.8;
-const LEFT_PANEL_SNAP_WIDTH = 20;
+const LEFT_PANEL_SNAP_WIDTH = 108;
 const LEFT_PANEL_DEFAULT_WIDTH_FACTOR = 0.2;
 
 LeftPanel.propTypes = {

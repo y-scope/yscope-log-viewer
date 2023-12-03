@@ -4,20 +4,21 @@ import PropTypes from "prop-types";
 import {ProgressBar} from "react-bootstrap";
 import {
     ArrowsCollapse,
-    ArrowsExpand, CaretDownFill,
-    CaretRightFill
+    ArrowsExpand,
+    CaretDownFill,
+    CaretRightFill,
+    Regex
 } from "react-bootstrap-icons";
 
 import "./SearchPanel.scss";
 
 SearchPanel.propTypes = {
-    query: PropTypes.string,
+    query: PropTypes.object,
     searchResults: PropTypes.array,
     totalPages: PropTypes.number,
     queryChangeHandler: PropTypes.func,
     searchResultClickHandler: PropTypes.func,
 };
-
 
 /**
  * Callback when the query is changed
@@ -33,7 +34,7 @@ SearchPanel.propTypes = {
 
 /**
  * The search panel
- * @param {string} query
+ * @param {object} query
  * @param {array} searchResults
  * @param {number} totalPages
  * @param {QueryChangeHandler} queryChangeHandler
@@ -58,7 +59,22 @@ export function SearchPanel ({
         e.target.style.height = e.target.scrollHeight + 6 + "px";
 
         const newQuery = e.target.value;
-        queryChangeHandler(newQuery);
+        queryChangeHandler({...query, searchString: newQuery});
+    };
+
+    const queryButtonClickHandler = (e) => {
+        e.preventDefault();
+        const {action} = e.currentTarget.dataset;
+        switch (action) {
+            case "matchCase":
+                queryChangeHandler({...query, matchCase: !query.matchCase});
+                break;
+            case "isRegex":
+                queryChangeHandler({...query, isRegex: !query.isRegex});
+                break;
+            default:
+                break;
+        }
     };
 
     let resultGroups = <></>;
@@ -76,7 +92,7 @@ export function SearchPanel ({
         ));
         if (searchResults.length) {
             progress = (searchResults[searchResults.length - 1].page_num + 1) /
-            totalPages * 100;
+                totalPages * 100;
         } else {
             // instead of 0 set progress as 5% to show something is being loaded
             progress = 5;
@@ -92,13 +108,29 @@ export function SearchPanel ({
                         {collapseAll ? <ArrowsExpand/> : <ArrowsCollapse/>}
                     </button>
                 </div>
-                <form>
+                <form style={{display: "flex"}}>
                     <textarea
+                        style={{paddingRight: "66px"}}
                         className={"search-input"}
                         onChange={queryInputChangeHandler}
                         placeholder={"Query"}
-                        value={query}
+                        value={query.searchString}
                     />
+                    <span style={{position: "absolute", right: "14px"}}>
+                        <button onClick={queryButtonClickHandler}
+                            data-action={"matchCase"}
+                            className={`search-input-button 
+                            ${query.matchCase ? "search-input-button-active" : ""}`}>
+                            {/* TODO: Replace with some icon */}
+                            Aa
+                        </button>
+                        <button onClick={queryButtonClickHandler}
+                            data-action={"isRegex"}
+                            className={`search-input-button 
+                            ${query.isRegex ? "search-input-button-active" : ""}`}>
+                            <Regex/>
+                        </button>
+                    </span>
                 </form>
                 {(progress !== null) &&
                     <ProgressBar animated={progress !== 100} now={progress}
@@ -145,7 +177,8 @@ function SearchResultsGroup ({
     results,
     collapseAll,
     setCollapseAll,
-    resultClickHandler}) {
+    resultClickHandler,
+}) {
     if (results.searchResults.length === 0) {
         return <></>;
     }
@@ -155,7 +188,7 @@ function SearchResultsGroup ({
         setCollapsed(!collapsed);
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         setCollapsed(collapseAll);
     }, [collapseAll]);
 

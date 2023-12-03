@@ -39,7 +39,7 @@ onmessage = function (e) {
             break;
         case CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING:
             try {
-                console.debug("search string: " + e.data.searchString);
+                console.debug(e.data);
                 handler.changeSearchString(e.data.searchString, e.data.isRegex, e.data.matchCase);
             } catch (e) {
                 sendError(e);

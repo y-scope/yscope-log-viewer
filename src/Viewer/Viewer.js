@@ -73,7 +73,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
 
     const [leftPanelActiveTabId, setLeftPanelActiveTabId] = useState(LEFT_PANEL_TAB_IDS.SEARCH);
     const [leftPanelWidth, setLeftPanelWidth] = useState(0);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState({
+        searchString: "",
+        isRegex: false,
+        matchCase: false});
     const [searchResults, setSearchResults] = useState(null);
 
     useEffect(() => {
@@ -133,10 +136,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
         clpWorker.current.postMessage({
             code: CLP_WORKER_PROTOCOL.UPDATE_SEARCH_STRING,
             searchString: args.searchString,
-            isRegex: false,
-            matchCase: false,
-            // isRegex: args.isRegex,
-            // matchCase: args.matchCase,
+            isRegex: args.isRegex,
+            matchCase: args.matchCase,
         });
     };
 
@@ -248,7 +249,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 setLoadingLogs(false);
                 setStatusMessage("");
                 if (shouldReloadSearch) {
-                    handleStateChangeSearch({searchString: searchQuery});
+                    handleStateChangeSearch({...searchQuery});
                     setShouldReloadSearch(false);
                 }
                 break;
@@ -292,7 +293,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
 
     const searchQueryChangeHandler = (newQuery) => {
         setSearchQuery(newQuery);
-        changeState(STATE_CHANGE_TYPE.search, {searchString: newQuery});
+        changeState(STATE_CHANGE_TYPE.search, {...newQuery});
     };
 
     const goToEventCallback = (logEventIdx) => {
