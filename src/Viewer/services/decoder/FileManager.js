@@ -9,6 +9,7 @@ import SimplePrettifier from "./SimplePrettifier";
 import {formatSizeInBytes} from "./utils";
 
 const FILE_MANAGER_LOG_SEARCH_MAX_RESULTS = 1000;
+const FILE_MANAGER_LOG_SEARCH_CHUNK_SIZE = 10000;
 
 /**
  * File manager to manage and track state of each file that is loaded.
@@ -363,81 +364,119 @@ class FileManager {
         const dataInputStream = new DataInputStream(this._arrayBuffer);
         this._irStreamReader = new FourByteClpIrStreamReader(dataInputStream,
             this.state.prettify ? this._prettifyLogEventContent : null);
-        let numSearchResults = 0; // counter to limit max count of matching logs
+
+        let numTotalResults = 0;
+        const searchResultsToSend = [];
+        const searchResults = [];
+        let isSearching = true;
         let pageIdx = 0; // current page being searched
-        const searchOnPage = (i)=>{
-            if (numSearchResults >= FILE_MANAGER_LOG_SEARCH_MAX_RESULTS) {
-                // signal search is done by sending results from "last page"
-                this._updateSearchResultsCallback(this.state.pages - 1, []);
-                return;
-            }
-
-            const searchResults = [];
-            const logEventsBeginIdx = i * this.state.pageSize;
-            const numOfEvents = Math.min(this.state.pageSize,
-                numEventsAtLevel - logEventsBeginIdx);
-
-            for (let j = logEventsBeginIdx; j < logEventsBeginIdx +
-      numOfEvents; j++) {
-                const event = this._logEventOffsetsFiltered[j];
+        let pageEndEventIdx = Math.min(this.state.pageSize, numEventsAtLevel);
+        const searchChunk = (logEventsBeginIdx) => {
+            const logEventsEndIdx =
+                logEventsBeginIdx + FILE_MANAGER_LOG_SEARCH_CHUNK_SIZE;
+            for (let eventIdx = logEventsBeginIdx; eventIdx < logEventsEndIdx; eventIdx++) {
+                const event = this._logEventOffsetsFiltered[eventIdx];
                 const decoder = this._irStreamReader._streamProtocolDecoder;
-
                 this._irStreamReader._dataInputStream.seek(event.startIndex);
                 this._outputResizableBuffer.clear();
-
                 // Set the timestamp before decoding the message.
                 // If it is first message, use timestamp in metadata.
                 if (event.mappedIndex === 0) {
                     decoder._reset();
                 } else {
-                    decoder._setTimestamp(
-                        this._logEventOffsets[event.mappedIndex - 1].timestamp);
+                    decoder._setTimestamp(this._logEventOffsets[event.mappedIndex - 1].timestamp);
                 }
-
                 try {
-                    const {match, contentString} = this._irStreamReader.decodeAndMatchLogEvent(
-                        this._outputResizableBuffer,
-                        searchString, isRegex, matchCase);
+                    const {match, contentString} =
+                        this._irStreamReader.decodeAndMatchLogEvent(
+                            this._outputResizableBuffer,
+                            searchString, isRegex, matchCase);
 
-                    const lastEvent = this.logEventMetadata[this.logEventMetadata.length -
-          1];
+                    const lastEvent = this.logEventMetadata[this.logEventMetadata.length - 1];
                     lastEvent.mappedIndex = event.mappedIndex;
 
                     if (match) {
-                        searchResults.push({eventIndex: j, content: contentString, match: match});
-                        numSearchResults++;
-                        if (numSearchResults >= FILE_MANAGER_LOG_SEARCH_MAX_RESULTS) {
-                            break;
-                        }
+                        searchResults.push({
+                            eventIndex: eventIdx,
+                            content: contentString,
+                            match: match,
+                        });
+                        numTotalResults++;
                     }
                 } catch (error) {
-                    // Ignore EOF errors since we should still be able
-                    // to print the decoded messages
+                // Ignore EOF errors since we should still be able
+                // to print the decoded messages
                     if (error instanceof DataInputStreamEOFError) {
-                        // TODO Give visual indication that the stream is truncated
+                    // TODO Give visual indication that the stream is truncated
                         console.error("Stream truncated.");
                     } else {
                         console.log("random error");
                         throw error;
                     }
+                } // try - catch
+
+                if (numTotalResults >= FILE_MANAGER_LOG_SEARCH_MAX_RESULTS) {
+                    isSearching = false;
+                    searchResultsToSend.push({pageIdx: pageIdx,
+                        searchResults: structuredClone(searchResults)});
+                    searchResultsToSend.push({pageIdx: this.state.pages - 1,
+                        searchResults: []});
+                    break;
+                } else if (eventIdx + 1 === pageEndEventIdx) {
+                    // Page end reached
+
+                    // To update progress, always send searchResults
+                    //  even if it is empty
+                    searchResultsToSend.push({pageIdx: pageIdx,
+                        searchResults: structuredClone(searchResults)});
+
+                    // clear searchResults[]
+                    searchResults.splice(0, searchResults.length);
+
+                    // update page end event index
+                    pageIdx++;
+                    if (pageIdx >= this.state.pages) {
+                        isSearching = false;
+                        break;
+                    }
+                    pageEndEventIdx = Math.min(
+                        this.state.pageSize * (pageIdx + 1),
+                        numEventsAtLevel
+                    );
                 }
-            }
+            } // for (let eventIdx = logEventsBeginIdx; eventIdx < logEventsEndIdx; eventIdx++)
 
             // schedule the iterations one-by-one to avoid clogging up
             setTimeout(()=>{
                 if (currentLogSearchJobId === this._logSearchJobId) {
-                    // to report progress,
-                    //  always send search results even if it is empty
-                    this._updateSearchResultsCallback(i, searchResults);
-                    pageIdx++;
+                    // avoid sending empty searchResults for consecutive pages
+                    let lastEmptyResultPageIdx = null;
+                    for (let i = 0; i < searchResultsToSend.length; i++) {
+                        if (searchResultsToSend[i].searchResults.length === 0) {
+                            lastEmptyResultPageIdx = searchResultsToSend[i].pageIdx;
+                        } else {
+                            if (null !== lastEmptyResultPageIdx) {
+                                this._updateSearchResultsCallback(lastEmptyResultPageIdx, []);
+                                lastEmptyResultPageIdx = null;
+                            }
+                            this._updateSearchResultsCallback(
+                                searchResultsToSend[i].pageIdx,
+                                searchResultsToSend[i].searchResults);
+                        }
+                    }
+                    if (null !== lastEmptyResultPageIdx) {
+                        this._updateSearchResultsCallback(lastEmptyResultPageIdx, []);
+                    }
+                    searchResultsToSend.splice(0, searchResultsToSend.length);
 
-                    if (pageIdx < this.state.pages) {
-                        setTimeout(() => {searchOnPage(pageIdx);}, 0);
+                    if (isSearching) {
+                        setTimeout(() => {searchChunk(logEventsEndIdx);}, 0);
                     }
                 }
             }, 0);
-        };
-        searchOnPage(pageIdx);
+        }; // const searchChunk = (logEventsBeginIdx) => {
+
+        searchChunk(0);
     };
 
     /**
