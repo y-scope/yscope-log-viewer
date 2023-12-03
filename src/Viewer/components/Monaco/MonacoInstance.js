@@ -249,6 +249,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
         "renderWhitespace": "none",
         "wordWrap": "on",
         "scrollBeyondLastLine": false,
+        "mouseWheelZoom": true,
     };
 
     return (
