@@ -244,8 +244,10 @@ function LeftPanelTabs ({
                             <Folder size={25}/>
                         </button>
                         <button
-                            className={"left-panel-tab" +
-                                (LEFT_PANEL_TAB_IDS.SEARCH === activeTabId ? " -selected" : "")}
+                            className={`left-panel-tab 
+                            ${(LEFT_PANEL_TAB_IDS.SEARCH === activeTabId ?
+            "left-panel-tab-selected":
+            "")}`}
                             onClick={toggleSearchPanel}>
                             <Search size={25}/>
                         </button>
