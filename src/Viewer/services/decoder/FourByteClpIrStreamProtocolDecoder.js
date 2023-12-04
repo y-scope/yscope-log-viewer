@@ -48,7 +48,7 @@ class FourByteClpIrStreamProtocolDecoder {
         if (false === versionRegex.test(version)) {
             throw new Error(`Invalid Protocol Version: ${version}`);
         }
-        if (PROTOCOL.METADATA.VERSION_VALUE < versionRegex) {
+        if (PROTOCOL.METADATA.VERSION_VALUE < version) {
             throw new Error(`Input protocol version is too new: ${version}`);
         }
         const currentBuildProtocolMajorVersion = PROTOCOL.METADATA.VERSION_VALUE.split(".")[0];
