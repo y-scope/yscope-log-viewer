@@ -134,7 +134,7 @@ class FourByteClpIrStreamProtocolDecoder {
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_INT:
                 timestampDelta = dataInputStream.readInt();
                 break;
-            case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SINGED_LONG:
+            case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_LONG:
                 timestampDelta = dataInputStream.readSignedLong();
                 break;
             case PROTOCOL.PAYLOAD.TIMESTAMP_NULL:

@@ -33,7 +33,7 @@ const PROTOCOL = {
         TIMESTAMP_DELTA_SIGNED_BYTE: 0x31,
         TIMESTAMP_DELTA_SIGNED_SHORT: 0x32,
         TIMESTAMP_DELTA_SIGNED_INT: 0x33,
-        TIMESTAMP_DELTA_SINGED_LONG: 0x34,
+        TIMESTAMP_DELTA_SIGNED_LONG: 0x34,
         TIMESTAMP_NULL: 0x3F,
         // NOTE: JavaScript only supports 53-bit numbers safely, so we have to
         //       use BigInt for 64-bit numbers.
