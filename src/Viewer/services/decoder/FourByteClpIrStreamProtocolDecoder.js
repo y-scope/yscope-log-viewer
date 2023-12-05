@@ -1,4 +1,5 @@
 import PROTOCOL from "./PROTOCOL";
+import {getMajorVersion} from "./utils";
 
 class FourByteClpIrStreamProtocolDecoder {
     constructor (dataInputStream, tokenDecoder) {
@@ -40,12 +41,29 @@ class FourByteClpIrStreamProtocolDecoder {
         logtype.loadFrom(dataInputStream, length);
     }
 
+    validateProtocolVersion (version) {
+        if ("v0.0.0" === version) {
+            // This version is hardcoded to support the oldest IR protocol
+            // version. When this version is no longer supported, this branch
+            // should be removed.
+            return;
+        }
+        const versionRegex = PROTOCOL.METADATA.VERSION_REGEX;
+        if (false === versionRegex.test(version)) {
+            throw new Error(`Invalid Protocol Version: ${version}`);
+        }
+        if (PROTOCOL.METADATA.VERSION_VALUE < version) {
+            throw new Error(`Input protocol version is too new: ${version}`);
+        }
+        if (getMajorVersion(PROTOCOL.METADATA.VERSION_VALUE) > getMajorVersion(version)) {
+            throw new Error(`Input protocol version is too old: ${version}`);
+        }
+    }
+
     initializeStream (dataInputStream, tokenDecoder) {
         const metadata = this.readMetadata(dataInputStream);
         const version = metadata[PROTOCOL.METADATA.VERSION_KEY];
-        if (version !== PROTOCOL.METADATA.VERSION_VALUE) {
-            throw new Error(`Incompatible protocol version: ${version}`);
-        }
+        this.validateProtocolVersion(version);
         this._timestamp = BigInt(metadata[PROTOCOL.METADATA.REFERENCE_TIMESTAMP_KEY]);
         tokenDecoder.setZoneId(metadata[PROTOCOL.METADATA.TZ_ID_KEY]);
         tokenDecoder.setTimestampPattern(metadata[PROTOCOL.METADATA.TIMESTAMP_PATTERN_KEY]);
@@ -117,6 +135,9 @@ class FourByteClpIrStreamProtocolDecoder {
                 break;
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_INT:
                 timestampDelta = dataInputStream.readInt();
+                break;
+            case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_LONG:
+                timestampDelta = dataInputStream.readSignedLong();
                 break;
             case PROTOCOL.PAYLOAD.TIMESTAMP_NULL:
                 return PROTOCOL.PAYLOAD.TIMESTAMP_NULL_VAL;

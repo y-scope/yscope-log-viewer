@@ -142,6 +142,21 @@ class DataInputStream {
         this._byteIx += 4;
         return val;
     }
+
+    /**
+     * Reads a signed long int (64 bit)
+     * @return {BigInt} The read signed long int
+     */
+    readSignedLong(){
+        const requiredLen = this._byteIx + 8;
+        if (this._dataView.byteLength < requiredLen) {
+            this._byteIx = this._dataView.byteLength;
+            throw new DataInputStreamEOFError(this._dataView.byteLength, requiredLen);
+        }
+        const val = this._dataView.getBigInt64(this._byteIx, false);
+        this._byteIx += 8;
+        return val;
+    }
 }
 
 export {DataInputStream, DataInputStreamEOFError};
