@@ -1,3 +1,11 @@
+/**
+ * @param {String} versionStr A complete semantic version number
+ * @return {String} The major version number
+ */
+function getMajorVersion (versionStr) {
+    return versionStr.split(".", 1)[0];
+}
+
 function javaIntegerDivide (top, bottom) {
     const integerQuotient = Math.trunc(top / bottom);
     // In Java -5 / 10 = 0 whereas in JavaScript, Math.trunc(-5 / 10) = -0, so
@@ -107,5 +115,5 @@ function isNumeric (value) {
     return (typeof value === "number");
 }
 
-export {countByteOccurrencesInUtf8Uint8Array, formatSizeInBytes,
-    isBoolean, isNumeric, javaIntegerDivide, uint8ArrayContains};
+export {countByteOccurrencesInUtf8Uint8Array, formatSizeInBytes, getMajorVersion, isBoolean,
+    isNumeric, javaIntegerDivide, uint8ArrayContains};
