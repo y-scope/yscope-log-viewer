@@ -1,4 +1,5 @@
 import PROTOCOL from "./PROTOCOL";
+import {getMajorVersion} from "./utils";
 
 class FourByteClpIrStreamProtocolDecoder {
     constructor (dataInputStream, tokenDecoder) {
@@ -42,18 +43,19 @@ class FourByteClpIrStreamProtocolDecoder {
 
     validateProtocolVersion (version) {
         if ("v0.0.0" === version) {
+            // This version is hardcoded to support the oldest IR protocol
+            // version. When this version is no longer supported, this branch
+            // should be removed.
             return;
         }
-        const versionRegex = new RegExp(PROTOCOL.METADATA.VERSION_REGEX);
+        const versionRegex = PROTOCOL.METADATA.VERSION_REGEX;
         if (false === versionRegex.test(version)) {
             throw new Error(`Invalid Protocol Version: ${version}`);
         }
         if (PROTOCOL.METADATA.VERSION_VALUE < version) {
             throw new Error(`Input protocol version is too new: ${version}`);
         }
-        const currentBuildProtocolMajorVersion = PROTOCOL.METADATA.VERSION_VALUE.split(".")[0];
-        const inputProtocolMajorVersion = version.split(".")[0];
-        if (currentBuildProtocolMajorVersion > inputProtocolMajorVersion) {
+        if (getMajorVersion(PROTOCOL.METADATA.VERSION_VALUE) > getMajorVersion(version)) {
             throw new Error(`Input protocol version is too old: ${version}`);
         }
     }

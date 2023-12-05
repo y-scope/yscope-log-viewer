@@ -3,12 +3,12 @@ const PROTOCOL = {
     METADATA: {
         VERSION_KEY: "VERSION",
         VERSION_VALUE: "0.0.1",
-        // The following regex can be used to validate a Semantic Versioning string.
-        // The source of the regex can be found here: https://semver.org/
-        VERSION_REGEX: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)" +
-                       "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)" +
-                       "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?" +
-                       "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+        // The following regex can be used to validate a Semantic Versioning
+        // string. The source of the regex can be found here: https://semver.org
+        VERSION_REGEX: new RegExp("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)"
+            + "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+            + "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+            + "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"),
         REFERENCE_TIMESTAMP_KEY: "REFERENCE_TIMESTAMP",
         TIMESTAMP_PATTERN_KEY: "TIMESTAMP_PATTERN",
         TZ_ID_KEY: "TZ_ID",
