@@ -397,6 +397,57 @@ class FileManager {
     };
 
     /**
+     * Find the range of log lines that have the similar log type as the current line.
+     * @return {Object} An Object in the format of { begin: <Number>, end: <Number>, events: <Number> }
+     */
+    querySimilarRange() {
+        const num = this.state.lineNumber;
+        const meta = this.logEventMetadata;
+        const cur = meta.findIndex((e) => e.mappedIndex + 1 === this.state.logEventIdx);
+
+        if (cur < 0) { // `findIndex` returns -1
+            return { start: num, end: num, events: 1 };
+        }
+
+        let start = num,
+            end = num,
+            events = 1,
+            type = meta[cur].typeIndex;
+
+        // For multi-line log, first find its start and end lines.
+        if (meta[cur].numLines > 1) {
+            let l = 1;
+            for (let i = 0; i < meta.length && l < num; i++) {
+                l += meta[i].numLines;
+            }
+            start = l - meta[cur].numLines;
+            end = l - 1;
+        }
+
+        // Scan upwards for similar lines.
+        for (let i = cur + 1; i < meta.length; i++) {
+            if (meta[i].typeIndex === type) {
+                end += meta[i].numLines;
+                events += 1;
+            } else {
+                break;
+            }
+        }
+
+        // Scan downwards.
+        for (let i = cur - 1; i >= 0; i--) {
+            if (meta[i].typeIndex === type) {
+                start -= meta[i].numLines;
+                events += 1;
+            } else {
+                break;
+            }
+        }
+
+        return { start, end, events }
+    };
+
+    /**
      * Prettifies the given log event content, if necessary
      * @param {Uint8Array} contentUint8Array The content as a Uint8Array
      * @return {[boolean, (string|*)]} A tuple containing a boolean indicating

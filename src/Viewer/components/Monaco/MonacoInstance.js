@@ -73,11 +73,12 @@ MonacoInstance.propTypes = {
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData}) {
+function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData, foldingRanges}) {
     const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
     const timeoutRef = useRef(null);
+    const currentFolding = useRef([]);
     const [monacoTheme, setMonacoTheme] = useState("customLogLanguageLight");
 
     const [language, setLanguage] = useState("");
@@ -106,14 +107,14 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     ["WARN", "custom-warn"],
                     ["FATAL", "custom-fatal"],
                     [/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z/, "custom-date"],
-                    [/^[\t ]*at.*$/, "custom-exception"],
-                    [/(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/, "custom-number"],
+                    // [/^[\t ]*at.*$/, "custom-exception"],
+                    // [/(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/, "custom-number"],
                 ],
             },
         });
+
         setLanguage("logLanguage");
     }
-
 
     /**
      * Called when editor is finished mounting.
@@ -121,7 +122,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} editor
      * @param {object} monaco
      */
-    const handleEditorDidMount =(editor, monaco) => {
+    const handleEditorDidMount = (editor, monaco) => {
         monacoRef.current = monaco;
         editorRef.current = editor;
         editorRef.current.setValue(logData);
@@ -143,6 +144,30 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     });
                 }, 50);
             }
+        });
+        editorRef.current.addAction({
+            id: "collapseSimilar",
+            label: "Collapse Similar (beta)",
+            run: function(editor) {
+                const num = editor.getPosition().lineNumber;
+
+                // Check if lines has already been folded before.
+                const inRange = (e) => (e.start <= num && e.end >= num)
+                if (undefined !== currentFolding.current.find(inRange)) {
+                    // If the range already exists, we only need to fold it.
+                    editor.trigger("fold", "editor.fold");
+                    return;
+                }
+
+                // We need to first change the lineNumber so as to update the logEventIdx in logFileState.
+                changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
+                    lineNumber: num,
+                    columnNumber: 1,
+                });
+
+                changeStateCallback(STATE_CHANGE_TYPE.collapse, { lineNumber: num });
+            },
+            contextMenuGroupId: "highlight",
         });
     };
 
@@ -170,7 +195,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -185,7 +210,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });
@@ -223,9 +248,36 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
 
     useEffect(() => {
         setMonacoTheme((theme === THEME_STATES.LIGHT)
-            ?"customLogLanguageLight"
-            :"customLogLanguageDark");
+            ? "customLogLanguageLight"
+            : "customLogLanguageDark");
     }, [theme]);
+
+    useEffect(() => {
+        if (null === editorRef.current) {
+            return;
+        }
+
+        if (foldingRanges.length != currentFolding.current.length) {
+            monaco.languages.registerFoldingRangeProvider("logLanguage", {
+                provideFoldingRanges: (model, context, token) => {
+                    return foldingRanges;
+                },
+            });
+
+            // Add the range to Monaco's internal states. (But it will not fold the range automatically, so
+            // we have to manually do it below.)
+            const foldingController = editorRef.current.getContribution('editor.contrib.folding');
+            foldingController.triggerFoldingModelChanged();
+
+            if (foldingRanges.length > currentFolding.current.length) {
+                // Folds the range at the cursor.
+                editorRef.current.trigger("fold", "editor.fold");
+            }
+
+            currentFolding.current = foldingRanges;
+        }
+
+    }, [foldingRanges]);
 
     // Shortcut for focusing on the monaco editor and to enable
     // keyboard shortcuts

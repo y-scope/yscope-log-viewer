@@ -67,6 +67,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     });
     const [fileMetadata, setFileMetadata] = useState(null);
     const [logData, setLogData] = useState("");
+    const [foldingRanges, setRanges] = useState([]);
 
     useEffect(() => {
         // Cleanup
@@ -182,6 +183,12 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                     desiredLogEventIdx: args.logEventIdx,
                 });
                 break;
+            case STATE_CHANGE_TYPE.collapse:
+                clpWorker.current.postMessage({
+                    code: CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES,
+                    lineNumber: args.lineNumber,
+                })
+                break;
             default:
                 break;
         }
@@ -216,16 +223,26 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                 break;
             case CLP_WORKER_PROTOCOL.LOAD_LOGS:
                 setLogData(event.data.logs);
+                setRanges([]);
                 setLoadingLogs(false);
                 setStatusMessage("");
                 break;
             case CLP_WORKER_PROTOCOL.UPDATE_FILE_INFO:
                 setFileMetadata(event.data.fileState);
                 break;
+            case CLP_WORKER_PROTOCOL.GET_SIMILAR_LINES:
+                const range = event.data.state.range;
+                if (range.events <= 1) {
+                    setStatusMessage("No similar logs found.");
+                } else {
+                    setRanges(arr => [ ...arr, range ]);
+                    setStatusMessage(`Collapsed ${range.events} log messages.`);
+                }
+                break;
             default:
                 break;
         }
-    }, [logFileState, logData]);
+    }, [logFileState, logData, foldingRanges]);
 
     useEffect(() => {
         modifyFileMetadata(fileMetadata, logFileState.logEventIdx);
@@ -274,7 +291,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                             logData={logData}
                             loadingLogs={loadingLogs}
                             changeStateCallback={changeState}
-                            logFileState={logFileState}/>
+                            logFileState={logFileState}
+                            foldingRanges={foldingRanges}/>
                     </div>
 
                     <StatusBar
