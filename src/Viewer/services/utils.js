@@ -1,5 +1,7 @@
 import MODIFY_PAGE_ACTION from "./MODIFY_PAGE_ACTION";
 
+const {DateTime} = require("luxon");
+
 /**
  * Modifies the page by performing the specified action.
  *
@@ -130,4 +132,14 @@ function binarySearchWithTimestamp (timestamp, logEventMetadata) {
     return null;
 }
 
-export {binarySearchWithTimestamp, isNumeric, modifyFileMetadata, modifyPage};
+/**
+ * Convert the JS Date to UTC without converting the time zone.
+ * @param {Date} date Input JS Date.
+ * @return {Number}
+ */
+const convertDateToUTCTimestamp = (date) => {
+    return DateTime.fromJSDate(date).setZone("UTC", {keepLocalTime: true}).toMillis();
+};
+
+export {binarySearchWithTimestamp, convertDateToUTCTimestamp, isNumeric, modifyFileMetadata,
+    modifyPage};
