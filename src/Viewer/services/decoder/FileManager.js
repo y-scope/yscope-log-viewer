@@ -1,3 +1,7 @@
+import {Tarball} from "@obsidize/tar-browserify";
+import JSZip from "jszip";
+import pako from "pako";
+
 import {ZstdCodec} from "../../../../customized-packages/zstd-codec/js";
 import CLP_WORKER_PROTOCOL from "../CLP_WORKER_PROTOCOL";
 import {readFile} from "../GetFile";
@@ -108,56 +112,6 @@ class FileManager {
     };
 
     /**
-     * Decompresses and loads file. Sends updated state to viewer.
-     */
-    decompressAndLoadFile () {
-        Promise.all([
-            new Promise((resolve) => {
-                ZstdCodec.run((zstd) => resolve(new zstd.Streaming()));
-            }),
-            readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize),
-        ]).then(([zstdStreaming, file]) => {
-            this._fileState = file;
-            this._updateFileInfoCallback(this._fileState);
-
-            this._loadingMessageCallback(
-                `Decompressing ${formatSizeInBytes(file.data.byteLength, false)}.`
-            );
-            this._arrayBuffer = zstdStreaming.decompress(file.data).buffer;
-            const decompressedBytes = formatSizeInBytes(this._arrayBuffer.byteLength, false);
-            this._loadingMessageCallback(`Decompressed ${decompressedBytes}.`);
-
-            this._buildIndex();
-            this.filterLogEvents(-1);
-
-            const numberOfEvents = this._logEventOffsets.length;
-            if (null !== this._initialTimestamp) {
-                this.state.logEventIdx = this.getLogEventIdxFromTimestamp(this._initialTimestamp);
-                console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
-                console.debug(`logEventIdx: ${this.state.logEventIdx}`);
-            } else if (null === this.state.logEventIdx || this.state.logEventIdx > numberOfEvents ||
-                this.state.logEventIdx <= 0) {
-                this.state.logEventIdx = numberOfEvents;
-            }
-
-            this.createPages();
-            this.computePageNumFromLogEventIdx();
-            this.decodePage();
-            this.computeLineNumFromLogEventIdx();
-
-            this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this.state);
-        }).catch((reason) => {
-            if (reason instanceof DataInputStreamEOFError) {
-                // If the file is truncated, send back a user-friendly error
-                this._loadingMessageCallback("IRStream truncated", true);
-            } else {
-                this._loadingMessageCallback(reason.message, true);
-            }
-            console.error(reason);
-        });
-    };
-
-    /**
      * Builds file index from startIndex, endIndex, verbosity,
      * timestamp for each log event.
      */
@@ -191,6 +145,224 @@ class FileManager {
 
         this.state.numberOfEvents = this._logEventOffsets.length;
     };
+
+    /**
+     * Append token to the end of fileState name
+     * @param {string} token to append
+     * @private
+     */
+    _appendToFileStateName (token) {
+        this._fileState.name += token;
+        this._updateFileInfoCallback(this._fileState);
+    }
+
+    /**
+     * Update input file and status
+     * @param {map} file to use as input
+     * @return {map} file to use as input
+     * @private
+     */
+    _updateInputFileAndStatus (file) {
+        this._fileState = file;
+        this._updateFileInfoCallback(this._fileState);
+
+        this.state.compressedSize = formatSizeInBytes(file.data.byteLength, false);
+        this._loadingMessageCallback(`Decompressing ${this.state.compressedSize}.`);
+
+        return file;
+    }
+
+    /**
+     * Decode plain-text log buffer and update editor state
+     * @param {Uint8Array} decompressedLogFile buffer to
+     * decode to string and update editor
+     * @private
+     */
+    _decodePlainTextLogAndUpdate (decompressedLogFile) {
+        // Update decompression status
+        this.state.decompressedSize = formatSizeInBytes(decompressedLogFile.byteLength, false);
+        this._loadingMessageCallback(`Decompressed ${this.state.decompressedSize}.`);
+
+        this._logs = this._textDecoder.decode(decompressedLogFile);
+        this._updateLogsCallback(this._logs);
+
+        // Update state to re-render a single page on the editor
+        this.state.verbosity = -1;
+        this.state.lineNumber = 1;
+        this.state.page = 1;
+        this.state.pages = 1;
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this.state);
+    }
+
+    /**
+     * Decode IRStream log buffer and update editor state
+     * @param {Uint8Array} decompressedIRStreamFile buffer to
+     * decode to log events and update editor
+     * @private
+     */
+    _decodeIRStreamLogAndUpdate (decompressedIRStreamFile) {
+        // Need to cache this for repeated access
+        this._arrayBuffer = decompressedIRStreamFile;
+
+        this._buildIndex();
+        this.filterLogEvents(-1);
+
+        const numberOfEvents = this._logEventOffsets.length;
+        if (null !== this._initialTimestamp) {
+            this.state.logEventIdx = this.getLogEventIdxFromTimestamp(this._initialTimestamp);
+            console.debug(`Initial Timestamp: ${this._initialTimestamp}`);
+            console.debug(`logEventIdx: ${this.state.logEventIdx}`);
+        } else if (null === this.state.logEventIdx
+            || this.state.logEventIdx > numberOfEvents
+            || this.state.logEventIdx <= 0) {
+            this.state.logEventIdx = numberOfEvents;
+        }
+
+        this.createPages();
+        this.computePageNumFromLogEventIdx();
+        this.decodePage();
+        this.computeLineNumFromLogEventIdx();
+
+        this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this.state);
+    }
+
+    /**
+     * Load plain-text file, update state to viewer
+     * @private
+     */
+    _loadPlainTextFile () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) => this._decodePlainTextLogAndUpdate(file.data))
+            .catch((error) => {
+                this._loadingMessageCallback(error.message, true);
+                console.error("Error processing log file:", error);
+            });
+    }
+
+    /**
+     * Decompress and load gzip file, update state to viewer
+     * @private
+     */
+    _loadGzipFile () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) => pako.inflate(file.data, {to: "Uint8Array"}))
+            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
+            .catch((error) => {
+                this._loadingMessageCallback(error.message, true);
+                console.error("Error processing log file:", error);
+            });
+    }
+
+    /**
+     * Decompress and load first file in tar.gz archive, update state to viewer
+     * @private
+     */
+    _loadTarGzipArchive () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) => pako.inflate(file.data, {to: "Uint8Array"}))
+            .then((tarArchive) => {
+                // Extract the first file in the tar archive
+                const [entry] = Tarball.extract(tarArchive).filter((entry) => entry.isFile());
+                this._appendToFileStateName("/" + entry.fileName);
+                this._decodePlainTextLogAndUpdate(entry.content);
+            })
+            .catch((error) => {
+                this._loadingMessageCallback(error.message, true);
+                console.error("Error processing log file:", error);
+            });
+    }
+
+    /**
+     * Decompress and load first file in ZIP archive, update state to viewer
+     * @private
+     */
+    _loadZipArchive () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) => (new JSZip()).loadAsync(file.data))
+            .then((zipArchive) => {
+                // Extract the first file in the zip archive
+                const [filePathToDecompress] = Object.keys(zipArchive.files);
+                this._appendToFileStateName("/" + filePathToDecompress);
+                return zipArchive.files[filePathToDecompress].async("uint8array");
+            })
+            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
+            .catch((error) => {
+                this._loadingMessageCallback(error.message, true);
+                console.error("Error processing log file:", error);
+            });
+    }
+
+    /**
+     * Decompress and load zst file, update state to viewer
+     * @private
+     */
+    _loadZstFile () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) =>
+                Promise.all([new Promise((resolve) =>
+                    ZstdCodec.run((zstd) => resolve(new zstd.Streaming()))), file]))
+            .then(([zstdCtx, file]) => zstdCtx.decompress(file.data).buffer)
+            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
+            .catch((error) => {
+                this._loadingMessageCallback(error.message, true);
+                console.error("Error processing log file:", error);
+            });
+    }
+
+    /**
+     * Decompress and load CLP IRStream file, update state to viewer
+     * @private
+     */
+    _loadClpIRStreamFile () {
+        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
+            .then((file) => this._updateInputFileAndStatus(file))
+            .then((file) =>
+                Promise.all([new Promise((resolve) =>
+                    ZstdCodec.run((zstd) => resolve(new zstd.Streaming()))), file]))
+            .then(([zstdCtx, file]) => zstdCtx.decompress(file.data).buffer)
+            .then((decompressedIRStreamFile) =>
+                this._decodeIRStreamLogAndUpdate(decompressedIRStreamFile))
+            .catch((error) => {
+                if (error instanceof DataInputStreamEOFError) {
+                    // If the file is truncated, send back a user-friendly error
+                    this._loadingMessageCallback("IRStream truncated", true);
+                } else {
+                    this._loadingMessageCallback(error.message, true);
+                }
+                console.error(error);
+            });
+    }
+
+    /**
+     * Load log file into editor
+     */
+    loadLogFile () {
+        const filePath = (this._fileInfo instanceof File) ? this._fileInfo.name : this._fileInfo;
+        if (filePath.endsWith(".clp.zst")) {
+            console.log("Opening CLP IRStream compressed file: " + filePath);
+            this._loadClpIRStreamFile();
+        } else if (filePath.endsWith(".zst")) {
+            console.log("Opening zst compressed file: " + filePath);
+            this._loadZstFile();
+        } else if (filePath.endsWith(".zip")) {
+            console.log("Opening zip compressed archive: " + filePath);
+            this._loadZipArchive();
+        } else if (filePath.endsWith(".tar.gz")) {
+            console.log("Opening tar.gz compressed archive: " + filePath);
+            this._loadTarGzipArchive();
+        } else if (filePath.endsWith(".gz") || filePath.endsWith(".gzip")) {
+            console.log("Opening gzip compressed file: " + filePath);
+            this._loadGzipFile();
+        } else {
+            console.log("Opening plain-text file: " + filePath);
+            this._loadPlainTextFile();
+        }
+    }
 
     /**
      * @param {number} timestamp The timestamp to search for as milliseconds
