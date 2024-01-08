@@ -51,14 +51,14 @@ MonacoInstance.propTypes = {
     logFileState: PropTypes.object,
     loadingLogs: PropTypes.bool,
     logData: PropTypes.string,
-    onChangeState: PropTypes.func,
-    onBeforeMount: PropTypes.func,
+    onStateChange: PropTypes.func,
+    beforeMount: PropTypes.func,
     onMount: PropTypes.func,
 };
 
 /**
  * Callback used to change the parent component's state
- * @callback ChangeStateCallback
+ * @callback StateChangeCallback
  * @param {string} type The type of state change ({@link STATE_CHANGE_TYPE})
  * @param {object} args Arguments used to update the state
  */
@@ -84,8 +84,8 @@ MonacoInstance.propTypes = {
  * @param {object} logFileState Current state of the log file
  * @param {boolean} loadingLogs Indicates if loading is in progress
  * @param {string} logData Decoded log data to display
- * @param {ChangeStateCallback} onChangeState
- * @param {BeforeMountCallback} onBeforeMount
+ * @param {StateChangeCallback} onStateChange
+ * @param {BeforeMountCallback} beforeMount
  * @param {MountCallback} onMount
  * @return {JSX.Element}
  * @constructor
@@ -94,8 +94,8 @@ function MonacoInstance ({
     logFileState,
     loadingLogs,
     logData,
-    onChangeState,
-    onBeforeMount,
+    onStateChange,
+    beforeMount,
     onMount,
 }) {
     const {theme} = useContext(ThemeContext);
@@ -114,7 +114,7 @@ function MonacoInstance ({
      * @param {object} monaco
      */
     function handleEditorWillMount (monaco) {
-        onBeforeMount(monaco);
+        beforeMount(monaco);
 
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
         monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
@@ -163,7 +163,7 @@ function MonacoInstance ({
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
-                    onChangeState(STATE_CHANGE_TYPE.lineNumber, {
+                    onStateChange(STATE_CHANGE_TYPE.lineNumber, {
                         lineNumber: e.position.lineNumber,
                         columnNumber: e.position.column,
                     });
@@ -185,7 +185,7 @@ function MonacoInstance ({
                     ],
                     run: () => {
                         if (!loadingLogs) {
-                            onChangeState(shortcut.action, shortcut.actionArgs);
+                            onStateChange(shortcut.action, shortcut.actionArgs);
                         }
                     },
                 });
@@ -198,7 +198,7 @@ function MonacoInstance ({
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        onChangeState( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -213,7 +213,7 @@ function MonacoInstance ({
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        onChangeState( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });

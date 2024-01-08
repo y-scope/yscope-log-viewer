@@ -292,8 +292,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                             logData={logData}
                             loadingLogs={loadingLogs}
                             logFileState={logFileState}
-                            onChangeState={changeState}
-                            onBeforeMount={unsetCachedPageSize}
+                            onStateChange={changeState}
+                            beforeMount={unsetCachedPageSize}
                             onMount={restoreCachedPageSize}/>
                     </div>
 
