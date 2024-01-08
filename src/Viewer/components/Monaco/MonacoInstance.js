@@ -90,6 +90,10 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} monaco
      */
     function handleEditorWillMount (monaco) {
+        // "pageSize" will be restored in handleEditorDidMount()
+        //  if loading Monaco with this limit does not cause client OOM
+        localStorage.removeItem("pageSize");
+
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
         monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
         monaco.editor.defineTheme("customLogLanguageLight", themes.light);
@@ -122,6 +126,12 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} monaco
      */
     const handleEditorDidMount =(editor, monaco) => {
+        // Restore "pageSize" cleared in handleEditorWillMount()
+        //  if no OOM happens
+        setTimeout(()=>{
+            localStorage.setItem("pageSize", logFileState.pageSize);
+        }, 0);
+
         monacoRef.current = monaco;
         editorRef.current = editor;
         editorRef.current.setValue(logData);
