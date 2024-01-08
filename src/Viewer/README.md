@@ -43,13 +43,13 @@ const App = () => {
 
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem("ui-theme");
+        const lsTheme = localStorage.getItem(LOCALSTORAGE_KEYS.UI_THEME);
         switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
         init();
     }, []);
 
     const switchTheme = (theme) => {
-        localStorage.setItem("ui-theme", theme);
+        localStorage.setItem(LOCALSTORAGE_KEYS.UI_THEME, theme);
         document.getElementById("app").setAttribute("data-theme", theme);
         setTheme(theme);
     };

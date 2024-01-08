@@ -11,6 +11,7 @@ import MonacoInstance from "./components/Monaco/MonacoInstance";
 import {StatusBar} from "./components/StatusBar/StatusBar";
 import CLP_WORKER_PROTOCOL from "./services/CLP_WORKER_PROTOCOL";
 import FourByteClpIrStreamReader from "./services/decoder/FourByteClpIrStreamReader";
+import LOCALSTORAGE_KEYS from "./services/LOCALSTORAGE_KEYS";
 import MessageLogger from "./services/MessageLogger";
 import STATE_CHANGE_TYPE from "./services/STATE_CHANGE_TYPE";
 import {isNumeric, modifyFileMetadata, modifyPage} from "./services/utils";
@@ -52,7 +53,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     const [statusMessageLogs, setStatusMessageLogs] = useState([]);
 
     // Log States
-    const lsPageSize = localStorage.getItem("pageSize");
+    const lsPageSize = localStorage.getItem(LOCALSTORAGE_KEYS.PAGE_SIZE);
     const [logFileState, setLogFileState] = useState({
         pageSize: lsPageSize ? Number(lsPageSize) : 10000,
         pages: null,
