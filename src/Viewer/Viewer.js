@@ -11,7 +11,7 @@ import MonacoInstance from "./components/Monaco/MonacoInstance";
 import {StatusBar} from "./components/StatusBar/StatusBar";
 import CLP_WORKER_PROTOCOL from "./services/CLP_WORKER_PROTOCOL";
 import FourByteClpIrStreamReader from "./services/decoder/FourByteClpIrStreamReader";
-import LOCALSTORAGE_KEYS from "./services/LOCALSTORAGE_KEYS";
+import LOCAL_STORAGE_KEYS from "./services/LOCAL_STORAGE_KEYS";
 import MessageLogger from "./services/MessageLogger";
 import STATE_CHANGE_TYPE from "./services/STATE_CHANGE_TYPE";
 import {isNumeric, modifyFileMetadata, modifyPage} from "./services/utils";
@@ -53,7 +53,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     const [statusMessageLogs, setStatusMessageLogs] = useState([]);
 
     // Log States
-    const lsPageSize = localStorage.getItem(LOCALSTORAGE_KEYS.PAGE_SIZE);
+    const lsPageSize = localStorage.getItem(LOCAL_STORAGE_KEYS.PAGE_SIZE);
     const [logFileState, setLogFileState] = useState({
         pageSize: lsPageSize ? Number(lsPageSize) : 10000,
         pages: null,
@@ -233,21 +233,20 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     }, [fileMetadata]);
 
     /**
-     * Gets called BEFORE the Monaco Editor is mounted
+     * Unsets the cached page size in case it causes a client OOM. If it
+     * doesn't, the saved value will be restored when
+     * {@link restoreCachedPageSize} is called.
      */
-    const handleMonacoBeforeMount = () => {
-        // Disable the cached "pageSize" in case it causes a client OOM. If it
-        // doesn't, the saved value will be restored in handleMonacoOnMount().
-        localStorage.removeItem("pageSize");
+    const unsetCachedPageSize = () => {
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.PAGE_SIZE);
     };
 
     /**
-     * Gets called AFTER the Monaco Editor is mounted
+     * Restores the cached page size that was unset in
+     * {@link unsetCachedPageSize}.
      */
-    const handleMonacoMount = useCallback(() => {
-        // No OOM occurred, so restore the "pageSize" value that was cleared in
-        // handleEditorWillMount().
-        localStorage.setItem("pageSize", logFileState.pageSize.toString());
+    const restoreCachedPageSize = useCallback(() => {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.PAGE_SIZE, logFileState.pageSize.toString());
     }, [logFileState]);
 
     // Fires when hash is changed in the window.
@@ -294,8 +293,8 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                             loadingLogs={loadingLogs}
                             logFileState={logFileState}
                             onChangeState={changeState}
-                            onBeforeMount={handleMonacoBeforeMount}
-                            onMount={handleMonacoMount}/>
+                            onBeforeMount={unsetCachedPageSize}
+                            onMount={restoreCachedPageSize}/>
                     </div>
 
                     <StatusBar

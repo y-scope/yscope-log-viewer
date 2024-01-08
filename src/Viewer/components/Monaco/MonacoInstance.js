@@ -71,9 +71,9 @@ MonacoInstance.propTypes = {
 
 /**
  * Callback that gets called AFTER the Monaco Editor is mounted
- * @callback MountCallBack
- * @param {object} monaco
+ * @callback MountCallback
  * @param {object} editor
+ * @param {object} monaco
  */
 
 /**
@@ -86,7 +86,7 @@ MonacoInstance.propTypes = {
  * @param {string} logData Decoded log data to display
  * @param {ChangeStateCallback} onChangeState
  * @param {BeforeMountCallback} onBeforeMount
- * @param {MountCallBack} onMount
+ * @param {MountCallback} onMount
  * @return {JSX.Element}
  * @constructor
  */

@@ -4,7 +4,7 @@ import config from "./config.json";
 import {DropFile} from "./DropFile/DropFile";
 import {THEME_STATES} from "./ThemeContext/THEME_STATES";
 import {ThemeContext} from "./ThemeContext/ThemeContext";
-import LOCALSTORAGE_KEYS from "./Viewer/services/LOCALSTORAGE_KEYS";
+import LOCAL_STORAGE_KEYS from "./Viewer/services/LOCAL_STORAGE_KEYS";
 import VerbatimURLParams from "./Viewer/services/VerbatimURLParams";
 import {Viewer} from "./Viewer/Viewer";
 
@@ -33,13 +33,13 @@ export function App () {
 
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem(LOCALSTORAGE_KEYS.UI_THEME);
+        const lsTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.UI_THEME);
         switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
         init();
     }, []);
 
     const switchTheme = (theme) => {
-        localStorage.setItem(LOCALSTORAGE_KEYS.UI_THEME, theme);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
         document.getElementById("app").setAttribute("data-theme", theme);
         setTheme(theme);
     };

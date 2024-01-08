@@ -7,7 +7,7 @@ import {ChevronDoubleLeft, ChevronDoubleRight, ChevronLeft, ChevronRight,
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
-import LOCALSTORAGE_KEYS from "../../services/LOCALSTORAGE_KEYS";
+import LOCAL_STORAGE_KEYS from "../../services/LOCAL_STORAGE_KEYS";
 import MODIFY_PAGE_ACTION from "../../services/MODIFY_PAGE_ACTION";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
 import {EditableInput} from "./EditableInput/EditableInput";
@@ -110,7 +110,7 @@ export function MenuBar ({
         e.preventDefault();
         handleCloseSettings();
         changeStateCallback(STATE_CHANGE_TYPE.pageSize, {pageSize: eventsPerPage});
-        localStorage.setItem(LOCALSTORAGE_KEYS.PAGE_SIZE, String(eventsPerPage));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.PAGE_SIZE, String(eventsPerPage));
     };
 
     const closeModal = () => {
