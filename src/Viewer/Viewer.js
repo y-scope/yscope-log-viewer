@@ -231,6 +231,24 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
         modifyFileMetadata(fileMetadata, logFileState.logEventIdx);
     }, [fileMetadata]);
 
+    /**
+     * Gets called BEFORE the Monaco Editor is mounted
+     */
+    const handleMonacoBeforeMount = () => {
+        // Disable the cached "pageSize" in case it causes a client OOM. If it
+        // doesn't, the saved value will be restored in handleMonacoOnMount().
+        localStorage.removeItem("pageSize");
+    };
+
+    /**
+     * Gets called AFTER the Monaco Editor is mounted
+     */
+    const handleMonacoMount = useCallback(() => {
+        // No OOM occurred, so restore the "pageSize" value that was cleared in
+        // handleEditorWillMount().
+        localStorage.setItem("pageSize", logFileState.pageSize.toString());
+    }, [logFileState]);
+
     // Fires when hash is changed in the window.
     window.onhashchange = () => {
         const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
@@ -273,8 +291,10 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
                         <MonacoInstance
                             logData={logData}
                             loadingLogs={loadingLogs}
-                            changeStateCallback={changeState}
-                            logFileState={logFileState}/>
+                            logFileState={logFileState}
+                            onChangeState={changeState}
+                            onBeforeMount={handleMonacoBeforeMount}
+                            onMount={handleMonacoMount}/>
                     </div>
 
                     <StatusBar

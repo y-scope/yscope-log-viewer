@@ -51,7 +51,9 @@ MonacoInstance.propTypes = {
     logFileState: PropTypes.object,
     loadingLogs: PropTypes.bool,
     logData: PropTypes.string,
-    changeStateCallback: PropTypes.func,
+    onChangeState: PropTypes.func,
+    onBeforeMount: PropTypes.func,
+    onMount: PropTypes.func,
 };
 
 /**
@@ -62,18 +64,40 @@ MonacoInstance.propTypes = {
  */
 
 /**
+ * Callback that gets called BEFORE the Monaco Editor is mounted
+ * @callback BeforeMountCallback
+ * @param {object} monaco
+ */
+
+/**
+ * Callback that gets called AFTER the Monaco Editor is mounted
+ * @callback MountCallBack
+ * @param {object} monaco
+ * @param {object} editor
+ */
+
+/**
  * Contains the monaco editor used to display the log data. When user
  * interacts with editor, the callback is used to update the selected
  * log event.
  *
  * @param {object} logFileState Current state of the log file
  * @param {boolean} loadingLogs Indicates if loading is in progress
- * @param {ChangeStateCallback} changeStateCallback
  * @param {string} logData Decoded log data to display
+ * @param {ChangeStateCallback} onChangeState
+ * @param {BeforeMountCallback} onBeforeMount
+ * @param {MountCallBack} onMount
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData}) {
+function MonacoInstance ({
+    logFileState,
+    loadingLogs,
+    logData,
+    onChangeState,
+    onBeforeMount,
+    onMount,
+}) {
     const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
@@ -90,9 +114,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} monaco
      */
     function handleEditorWillMount (monaco) {
-        // "pageSize" will be restored in handleEditorDidMount()
-        //  if loading Monaco with this limit does not cause client OOM
-        localStorage.removeItem("pageSize");
+        onBeforeMount(monaco);
 
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
         monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
@@ -126,12 +148,6 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} monaco
      */
     const handleEditorDidMount =(editor, monaco) => {
-        // Restore "pageSize" cleared in handleEditorWillMount()
-        //  if no OOM happens
-        setTimeout(()=>{
-            localStorage.setItem("pageSize", logFileState.pageSize);
-        }, 0);
-
         monacoRef.current = monaco;
         editorRef.current = editor;
         editorRef.current.setValue(logData);
@@ -147,13 +163,15 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
-                    changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
+                    onChangeState(STATE_CHANGE_TYPE.lineNumber, {
                         lineNumber: e.position.lineNumber,
                         columnNumber: e.position.column,
                     });
                 }, 50);
             }
         });
+
+        onMount(editor, monaco);
     };
 
     useEffect(() => {
@@ -167,7 +185,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     ],
                     run: () => {
                         if (!loadingLogs) {
-                            changeStateCallback(shortcut.action, shortcut.actionArgs);
+                            onChangeState(shortcut.action, shortcut.actionArgs);
                         }
                     },
                 });
@@ -180,7 +198,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        onChangeState( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -195,7 +213,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        onChangeState( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });
