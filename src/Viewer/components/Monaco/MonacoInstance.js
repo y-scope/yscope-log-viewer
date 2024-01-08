@@ -51,14 +51,29 @@ MonacoInstance.propTypes = {
     logFileState: PropTypes.object,
     loadingLogs: PropTypes.bool,
     logData: PropTypes.string,
-    changeStateCallback: PropTypes.func,
+    onStateChange: PropTypes.func,
+    beforeMount: PropTypes.func,
+    onMount: PropTypes.func,
 };
 
 /**
  * Callback used to change the parent component's state
- * @callback ChangeStateCallback
+ * @callback StateChangeCallback
  * @param {string} type The type of state change ({@link STATE_CHANGE_TYPE})
  * @param {object} args Arguments used to update the state
+ */
+
+/**
+ * Callback that gets called BEFORE the Monaco Editor is mounted
+ * @callback BeforeMountCallback
+ * @param {object} monaco
+ */
+
+/**
+ * Callback that gets called AFTER the Monaco Editor is mounted
+ * @callback MountCallback
+ * @param {object} editor
+ * @param {object} monaco
  */
 
 /**
@@ -68,12 +83,21 @@ MonacoInstance.propTypes = {
  *
  * @param {object} logFileState Current state of the log file
  * @param {boolean} loadingLogs Indicates if loading is in progress
- * @param {ChangeStateCallback} changeStateCallback
  * @param {string} logData Decoded log data to display
+ * @param {StateChangeCallback} onStateChange
+ * @param {BeforeMountCallback} beforeMount
+ * @param {MountCallback} onMount
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logData}) {
+function MonacoInstance ({
+    logFileState,
+    loadingLogs,
+    logData,
+    onStateChange,
+    beforeMount,
+    onMount,
+}) {
     const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
@@ -90,6 +114,8 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
      * @param {object} monaco
      */
     function handleEditorWillMount (monaco) {
+        beforeMount(monaco);
+
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
         monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
         monaco.editor.defineTheme("customLogLanguageLight", themes.light);
@@ -137,13 +163,15 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
-                    changeStateCallback(STATE_CHANGE_TYPE.lineNumber, {
+                    onStateChange(STATE_CHANGE_TYPE.lineNumber, {
                         lineNumber: e.position.lineNumber,
                         columnNumber: e.position.column,
                     });
                 }, 50);
             }
         });
+
+        onMount(editor, monaco);
     };
 
     useEffect(() => {
@@ -157,7 +185,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                     ],
                     run: () => {
                         if (!loadingLogs) {
-                            changeStateCallback(shortcut.action, shortcut.actionArgs);
+                            onStateChange(shortcut.action, shortcut.actionArgs);
                         }
                     },
                 });
@@ -170,7 +198,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -185,7 +213,7 @@ function MonacoInstance ({logFileState, changeStateCallback, loadingLogs, logDat
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        changeStateCallback( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });

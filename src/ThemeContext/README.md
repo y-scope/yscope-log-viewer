@@ -28,7 +28,7 @@ const App = () => {
     const [appMode, setAppMode] = useState();
 
     const switchTheme = (theme) => {
-        localStorage.setItem("ui-theme", theme);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
         document.getElementById("app").setAttribute("data-theme", theme);
         setTheme(theme);
     };
@@ -40,7 +40,7 @@ const App = () => {
     
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem("ui-theme");
+        const lsTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.UI_THEME);
         switchTheme(lsTheme === THEME_STATES.LIGHT?THEME_STATES.LIGHT:THEME_STATES.DARK);
         setAppMode(APP_STATE.FILE_PROMPT);
     }, []);
