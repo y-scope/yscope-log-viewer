@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 
-import Editor, {loader} from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import PropTypes from "prop-types";
 
@@ -9,7 +9,6 @@ import {ThemeContext} from "../../../ThemeContext/ThemeContext";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
 import {SHORTCUTS} from "./Shortcuts";
 
-import "monaco-editor/min/vs/editor/editor.main.css";
 import "./MonacoInstance.scss";
 
 // Themes for monaco editor
@@ -105,8 +104,6 @@ function MonacoInstance ({
     const [monacoTheme, setMonacoTheme] = useState("customLogLanguageLight");
 
     const [language, setLanguage] = useState("");
-
-    loader.config({monaco});
 
     /**
      * Called before the monaco editor is mounted.
@@ -288,6 +285,11 @@ function MonacoInstance ({
             onMount={handleEditorDidMount}
             options={monacoOptions}
         />
+        // <MyMonacoEditor
+        //     options={monacoOptions}
+        //     beforeMount={handleEditorWillMount}
+        //     onMount={handleEditorDidMount}
+        // />
     );
 }
 
