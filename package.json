@@ -20,6 +20,7 @@
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
+    "monaco-editor-webpack-plugin": "^7.1.0",
     "@obsidize/tar-browserify": "4.0.0",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",

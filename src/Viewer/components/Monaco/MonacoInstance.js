@@ -1,7 +1,8 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
+import { MyMonacoEditor } from "./MyMonacoEditor";
 
 import Editor from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
+import * as Monaco from "monaco-editor";
 import PropTypes from "prop-types";
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
@@ -147,11 +148,11 @@ function MonacoInstance ({
     const handleEditorDidMount =(editor, monaco) => {
         monacoRef.current = monaco;
         editorRef.current = editor;
-        editorRef.current.setValue(logData);
-        editorRef.current.revealLine(logFileState.lineNumber, 1);
+        editor.setValue(logData);
+        editor.revealLine(logFileState.lineNumber, 1);
         editor.setPosition({column: 1, lineNumber: logFileState.lineNumber});
-        editorRef.current.focus();
-        editorRef.current.onDidChangeCursorPosition((e) => {
+        editor.focus();
+        editor.onDidChangeCursorPosition((e) => {
             // only trigger if there was an explicit change that
             // was made by keyboard or mouse
             // 3 is monacoRef.current.CursorChangeReason.Explicit
@@ -172,7 +173,7 @@ function MonacoInstance ({
     };
 
     useEffect(() => {
-        if (editorRef && editorRef.current) {
+        if (null !== editorRef.current) {
             for (const shortcut of SHORTCUTS) {
                 editorRef.current.addAction({
                     id: shortcut.id,
@@ -191,7 +192,7 @@ function MonacoInstance ({
                 id: "topOfPage",
                 label: "Go To Top Of Page",
                 keybindings: [
-                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU,
+                    Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyU,
                 ],
                 run: () => {
                     if (!loadingLogs) {
@@ -206,7 +207,7 @@ function MonacoInstance ({
                 id: "endOfPage",
                 label: "Go To End Of Page",
                 keybindings: [
-                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI,
+                    Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyI,
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
@@ -276,20 +277,26 @@ function MonacoInstance ({
         "scrollBeyondLastLine": false,
     };
 
-    return (
-        <Editor
-            defaultValue="Loading content..."
-            theme={monacoTheme}
-            language={language}
-            beforeMount={handleEditorWillMount}
-            onMount={handleEditorDidMount}
-            options={monacoOptions}
-        />
-        // <MyMonacoEditor
-        //     options={monacoOptions}
-        //     beforeMount={handleEditorWillMount}
-        //     onMount={handleEditorDidMount}
-        // />
+    return (<div style={{ display: 'flex' }}>
+        <div style={{ width: '50vw', height: '80vh' }}>
+            <Editor
+                defaultValue="Loading content..."
+                theme={monacoTheme}
+                language={language}
+                beforeMount={handleEditorWillMount}
+                onMount={handleEditorDidMount}
+                options={monacoOptions}
+            />
+        </div>
+        <div style={{ width: '50vw', left: '50vw', height: '80vh', background: 'white' }}>
+            <MyMonacoEditor
+                options={monacoOptions}
+                beforeMount={handleEditorWillMount}
+                onMount={handleEditorDidMount}
+            />
+        </div>
+    </div>
+
     );
 }
 
