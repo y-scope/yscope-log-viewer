@@ -1,14 +1,11 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
-import { MyMonacoEditor } from "./MyMonacoEditor";
-
-import Editor from "@monaco-editor/react";
-import * as Monaco from "monaco-editor";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import * as monaco from "monaco-editor";
 import PropTypes from "prop-types";
 
-import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
-import {ThemeContext} from "../../../ThemeContext/ThemeContext";
+import { THEME_STATES } from "../../../ThemeContext/THEME_STATES";
+import { ThemeContext } from "../../../ThemeContext/ThemeContext";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
-import {SHORTCUTS} from "./Shortcuts";
+import { SHORTCUTS } from "./Shortcuts";
 
 import "./MonacoInstance.scss";
 
@@ -18,14 +15,14 @@ const themes = {
         base: "vs-dark",
         inherit: true,
         rules: [
-            {token: "custom-info", foreground: "#098658"},
-            {token: "custom-warn", foreground: "#ce9178"},
-            {token: "custom-error", foreground: "#ce9178", fontStyle: "bold"},
-            {token: "custom-fatal", foreground: "#ce9178", fontStyle: "bold"},
-            {token: "custom-date", foreground: "#529955"},
-            {token: "custom-number", foreground: "#3f9ccb"},
-            {token: "custom-exception", foreground: "#ce723b", fontStyle: "italic"},
-            {token: "comment", foreground: "#008000"},
+            { token: "custom-info", foreground: "#098658" },
+            { token: "custom-warn", foreground: "#ce9178" },
+            { token: "custom-error", foreground: "#ce9178", fontStyle: "bold" },
+            { token: "custom-fatal", foreground: "#ce9178", fontStyle: "bold" },
+            { token: "custom-date", foreground: "#529955" },
+            { token: "custom-number", foreground: "#3f9ccb" },
+            { token: "custom-exception", foreground: "#ce723b", fontStyle: "italic" },
+            { token: "comment", foreground: "#008000" },
         ],
         colors: {
             "editor.lineHighlightBackground": "#3c3c3c",
@@ -35,13 +32,13 @@ const themes = {
         base: "vs",
         inherit: true,
         rules: [
-            {token: "custom-info", foreground: "#098658"},
-            {token: "custom-warn", foreground: "#b81560"},
-            {token: "custom-error", foreground: "#ac1515", fontStyle: "bold"},
-            {token: "custom-fatal", foreground: "#ac1515", fontStyle: "bold"},
-            {token: "custom-date", foreground: "#008000"},
-            {token: "custom-number", foreground: "#3f9ccb"},
-            {token: "custom-exception", foreground: "#ce723b", fontStyle: "italic"},
+            { token: "custom-info", foreground: "#098658" },
+            { token: "custom-warn", foreground: "#b81560" },
+            { token: "custom-error", foreground: "#ac1515", fontStyle: "bold" },
+            { token: "custom-fatal", foreground: "#ac1515", fontStyle: "bold" },
+            { token: "custom-date", foreground: "#008000" },
+            { token: "custom-number", foreground: "#3f9ccb" },
+            { token: "custom-exception", foreground: "#ce723b", fontStyle: "italic" },
         ],
         colors: {},
     },
@@ -90,7 +87,7 @@ MonacoInstance.propTypes = {
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance ({
+function MonacoInstance({
     logFileState,
     loadingLogs,
     logData,
@@ -98,21 +95,18 @@ function MonacoInstance ({
     beforeMount,
     onMount,
 }) {
-    const {theme} = useContext(ThemeContext);
+    const { theme } = useContext(ThemeContext);
     const editorRef = useRef(null);
-    const monacoRef = useRef(null);
     const timeoutRef = useRef(null);
-    const [monacoTheme, setMonacoTheme] = useState("customLogLanguageLight");
+    const editorContainerRef = useRef(null);
 
     const [language, setLanguage] = useState("");
 
     /**
      * Called before the monaco editor is mounted.
-     *
-     * @param {object} monaco
      */
-    function handleEditorWillMount (monaco) {
-        beforeMount(monaco);
+    const handleEditorWillMount = () => {
+        beforeMount();
 
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
         monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
@@ -141,18 +135,13 @@ function MonacoInstance ({
 
     /**
      * Called when editor is finished mounting.
-     *
-     * @param {object} editor
-     * @param {object} monaco
      */
-    const handleEditorDidMount =(editor, monaco) => {
-        monacoRef.current = monaco;
-        editorRef.current = editor;
-        editor.setValue(logData);
-        editor.revealLine(logFileState.lineNumber, 1);
-        editor.setPosition({column: 1, lineNumber: logFileState.lineNumber});
-        editor.focus();
-        editor.onDidChangeCursorPosition((e) => {
+    const handleEditorDidMount = () => {
+        editorRef.current.setValue(logData);
+        editorRef.current.revealLine(logFileState.lineNumber, 1);
+        editorRef.current.setPosition({ column: 1, lineNumber: logFileState.lineNumber });
+        editorRef.current.focus();
+        editorRef.current.onDidChangeCursorPosition((e) => {
             // only trigger if there was an explicit change that
             // was made by keyboard or mouse
             // 3 is monacoRef.current.CursorChangeReason.Explicit
@@ -168,8 +157,7 @@ function MonacoInstance ({
                 }, 50);
             }
         });
-
-        onMount(editor, monaco);
+        onMount();
     };
 
     useEffect(() => {
@@ -192,11 +180,11 @@ function MonacoInstance ({
                 id: "topOfPage",
                 label: "Go To Top Of Page",
                 keybindings: [
-                    Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyU,
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU,
                 ],
                 run: () => {
                     if (!loadingLogs) {
-                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: 1,
                             columnNumber: 1,
                         });
@@ -207,11 +195,11 @@ function MonacoInstance ({
                 id: "endOfPage",
                 label: "Go To End Of Page",
                 keybindings: [
-                    Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyI,
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI,
                 ],
                 run: (editor) => {
                     if (!loadingLogs) {
-                        onStateChange( STATE_CHANGE_TYPE.lineNumber, {
+                        onStateChange(STATE_CHANGE_TYPE.lineNumber, {
                             lineNumber: editor.getModel().getLineCount(),
                             columnNumber: 1,
                         });
@@ -248,9 +236,8 @@ function MonacoInstance ({
     }, [logData]);
 
     useEffect(() => {
-        setMonacoTheme((theme === THEME_STATES.LIGHT)
-            ?"customLogLanguageLight"
-            :"customLogLanguageDark");
+        const monacoTheme = (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
+        monaco.editor.setTheme(monacoTheme);
     }, [theme]);
 
     // Shortcut for focusing on the monaco editor and to enable
@@ -270,34 +257,22 @@ function MonacoInstance ({
         };
     }, []);
 
-    const monacoOptions = {
-        "readOnly": true,
-        "renderWhitespace": "none",
-        "wordWrap": "on",
-        "scrollBeyondLastLine": false,
-    };
+    useEffect(() => {
+        if (null === editorRef.current) {
+            handleEditorWillMount();
+            editorRef.current = monaco.editor.create(editorContainerRef.current, {
+                language: "logLanguage",
+                readOnly: true,
+                renderWhitespace: "none",
+                wordWrap: "on",
+                scrollBeyondLastLine: false,
+                theme: (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark",
+            });
+            handleEditorDidMount();
+        }
+    }, [])
 
-    return (<div style={{ display: 'flex' }}>
-        <div style={{ width: '50vw', height: '80vh' }}>
-            <Editor
-                defaultValue="Loading content..."
-                theme={monacoTheme}
-                language={language}
-                beforeMount={handleEditorWillMount}
-                onMount={handleEditorDidMount}
-                options={monacoOptions}
-            />
-        </div>
-        <div style={{ width: '50vw', left: '50vw', height: '80vh', background: 'white' }}>
-            <MyMonacoEditor
-                options={monacoOptions}
-                beforeMount={handleEditorWillMount}
-                onMount={handleEditorDidMount}
-            />
-        </div>
-    </div>
-
-    );
+    return (<div ref={editorContainerRef} style={{ display: 'flex', width: '100% ', height: "100%" }}></div>)
 }
 
 export default MonacoInstance;

@@ -38,10 +38,10 @@ export function App () {
         init();
     }, []);
 
-    const switchTheme = (theme) => {
-        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
-        document.getElementById("app").setAttribute("data-theme", theme);
-        setTheme(theme);
+    const switchTheme = (newTheme) => {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, newTheme);
+        document.getElementById("app").setAttribute("data-theme", newTheme);
+        setTheme(newTheme);
     };
 
     /**
