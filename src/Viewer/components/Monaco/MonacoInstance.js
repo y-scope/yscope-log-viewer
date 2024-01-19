@@ -273,14 +273,7 @@ function MonacoInstance ({
     }, []);
 
     return (
-        <div
-            ref={editorContainerRef}
-            style={{
-                display: "flex",
-                width: "100%",
-                height: "100%",
-            }}
-        ></div>
+        <div className="monaco-container" ref={editorContainerRef}></div>
     );
 }
 
