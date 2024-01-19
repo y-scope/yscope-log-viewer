@@ -1,11 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {useContext, useEffect, useRef} from "react";
+
 import * as monaco from "monaco-editor";
 import PropTypes from "prop-types";
 
-import { THEME_STATES } from "../../../ThemeContext/THEME_STATES";
-import { ThemeContext } from "../../../ThemeContext/ThemeContext";
+import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
+import {ThemeContext} from "../../../ThemeContext/ThemeContext";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
-import { SHORTCUTS } from "./Shortcuts";
+import {SHORTCUTS} from "./Shortcuts";
 
 import "./MonacoInstance.scss";
 
@@ -15,14 +16,14 @@ const themes = {
         base: "vs-dark",
         inherit: true,
         rules: [
-            { token: "custom-info", foreground: "#098658" },
-            { token: "custom-warn", foreground: "#ce9178" },
-            { token: "custom-error", foreground: "#ce9178", fontStyle: "bold" },
-            { token: "custom-fatal", foreground: "#ce9178", fontStyle: "bold" },
-            { token: "custom-date", foreground: "#529955" },
-            { token: "custom-number", foreground: "#3f9ccb" },
-            { token: "custom-exception", foreground: "#ce723b", fontStyle: "italic" },
-            { token: "comment", foreground: "#008000" },
+            {token: "custom-info", foreground: "#098658"},
+            {token: "custom-warn", foreground: "#ce9178"},
+            {token: "custom-error", foreground: "#ce9178", fontStyle: "bold"},
+            {token: "custom-fatal", foreground: "#ce9178", fontStyle: "bold"},
+            {token: "custom-date", foreground: "#529955"},
+            {token: "custom-number", foreground: "#3f9ccb"},
+            {token: "custom-exception", foreground: "#ce723b", fontStyle: "italic"},
+            {token: "comment", foreground: "#008000"},
         ],
         colors: {
             "editor.lineHighlightBackground": "#3c3c3c",
@@ -32,13 +33,13 @@ const themes = {
         base: "vs",
         inherit: true,
         rules: [
-            { token: "custom-info", foreground: "#098658" },
-            { token: "custom-warn", foreground: "#b81560" },
-            { token: "custom-error", foreground: "#ac1515", fontStyle: "bold" },
-            { token: "custom-fatal", foreground: "#ac1515", fontStyle: "bold" },
-            { token: "custom-date", foreground: "#008000" },
-            { token: "custom-number", foreground: "#3f9ccb" },
-            { token: "custom-exception", foreground: "#ce723b", fontStyle: "italic" },
+            {token: "custom-info", foreground: "#098658"},
+            {token: "custom-warn", foreground: "#b81560"},
+            {token: "custom-error", foreground: "#ac1515", fontStyle: "bold"},
+            {token: "custom-fatal", foreground: "#ac1515", fontStyle: "bold"},
+            {token: "custom-date", foreground: "#008000"},
+            {token: "custom-number", foreground: "#3f9ccb"},
+            {token: "custom-exception", foreground: "#ce723b", fontStyle: "italic"},
         ],
         colors: {},
     },
@@ -87,7 +88,7 @@ MonacoInstance.propTypes = {
  * @return {JSX.Element}
  * @constructor
  */
-function MonacoInstance({
+function MonacoInstance ({
     logFileState,
     loadingLogs,
     logData,
@@ -95,12 +96,13 @@ function MonacoInstance({
     beforeMount,
     onMount,
 }) {
-    const { theme } = useContext(ThemeContext);
+    const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
     const timeoutRef = useRef(null);
     const editorContainerRef = useRef(null);
-
-    const [language, setLanguage] = useState("");
+    const getMonacoThemeName = (theme) => (
+        (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
+    );
 
     /**
      * Called before the monaco editor is mounted.
@@ -129,8 +131,7 @@ function MonacoInstance({
                 ],
             },
         });
-        setLanguage("logLanguage");
-    }
+    };
 
 
     /**
@@ -139,7 +140,7 @@ function MonacoInstance({
     const handleEditorDidMount = () => {
         editorRef.current.setValue(logData);
         editorRef.current.revealLine(logFileState.lineNumber, 1);
-        editorRef.current.setPosition({ column: 1, lineNumber: logFileState.lineNumber });
+        editorRef.current.setPosition({column: 1, lineNumber: logFileState.lineNumber});
         editorRef.current.focus();
         editorRef.current.onDidChangeCursorPosition((e) => {
             // only trigger if there was an explicit change that
@@ -236,8 +237,7 @@ function MonacoInstance({
     }, [logData]);
 
     useEffect(() => {
-        const monacoTheme = (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
-        monaco.editor.setTheme(monacoTheme);
+        monaco.editor.setTheme(getMonacoThemeName(theme));
     }, [theme]);
 
     // Shortcut for focusing on the monaco editor and to enable
@@ -264,15 +264,24 @@ function MonacoInstance({
                 language: "logLanguage",
                 readOnly: true,
                 renderWhitespace: "none",
-                wordWrap: "on",
                 scrollBeyondLastLine: false,
-                theme: (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark",
+                theme: getMonacoThemeName(theme),
+                wordWrap: "on",
             });
             handleEditorDidMount();
         }
-    }, [])
+    }, []);
 
-    return (<div ref={editorContainerRef} style={{ display: 'flex', width: '100% ', height: "100%" }}></div>)
+    return (
+        <div
+            ref={editorContainerRef}
+            style={{
+                display: "flex",
+                width: "100%",
+                height: "100%",
+            }}
+        ></div>
+    );
 }
 
 export default MonacoInstance;
