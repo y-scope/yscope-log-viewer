@@ -64,14 +64,11 @@ MonacoInstance.propTypes = {
 /**
  * Callback that gets called BEFORE the Monaco Editor is mounted
  * @callback BeforeMountCallback
- * @param {object} monaco
  */
 
 /**
  * Callback that gets called AFTER the Monaco Editor is mounted
  * @callback MountCallback
- * @param {object} editor
- * @param {object} monaco
  */
 
 /**
@@ -98,8 +95,8 @@ function MonacoInstance ({
 }) {
     const {theme} = useContext(ThemeContext);
     const editorRef = useRef(null);
-    const timeoutRef = useRef(null);
     const editorContainerRef = useRef(null);
+    const timeoutRef = useRef(null);
     const getMonacoThemeName = (theme) => (
         (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
     );
@@ -107,7 +104,7 @@ function MonacoInstance ({
     /**
      * Called before the monaco editor is mounted.
      */
-    const handleEditorWillMount = () => {
+    const _beforeMount = () => {
         beforeMount();
 
         monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
@@ -137,7 +134,7 @@ function MonacoInstance ({
     /**
      * Called when editor is finished mounting.
      */
-    const handleEditorDidMount = () => {
+    const _onMount = () => {
         editorRef.current.setValue(logData);
         editorRef.current.revealLine(logFileState.lineNumber, 1);
         editorRef.current.setPosition({column: 1, lineNumber: logFileState.lineNumber});
@@ -219,7 +216,7 @@ function MonacoInstance ({
     };
 
     useEffect(() => {
-        if (editorRef && editorRef.current) {
+        if (null !== editorRef.current) {
             const currPos = editorRef.current.getPosition();
             const newLine = logFileState.lineNumber;
             const newColumn = logFileState.columnNumber;
@@ -230,7 +227,7 @@ function MonacoInstance ({
     }, [logFileState.lineNumber, logFileState.columnNumber]);
 
     useEffect(() => {
-        if (null != editorRef.current && undefined !== logData) {
+        if (null !== editorRef.current && undefined !== logData) {
             editorRef.current.setValue(logData);
             goToLine(logFileState.lineNumber, logFileState.columnNumber);
         }
@@ -259,7 +256,7 @@ function MonacoInstance ({
 
     useEffect(() => {
         if (null === editorRef.current) {
-            handleEditorWillMount();
+            _beforeMount();
             editorRef.current = monaco.editor.create(editorContainerRef.current, {
                 language: "logLanguage",
                 readOnly: true,
@@ -268,7 +265,7 @@ function MonacoInstance ({
                 theme: getMonacoThemeName(theme),
                 wordWrap: "on",
             });
-            handleEditorDidMount();
+            _onMount();
         }
     }, []);
 
