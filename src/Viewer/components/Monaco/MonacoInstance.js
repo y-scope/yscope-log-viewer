@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef} from "react";
 
-import * as monaco from "monaco-editor";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import PropTypes from "prop-types";
 
 import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
@@ -97,66 +97,17 @@ function MonacoInstance ({
     const editorRef = useRef(null);
     const editorContainerRef = useRef(null);
     const timeoutRef = useRef(null);
-    const getMonacoThemeName = (theme) => (
-        (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
-    );
 
-    /**
-     * Called before the monaco editor is mounted.
-     */
-    const _beforeMount = () => {
+    useEffect(() => {
+        window.addEventListener("keypress", handleKeyDown);
         beforeMount();
-
-        monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-        monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
-        monaco.editor.defineTheme("customLogLanguageLight", themes.light);
-
-        monaco.languages.register({
-            id: "logLanguage",
-        });
-
-        monaco.languages.setMonarchTokensProvider("logLanguage", {
-            tokenizer: {
-                root: [
-                    ["INFO", "custom-info"],
-                    ["ERROR", "custom-error"],
-                    ["WARN", "custom-warn"],
-                    ["FATAL", "custom-fatal"],
-                    [/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z/, "custom-date"],
-                    [/^[\t ]*at.*$/, "custom-exception"],
-                    [/(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/, "custom-number"],
-                ],
-            },
-        });
-    };
-
-
-    /**
-     * Called when editor is finished mounting.
-     */
-    const _onMount = () => {
-        editorRef.current.setValue(logData);
-        editorRef.current.revealLine(logFileState.lineNumber, 1);
-        editorRef.current.setPosition({column: 1, lineNumber: logFileState.lineNumber});
-        editorRef.current.focus();
-        editorRef.current.onDidChangeCursorPosition((e) => {
-            // only trigger if there was an explicit change that
-            // was made by keyboard or mouse
-            // 3 is monacoRef.current.CursorChangeReason.Explicit
-            if (3 === e.reason) {
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                }
-                timeoutRef.current = setTimeout(() => {
-                    onStateChange(STATE_CHANGE_TYPE.lineNumber, {
-                        lineNumber: e.position.lineNumber,
-                        columnNumber: e.position.column,
-                    });
-                }, 50);
-            }
-        });
+        initMonacoEditor();
         onMount();
-    };
+
+        return () => {
+            window.removeEventListener("keypress", handleKeyDown);
+        };
+    }, []);
 
     useEffect(() => {
         if (null !== editorRef.current) {
@@ -207,22 +158,10 @@ function MonacoInstance ({
         }
     }, [logFileState, loadingLogs]);
 
-    const goToLine = (lineNumber, columnNumber) => {
-        editorRef.current.revealLineInCenter(lineNumber);
-        editorRef.current.setPosition({
-            column: columnNumber, lineNumber: lineNumber,
-        });
-        editorRef.current.focus();
-    };
 
     useEffect(() => {
         if (null !== editorRef.current) {
-            const currPos = editorRef.current.getPosition();
-            const newLine = logFileState.lineNumber;
-            const newColumn = logFileState.columnNumber;
-            if (newLine !== currPos.lineNumber || newColumn !== currPos.column) {
-                goToLine(logFileState.lineNumber, logFileState.columnNumber);
-            }
+            goToLine(logFileState.lineNumber, logFileState.columnNumber);
         }
     }, [logFileState.lineNumber, logFileState.columnNumber]);
 
@@ -247,17 +186,34 @@ function MonacoInstance ({
         }
     };
 
-    useEffect(() => {
-        window.addEventListener("keypress", handleKeyDown);
-        return () => {
-            window.removeEventListener("keypress", handleKeyDown);
-        };
-    }, []);
-
-    useEffect(() => {
+    const initMonacoEditor = () => {
         if (null === editorRef.current) {
-            _beforeMount();
+            monaco.editor.defineTheme("customLogLanguageDark", themes.dark);
+            monaco.editor.defineTheme("customLogLanguageLight", themes.light);
+
+            monaco.languages.register({
+                id: "logLanguage",
+            });
+
+            monaco.languages.setMonarchTokensProvider("logLanguage", {
+                tokenizer: {
+                    root: [
+                        ["INFO", "custom-info"],
+                        ["ERROR", "custom-error"],
+                        ["WARN", "custom-warn"],
+                        ["FATAL", "custom-fatal"],
+                        [/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z/, "custom-date"],
+                        [/^[\t ]*at.*$/, "custom-exception"],
+                        [
+                            /(\d+(?:\.\d+)?([eE])([+\-])[0-9](\.[0-9])?|\d+(?:\.\d+)?)/,
+                            "custom-number",
+                        ],
+                    ],
+                },
+            });
+
             editorRef.current = monaco.editor.create(editorContainerRef.current, {
+                automaticLayout: true,
                 language: "logLanguage",
                 readOnly: true,
                 renderWhitespace: "none",
@@ -265,9 +221,41 @@ function MonacoInstance ({
                 theme: getMonacoThemeName(theme),
                 wordWrap: "on",
             });
-            _onMount();
+
+            editorRef.current.setValue(logData);
+            editorRef.current.revealLine(logFileState.lineNumber, 1);
+            editorRef.current.setPosition({column: 1, lineNumber: logFileState.lineNumber});
+            editorRef.current.focus();
+            editorRef.current.onDidChangeCursorPosition((e) => {
+                // only trigger if there was an explicit change that
+                // was made by keyboard or mouse
+                // 3 is monacoRef.current.CursorChangeReason.Explicit
+                if (3 === e.reason) {
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                    }
+                    timeoutRef.current = setTimeout(() => {
+                        onStateChange(STATE_CHANGE_TYPE.lineNumber, {
+                            lineNumber: e.position.lineNumber,
+                            columnNumber: e.position.column,
+                        });
+                    }, 50);
+                }
+            });
         }
-    }, []);
+    };
+
+    const goToLine = (lineNumber, columnNumber) => {
+        editorRef.current.revealLineInCenter(lineNumber);
+        editorRef.current.setPosition({
+            column: columnNumber, lineNumber: lineNumber,
+        });
+        editorRef.current.focus();
+    };
+
+    const getMonacoThemeName = (theme) => (
+        (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
+    );
 
     return (
         <div className="monaco-container" ref={editorContainerRef}></div>

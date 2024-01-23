@@ -189,6 +189,7 @@ class FileManager {
         // Update state to re-render a single page on the editor
         this.state.verbosity = -1;
         this.state.lineNumber = 1;
+        this.state.columnNumber = 1;
         this.state.page = 1;
         this.state.pages = 1;
         this._updateStateCallback(CLP_WORKER_PROTOCOL.UPDATE_STATE, this.state);

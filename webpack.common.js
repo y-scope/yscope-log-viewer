@@ -10,7 +10,9 @@ module.exports = {
             template: path.resolve(__dirname, "src", "index.html"),
         }),
         new MiniCssExtractPlugin(),
-        new MonacoWebpackPlugin({}),
+        new MonacoWebpackPlugin({
+            languages: ["ascii", "ini"],
+        }),
     ],
     output: {
         path: path.join(__dirname, "dist"),

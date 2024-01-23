@@ -27,6 +27,7 @@
     "css-unicode-loader": "^1.0.3",
     "html-webpack-plugin": "^5.5.0",
     "jszip": "^3.10.1",
+    "monaco-editor": "^0.45.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "pako": "^2.1.0",
     "path": "^0.12.7",
