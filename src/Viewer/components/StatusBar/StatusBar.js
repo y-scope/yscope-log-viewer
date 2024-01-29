@@ -6,7 +6,7 @@ import {Braces, Filter, InfoCircle} from "react-bootstrap-icons";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
 import FourByteClpIrStreamReader from "../../services/decoder/FourByteClpIrStreamReader";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
-import VerbatimURLParams from "../../services/VerbatimURLParams";
+import {getModifiedUrl} from "../../services/utils";
 import {StatusBarMenu} from "./StatusBarMenu/StatusBarMenu";
 
 import "./StatusBar.scss";
@@ -75,20 +75,11 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
      * @return {string}
      */
     function generateLinkToLogEvent () {
-        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
-        urlSearchParams.set("prettify", String(logFileState.prettify));
-        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
-        if (logFileState.logEventIdx) {
-            urlHashParams.set("logEventIdx", logFileState.logEventIdx);
-        }
-        let url = `${window.location.origin}${window.location.pathname}`;
-        if (urlSearchParams.getLength()) {
-            url += `?${urlSearchParams}`;
-        }
-        if (urlHashParams.getLength()) {
-            url += `#${urlHashParams}`;
-        }
-        return url;
+        const hashParams = {
+            logEventIdx: logFileState.logEventIdx,
+        };
+
+        return getModifiedUrl({}, hashParams);
     }
 
     /**
@@ -96,7 +87,7 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
      */
     const copyLinkToLogEvent = () => {
         if (0 === Number(logFileState.logEventIdx)) {
-            // Cursor is not on a log event so print an error
+            console.error("Copy link not supported: Cursor is not on a log event.");
             return;
         }
         const url = generateLinkToLogEvent();
