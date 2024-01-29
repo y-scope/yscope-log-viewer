@@ -228,7 +228,6 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     }, [logFileState, logData]);
 
     useEffect(() => {
-        console.log(fileMetadata);
         if (null !== fileMetadata) {
             const searchParams = {filePath: fileMetadata.filePath};
             const hashParams = {logEventIdx: logFileState.logEventIdx};
