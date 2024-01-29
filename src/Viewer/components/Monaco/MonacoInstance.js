@@ -159,10 +159,17 @@ function MonacoInstance ({
         });
     }, [logFileState, loadingLogs]);
 
-
     useEffect(() => {
         if (null !== editorRef.current) {
-            goToLine(logFileState.lineNumber, logFileState.columnNumber);
+            const currPos = editorRef.current.getPosition();
+            const newLine = logFileState.lineNumber;
+            const newColumn = logFileState.columnNumber;
+            if (newLine !== currPos.lineNumber || newColumn !== currPos.column) {
+                // Only if the lineNumber / columnNumber change is not caused by
+                // user moving the cursor, center the line in the editor and
+                // change the cursor position.
+                goToLine(newLine, newColumn);
+            }
         }
     }, [logFileState.lineNumber, logFileState.columnNumber]);
 
@@ -234,7 +241,7 @@ function MonacoInstance ({
             // was made by keyboard or mouse
             // 3 is monacoRef.current.CursorChangeReason.Explicit
             if (3 === e.reason) {
-                if (timeoutRef.current) {
+                if (null !== timeoutRef.current) {
                     clearTimeout(timeoutRef.current);
                 }
                 timeoutRef.current = setTimeout(() => {
@@ -242,6 +249,7 @@ function MonacoInstance ({
                         lineNumber: e.position.lineNumber,
                         columnNumber: e.position.column,
                     });
+                    timeoutRef.current = null;
                 }, 50);
             }
         });
