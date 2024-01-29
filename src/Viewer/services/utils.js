@@ -58,26 +58,28 @@ const getModifiedUrl = (searchParams, hashParams) => {
     const urlHashParams = new URLSearchParams(window.location.hash.substring(1));
 
     Object.entries(searchParams).forEach(([key, value]) => {
-        urlSearchParams.delete(key);
-        if (null !== value) {
+        if (null === value) {
+            urlSearchParams.delete(key);
+        } else {
             urlSearchParams.set(key, value.toString());
         }
     });
     Object.entries(hashParams).forEach(([key, value]) => {
-        urlHashParams.delete(key);
-        if (null !== value) {
+        if (null === value) {
+            urlHashParams.delete(key);
+        } else {
             urlHashParams.set(key, value.toString());
         }
     });
 
     let urlSearchParamsAsString = urlSearchParams.toString();
-    if (false === /%3F|%23|%26/.test(urlSearchParamsAsString)) {
-        // avoid encoding the URL if it does not contain reserved characters
+    if (false === /%23|%26/.test(urlSearchParamsAsString)) {
+        // avoid encoding the URL
+        // if it does not contain `%23`(`#`) or `%26`(`&`)
         urlSearchParamsAsString = decodeURIComponent(urlSearchParamsAsString);
     }
-
     url.search = urlSearchParamsAsString;
-    url.hash = decodeURIComponent(urlHashParams.toString());
+    url.hash = urlHashParams.toString();
 
     return url.toString();
 };

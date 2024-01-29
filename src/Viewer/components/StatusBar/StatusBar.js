@@ -75,11 +75,14 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
      * @return {string}
      */
     function generateLinkToLogEvent () {
+        const searchParams = {
+            prettify: logFileState.prettify ? "true" : null,
+        };
         const hashParams = {
             logEventIdx: logFileState.logEventIdx,
         };
 
-        return getModifiedUrl({}, hashParams);
+        return getModifiedUrl(searchParams, hashParams);
     }
 
     /**
