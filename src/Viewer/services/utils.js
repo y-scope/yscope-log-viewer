@@ -44,27 +44,44 @@ const modifyPage = (action, currentPage, requestedPage, pages) => {
 };
 
 /**
- * Updates the URL based on the provided file metadata. If file
- * was downloaded using filePath, indicate the location in URL.
+ * Get modified URL from `window.location` based on the provided search and
+ * hash parameters.
  *
- * @param {object} fileMetadata
- * @param {number} logEventIdx
+ * @param {object} searchParams
+ * @param {object} hashParams
+ * @return {string} modified URL
  */
-const modifyFileMetadata = (fileMetadata, logEventIdx) => {
-    if (fileMetadata && fileMetadata.filePath) {
-        let url = `${window.location.origin}${window.location.pathname}`;
-        url += `?filePath=${fileMetadata.filePath}`;
-        if (0 !== logEventIdx) {
-            url += `#logEventIdx=${logEventIdx}`;
+const getModifiedUrl = (searchParams, hashParams) => {
+    const url = new URL(`${window.location.origin}${window.location.pathname}`);
+
+    const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+    const urlHashParams = new URLSearchParams(window.location.hash.substring(1));
+
+    Object.entries(searchParams).forEach(([key, value]) => {
+        if (null === value) {
+            urlSearchParams.delete(key);
+        } else {
+            urlSearchParams.set(key, value.toString());
         }
-        window.history.pushState({path: url}, "", url);
-    } else if (fileMetadata && !fileMetadata.filePath) {
-        let url = `${window.location.origin}${window.location.pathname}`;
-        if (0 !== logEventIdx) {
-            url += `#logEventIdx=${logEventIdx}`;
+    });
+    Object.entries(hashParams).forEach(([key, value]) => {
+        if (null === value) {
+            urlHashParams.delete(key);
+        } else {
+            urlHashParams.set(key, value.toString());
         }
-        window.history.pushState({path: url}, "", url);
+    });
+
+    let urlSearchParamsAsString = urlSearchParams.toString();
+    if (false === /%23|%26/.test(urlSearchParamsAsString)) {
+        // avoid encoding the URL
+        // if it does not contain `%23`(`#`) or `%26`(`&`)
+        urlSearchParamsAsString = decodeURIComponent(urlSearchParamsAsString);
     }
+    url.search = urlSearchParamsAsString;
+    url.hash = urlHashParams.toString();
+
+    return url.toString();
 };
 
 /**
@@ -130,4 +147,4 @@ function binarySearchWithTimestamp (timestamp, logEventMetadata) {
     return null;
 }
 
-export {binarySearchWithTimestamp, isNumeric, modifyFileMetadata, modifyPage};
+export {binarySearchWithTimestamp, getModifiedUrl, isNumeric, modifyPage};

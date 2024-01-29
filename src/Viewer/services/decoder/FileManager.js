@@ -343,7 +343,14 @@ class FileManager {
      * Load log file into editor
      */
     loadLogFile () {
-        const filePath = (this._fileInfo instanceof File) ? this._fileInfo.name : this._fileInfo;
+        let filePath;
+        if (this._fileInfo instanceof File) {
+            filePath = this._fileInfo.name;
+        } else {
+            const url = new URL(this._fileInfo);
+            filePath = url.pathname;
+        }
+
         if (filePath.endsWith(".clp.zst")) {
             console.log("Opening CLP IRStream compressed file: " + filePath);
             this._loadClpIRStreamFile();

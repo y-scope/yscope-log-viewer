@@ -64,8 +64,8 @@ const App = () => {
      * If neither are provided, we display a prompt to load a file.
      */
     const init = () => {
-        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
-        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
+        const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+        const urlHashParams = new URLSearchParams(window.location.hash.substring(1));
 
         // Load the initial state of the viewer from url
         setPrettify(urlSearchParams.get("prettify") === "true");

@@ -14,8 +14,7 @@ import FourByteClpIrStreamReader from "./services/decoder/FourByteClpIrStreamRea
 import LOCAL_STORAGE_KEYS from "./services/LOCAL_STORAGE_KEYS";
 import MessageLogger from "./services/MessageLogger";
 import STATE_CHANGE_TYPE from "./services/STATE_CHANGE_TYPE";
-import {isNumeric, modifyFileMetadata, modifyPage} from "./services/utils";
-import VerbatimURLParams from "./services/VerbatimURLParams";
+import {getModifiedUrl, isNumeric, modifyPage} from "./services/utils";
 
 import "./Viewer.scss";
 
@@ -229,7 +228,13 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
     }, [logFileState, logData]);
 
     useEffect(() => {
-        modifyFileMetadata(fileMetadata, logFileState.logEventIdx);
+        if (null !== fileMetadata) {
+            const searchParams = {filePath: fileMetadata.filePath};
+            const hashParams = {logEventIdx: logFileState.logEventIdx};
+
+            const newUrl = getModifiedUrl(searchParams, hashParams);
+            window.history.pushState({}, null, newUrl);
+        }
     }, [fileMetadata]);
 
     /**
@@ -251,7 +256,7 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
 
     // Fires when hash is changed in the window.
     window.onhashchange = () => {
-        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
+        const urlHashParams = new URLSearchParams(window.location.hash.substring(1));
         const logEventIdx = urlHashParams.get("logEventIdx");
         if (isNumeric(logEventIdx)) {
             changeState(STATE_CHANGE_TYPE.logEventIdx, {logEventIdx: Number(logEventIdx)});

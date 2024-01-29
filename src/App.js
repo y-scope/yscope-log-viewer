@@ -5,7 +5,6 @@ import {DropFile} from "./DropFile/DropFile";
 import {THEME_STATES} from "./ThemeContext/THEME_STATES";
 import {ThemeContext} from "./ThemeContext/ThemeContext";
 import LOCAL_STORAGE_KEYS from "./Viewer/services/LOCAL_STORAGE_KEYS";
-import VerbatimURLParams from "./Viewer/services/VerbatimURLParams";
 import {Viewer} from "./Viewer/Viewer";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -54,8 +53,8 @@ export function App () {
      * If neither are provided, we display a prompt to load a file.
      */
     const init = () => {
-        const urlHashParams = new VerbatimURLParams(window.location.hash, "#");
-        const urlSearchParams = new VerbatimURLParams(window.location.search, "?");
+        const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+        const urlHashParams = new URLSearchParams(window.location.hash.substring(1));
 
         // Load the initial state of the viewer from url
         setPrettify(urlSearchParams.get("prettify") === "true");
@@ -63,7 +62,7 @@ export function App () {
         setTimestamp(urlSearchParams.get("timestamp"));
 
         const filePath = urlSearchParams.get("filePath");
-        if (undefined !== filePath) {
+        if (null !== filePath) {
             setFileInfo(filePath);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
