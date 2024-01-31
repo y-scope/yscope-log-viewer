@@ -16,7 +16,7 @@ import "./MenuBar.scss";
 
 MenuBar.propTypes = {
     logFileState: PropTypes.object,
-    fileMetaData: PropTypes.object,
+    fileInfo: PropTypes.object,
     loadingLogs: PropTypes.bool,
     changeStateCallback: PropTypes.func,
     loadFileCallback: PropTypes.func,
@@ -33,13 +33,13 @@ MenuBar.propTypes = {
  * This callback is used to load a new file.
  *
  * @callback LoadFileCallback
- * @param {File|String} fileInfo File object or file path to load.
+ * @param {File|String} fileSrc File object or file path to load.
  */
 
 /**
  * Menu bar used to navigate the log file.
  * @param {object} logFileState Current state of the log file
- * @param {object} fileMetaData Object containing file metadata
+ * @param {object} fileInfo Object containing file name & path
  * @param {boolean} loadingLogs Indicates if logs are being decoded and
  *                              loaded by worker.
  * @param {ChangeStateCallback} changeStateCallback
@@ -47,7 +47,7 @@ MenuBar.propTypes = {
  * @return {JSX.Element}
  */
 export function MenuBar ({
-    logFileState, fileMetaData, loadingLogs, changeStateCallback, loadFileCallback,
+    logFileState, fileInfo, loadingLogs, changeStateCallback, loadFileCallback,
 }) {
     const {theme, switchTheme} = useContext(ThemeContext);
 
@@ -176,9 +176,9 @@ export function MenuBar ({
                 <div style={{height: loadingBarHeight}} className="w-100" />
                 <div className="viewer-header-menu-container">
                     <div className="menu-left">
-                        <div className="menu-item" title={fileMetaData.name}>
+                        <div className="menu-item" title={fileInfo.name}>
                             <FileText className="mx-2"/>
-                            <span className="d-none d-lg-block">{fileMetaData.name}</span>
+                            <span className="d-none d-lg-block">{fileInfo.name}</span>
                         </div>
                     </div>
                     <div className="menu-right">

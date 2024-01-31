@@ -15,17 +15,25 @@ import {isBoolean, isNumeric} from "./decoder/utils";
 class ActionHandler {
     /**
      * Creates a new FileManager object and initiates the download.
-     * @param {String|File} fileInfo
+     * @param {String|File} fileSrc
      * @param {boolean} prettify
      * @param {Number} logEventIdx
      * @param {Number} initialTimestamp
      * @param {Number} pageSize
      */
-    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize) {
-        this._logFile = new FileManager(fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
-            this._loadingMessageCallback, this._updateStateCallback, this._updateLogsCallback,
+    constructor (fileSrc, prettify, logEventIdx, initialTimestamp, pageSize) {
+        this._logFile = new FileManager(fileSrc, prettify, logEventIdx, initialTimestamp, pageSize,
+            this._loadingMessageCallback,
+            this._updateStateCallback,
+            this._updateLogsCallback,
             this._updateFileInfoCallback);
-        this._logFile.loadLogFile();
+
+        this._logFile.loadLogFile().then(()=> {
+            console.log(fileSrc, "File loaded successfully");
+        }).catch((e) => {
+            this._loadingMessageCallback(e, true);
+            console.error("Error processing log file:", e);
+        });
     }
 
     /**
@@ -192,12 +200,12 @@ class ActionHandler {
 
     /**
      * Send the file information.
-     * @param {string} fileState
+     * @param {string} fileInfo
      */
-    _updateFileInfoCallback = (fileState) => {
+    _updateFileInfoCallback = (fileInfo) => {
         postMessage({
             code: CLP_WORKER_PROTOCOL.UPDATE_FILE_INFO,
-            fileState: fileState,
+            fileInfo: fileInfo,
         });
     };
 }

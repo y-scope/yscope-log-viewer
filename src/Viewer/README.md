@@ -36,7 +36,7 @@ const App = () => {
     };
 
     const [appMode, setAppMode] = useState(null);
-    const [fileInfo, setFileInfo] = useState(null);
+    const [fileSrc, setfileSrc] = useState(null);
     const [logEventIdx, setLogEventIdx] = useState(null);
     const [prettify, setPrettify] = useState(null);
     const [theme, setTheme] = useState(THEME_STATES.DARK);
@@ -74,11 +74,11 @@ const App = () => {
         const filePath = urlSearchParams.get("filePath");
         console.log(filePath);
         if (undefined !== filePath) {
-            setFileInfo(filePath);
+            setfileSrc(filePath);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
             if (null !== config.defaultFileUrl) {
-                setFileInfo(config.defaultFileUrl);
+                setfileSrc(config.defaultFileUrl);
                 setAppMode(APP_STATE.FILE_VIEW);
             } else {
                 setAppMode(APP_STATE.FILE_PROMPT);
@@ -91,7 +91,7 @@ const App = () => {
      * @param {File} file
      */
     const handleFileChange = (file) => {
-        setFileInfo(file);
+        setfileSrc(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
 
@@ -102,7 +102,7 @@ const App = () => {
                     {(APP_STATE.FILE_VIEW === appMode) &&
                         <Viewer logEventNumber={logEventIdx}
                             prettifyLog={prettify}
-                            fileInfo={fileInfo}/>
+                            fileSrc={fileSrc}/>
                     }
                 </DropFile>
             </ThemeContext.Provider>

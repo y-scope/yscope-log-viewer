@@ -24,7 +24,7 @@ export function App () {
     };
 
     const [appMode, setAppMode] = useState(null);
-    const [fileInfo, setFileInfo] = useState(null);
+    const [fileSrc, setFileSrc] = useState(null);
     const [logEventIdx, setLogEventIdx] = useState(null);
     const [timestamp, setTimestamp] = useState(null);
     const [prettify, setPrettify] = useState(null);
@@ -63,11 +63,11 @@ export function App () {
 
         const filePath = urlSearchParams.get("filePath");
         if (null !== filePath) {
-            setFileInfo(filePath);
+            setFileSrc(filePath);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
             if (null !== config.defaultFileUrl) {
-                setFileInfo(config.defaultFileUrl);
+                setFileSrc(config.defaultFileUrl);
                 setAppMode(APP_STATE.FILE_VIEW);
             } else {
                 setAppMode(APP_STATE.FILE_PROMPT);
@@ -80,7 +80,7 @@ export function App () {
      * @param {File} file
      */
     const handleFileChange = (file) => {
-        setFileInfo(file);
+        setFileSrc(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
 
@@ -92,7 +92,7 @@ export function App () {
                         <Viewer logEventNumber={logEventIdx}
                             timestamp={timestamp}
                             prettifyLog={prettify}
-                            fileInfo={fileInfo}/>
+                            fileSrc={fileSrc}/>
                     }
                 </DropFile>
             </ThemeContext.Provider>
