@@ -20,7 +20,6 @@ import "./Viewer.scss";
 
 Viewer.propTypes = {
     fileSrc: oneOfType([PropTypes.object, PropTypes.string]),
-    filePath: PropTypes.string,
     prettifyLog: PropTypes.bool,
     logEventNumber: PropTypes.string,
     timestamp: PropTypes.string,
@@ -229,7 +228,7 @@ export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
 
     useEffect(() => {
         if (null !== fileInfo) {
-            const searchParams = {filePath: fileInfo.filePath};
+            const searchParams = {filePath: fileInfo.path};
             const hashParams = {logEventIdx: logFileState.logEventIdx};
 
             const newUrl = getModifiedUrl(searchParams, hashParams);

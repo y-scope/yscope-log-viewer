@@ -54,7 +54,7 @@ const downloadAndReadFile = async (fileUrl, progressCallback) => {
 
         return new Uint8Array(data);
     } catch (e) {
-        throw new HTTPRequestError(fileUrl, e.response.status, e.response.data);
+        throw new HTTPRequestError(fileUrl, e.response.status, e.response.statusText);
     }
 };
 
@@ -102,15 +102,14 @@ const readFile = async (fileSrc, progressCallback) => {
         const data = await readFileObject(fileSrc, progressCallback);
         fileInfo = {
             name: fileSrc.name,
-            filePath: null,
+            path: null,
             data: data,
         };
     } else if ("string" === typeof fileSrc) {
-        const name = fileSrc.split("/").pop();
         const data = await downloadAndReadFile(fileSrc, progressCallback);
         fileInfo = {
-            name: name,
-            filePath: fileSrc,
+            name: new URL(fileSrc).pathname.split("/").pop(),
+            path: fileSrc,
             data: data,
         };
     }
