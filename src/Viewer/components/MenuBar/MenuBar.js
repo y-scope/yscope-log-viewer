@@ -5,7 +5,7 @@ import {Button, Form, Modal, ProgressBar, Table} from "react-bootstrap";
 import {ChevronDoubleLeft, ChevronDoubleRight, ChevronLeft, ChevronRight,
     FileText, Folder, Gear, Keyboard, Moon, Sun} from "react-bootstrap-icons";
 
-import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
+import {THEME_NAMES} from "../../../ThemeContext/constants";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
 import LOCAL_STORAGE_KEYS from "../../services/LOCAL_STORAGE_KEYS";
 import MODIFY_PAGE_ACTION from "../../services/MODIFY_PAGE_ACTION";
@@ -49,7 +49,7 @@ MenuBar.propTypes = {
 export function MenuBar ({
     logFileState, fileMetaData, loadingLogs, changeStateCallback, loadFileCallback,
 }) {
-    const {theme, switchTheme} = useContext(ThemeContext);
+    const {theme, changeTheme} = useContext(ThemeContext);
 
     const [eventsPerPage, setEventsPerPage] = useState(logFileState.pages);
     const [showSettings, setShowSettings] = useState(false);
@@ -101,7 +101,7 @@ export function MenuBar ({
 
     // Modal Functions
     const getModalClass = () => {
-        return (THEME_STATES.LIGHT === theme)?"modal-light":"modal-dark";
+        return (THEME_NAMES.LIGHT === theme)?"modal-light":"modal-dark";
     };
 
     const saveModalChanges = (e) => {
@@ -123,15 +123,15 @@ export function MenuBar ({
     };
 
     const getThemeIcon = () => {
-        if (THEME_STATES.LIGHT === theme) {
+        if (THEME_NAMES.LIGHT === theme) {
             return (
                 <Moon className="cursor-pointer" title="Set Light Mode"
-                    onClick={() => switchTheme(THEME_STATES.DARK)}/>
+                    onClick={() => changeTheme(THEME_NAMES.DARK)}/>
             );
-        } else if (THEME_STATES.DARK === theme) {
+        } else if (THEME_NAMES.DARK === theme) {
             return (
                 <Sun className="cursor-pointer" title="Set Dark Mode"
-                    onClick={() => switchTheme(THEME_STATES.LIGHT)}/>
+                    onClick={() => changeTheme(THEME_NAMES.LIGHT)}/>
             );
         }
     };

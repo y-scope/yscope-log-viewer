@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useRef} from "react";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import PropTypes from "prop-types";
 
-import {THEME_STATES} from "../../../ThemeContext/THEME_STATES";
+import {THEME_NAMES} from "../../../ThemeContext/constants";
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
 import {SHORTCUTS} from "./Shortcuts";
@@ -264,7 +264,7 @@ function MonacoInstance ({
     };
 
     const getMonacoThemeName = (theme) => (
-        (theme === THEME_STATES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
+        (theme === THEME_NAMES.LIGHT) ? "customLogLanguageLight" : "customLogLanguageDark"
     );
 
     return (
