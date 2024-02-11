@@ -27,7 +27,6 @@ export function App () {
     const [timestamp, setTimestamp] = useState(null);
     const [prettify, setPrettify] = useState(null);
 
-
     useEffect(() => {
         console.debug("Version:", config.version);
         init();
