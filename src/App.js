@@ -2,9 +2,7 @@ import React, {useEffect, useState} from "react";
 
 import config from "./config.json";
 import {DropFile} from "./DropFile/DropFile";
-import {THEME_STATES} from "./ThemeContext/THEME_STATES";
-import {ThemeContext} from "./ThemeContext/ThemeContext";
-import LOCAL_STORAGE_KEYS from "./Viewer/services/LOCAL_STORAGE_KEYS";
+import {ThemeContextProvider} from "./ThemeContext/ThemeContext";
 import {Viewer} from "./Viewer/Viewer";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -28,20 +26,11 @@ export function App () {
     const [logEventIdx, setLogEventIdx] = useState(null);
     const [timestamp, setTimestamp] = useState(null);
     const [prettify, setPrettify] = useState(null);
-    const [theme, setTheme] = useState(THEME_STATES.DARK);
 
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.UI_THEME);
-        switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
         init();
     }, []);
-
-    const switchTheme = (theme) => {
-        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
-        document.getElementById("app").setAttribute("data-theme", theme);
-        setTheme(theme);
-    };
 
     /**
      * Initializes the application's state. The file to load is set based on
@@ -86,7 +75,7 @@ export function App () {
 
     return (
         <div id="app">
-            <ThemeContext.Provider value={{theme, switchTheme}}>
+            <ThemeContextProvider>
                 <DropFile handleFileDrop={handleFileChange}>
                     {(APP_STATE.FILE_VIEW === appMode) &&
                         <Viewer logEventNumber={logEventIdx}
@@ -95,7 +84,7 @@ export function App () {
                             fileInfo={fileInfo}/>
                     }
                 </DropFile>
-            </ThemeContext.Provider>
+            </ThemeContextProvider>
         </div>
     );
 }

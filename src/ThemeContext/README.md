@@ -7,12 +7,11 @@ Exposes a provider which can wrap any YScope React component to manage themes.
 The sample application provided below demonstrates the configuration needed to 
 deploy the log viewer with drag&drop and theming using the Theme Context.
 
-```shell
-import React, { useState } from 'react';
+```js
+import React, {useState} from 'react';
 import reactDom from 'react-dom';
 import {DropFile} from "./DropFile/DropFile";
-import {THEME_STATES} from "./ThemeContext/THEME_STATES";
-import {ThemeContext} from "./ThemeContext/ThemeContext";
+import {ThemeContextProvider} from "./ThemeContext/ThemeContext";
 import {Viewer} from "./Viewer/Viewer";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -24,14 +23,7 @@ const App = () => {
     };
 
     const [fileInfo, setFileInfo] = useState(null);
-    const [theme, setTheme] = useState(THEME_STATES.DARK);
     const [appMode, setAppMode] = useState();
-
-    const switchTheme = (theme) => {
-        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
-        document.getElementById("app").setAttribute("data-theme", theme);
-        setTheme(theme);
-    };
 
     const handleFileChange = (file) => {
         setFileInfo(file);
@@ -40,14 +32,12 @@ const App = () => {
     
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.UI_THEME);
-        switchTheme(lsTheme === THEME_STATES.LIGHT?THEME_STATES.LIGHT:THEME_STATES.DARK);
         setAppMode(APP_STATE.FILE_PROMPT);
     }, []);
 
     return (
         <div id="app">
-            <ThemeContext.Provider value={{theme, switchTheme}}>
+            <ThemeContextProvider>
                 <DropFile handleFileDrop={handleFileChange}>
                     {appMode === APP_STATE.VIEWER &&
                         <Viewer logEventNumber={333}
@@ -55,7 +45,7 @@ const App = () => {
                             fileInfo={fileInfo}/>
                     }
                 </DropFile>
-            </ThemeContext.Provider>
+            </ThemeContextProvider>
         </div>
     );
 }
