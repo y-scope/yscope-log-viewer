@@ -1,5 +1,4 @@
 const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
@@ -9,9 +8,32 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "src", "index.html"),
         }),
-        new MiniCssExtractPlugin(),
         new MonacoWebpackPlugin({
-            languages: ["ascii", "ini"],
+            features: [
+                "!suggest",
+                "!folding",
+                "!gotoSymbol",
+                "!linesOperations",
+                "!multicursor",
+                "!hover",
+                "!indentation",
+                "!codelens",
+                "!linkedEditing",
+                "!rename",
+                "!smartSelect",
+                "!snippet",
+                "!format",
+                "!gotoError",
+                "!diffEditor",
+                "!inPlaceReplace",
+                "!comment",
+                "!parameterHints",
+                "!colorPicker",
+                "!inlineProgress",
+                "!inlineCompletions",
+                "!inlayHints",
+            ],
+            languages: ["ini"],
         }),
     ],
     output: {
@@ -43,7 +65,7 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+                use: ["style-loader", "css-loader", "sass-loader"],
             },
             {
                 test: /\.css$/,

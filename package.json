@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "start": "webpack serve --open --config webpack.dev.js",
-    "test": "jest"
+    "test": "jest",
+    "analyze:size": "npx webpack --config webpack.prod.js --profile --json > bundle_stats.json && npx webpack-bundle-analyzer bundle_stats.json dist/"
   },
   "repository": {
     "type": "git",
@@ -62,7 +63,7 @@
     "stylelint-config-standard": "^29.0.0",
     "stylelint-config-standard-scss": "^6.1.0",
     "webpack": "^5.74.0",
-    "webpack-bundle-analyzer": "^4.7.0",
+    "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1",
     "webpack-merge": "^5.8.0"
