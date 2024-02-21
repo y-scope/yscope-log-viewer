@@ -19,11 +19,11 @@ event number from the url.
 
 ### Example:
 `http://localhost:3010/?filePath=/logs/custom_app/high-compression-ratio-log.clp.zst&prettify=true&logEventIdx=100`
-```shell
+```js
 import React, { useState } from 'react';
 import reactDom from 'react-dom';
 import {DropFile} from "./DropFile/DropFile";
-import {THEME_STATES} from "./ThemeContext/THEME_STATES";
+import {THEME_NAMES} from "./ThemeContext/constants";
 import {ThemeContext} from "./ThemeContext/ThemeContext";
 import {Viewer} from "./Viewer/Viewer";
 
@@ -39,20 +39,11 @@ const App = () => {
     const [fileSrc, setfileSrc] = useState(null);
     const [logEventIdx, setLogEventIdx] = useState(null);
     const [prettify, setPrettify] = useState(null);
-    const [theme, setTheme] = useState(THEME_STATES.DARK);
 
     useEffect(() => {
         console.debug("Version:", config.version);
-        const lsTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.UI_THEME);
-        switchTheme(THEME_STATES.LIGHT === lsTheme ?THEME_STATES.LIGHT :THEME_STATES.DARK);
         init();
     }, []);
-
-    const switchTheme = (theme) => {
-        localStorage.setItem(LOCAL_STORAGE_KEYS.UI_THEME, theme);
-        document.getElementById("app").setAttribute("data-theme", theme);
-        setTheme(theme);
-    };
 
     /**
      * Initializes the applications state. The file to load is set based on
@@ -97,7 +88,7 @@ const App = () => {
 
     return (
         <div id="app">
-            <ThemeContext.Provider value={{theme, switchTheme}}>
+            <ThemeContextProvider>
                 <DropFile handleFileDrop={handleFileChange}>
                     {(APP_STATE.FILE_VIEW === appMode) &&
                         <Viewer logEventNumber={logEventIdx}
@@ -105,7 +96,7 @@ const App = () => {
                             fileSrc={fileSrc}/>
                     }
                 </DropFile>
-            </ThemeContext.Provider>
+            </ThemeContextProvider>
         </div>
     );
 }

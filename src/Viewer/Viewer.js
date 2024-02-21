@@ -4,7 +4,7 @@ import PropTypes, {oneOfType} from "prop-types";
 import {Row} from "react-bootstrap";
 import LoadingIcons from "react-loading-icons";
 
-import {THEME_STATES} from "../ThemeContext/THEME_STATES";
+import {THEME_NAMES} from "../ThemeContext/constants";
 import {ThemeContext} from "../ThemeContext/ThemeContext";
 import {MenuBar} from "./components/MenuBar/MenuBar";
 import MonacoInstance from "./components/Monaco/MonacoInstance";
@@ -270,7 +270,7 @@ export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
                 <div className="viewer-loading-container">
                     <Row className="m-0">
                         <LoadingIcons.Oval height="5em" stroke={
-                            (THEME_STATES.LIGHT === theme) ? "black" : "white"
+                            (THEME_NAMES.LIGHT === theme) ? "black" : "white"
                         }/>
                     </Row>
                     <Row className="loading-container">
