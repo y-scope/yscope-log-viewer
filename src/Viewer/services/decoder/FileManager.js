@@ -23,7 +23,7 @@ class FileManager {
      * Extracts magic number from the given typed array and compare against
      * known file type magic numbers.
      * @param {Uint8Array} data which contains the file bytes
-     * @return {number} type of the file defined in FILE_TYPES
+     * @returns {number} type of the file defined in FILE_TYPES
      */
     static _getFileTypeByMagicNumber = (data) => {
         let type = FILE_TYPES.NONE;
@@ -50,18 +50,21 @@ class FileManager {
      * @private
      * @param {Uint8Array} data compressed data
      * @param {string} name original file name
-     * @return {[Uint8Array, string]} content and original name of the file
+     * @returns {{content: Uint8Array, name: string}}
      * @throws {Error} if there is an issue loading or extracting the archive
      */
     static #getZstdFileContent = async (data, name) => {
         const zstd = await new Promise((resolve) => {
-            ZstdCodec.run((zstd) => {
-                resolve(zstd);
+            ZstdCodec.run((z) => {
+                resolve(z);
             });
         });
         const zstdCtx = new zstd.Streaming();
 
-        return [zstdCtx.decompress(data).buffer, name];
+        return {
+            content: zstdCtx.decompress(data).buffer,
+            name,
+        };
     };
 
     /**
@@ -70,11 +73,14 @@ class FileManager {
      * @private
      * @param {Uint8Array} data compressed data
      * @param {string} name original file name
-     * @return {[Uint8Array, string]} content and original name of the file
+     * @returns {{content: Uint8Array, name: string}}
      * @throws {Error} if there is an issue loading or extracting the archive
      */
     static #getGzipFileContent = (data, name) => {
-        return [pako.inflate(data, {to: "Uint8Array"}), name];
+        return {
+            content: pako.inflate(data, {to: "Uint8Array"}),
+            name,
+        };
     };
 
     /**
@@ -84,20 +90,23 @@ class FileManager {
      * @private
      * @param {Uint8Array} data compressed data
      * @param {string} name original file name
-     * @return {[Uint8Array, string]} content and updated name of the first file
+     * @returns {{content: Uint8Array, name: string}}
      * @throws {Error} if there is an issue loading or extracting the archive
      */
-    static #getTarGzipFirstFileContent (data, name) {
+    static #getTarGzipFirstFileContent = (data, name) => {
         const tarArchive = pako.inflate(data, {to: "Uint8Array"});
         const [entry] = Tarball.extract(tarArchive).filter(
-            (entry) => entry.isFile()
+            (e) => e.isFile()
         );
         const {content, fileName} = entry;
 
-        name += "/" + fileName;
+        name += `/${fileName}`;
 
-        return [content, name];
-    }
+        return {
+            content,
+            name,
+        };
+    };
 
     /**
      * Decompresses and retrieves the content of the first file within a ZIP
@@ -106,7 +115,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data compressed data
      * @param {string} name original file name
-     * @return {[Uint8Array, string]} content and updated name of the first file
+     * @returns {{content: Uint8Array, name: string}}
      * @throws {Error} if there is an issue loading or extracting the archive
      */
     static async #getZipFirstFileContent (data, name) {
@@ -115,9 +124,12 @@ class FileManager {
         const content = await zipArchive.files[firstFilePath]
             .async("uint8array");
 
-        name += "/" + firstFilePath;
+        name += `/${firstFilePath}`;
 
-        return [content, name];
+        return {
+            content,
+            name,
+        };
     }
 
     /**
@@ -149,6 +161,7 @@ class FileManager {
         this._timestampSorted = false;
 
         this._fileInfo = {
+            data: null,
             name: null,
             path: null,
             type: FILE_TYPES.NONE,
@@ -302,7 +315,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data binary data of the file
      * @param {string} name of the file.
-     * @return {number} The detected file type
+     * @returns {number} The detected file type
      */
     _getLogFileTypeBeforeDecompress (data, name) {
         let type = FileManager._getFileTypeByMagicNumber(data);
@@ -319,8 +332,9 @@ class FileManager {
             }
         }
 
-        this._loadingMessageCallback("Pre-decompression type check shows the" +
-            ` file is of type: ${FILE_TYPE_FULL_NAMES[type]}`);
+        this._loadingMessageCallback(
+            `Decompression type check result: ${FILE_TYPE_FULL_NAMES[type]}`
+        );
 
         return type;
     }
@@ -330,7 +344,7 @@ class FileManager {
      * returns the decompressed data.
      *
      * @private
-     * @return {Uint8Array} the decompressed data
+     * @returns {Promise<Uint8Array>}
      * @throws {Error} if there is an issue during decompression.
      */
     async _decompressFile () {
@@ -342,12 +356,16 @@ class FileManager {
         };
 
         let {data} = this._fileInfo;
+        const {type} = this._fileInfo;
 
-        if (this._fileInfo.type in decompressMethods) {
-            [data, this._fileInfo.name] =
-                await decompressMethods[this._fileInfo.type].call(this,
-                    data,
-                    this._fileInfo.name);
+        if (type in decompressMethods) {
+            let name = null;
+            ({
+                content: data,
+                name,
+            } = await decompressMethods[type].call(this, data, name));
+
+            this._fileInfo.name = name;
         }
 
         return data;
@@ -360,7 +378,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data binary data of the file.
      * @param {number} typeBeforeDecompress determined type before decompression
-     * @return {number} The determined file type after checking.
+     * @returns {number} The determined file type after checking.
      */
     _getFileTypeBeforeDecode (data, typeBeforeDecompress) {
         let type = typeBeforeDecompress;
@@ -370,8 +388,9 @@ class FileManager {
 
             if (FILE_TYPES.NONE !== contentType) {
                 type = contentType;
-                this._loadingMessageCallback("Pre-decoding type check shows" +
-                    ` the file is of type: ${FILE_TYPE_FULL_NAMES[type]}`);
+                this._loadingMessageCallback(
+                    `Decoding type check result: ${FILE_TYPE_FULL_NAMES[type]}`
+                );
             }
         }
 
