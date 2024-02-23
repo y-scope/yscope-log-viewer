@@ -20,6 +20,7 @@
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
     "@obsidize/tar-browserify": "4.0.0",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
     "compression-webpack-plugin": "^10.0.0",

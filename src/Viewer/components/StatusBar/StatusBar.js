@@ -1,13 +1,12 @@
 import React, {useContext, useEffect, useState} from "react";
 
+import {VSCodeButton} from "@vscode/webview-ui-toolkit/react";
 import PropTypes from "prop-types";
-import {Braces, Filter, InfoCircle} from "react-bootstrap-icons";
 
 import {ThemeContext} from "../../../ThemeContext/ThemeContext";
-import FourByteClpIrStreamReader from "../../services/decoder/FourByteClpIrStreamReader";
 import STATE_CHANGE_TYPE from "../../services/STATE_CHANGE_TYPE";
 import {getModifiedUrl} from "../../services/utils";
-import {StatusBarMenu} from "./StatusBarMenu/StatusBarMenu";
+import VerbosityDropdown from "./VerbosityDropdown/VerbosityDropdown";
 
 import "./StatusBar.scss";
 
@@ -34,7 +33,12 @@ StatusBar.propTypes = {
  * @param {ChangeStateCallback} changeStateCallback
  * @return {JSX.Element}
  */
-export function StatusBar ({status, logFileState, loadingLogs, changeStateCallback}) {
+export function StatusBar ({
+    status,
+    logFileState,
+    loadingLogs,
+    changeStateCallback,
+}) {
     const [statusMessage, setStatusMessage] = useState("");
     const [statusEditor, setStatusEditor] = useState("");
     const {theme} = useContext(ThemeContext);
@@ -48,8 +52,8 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
     }, [status]);
 
     /**
-     * Sets the content of the footer and updates the URL to selected log event.
-     */
+   * Sets the content of the footer and updates the URL to selected log event.
+   */
     const setFooter = () => {
         const logEventIdx = logFileState.logEventIdx;
         const logEventMetadataLength = logFileState.numberOfEvents;
@@ -70,10 +74,10 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
     };
 
     /**
-     * Generates link to currently highlighted log event.
-     *
-     * @return {string}
-     */
+   * Generates link to currently highlighted log event.
+   *
+   * @return {string}
+   */
     function generateLinkToLogEvent () {
         const searchParams = {
             prettify: logFileState.prettify ? "true" : null,
@@ -86,8 +90,8 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
     }
 
     /**
-     * Copies the link to current log event to the clipboard
-     */
+   * Copies the link to current log event to the clipboard
+   */
     const copyLinkToLogEvent = () => {
         if (0 === Number(logFileState.logEventIdx)) {
             console.error("Copy link not supported: Cursor is not on a log event.");
@@ -101,13 +105,10 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
         });
     };
 
-    const getVerbosity = () => {
-        return (logFileState.verbosity === -1)?"ALL":
-            FourByteClpIrStreamReader.VERBOSITIES[logFileState.verbosity].label;
-    };
-
-    const selectVerbosity = (value) => {
-        changeStateCallback(STATE_CHANGE_TYPE.verbosity, {"verbosity": value});
+    const handleVerbosityChange = (event) => {
+        const {value} = event.target;
+        changeStateCallback(STATE_CHANGE_TYPE.verbosity,
+            {"verbosity": parseInt(value)});
     };
 
     // TODO Set min size of viewer
@@ -116,49 +117,39 @@ export function StatusBar ({status, logFileState, loadingLogs, changeStateCallba
     // TODO Rename all variables that include verbosity to level
     return (
         <div id="status-bar" data-theme={theme}>
-            <div className="status-bar">
-                <div className="status-left">
-                    <div className="status-item">
-                        { (statusMessage !== "") &&
-                            <>
-                                <InfoCircle className="viewer-icons"/>
-                                <span className="ms-2">{statusMessage}</span>
-                            </>
-                        }
-                    </div>
-                </div>
-                <div className="status-right ">
-                    <button
-                        className="status-item status-item-button"
-                        onClick={copyLinkToLogEvent}
-                        title="Click to copy direct link to event"
-                    >{statusEditor}</button>
-                    <StatusBarMenu
-                        className="status-item status-item-button status-verbosity-accent"
-                        disabled={loadingLogs}
-                        setVerbosity={selectVerbosity}
-                    >
-                        <Filter/>
-                        <span className="ms-2 me-3">{getVerbosity()}</span>
-                    </StatusBarMenu>
-                    <button
-                        className="status-item status-item-button status-prettify-accent"
-                        disabled={loadingLogs}
-                        onClick={() => changeStateCallback(
-                            STATE_CHANGE_TYPE.prettify, {prettify: !logFileState.prettify}
-                        )}
-                        title={logFileState.prettify?
-                            "Disable pretty printing":
-                            "Enable pretty printing"
-                        }
-                    >
-                        <Braces className="me-1"/>
-                        <span>
-                            {logFileState.prettify?"Un-prettify":"Prettify"}
-                        </span>
-                    </button>
-                </div>
-            </div>
+            <span id={"status-bar-left"}>
+                {
+                    ("" !== statusMessage) &&
+                    <span id={"status-bar-message-container"}>
+                        <span id={"status-bar-message-icon"} className={"codicon codicon-info"}/>
+                        <span>{statusMessage}</span>
+                    </span>
+                }
+            </span>
+
+            <VSCodeButton
+                title={"Click to copy direct link to event"}
+                onClick={copyLinkToLogEvent}
+            >
+                {statusEditor}
+            </VSCodeButton>
+
+            <VerbosityDropdown onVerbosityChange={handleVerbosityChange}/>
+
+            <VSCodeButton
+                title={logFileState.prettify ?
+                    "Disable pretty printing" :
+                    "Enable pretty printing"
+                }
+                disabled={loadingLogs}
+                onClick={() => changeStateCallback(
+                    STATE_CHANGE_TYPE.prettify, {prettify: !logFileState.prettify}
+                )}
+            >
+                <span slot={"start"}
+                    className={"codicon codicon-json"}></span>
+                {logFileState.prettify ? "Un-prettify" : "Prettify"}
+            </VSCodeButton>
         </div>
     );
 }

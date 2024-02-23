@@ -28,12 +28,12 @@ class FourByteClpIrStreamReader {
     static textEncoder = new TextEncoder();
     static textDecoder = new TextDecoder();
     static VERBOSITIES = [
-        {label: "≤ TRACE", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("TRACE")},
-        {label: "≤ DEBUG", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("DEBUG")},
-        {label: "≤ INFO", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("INFO")},
-        {label: "≤ WARN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("WARN")},
-        {label: "≤ ERROR", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("ERROR")},
-        {label: "≤ FATAL", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("FATAL")},
+        {label: "TRACE", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("TRACE")},
+        {label: "DEBUG", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("DEBUG")},
+        {label: "INFO", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("INFO")},
+        {label: "WARN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("WARN")},
+        {label: "ERROR", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("ERROR")},
+        {label: "FATAL", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("FATAL")},
         {label: "UNKNOWN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("UNKNOWN")},
     ];
 
@@ -201,8 +201,7 @@ class FourByteClpIrStreamReader {
             // FIXME: This only supports verbosity levels starting at the 2nd
             //  character of the log type
             if (uint8ArrayContains(this._logtype.getValueUint8Array(), 1,
-                verbosityUint8Array, 0))
-            {
+                verbosityUint8Array, 0)) {
                 return i;
             }
         }
