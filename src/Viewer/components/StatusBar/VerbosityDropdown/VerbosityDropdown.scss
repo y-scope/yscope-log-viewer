@@ -9,6 +9,11 @@
   text-align: center!important;
 }
 
+#verbosity-dropdown::part(listbox) {
+  z-index: 10;
+  bottom: 1px;
+}
+
 #verbosity-dropdown vscode-option {
   justify-content: center;
 }
