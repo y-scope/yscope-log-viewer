@@ -357,7 +357,7 @@ export function MenuBar ({
                         appearance={"primary"}
                         onClick={saveModalChanges}
                     >
-                        Save Changes
+                        Save
                     </VSCodeButton>
                 </Modal.Footer>
             </Modal>
