@@ -36,7 +36,7 @@ class HTTPRequestError extends Error {
  *
  * @param {string} fileUrl
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {Uint8Array} File content
+ * @returns {Uint8Array} File content
  */
 const downloadAndReadFile = async (fileUrl, progressCallback) => {
     try {
@@ -48,7 +48,6 @@ const downloadAndReadFile = async (fileUrl, progressCallback) => {
             headers: {
                 "Cache-Control": "no-cache",
                 "Pragma": "no-cache",
-                "Expires": "0",
             },
         });
 
@@ -63,7 +62,7 @@ const downloadAndReadFile = async (fileUrl, progressCallback) => {
  *
  * @param {File} file File object to read data from.
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {Uint8Array} File content
+ * @returns {Uint8Array} File content
  */
 const readFileObject = (file, progressCallback) => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -80,20 +79,18 @@ const readFileObject = (file, progressCallback) => new Promise((resolve, reject)
 });
 
 /**
- * Input File Information
- *
  * @typedef {Object} FileInfo
  * @property {string} name File name
  * @property {string|null} [filePath] File URL when the file is downloaded
  * @property {Uint8Array} data File content
  */
 /**
- * Gets content from an input file. If given `fileSrc` is a string, treat it as
- * a URL and download before getting data.
+ * Gets content from an input file. If `fileSrc` is a string, treat it as a URL
+ * and download before getting data.
  *
- * @param {string|File} fileSrc A File object or a file URL to download
+ * @param {File|string} fileSrc A File object or a file URL to download
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {FileInfo} Input File Information which contains the file content
+ * @returns {FileInfo} The file's content and metadata
  */
 const readFile = async (fileSrc, progressCallback) => {
     let fileInfo = null;

@@ -1,34 +1,39 @@
 const FILE_TYPES = Object.freeze({
-    NONE: "none",
+    UNKNOWN: "unknown",
+
     CLP_IR: "clp_ir",
-    ZST: "zst",
     GZ: "gz",
     TAR_GZ: "tar_gz",
     ZIP: "zip",
+    ZST: "zst",
 });
 
-const FILE_EXTENSION_MAPS = Object.freeze({
-    ".txt": FILE_TYPES.NONE,
+const FILE_EXTENSION_TO_TYPE = Object.freeze({
+    ".txt": FILE_TYPES.UNKNOWN,
+
     ".clp.zst": FILE_TYPES.CLP_IR,
-    ".zst": FILE_TYPES.ZST,
     ".gz": FILE_TYPES.GZ,
-    ".tar.gz": FILE_TYPES.TAR_GZ,
     ".gzip": FILE_TYPES.GZ,
+    ".tar.gz": FILE_TYPES.TAR_GZ,
     ".zip": FILE_TYPES.ZIP,
+    ".zst": FILE_TYPES.ZST,
 });
 
 const FILE_TYPE_FULL_NAMES = Object.freeze({
-    [FILE_TYPES.NONE]: "Plain Text",
-    [FILE_TYPES.CLP_IR]: "CLP IR Stream",
-    [FILE_TYPES.ZST]: "Zstandard",
-    [FILE_TYPES.TAR_GZ]: "Tarball Gzip",
+    [FILE_TYPES.UNKNOWN]: "Plain text",
+
+    [FILE_TYPES.CLP_IR]: "CLP IR stream",
     [FILE_TYPES.GZ]: "Gzip",
-    [FILE_TYPES.ZIP]: "PKZip",
+    [FILE_TYPES.TAR_GZ]: "Tarball Gzip",
+    [FILE_TYPES.ZIP]: "ZIP",
+    [FILE_TYPES.ZST]: "Zstandard",
 });
 
+/* eslint-disable no-magic-numbers, @stylistic/js/array-element-newline */
 const FILE_TYPE_MAGIC_NUMBERS = Object.freeze({
-    // NOTE: this magic number is checked AFTER Zstd decompression
-    [FILE_TYPES.CLP_IR]: [0xFD, 0x2F, 0xB5, 0x29],
+    // NOTE: A typical CLP IR stream is also compressed with Zstandard, so this
+    // magic number is checked *after* Zstd decompression.
+    [FILE_TYPES.CLP_IR]: [0xfd, 0x2f, 0xb5, 0x29],
 
     // https://datatracker.ietf.org/doc/html/rfc8878#section-3.1.1
     [FILE_TYPES.ZST]: [0x28, 0xb5, 0x2f, 0xfd],
@@ -48,17 +53,16 @@ const FILE_TYPE_MAGIC_NUMBERS = Object.freeze({
     // https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
     [FILE_TYPES.ZIP]: [0x50, 0x4b, 0x03, 0x04],
 });
+/* eslint-enable no-magic-numbers, @stylistic/js/array-element-newline */
 
-// For below file types, recheck content type after first decompression
-const FILE_TYPE_RECHECK_LIST = [
-    FILE_TYPES.ZST,
-];
+// The file types whose type needs to be rechecked after first decompression
+const FILE_TYPE_RECHECK_LIST = [FILE_TYPES.ZST];
 
 
 export {
-    FILE_TYPES,
-    FILE_EXTENSION_MAPS,
+    FILE_EXTENSION_TO_TYPE,
     FILE_TYPE_FULL_NAMES,
     FILE_TYPE_MAGIC_NUMBERS,
     FILE_TYPE_RECHECK_LIST,
+    FILE_TYPES,
 };

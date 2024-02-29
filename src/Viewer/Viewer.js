@@ -28,12 +28,12 @@ Viewer.propTypes = {
 /**
  * Contains the menu, Monaco editor, and status bar. Viewer spawns its own
  * worker to manage the file and perform CLP operations.
- * @param {File|String} fileSrc File object to read or file path to load
+ * @param {File|string} fileSrc File object or file path to load.
  * @param {boolean} prettifyLog Whether to prettify the log file
  * @param {Number} logEventNumber The initial log event number
  * @param {Number} timestamp The initial timestamp to show. If this field is
  * valid, logEventNumber will be ignored.
- * @return {JSX.Element}
+ * @returns {JSX.Element}
  */
 export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
     const {theme} = useContext(ThemeContext);
@@ -77,10 +77,10 @@ export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
     }, []);
 
     /**
-     * Reload viewer on fileSrc change
-     * @param {File|string} fileSrc
+     * Reload viewer on `fileSrc` change
+     * @param {File|string} src
      */
-    const loadFile = (fileSrc) => {
+    const loadFile = (src) => {
         if (clpWorker.current) {
             clpWorker.current.terminate();
         }
@@ -91,12 +91,13 @@ export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
         // Create new worker and pass args to worker to load file
         clpWorker.current = new Worker(new URL("./services/clpWorker.js", import.meta.url));
         clpWorker.current.onmessage = handleWorkerMessage;
+
         // If file was loaded using file dialog or drag/drop, reset logEventIdx
-        const logEvent = (typeof fileSrc === "string") ? logFileState.logEventIdx : null;
+        const logEvent = ("string" === typeof src) ? logFileState.logEventIdx : null;
         const initialTimestamp = isNumeric(timestamp) ? Number(timestamp) : null;
         clpWorker.current.postMessage({
             code: CLP_WORKER_PROTOCOL.LOAD_FILE,
-            fileSrc: fileSrc,
+            fileSrc: src,
             prettify: logFileState.prettify,
             logEventIdx: logEvent,
             initialTimestamp: initialTimestamp,

@@ -33,7 +33,7 @@ MenuBar.propTypes = {
  * This callback is used to load a new file.
  *
  * @callback LoadFileCallback
- * @param {File|String} fileSrc File object or file path to load.
+ * @param {File|string} fileSrc File object or file path to load.
  */
 
 /**
@@ -44,7 +44,7 @@ MenuBar.propTypes = {
  *                              loaded by worker.
  * @param {ChangeStateCallback} changeStateCallback
  * @param {LoadFileCallback} loadFileCallback
- * @return {JSX.Element}
+ * @returns {JSX.Element}
  */
 export function MenuBar ({
     logFileState, fileInfo, loadingLogs, changeStateCallback, loadFileCallback,

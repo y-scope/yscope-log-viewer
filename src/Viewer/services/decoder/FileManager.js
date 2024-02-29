@@ -7,7 +7,7 @@ import CLP_WORKER_PROTOCOL from "../CLP_WORKER_PROTOCOL";
 import {readFile} from "../GetFile";
 import {binarySearchWithTimestamp} from "../utils";
 import {DataInputStream, DataInputStreamEOFError} from "./DataInputStream";
-import {FILE_EXTENSION_MAPS, FILE_TYPE_FULL_NAMES, FILE_TYPE_MAGIC_NUMBERS,
+import {FILE_EXTENSION_TO_TYPE, FILE_TYPE_FULL_NAMES, FILE_TYPE_MAGIC_NUMBERS,
     FILE_TYPE_RECHECK_LIST, FILE_TYPES
 } from "./FILE_FORMATS";
 import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
@@ -20,44 +20,44 @@ import {formatSizeInBytes} from "./utils";
  */
 class FileManager {
     /**
-     * Extracts magic number from the given typed array and compare against
-     * known file type magic numbers.
+     * Determines the file-type of a buffer by comparing its magic number
+     * against known magic numbers.
      *
      * @param {Uint8Array|ArrayBuffer} data
-     * @returns {string} as FILE_TYPES
+     * @returns {string} The file's type as one of FILE_TYPES
      */
-    static _getFileTypeByMagicNumber = (data) => {
-        let type = FILE_TYPES.NONE;
+    static #getFileTypeByMagicNumber = (data) => {
+        let fileType = FILE_TYPES.UNKNOWN;
 
-        for (const [fileType, typeMagicNumber]
+        for (const [type, typeMagicNumber]
             of
             Object.entries(FILE_TYPE_MAGIC_NUMBERS)
         ) {
             const {length} = typeMagicNumber;
             const fileMagicNumber = (data instanceof ArrayBuffer) ?
-                new Uint8Array(data.slice(0, length)) :
+                new Uint8Array(data, 0, length) :
                 data.slice(0, length);
-
             const isMagicNumberMatching = typeMagicNumber.every(
                 (value, index) => (value === fileMagicNumber[index])
             );
+
             if (isMagicNumberMatching) {
-                type = fileType;
+                fileType = type;
                 break;
             }
         }
 
-        return type;
+        return fileType;
     };
 
     /**
      * Decompresses and retrieves the content of a Zstandard-compressed file.
      * @static
      * @private
-     * @param {Uint8Array} data compressed data
-     * @param {string} name original file name
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
      * @returns {{content: ArrayBuffer, name: string}}
-     * @throws {Error} if there is an issue loading or extracting the archive
+     * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getZstdFileContent = async (data, name) => {
         const zstd = await new Promise((resolve) => {
@@ -74,13 +74,13 @@ class FileManager {
     };
 
     /**
-     * Decompresses and retrieves the content of a GZIP-compressed file.
+     * Decompresses and retrieves the content of a Gzip-compressed file.
      * @static
      * @private
-     * @param {Uint8Array} data compressed data
-     * @param {string} name original file name
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
      * @returns {{content: Uint8Array, name: string}}
-     * @throws {Error} if there is an issue loading or extracting the archive
+     * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getGzipFileContent = (data, name) => {
         return {
@@ -91,13 +91,14 @@ class FileManager {
 
     /**
      * Decompresses and retrieves the content of the first file within a
-     * TAR GZIP archive. Also appends the first file name into the given name.
+     * TAR GZIP archive.
      * @static
      * @private
-     * @param {Uint8Array} data compressed data
-     * @param {string} name original file name
-     * @returns {{content: Uint8Array, name: string}}
-     * @throws {Error} if there is an issue loading or extracting the archive
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @returns {{content: Uint8Array, name: string}} where name is the
+     * original filename joined with the first file's name as a path.
+     * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getTarGzipFirstFileContent = (data, name) => {
         const tarArchive = pako.inflate(data);
@@ -116,13 +117,14 @@ class FileManager {
 
     /**
      * Decompresses and retrieves the content of the first file within a ZIP
-     * archive. Also appends the first file name into the given name.
+     * archive.
      * @static
      * @private
-     * @param {Uint8Array} data compressed data
-     * @param {string} name original file name
-     * @returns {{content: Uint8Array, name: string}}
-     * @throws {Error} if there is an issue loading or extracting the archive
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @returns {{content: Uint8Array, name: string}} where name is the
+     * original filename joined with the first file's name as a path.
+     * @throws {Error} if there was an issue loading or extracting the archive
      */
     static async #getZipFirstFileContent (data, name) {
         const zipArchive = await new JSZip().loadAsync(data);
@@ -170,7 +172,7 @@ class FileManager {
             data: null,
             name: null,
             path: null,
-            type: FILE_TYPES.NONE,
+            type: FILE_TYPES.UNKNOWN,
         };
 
         this.state = {
@@ -318,25 +320,26 @@ class FileManager {
      *
      * @private
      * @param {Uint8Array} data
-     * @param {string} name
-     * @returns {string} as FILE_TYPES
+     * @param {string} name Original file name
+     * @returns {string} The file's type as one of FILE_TYPES
      */
     _getLogFileTypeBeforeDecompress (data, name) {
-        let type = FileManager._getFileTypeByMagicNumber(data);
+        let type = FileManager.#getFileTypeByMagicNumber(data);
 
-        if (FILE_TYPES.NONE === type) {
+        if (FILE_TYPES.UNKNOWN === type) {
             // Check file extension as a fallback
-            const fileExtension = Object.keys(FILE_EXTENSION_MAPS).find(
+            const fileExtension = Object.keys(FILE_EXTENSION_TO_TYPE).find(
                 (extension) => name.endsWith(extension)
             );
-            if (null === fileExtension) {
+
+            if (null !== fileExtension) {
                 console.log("Found compatible type from file extension.");
-                type = FILE_EXTENSION_MAPS[fileExtension];
+                type = FILE_EXTENSION_TO_TYPE[fileExtension];
             }
         }
 
         this._loadingMessageCallback(
-            `Decompression type check result: ${FILE_TYPE_FULL_NAMES[type]}`
+            `Determined file type: ${FILE_TYPE_FULL_NAMES[type]}`
         );
 
         return type;
@@ -348,7 +351,7 @@ class FileManager {
      *
      * @private
      * @returns {Promise<Uint8Array|ArrayBuffer>}
-     * @throws {Error} if there is an issue during decompression.
+     * @throws {Error} if there was an issue during decompression.
      */
     async _decompressFile () {
         const decompressMethods = {
@@ -367,8 +370,8 @@ class FileManager {
                 name,
             } = await decompressMethods[type].call(this, data, name));
 
-            // TODO: implement a file tree view
-            // Updates the file name if src is an archive.
+            // TODO: implement a file tree view for archives
+            // Update the file name if src is an archive.
             this._fileInfo.name = name;
         }
 
@@ -381,19 +384,20 @@ class FileManager {
      *
      * @private
      * @param {Uint8Array|ArrayBuffer} data
-     * @param {string} typeBeforeDecode as FILE_TYPES
-     * @returns {string} as FILE_TYPES
+     * @param {string} typeBeforeDecode The file's type, determined before
+     * decoding, as one of FILE_TYPES
+     * @returns {string} The file's real type as one of FILE_TYPES
      */
     _getFileTypeBeforeDecode (data, typeBeforeDecode) {
         let type = typeBeforeDecode;
 
         if (FILE_TYPE_RECHECK_LIST.includes(typeBeforeDecode)) {
-            const contentType = FileManager._getFileTypeByMagicNumber(data);
+            const contentType = FileManager.#getFileTypeByMagicNumber(data);
 
-            if (FILE_TYPES.NONE !== contentType) {
+            if (FILE_TYPES.UNKNOWN !== contentType) {
                 type = contentType;
                 this._loadingMessageCallback(
-                    `Decoding type check result: ${FILE_TYPE_FULL_NAMES[type]}`
+                    `Determined content type: ${FILE_TYPE_FULL_NAMES[type]}`
                 );
             }
         }
@@ -410,7 +414,7 @@ class FileManager {
      */
     _decodeFile (data) {
         const decodeMethods = {
-            [FILE_TYPES.NONE]: this._decodePlainTextLogAndUpdate,
+            [FILE_TYPES.UNKNOWN]: this._decodePlainTextLogAndUpdate,
             [FILE_TYPES.CLP_IR]: this._decodeIRStreamLogAndUpdate,
             [FILE_TYPES.ZST]: this._decodePlainTextLogAndUpdate,
             [FILE_TYPES.TAR_GZ]: this._decodePlainTextLogAndUpdate,

@@ -15,7 +15,7 @@ import {isBoolean, isNumeric} from "./decoder/utils";
 class ActionHandler {
     /**
      * Creates a new FileManager object and initiates the download.
-     * @param {String|File} fileSrc
+     * @param {File|string} fileSrc
      * @param {boolean} prettify
      * @param {Number} logEventIdx
      * @param {Number} initialTimestamp
@@ -28,12 +28,14 @@ class ActionHandler {
             this._updateLogsCallback,
             this._updateFileInfoCallback);
 
-        this._logFile.loadLogFile().then(()=> {
-            console.log(fileSrc, "File loaded successfully");
-        }).catch((e) => {
-            this._loadingMessageCallback(e, true);
-            console.error("Error processing log file:", e);
-        });
+        this._logFile.loadLogFile()
+            .then(() => {
+                console.log(fileSrc, "File loaded successfully");
+            })
+            .catch((e) => {
+                this._loadingMessageCallback(e, true);
+                console.error("Error processing log file:", e);
+            });
     }
 
     /**
@@ -200,7 +202,7 @@ class ActionHandler {
 
     /**
      * Send the file information.
-     * @param {string} fileInfo
+     * @param {object} fileInfo
      */
     _updateFileInfoCallback = (fileInfo) => {
         postMessage({
