@@ -10,28 +10,32 @@ module.exports = {
         }),
         new MonacoWebpackPlugin({
             features: [
-                "!suggest",
-                "!folding",
-                "!gotoSymbol",
-                "!linesOperations",
-                "!multicursor",
-                "!hover",
-                "!indentation",
-                "!codelens",
-                "!linkedEditing",
-                "!rename",
-                "!smartSelect",
-                "!snippet",
-                "!format",
-                "!gotoError",
-                "!diffEditor",
-                "!inPlaceReplace",
-                "!comment",
-                "!parameterHints",
-                "!colorPicker",
-                "!inlineProgress",
-                "!inlineCompletions",
-                "!inlayHints",
+                // code reading related
+                "!codelens", // similar to inlayHints, displays reference counts / VCS info
+                "!gotoError", // navigation to coding errors
+                "!gotoSymbol", // navigation to symbols
+                "!hover", // hover information (like tooltips)
+                "!inlayHints", // similar to codelens, displays type / parameter info
+                "!parameterHints", // parameter hints in functions/methods
+                "!smartSelect", // expand / contract selection based on code structure and syntax
+
+                // editing related
+                "!comment", // add / remove / toggle comments
+                "!format", // code formatting
+                "!inlineCompletions", // inline code completions
+                "!indentation", // auto indentation
+                "!inPlaceReplace", // replace code in place
+                "!linkedEditing", // simultaneously edit similar text elements (e.g. HTML)
+                "!linesOperations", // move / sort lines
+                "!multicursor", // multi-cursor simultaneous editing support
+                "!rename", // rename refactoring
+                "!snippet", // predefined code templates
+                "!suggest", // code suggestion
+
+                // tools
+                "!colorPicker", // color picker tool
+                "!diffEditor", // diff editor view
+                "!inlineProgress", // inline loading progress
             ],
             languages: ["ini"],
         }),
