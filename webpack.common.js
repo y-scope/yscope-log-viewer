@@ -10,7 +10,7 @@ module.exports = {
         }),
         new MonacoWebpackPlugin({
             features: [
-                // code reading related
+                // Code reading related
                 "!codelens", // similar to inlayHints, displays reference counts / VCS info
                 "!gotoError", // navigation to coding errors
                 "!gotoSymbol", // navigation to symbols
@@ -19,7 +19,7 @@ module.exports = {
                 "!parameterHints", // parameter hints in functions/methods
                 "!smartSelect", // expand / contract selection based on code structure and syntax
 
-                // editing related
+                // Editing related
                 "!comment", // add / remove / toggle comments
                 "!format", // code formatting
                 "!inlineCompletions", // inline code completions
@@ -32,7 +32,7 @@ module.exports = {
                 "!snippet", // predefined code templates
                 "!suggest", // code suggestion
 
-                // tools
+                // Tools
                 "!colorPicker", // color picker tool
                 "!diffEditor", // diff editor view
                 "!inlineProgress", // inline loading progress
