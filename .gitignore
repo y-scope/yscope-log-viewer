@@ -9,5 +9,5 @@
 /.idea
 /.vscode
 
-# for bundle size anaylysis
+# for bundle size analysis
 /bundle_stats.json
