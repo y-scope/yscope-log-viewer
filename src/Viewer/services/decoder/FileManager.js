@@ -56,7 +56,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @return {{content: ArrayBuffer, name: string}}
+     * @return {Promise<{content: ArrayBuffer, name: string}>}
      * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getZstdFileContent = async (data, name) => {
@@ -122,7 +122,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @return {{content: Uint8Array, name: string}} where name is the
+     * @return {Promise<{content: Uint8Array, name: string}>} where name is the
      * original filename joined with the first file's name as a path.
      * @throws {Error} if there was an issue loading or extracting the archive
      */

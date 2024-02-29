@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 /**
  * Custom error class for representing HTTP request errors.
  *
@@ -36,7 +37,7 @@ class HTTPRequestError extends Error {
  *
  * @param {string} fileUrl
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {Uint8Array} File content
+ * @return {Promise<Uint8Array>} File content
  */
 const downloadAndReadFile = async (fileUrl, progressCallback) => {
     try {
@@ -62,7 +63,7 @@ const downloadAndReadFile = async (fileUrl, progressCallback) => {
  *
  * @param {File} file File object to read data from.
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {Uint8Array} File content
+ * @return {Promise<Uint8Array>} File content
  */
 const readFileObject = (file, progressCallback) => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -90,7 +91,7 @@ const readFileObject = (file, progressCallback) => new Promise((resolve, reject)
  *
  * @param {File|string} fileSrc A File object or a file URL to download
  * @param {ProgressCallback} progressCallback Callback to update progress
- * @return {FileInfo} The file's content and metadata
+ * @return {Promise<FileInfo>} The file's content and metadata
  */
 const readFile = async (fileSrc, progressCallback) => {
     let fileInfo = null;
