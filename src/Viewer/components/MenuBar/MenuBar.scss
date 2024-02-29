@@ -1,3 +1,5 @@
+$loading-bar-height: 3px;
+
 .menu-left {
   float: left;
   display: flex;
@@ -128,4 +130,8 @@ kbd {
   kbd {
     background: #000;
   }
+}
+
+.loading-progress-bar {
+  height: $loading-bar-height!important;
 }
