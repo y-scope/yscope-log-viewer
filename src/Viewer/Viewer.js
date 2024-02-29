@@ -33,7 +33,7 @@ Viewer.propTypes = {
  * @param {Number} logEventNumber The initial log event number
  * @param {Number} timestamp The initial timestamp to show. If this field is
  * valid, logEventNumber will be ignored.
- * @returns {JSX.Element}
+ * @return {JSX.Element}
  */
 export function Viewer ({fileSrc, prettifyLog, logEventNumber, timestamp}) {
     const {theme} = useContext(ThemeContext);

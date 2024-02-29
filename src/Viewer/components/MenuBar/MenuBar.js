@@ -44,7 +44,7 @@ MenuBar.propTypes = {
  *                              loaded by worker.
  * @param {ChangeStateCallback} changeStateCallback
  * @param {LoadFileCallback} loadFileCallback
- * @returns {JSX.Element}
+ * @return {JSX.Element}
  */
 export function MenuBar ({
     logFileState, fileInfo, loadingLogs, changeStateCallback, loadFileCallback,

@@ -24,7 +24,7 @@ class FileManager {
      * against known magic numbers.
      *
      * @param {Uint8Array|ArrayBuffer} data
-     * @returns {string} The file's type as one of FILE_TYPES
+     * @return {string} The file's type as one of FILE_TYPES
      */
     static #getFileTypeByMagicNumber = (data) => {
         let fileType = FILE_TYPES.UNKNOWN;
@@ -56,7 +56,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @returns {{content: ArrayBuffer, name: string}}
+     * @return {{content: ArrayBuffer, name: string}}
      * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getZstdFileContent = async (data, name) => {
@@ -79,7 +79,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @returns {{content: Uint8Array, name: string}}
+     * @return {{content: Uint8Array, name: string}}
      * @throws {Error} if there was an issue loading or extracting the archive
      */
     static #getGzipFileContent = (data, name) => {
@@ -96,7 +96,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @returns {{content: Uint8Array, name: string}} where name is the
+     * @return {{content: Uint8Array, name: string}} where name is the
      * original filename joined with the first file's name as a path.
      * @throws {Error} if there was an issue loading or extracting the archive
      */
@@ -122,7 +122,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data Compressed data
      * @param {string} name Original file name
-     * @returns {{content: Uint8Array, name: string}} where name is the
+     * @return {{content: Uint8Array, name: string}} where name is the
      * original filename joined with the first file's name as a path.
      * @throws {Error} if there was an issue loading or extracting the archive
      */
@@ -321,7 +321,7 @@ class FileManager {
      * @private
      * @param {Uint8Array} data
      * @param {string} name Original file name
-     * @returns {string} The file's type as one of FILE_TYPES
+     * @return {string} The file's type as one of FILE_TYPES
      */
     _getLogFileTypeBeforeDecompress (data, name) {
         let type = FileManager.#getFileTypeByMagicNumber(data);
@@ -350,7 +350,7 @@ class FileManager {
      * returns the decompressed data.
      *
      * @private
-     * @returns {Promise<Uint8Array|ArrayBuffer>}
+     * @return {Promise<Uint8Array|ArrayBuffer>}
      * @throws {Error} if there was an issue during decompression.
      */
     async _decompressFile () {
@@ -386,7 +386,7 @@ class FileManager {
      * @param {Uint8Array|ArrayBuffer} data
      * @param {string} typeBeforeDecode The file's type, determined before
      * decoding, as one of FILE_TYPES
-     * @returns {string} The file's real type as one of FILE_TYPES
+     * @return {string} The file's real type as one of FILE_TYPES
      */
     _getFileTypeBeforeDecode (data, typeBeforeDecode) {
         let type = typeBeforeDecode;
