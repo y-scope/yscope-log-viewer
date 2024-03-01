@@ -7,6 +7,9 @@ import CLP_WORKER_PROTOCOL from "../CLP_WORKER_PROTOCOL";
 import {readFile} from "../GetFile";
 import {binarySearchWithTimestamp} from "../utils";
 import {DataInputStream, DataInputStreamEOFError} from "./DataInputStream";
+import {FILE_EXTENSION_TO_TYPE, FILE_TYPE_FULL_NAMES, FILE_TYPE_MAGIC_NUMBERS,
+    FILE_TYPE_RECHECK_LIST, FILE_TYPES
+} from "./FILE_FORMATS";
 import FourByteClpIrStreamReader from "./FourByteClpIrStreamReader";
 import ResizableUint8Array from "./ResizableUint8Array";
 import SimplePrettifier from "./SimplePrettifier";
@@ -17,9 +20,130 @@ import {formatSizeInBytes} from "./utils";
  */
 class FileManager {
     /**
+     * Determines the file-type of a buffer by comparing its magic number
+     * against known magic numbers.
+     *
+     * @param {Uint8Array|ArrayBuffer} data
+     * @return {string} The file's type as one of FILE_TYPES
+     */
+    static #getFileTypeByMagicNumber = (data) => {
+        let fileType = FILE_TYPES.UNKNOWN;
+
+        for (const [type, typeMagicNumber]
+            of
+            Object.entries(FILE_TYPE_MAGIC_NUMBERS)
+        ) {
+            const {length} = typeMagicNumber;
+            const fileMagicNumber = (data instanceof ArrayBuffer) ?
+                new Uint8Array(data, 0, length) :
+                data.slice(0, length);
+            const isMagicNumberMatching = typeMagicNumber.every(
+                (value, index) => (value === fileMagicNumber[index])
+            );
+
+            if (isMagicNumberMatching) {
+                fileType = type;
+                break;
+            }
+        }
+
+        return fileType;
+    };
+
+    /**
+     * Decompresses and retrieves the content of a Zstandard-compressed file.
+     * @static
+     * @private
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @return {Promise<{content: ArrayBuffer, name: string}>}
+     * @throws {Error} if there was an issue loading or extracting the archive
+     */
+    static #getZstdFileContent = async (data, name) => {
+        const zstd = await new Promise((resolve) => {
+            ZstdCodec.run((z) => {
+                resolve(z);
+            });
+        });
+        const zstdCtx = new zstd.Streaming();
+
+        return {
+            content: zstdCtx.decompress(data).buffer,
+            name,
+        };
+    };
+
+    /**
+     * Decompresses and retrieves the content of a Gzip-compressed file.
+     * @static
+     * @private
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @return {{content: Uint8Array, name: string}}
+     * @throws {Error} if there was an issue loading or extracting the archive
+     */
+    static #getGzipFileContent = (data, name) => {
+        return {
+            content: pako.inflate(data),
+            name,
+        };
+    };
+
+    /**
+     * Decompresses and retrieves the content of the first file within a
+     * TAR GZIP archive.
+     * @static
+     * @private
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @return {{content: Uint8Array, name: string}} where name is the
+     * original filename joined with the first file's name as a path.
+     * @throws {Error} if there was an issue loading or extracting the archive
+     */
+    static #getTarGzipFirstFileContent = (data, name) => {
+        const tarArchive = pako.inflate(data);
+        const [entry] = Tarball.extract(tarArchive).filter(
+            (e) => e.isFile()
+        );
+        const {content, fileName} = entry;
+
+        name += `/${fileName}`;
+
+        return {
+            content,
+            name,
+        };
+    };
+
+    /**
+     * Decompresses and retrieves the content of the first file within a ZIP
+     * archive.
+     * @static
+     * @private
+     * @param {Uint8Array} data Compressed data
+     * @param {string} name Original file name
+     * @return {Promise<{content: Uint8Array, name: string}>} where name is the
+     * original filename joined with the first file's name as a path.
+     * @throws {Error} if there was an issue loading or extracting the archive
+     */
+    static async #getZipFirstFileContent (data, name) {
+        const zipArchive = await new JSZip().loadAsync(data);
+        const [firstFilePath] = Object.keys(zipArchive.files);
+        const content = await zipArchive.files[firstFilePath]
+            .async("uint8array");
+
+        name += `/${firstFilePath}`;
+
+        return {
+            content,
+            name,
+        };
+    }
+
+    /**
      * Initializes the class and sets the default states.
      *
-     * @param {string} fileInfo
+     * @param {string} fileSrc
      * @param {boolean} prettify
      * @param {number} logEventIdx
      * @param {number} initialTimestamp
@@ -27,11 +151,11 @@ class FileManager {
      * @param {function} loadingMessageCallback
      * @param {function} updateStateCallback
      * @param {function} updateLogsCallback
-     * @param {updateFileInfoCallback} updateFileInfoCallback
+     * @param {function} updateFileInfoCallback
      */
-    constructor (fileInfo, prettify, logEventIdx, initialTimestamp, pageSize,
+    constructor (fileSrc, prettify, logEventIdx, initialTimestamp, pageSize,
         loadingMessageCallback, updateStateCallback, updateLogsCallback, updateFileInfoCallback) {
-        this._fileInfo = fileInfo;
+        this._fileSrc = fileSrc;
         this._prettify = prettify;
         this._initialTimestamp = initialTimestamp;
         this._logEventOffsets = [];
@@ -39,14 +163,16 @@ class FileManager {
         this.logEventMetadata = [];
         this._irStreamReader = null;
         this._displayedMinVerbosityIx = -1;
-        this._arrayBuffer;
+        this._arrayBuffer = null;
         this._outputResizableBuffer = null;
         this._availableVerbosityIndexes = new Set();
         this._timestampSorted = false;
 
-        this._fileState = {
+        this._fileInfo = {
+            data: null,
             name: null,
             path: null,
+            type: FILE_TYPES.UNKNOWN,
         };
 
         this.state = {
@@ -101,17 +227,6 @@ class FileManager {
     };
 
     /**
-     * Callback when file is size is received from getXMLHttpRequest.
-     * @param {event} evt
-     * @private
-     */
-    _updateFileSize = (evt) => {
-        this._loadingMessageCallback(
-            `Loading ${formatSizeInBytes(evt, false)} file from object store...`
-        );
-    };
-
-    /**
      * Builds file index from startIndex, endIndex, verbosity,
      * timestamp for each log event.
      */
@@ -147,41 +262,14 @@ class FileManager {
     };
 
     /**
-     * Append token to the end of fileState name
-     * @param {string} token to append
-     * @private
-     */
-    _appendToFileStateName (token) {
-        this._fileState.name += token;
-        this._updateFileInfoCallback(this._fileState);
-    }
-
-    /**
-     * Update input file and status
-     * @param {map} file to use as input
-     * @return {map} file to use as input
-     * @private
-     */
-    _updateInputFileAndStatus (file) {
-        this._fileState = file;
-        this._updateFileInfoCallback(this._fileState);
-
-        this.state.compressedSize = formatSizeInBytes(file.data.byteLength, false);
-        this._loadingMessageCallback(`Decompressing ${this.state.compressedSize}.`);
-
-        return file;
-    }
-
-    /**
      * Decode plain-text log buffer and update editor state
-     * @param {Uint8Array} decompressedLogFile buffer to
-     * decode to string and update editor
+     * @param {Uint8Array|ArrayBuffer} decompressedLogFile
      * @private
      */
     _decodePlainTextLogAndUpdate (decompressedLogFile) {
         // Update decompression status
-        this.state.decompressedSize = formatSizeInBytes(decompressedLogFile.byteLength, false);
-        this._loadingMessageCallback(`Decompressed ${this.state.decompressedSize}.`);
+        this.state.decompressedHumanSize = formatSizeInBytes(decompressedLogFile.byteLength, false);
+        this._loadingMessageCallback(`Decompressed size: ${this.state.decompressedHumanSize}.`);
 
         this._logs = this._textDecoder.decode(decompressedLogFile);
         this._updateLogsCallback(this._logs);
@@ -197,8 +285,7 @@ class FileManager {
 
     /**
      * Decode IRStream log buffer and update editor state
-     * @param {Uint8Array} decompressedIRStreamFile buffer to
-     * decode to log events and update editor
+     * @param {ArrayBuffer} decompressedIRStreamFile
      * @private
      */
     _decodeIRStreamLogAndUpdate (decompressedIRStreamFile) {
@@ -228,148 +315,148 @@ class FileManager {
     }
 
     /**
-     * Load plain-text file, update state to viewer
+     * Determines the file type of the given data before decompression using
+     * magic numbers and file extensions.
+     *
      * @private
+     * @param {Uint8Array} data
+     * @param {string} name Original file name
+     * @return {string} The file's type as one of FILE_TYPES
      */
-    _loadPlainTextFile () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) => this._decodePlainTextLogAndUpdate(file.data))
-            .catch((error) => {
-                this._loadingMessageCallback(error.message, true);
-                console.error("Error processing log file:", error);
-            });
-    }
+    _getLogFileTypeBeforeDecompress (data, name) {
+        let type = FileManager.#getFileTypeByMagicNumber(data);
 
-    /**
-     * Decompress and load gzip file, update state to viewer
-     * @private
-     */
-    _loadGzipFile () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) => pako.inflate(file.data, {to: "Uint8Array"}))
-            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
-            .catch((error) => {
-                this._loadingMessageCallback(error.message, true);
-                console.error("Error processing log file:", error);
-            });
-    }
+        if (FILE_TYPES.UNKNOWN === type) {
+            // Check file extension as a fallback
+            const fileExtension = Object.keys(FILE_EXTENSION_TO_TYPE).find(
+                (extension) => name.endsWith(extension)
+            );
 
-    /**
-     * Decompress and load first file in tar.gz archive, update state to viewer
-     * @private
-     */
-    _loadTarGzipArchive () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) => pako.inflate(file.data, {to: "Uint8Array"}))
-            .then((tarArchive) => {
-                // Extract the first file in the tar archive
-                const [entry] = Tarball.extract(tarArchive).filter((entry) => entry.isFile());
-                this._appendToFileStateName("/" + entry.fileName);
-                this._decodePlainTextLogAndUpdate(entry.content);
-            })
-            .catch((error) => {
-                this._loadingMessageCallback(error.message, true);
-                console.error("Error processing log file:", error);
-            });
-    }
-
-    /**
-     * Decompress and load first file in ZIP archive, update state to viewer
-     * @private
-     */
-    _loadZipArchive () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) => (new JSZip()).loadAsync(file.data))
-            .then((zipArchive) => {
-                // Extract the first file in the zip archive
-                const [filePathToDecompress] = Object.keys(zipArchive.files);
-                this._appendToFileStateName("/" + filePathToDecompress);
-                return zipArchive.files[filePathToDecompress].async("uint8array");
-            })
-            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
-            .catch((error) => {
-                this._loadingMessageCallback(error.message, true);
-                console.error("Error processing log file:", error);
-            });
-    }
-
-    /**
-     * Decompress and load zst file, update state to viewer
-     * @private
-     */
-    _loadZstFile () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) =>
-                Promise.all([new Promise((resolve) =>
-                    ZstdCodec.run((zstd) => resolve(new zstd.Streaming()))), file]))
-            .then(([zstdCtx, file]) => zstdCtx.decompress(file.data).buffer)
-            .then((decompressedLogFile) => this._decodePlainTextLogAndUpdate(decompressedLogFile))
-            .catch((error) => {
-                this._loadingMessageCallback(error.message, true);
-                console.error("Error processing log file:", error);
-            });
-    }
-
-    /**
-     * Decompress and load CLP IRStream file, update state to viewer
-     * @private
-     */
-    _loadClpIRStreamFile () {
-        readFile(this._fileInfo, this._updateFileLoadProgress, this._updateFileSize)
-            .then((file) => this._updateInputFileAndStatus(file))
-            .then((file) =>
-                Promise.all([new Promise((resolve) =>
-                    ZstdCodec.run((zstd) => resolve(new zstd.Streaming()))), file]))
-            .then(([zstdCtx, file]) => zstdCtx.decompress(file.data).buffer)
-            .then((decompressedIRStreamFile) =>
-                this._decodeIRStreamLogAndUpdate(decompressedIRStreamFile))
-            .catch((error) => {
-                if (error instanceof DataInputStreamEOFError) {
-                    // If the file is truncated, send back a user-friendly error
-                    this._loadingMessageCallback("IRStream truncated", true);
-                } else {
-                    this._loadingMessageCallback(error.message, true);
-                }
-                console.error(error);
-            });
-    }
-
-    /**
-     * Load log file into editor
-     */
-    loadLogFile () {
-        let filePath;
-        if (this._fileInfo instanceof File) {
-            filePath = this._fileInfo.name;
-        } else {
-            const url = new URL(this._fileInfo);
-            filePath = url.pathname;
+            if (null !== fileExtension) {
+                console.log("Found compatible type from file extension.");
+                type = FILE_EXTENSION_TO_TYPE[fileExtension];
+            }
         }
 
-        if (filePath.endsWith(".clp.zst")) {
-            console.log("Opening CLP IRStream compressed file: " + filePath);
-            this._loadClpIRStreamFile();
-        } else if (filePath.endsWith(".zst")) {
-            console.log("Opening zst compressed file: " + filePath);
-            this._loadZstFile();
-        } else if (filePath.endsWith(".zip")) {
-            console.log("Opening zip compressed archive: " + filePath);
-            this._loadZipArchive();
-        } else if (filePath.endsWith(".tar.gz")) {
-            console.log("Opening tar.gz compressed archive: " + filePath);
-            this._loadTarGzipArchive();
-        } else if (filePath.endsWith(".gz") || filePath.endsWith(".gzip")) {
-            console.log("Opening gzip compressed file: " + filePath);
-            this._loadGzipFile();
-        } else {
-            console.log("Opening plain-text file: " + filePath);
-            this._loadPlainTextFile();
+        this._loadingMessageCallback(
+            `Determined file type: ${FILE_TYPE_FULL_NAMES[type]}`
+        );
+
+        return type;
+    }
+
+    /**
+     * Decompresses the file content based on its detected file type and
+     * returns the decompressed data.
+     *
+     * @private
+     * @return {Promise<Uint8Array|ArrayBuffer>}
+     * @throws {Error} if there was an issue during decompression.
+     */
+    async _decompressFile () {
+        const decompressMethods = {
+            [FILE_TYPES.ZST]: await FileManager.#getZstdFileContent,
+            [FILE_TYPES.GZ]: FileManager.#getGzipFileContent,
+            [FILE_TYPES.TAR_GZ]: FileManager.#getTarGzipFirstFileContent,
+            [FILE_TYPES.ZIP]: await FileManager.#getZipFirstFileContent,
+        };
+
+        let {data, name} = this._fileInfo;
+        const {type} = this._fileInfo;
+
+        if (type in decompressMethods) {
+            ({
+                content: data,
+                name,
+            } = await decompressMethods[type].call(this, data, name));
+
+            // TODO: implement a file tree view for archives
+            // Update the file name if src is an archive.
+            this._fileInfo.name = name;
         }
+
+        return data;
+    }
+
+    /**
+     * Determines the file type before decoding based on the provided data and
+     * the current file type.
+     *
+     * @private
+     * @param {Uint8Array|ArrayBuffer} data
+     * @param {string} typeBeforeDecode The file's type, determined before
+     * decoding, as one of FILE_TYPES
+     * @return {string} The file's real type as one of FILE_TYPES
+     */
+    _getFileTypeBeforeDecode (data, typeBeforeDecode) {
+        let type = typeBeforeDecode;
+
+        if (FILE_TYPE_RECHECK_LIST.includes(typeBeforeDecode)) {
+            const contentType = FileManager.#getFileTypeByMagicNumber(data);
+
+            if (FILE_TYPES.UNKNOWN !== contentType) {
+                type = contentType;
+                this._loadingMessageCallback(
+                    `Determined content type: ${FILE_TYPE_FULL_NAMES[type]}`
+                );
+            }
+        }
+
+        return type;
+    }
+
+    /**
+     * Decodes the file data based on the determined file type and updates the
+     * log content accordingly.
+     *
+     * @private
+     * @param {Uint8Array|ArrayBuffer} data
+     */
+    _decodeFile (data) {
+        const decodeMethods = {
+            [FILE_TYPES.UNKNOWN]: this._decodePlainTextLogAndUpdate,
+            [FILE_TYPES.CLP_IR]: this._decodeIRStreamLogAndUpdate,
+            [FILE_TYPES.ZST]: this._decodePlainTextLogAndUpdate,
+            [FILE_TYPES.TAR_GZ]: this._decodePlainTextLogAndUpdate,
+            [FILE_TYPES.GZ]: this._decodePlainTextLogAndUpdate,
+            [FILE_TYPES.ZIP]: this._decodePlainTextLogAndUpdate,
+        };
+
+        decodeMethods[this._fileInfo.type].call(this, data);
+    }
+
+    /**
+     * Loads and processes a log file, including decompression and decoding.
+     * Updates the file information and log content accordingly.
+     */
+    async loadLogFile () {
+        // Get & read the file, and update file information
+        this._fileInfo = {
+            ...this._fileInfo,
+            ...await readFile(this._fileSrc, this._updateFileLoadProgress),
+        };
+
+        // Calculate and display compressed file size in the UI.
+        this.state.compressedHumanSize = formatSizeInBytes( this._fileInfo.data.byteLength, false);
+        this._loadingMessageCallback(`Compressed size: ${this.state.compressedHumanSize}.`);
+
+        // Determine the file type before decompression.
+        this._fileInfo.type = this._getLogFileTypeBeforeDecompress(
+            this._fileInfo.data,
+            this._fileInfo.name
+        );
+
+        // Decompress the file data.
+        const data = await this._decompressFile();
+
+        // Recheck and update the file type if needed.
+        this._fileInfo.type = this._getFileTypeBeforeDecode(data, this._fileInfo.type);
+
+        // Update file information in the UI
+        this._updateFileInfoCallback(this._fileInfo);
+
+        // Decode file.
+        this._decodeFile(data);
     }
 
     /**
