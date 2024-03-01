@@ -1,5 +1,4 @@
 const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
@@ -9,9 +8,36 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "src", "index.html"),
         }),
-        new MiniCssExtractPlugin(),
         new MonacoWebpackPlugin({
-            languages: ["ascii", "ini"],
+            features: [
+                // Code reading related
+                "!codelens", // similar to inlayHints, displays reference counts / VCS info
+                "!gotoError", // navigation to coding errors
+                "!gotoSymbol", // navigation to symbols
+                "!hover", // hover information (like tooltips)
+                "!inlayHints", // similar to codelens, displays type / parameter info
+                "!parameterHints", // parameter hints in functions/methods
+                "!smartSelect", // expand / contract selection based on code structure and syntax
+
+                // Editing related
+                "!comment", // add / remove / toggle comments
+                "!format", // code formatting
+                "!inlineCompletions", // inline code completions
+                "!indentation", // auto indentation
+                "!inPlaceReplace", // replace code in place
+                "!linkedEditing", // simultaneously edit similar text elements (e.g. HTML)
+                "!linesOperations", // move / sort lines
+                "!multicursor", // multi-cursor simultaneous editing support
+                "!rename", // rename refactoring
+                "!snippet", // predefined code templates
+                "!suggest", // code suggestion
+
+                // Tools
+                "!colorPicker", // color picker tool
+                "!diffEditor", // diff editor view
+                "!inlineProgress", // inline loading progress
+            ],
+            languages: ["ini"],
         }),
     ],
     output: {
@@ -43,7 +69,7 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+                use: ["style-loader", "css-loader", "sass-loader"],
             },
             {
                 test: /\.css$/,

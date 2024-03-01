@@ -1,4 +1,13 @@
-dist
-node_modules
-package-lock.json
-.idea
+# dependencies
+/node_modules
+/package-lock.json
+
+# production
+/dist
+
+# IDEs
+/.idea
+/.vscode
+
+# for bundle size analysis
+/bundle_stats.json
