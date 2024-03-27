@@ -10,7 +10,6 @@ import {ACTION_NAME} from "../../../utils/actions";
 enum TOKEN_NAME {
     CUSTOM_INFO = "customInfo",
     CUSTOM_WARN = "customWarn",
-    CUSTOM_CRITICAL = "customCritical",
     CUSTOM_ERROR = "customError",
     CUSTOM_FATAL = "customFatal",
     CUSTOM_DATE = "customDate",

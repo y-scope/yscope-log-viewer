@@ -14,7 +14,6 @@ const setupThemes = () => {
         rules: [
             {token: TOKEN_NAME.CUSTOM_INFO, foreground: "#098658"},
             {token: TOKEN_NAME.CUSTOM_WARN, foreground: "#ce9178"},
-            {token: TOKEN_NAME.CUSTOM_CRITICAL, foreground: "#ce9178", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_ERROR, foreground: "#ce9178", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_FATAL, foreground: "#ce9178", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_DATE, foreground: "#529955"},
@@ -32,7 +31,6 @@ const setupThemes = () => {
         rules: [
             {token: TOKEN_NAME.CUSTOM_INFO, foreground: "#098658"},
             {token: TOKEN_NAME.CUSTOM_WARN, foreground: "#b81560"},
-            {token: TOKEN_NAME.CUSTOM_CRITICAL, foreground: "#ac1515", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_ERROR, foreground: "#ac1515", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_FATAL, foreground: "#ac1515", fontStyle: "bold"},
             {token: TOKEN_NAME.CUSTOM_DATE, foreground: "#008000"},
