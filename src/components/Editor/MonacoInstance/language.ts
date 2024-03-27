@@ -25,6 +25,10 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_WARN,
                 ],
                 [
+                    "CRITICAL",
+                    TOKEN_NAME.CUSTOM_CRITICAL,
+                ],
+                [
                     "ERROR",
                     TOKEN_NAME.CUSTOM_ERROR,
                 ],

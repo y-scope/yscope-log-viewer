@@ -18,6 +18,7 @@ const LOG_LEVEL_COLOR_MAP: Record<LOG_LEVEL, DefaultColorPalette> = Object.freez
     [LOG_LEVEL.DEBUG]: "success",
     [LOG_LEVEL.INFO]: "primary",
     [LOG_LEVEL.WARN]: "warning",
+    [LOG_LEVEL.CRITICAL]: "danger",
     [LOG_LEVEL.ERROR]: "danger",
     [LOG_LEVEL.FATAL]: "danger",
 });

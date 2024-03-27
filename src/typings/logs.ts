@@ -10,6 +10,7 @@ enum LOG_LEVEL {
     DEBUG,
     INFO,
     WARN,
+    CRITICAL,
     ERROR,
     FATAL,
 }
