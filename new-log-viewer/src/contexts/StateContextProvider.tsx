@@ -6,7 +6,6 @@ import React, {
     useState,
 } from "react";
 
-import MainWorker from "../services/MainWorker.worker";
 import {
     FileSrcType,
     LineNumLogEventNumMap,
@@ -98,7 +97,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
-        mainWorkerRef.current = new MainWorker();
+        mainWorkerRef.current = new Worker(
+            new URL("../services/MainWorker.ts", import.meta.url)
+        );
         mainWorkerRef.current.onmessage = handleMainWorkerResp;
         mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,

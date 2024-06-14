@@ -43,8 +43,3 @@ onmessage = (ev: MessageEvent<MainWorkerReqMessage>) => {
             break;
     }
 };
-
-// This `new` (constructor definition) is needed to get worker-loader + TypeScript to work
-declare const self: ServiceWorkerGlobalScope;
-const ctx: Worker & { new (): Worker} = self as never;
-export default ctx;
