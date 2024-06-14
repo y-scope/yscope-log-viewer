@@ -1,7 +1,7 @@
 {
   "name": "yscope-log-viewer",
-  "version": "0.0.0",
-  "description": "Tool that can be used to view logs, tailored for viewing logs formats specified by YScope.",
+  "version": "0.1.0",
+  "description": "A tool tailored for viewing logs, including log formats designed by YScope.",
   "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/y-scope/yscope-log-viewer.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "YScope Inc. <dev@yscope.com>",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/y-scope/yscope-log-viewer/issues"
   },

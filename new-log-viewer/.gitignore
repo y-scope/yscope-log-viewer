@@ -1,7 +1,7 @@
-# dependencies
+# Dependencies
 /node_modules
 
-# production
+# Build
 /dist
 
 # IDEs

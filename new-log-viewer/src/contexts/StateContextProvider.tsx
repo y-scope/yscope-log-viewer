@@ -40,7 +40,7 @@ const StateDefaultValue = Object.freeze({
     numPages: 0,
     pageNum: 0,
 });
-const PAGE_SIZE = 10000;
+const PAGE_SIZE = 10_000;
 
 interface StateContextProviderProps {
     children: React.ReactNode
