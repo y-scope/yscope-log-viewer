@@ -7,7 +7,7 @@ import {
 
 
 /**
- * Sends a response message to the render.
+ * Sends a response to the renderer.
  *
  * @param code
  * @param args
@@ -21,7 +21,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
 
 onmessage = (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
-    console.log(`[Render -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
+    console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
 
     switch (code) {
         case WORKER_REQ_CODE.LOAD_FILE: {

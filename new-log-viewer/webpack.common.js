@@ -16,6 +16,8 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
+                        // NOTE: Although this is deprecated for Webpack 5, we still need it to
+                        // transpile workers written in TypesScript to JavaScript.
                         loader: "worker-loader",
                         options: {
                             filename: "[name].[contenthash].worker.js",

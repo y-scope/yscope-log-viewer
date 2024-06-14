@@ -78,7 +78,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
-        console.log(`[MainWorker -> Render] code=${code}`);
+        console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
             case WORKER_RESP_CODE.PAGE_DATA:
                 setLogData(args.logs);

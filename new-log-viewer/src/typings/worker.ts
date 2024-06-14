@@ -6,20 +6,19 @@ type FileSrcType = string | File;
 /**
  * Type of cursor used for locating some log event and navigating across pages.
  * - null: the last event
- * - timestamp: the first event which has a greater or equal timestamp than the
- * given value
+ * - timestamp: the first event that has a timestamp >= the given value
  * - pageNum: the first event on the given page
  */
 type CursorType = null | { timestamp: number } | { pageNum: number };
 
 /**
- * Type of mapping between the first line number of each log event and the
- * log event number.
+ * Type mapping the first line number of each log event to the log event
+ * number.
  */
 type LineNumLogEventNumMap = Map<number, number>;
 
 /**
- * Enum of the protocol code for communications between the client and CLP worker.
+ * Enum of the protocol code for communications between the renderer and MainWorker.
  */
 enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
