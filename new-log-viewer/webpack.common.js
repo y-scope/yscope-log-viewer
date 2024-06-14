@@ -61,13 +61,6 @@ module.exports = {
                     "css-loader",
                 ],
             },
-            {
-                test: /\.(woff|woff2|ttf)$/i,
-                type: "asset/resource",
-                generator: {
-                    filename: "fonts/[name].[contenthash][ext]",
-                },
-            },
         ],
     },
     optimization: {

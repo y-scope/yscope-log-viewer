@@ -49,6 +49,9 @@ module.exports = mergeWithRules({
             },
         ],
     },
+    output: {
+        filename: "[name].bundle.js",
+    },
     plugins: [
         new ReactRefreshWebpackPlugin(),
     ],
