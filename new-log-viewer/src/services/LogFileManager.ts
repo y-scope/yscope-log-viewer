@@ -1,3 +1,4 @@
+import {DecodeOptionsType} from "../typings/decoders";
 import {
     CursorType,
     FileSrcType,
@@ -54,13 +55,12 @@ class LogFileManager {
         this.#pageSize = pageSize;
     }
 
-
     async loadFile (fileSrc: FileSrcType): Promise<number> {
         if ("string" === typeof fileSrc) {
             this.#fileName = getBasenameFromUrl(fileSrc);
             this.#fileData = await getUint8ArrayFrom(fileSrc, () => null);
         } else {
-            // FIXME
+            // TODO: support file loading via Open / Drag-n-drop
             console.error("Read from File not yet supported");
         }
 
@@ -77,13 +77,14 @@ class LogFileManager {
         this.#numEvents = this.#decoder.buildIdx();
         console.log(`Found ${this.#numEvents} log events.`);
 
-        // FIXME
-        this.#decoder.setDecodeOptions({
-            verbosityPropName: "log.level",
-            timestampPropName: "@timestamp",
-        });
-
         return this.#numEvents;
+    }
+
+    setDecodeOptions (options: DecodeOptionsType) {
+        if (null === this.#decoder) {
+            throw new Error("loadFile() must be first called.");
+        }
+        this.#decoder.setDecodeOptions(options);
     }
 
     loadPage (cursor: CursorType): {
@@ -92,6 +93,9 @@ class LogFileManager {
         cursorLineNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
+        if (null === this.#decoder) {
+            throw new Error("loadFile() must be first called.");
+        }
 
         const results: Array<[string, number, number, number]> = [];
         let startLogEventNum = (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
@@ -99,13 +103,13 @@ class LogFileManager {
             if ("pageNum" in cursor) {
                 startLogEventNum = ((cursor.pageNum - 1) * this.#pageSize) + 1;
             } else {
-                // FIXME
+                // TODO: support file loading via Open / Drag-n-drop
                 console.error("other types of cursor not yet supported");
             }
         }
         const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
 
-        this.#decoder?.decode(results, startLogEventNum - 1, endLogEventNum);
+        this.#decoder.decode(results, startLogEventNum - 1, endLogEventNum);
 
         const messages: string[] = [];
         const lines: LineNumLogEventNumMap = new Map();

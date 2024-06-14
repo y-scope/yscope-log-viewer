@@ -105,6 +105,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
             cursor: null,
+            decodeOptions: {
+                // TODO: these shall come from config provider
+                textPattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
+                    " %message%n",
+                verbosityPropName: "log.level",
+                timestampPropName: "@timestamp",
+            },
         });
     }, [
         handleMainWorkerResp,
@@ -130,4 +137,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
 
 export default StateContextProvider;
-export {StateContext};
+export {
+    PAGE_SIZE,
+    StateContext,
+};

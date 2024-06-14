@@ -1,3 +1,6 @@
+import {DecodeOptionsType} from "../../typings/decoders";
+
+
 /**
  * Type of the decoded log event.
  *
@@ -24,7 +27,7 @@ interface Decoder {
      * @param options
      * @return True if the options are successfully set, false otherwises.
      */
-    setDecodeOptions(options: {[key: string]: string}): boolean;
+    setDecodeOptions(options: DecodeOptionsType): boolean;
 
     /**
      * Decodes a given range of results.

@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 
+import {JsonlDecodeOptionsType} from "../../typings/decoders";
 import {
     INVALID_TIMESTAMP_VALUE,
     LOG_VERBOSITY,
@@ -170,12 +171,12 @@ class JsonlDecoder implements Decoder {
         this.#dataArray = dataArray;
     }
 
-    setDecodeOptions (options: { [p: string]: string }): boolean {
-        this.#timestampPropName = options.timestampPropName ?? this.#timestampPropName;
-        this.#verbosityPropName = options.verbosityPropName ?? this.#verbosityPropName;
+    setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
         this.#setTextPattern(
-            options.textPattern ?? this.#textPattern
+            options.textPattern
         );
+        this.#timestampPropName = options.timestampPropName;
+        this.#verbosityPropName = options.verbosityPropName;
 
         return true;
     }

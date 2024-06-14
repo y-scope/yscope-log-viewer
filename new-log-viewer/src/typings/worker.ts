@@ -1,3 +1,6 @@
+import {DecodeOptionsType} from "./decoders";
+
+
 /**
  * Type of input file, which can be either a URL string or a File object.
  */
@@ -34,6 +37,7 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
+        decodeOptions: DecodeOptionsType
     };
 };
 

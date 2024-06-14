@@ -3,7 +3,10 @@ import {
     useEffect,
 } from "react";
 
-import {StateContext} from "../contexts/StateContextProvider";
+import {
+    PAGE_SIZE,
+    StateContext,
+} from "../contexts/StateContextProvider";
 
 
 /**
@@ -27,7 +30,13 @@ const Layout = () => {
             <div>
                 <h3>
                     LogEventNum -
+                    {" "}
                     {logEventNum}
+                    {" "}
+                    |
+                    pageNum -
+                    {" "}
+                    {Math.ceil(logEventNum / PAGE_SIZE)}
                 </h3>
                 {logData.split("\n").map((line, index) => (
                     <p key={index}>
