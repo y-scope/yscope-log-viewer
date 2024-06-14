@@ -12,29 +12,6 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.worker\.ts$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        // NOTE: Although this is deprecated for Webpack 5, we still need it to
-                        // transpile workers written in TypesScript to JavaScript.
-                        loader: "worker-loader",
-                        options: {
-                            filename: "[name].[contenthash].worker.js",
-                        },
-                    },
-                    {
-                        loader: "babel-loader",
-                        options: {
-                            presets: [
-                                "@babel/preset-env",
-                                "@babel/preset-typescript",
-                            ],
-                        },
-                    },
-                ],
-            },
-            {
                 test: /\.(ts|tsx)$/,
                 include: path.resolve(__dirname, "src"),
                 exclude: /node_modules/,
