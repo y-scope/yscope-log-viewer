@@ -51,9 +51,6 @@
     "extends": [
       "yscope/react"
     ],
-    "ignorePatterns": [
-      "customized-packages/"
-    ],
     "overrides": [
       {
         "files": [
