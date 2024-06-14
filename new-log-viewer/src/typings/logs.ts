@@ -1,0 +1,16 @@
+enum LOG_VERBOSITY {
+    NONE = 0,
+    TRACE,
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    FATAL
+}
+
+const INVALID_TIMESTAMP_VALUE = 0;
+
+export {
+    INVALID_TIMESTAMP_VALUE,
+    LOG_VERBOSITY,
+};

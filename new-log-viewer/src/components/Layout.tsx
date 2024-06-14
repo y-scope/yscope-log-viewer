@@ -15,16 +15,27 @@ const Layout = () => {
     const {
         logData,
         loadFile,
+        logEventNum,
     } = useContext(StateContext);
 
     useEffect(() => {
-        loadFile("");
+        loadFile("http://localhost:3010/test/example.jsonl");
     }, [loadFile]);
 
     return (
         <>
             <div>
-                {logData}
+                <h3>
+                    LogEventNum -
+                    {logEventNum}
+                </h3>
+                {logData.split("\n").map((line, index) => (
+                    <p key={index}>
+                        {`<${index + 1}>`}
+                        -
+                        {line}
+                    </p>
+                ))}
             </div>
         </>
     );

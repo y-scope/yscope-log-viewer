@@ -32,7 +32,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const StateDefaultValue = Object.freeze({
     loadFile: () => null,
-    logData: "",
+    logData: "Loading...",
     logEventNum: 1,
     logLines: new Map(),
     numEvents: 0,
@@ -82,7 +82,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA:
                 setLogData(args.logs);
                 setLogLines(args.lines);
-                setLogEventNum(args.startLogEventNum);
+                setLogEventNum(args.lines.get(1) as number);
                 break;
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);

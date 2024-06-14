@@ -41,7 +41,7 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
         lines: LineNumLogEventNumMap,
-        startLogEventNum: number
+        cursorLineNum: number
     };
     [WORKER_RESP_CODE.NUM_EVENTS]: {
         numEvents: number
@@ -69,6 +69,7 @@ export {
     WORKER_RESP_CODE,
 };
 export type {
+    CursorType,
     FileSrcType,
     LineNumLogEventNumMap,
     MainWorkerReqMessage,
