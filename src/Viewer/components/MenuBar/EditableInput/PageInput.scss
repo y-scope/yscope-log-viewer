@@ -1,0 +1,11 @@
+#page-input::part(control) {
+  width: var(--page-input-control-width);
+  text-align: right;
+}
+
+#page-input::part(end) {
+  font-weight: 700;
+  font-size: var(--type-ramp-base-font-size);
+  white-space: nowrap;
+  height: calc(100% - (var(--design-unit) * 1px));
+}
