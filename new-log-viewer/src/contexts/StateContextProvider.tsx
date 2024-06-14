@@ -9,11 +9,11 @@ import React, {
 import MainWorker from "../services/MainWorker.worker";
 import {
     FileSrcType,
-    LineNumLogEventIdxMap,
+    LineNumLogEventNumMap,
     MainWorkerRespMessage,
-    WORKER_PROTOCOL_REQ,
-    WORKER_PROTOCOL_RESP,
-    WorkerRequest,
+    WORKER_REQ_CODE,
+    WORKER_RESP_CODE,
+    WorkerReq,
 } from "../typings/worker";
 
 
@@ -21,7 +21,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType) => void,
     logData: string,
     logEventNum: number,
-    logLines: LineNumLogEventIdxMap,
+    logLines: LineNumLogEventNumMap,
     numEvents: number,
     numPages: number,
     pageNum: number
@@ -54,7 +54,7 @@ interface StateContextProviderProps {
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const [logLines, setLogLines] = useState<LineNumLogEventIdxMap>(StateDefaultValue.logLines);
+    const [logLines, setLogLines] = useState<LineNumLogEventNumMap>(StateDefaultValue.logLines);
     const [logData, setLogData] = useState<string>(StateDefaultValue.logData);
     const [numEvents, setNumEvents] = useState<number>(StateDefaultValue.numEvents);
     const [logEventNum, setLogEventNum] = useState<number>(StateDefaultValue.logEventNum);
@@ -69,23 +69,23 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         return Math.ceil(numEvents / PAGE_SIZE);
     }, [numEvents]);
 
-    const mainWorkerPostRequest = useCallback(<T extends WORKER_PROTOCOL_REQ>(
+    const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
         code: T,
-        args: WorkerRequest<T>
+        args: WorkerReq<T>
     ) => {
         mainWorkerRef.current?.postMessage({code, args});
     }, []);
 
-    const handleMainWorkerResponse = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
+    const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Render] code=${code}`);
         switch (code) {
-            case WORKER_PROTOCOL_RESP.PAGE_DATA:
+            case WORKER_RESP_CODE.PAGE_DATA:
                 setLogData(args.logs);
                 setLogLines(args.lines);
                 setLogEventNum(args.startLogEventNum);
                 break;
-            case WORKER_PROTOCOL_RESP.NUM_EVENTS:
+            case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
                 break;
             default:
@@ -99,15 +99,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             mainWorkerRef.current.terminate();
         }
         mainWorkerRef.current = new MainWorker();
-        mainWorkerRef.current.onmessage = handleMainWorkerResponse;
-        mainWorkerPostRequest(WORKER_PROTOCOL_REQ.LOAD_FILE, {
+        mainWorkerRef.current.onmessage = handleMainWorkerResp;
+        mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
             cursor: null,
         });
     }, [
-        handleMainWorkerResponse,
-        mainWorkerPostRequest,
+        handleMainWorkerResp,
+        mainWorkerPostReq,
     ]);
 
     return (

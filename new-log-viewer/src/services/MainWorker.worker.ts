@@ -1,29 +1,40 @@
 import {
     MainWorkerReqMessage,
-    WORKER_PROTOCOL_REQ,
-    WORKER_PROTOCOL_RESP,
+    WORKER_REQ_CODE,
+    WORKER_RESP_CODE,
+    WorkerResp,
 } from "../typings/worker";
 
+
+/**
+ * Sends a response message to the render.
+ *
+ * @param code
+ * @param args
+ */
+const postResp = <T extends WORKER_RESP_CODE>(
+    code: T,
+    args: WorkerResp<T>
+) => {
+    postMessage({code, args});
+};
 
 onmessage = (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Render -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
 
     switch (code) {
-        case WORKER_PROTOCOL_REQ.LOAD_FILE: {
-            postMessage({
-                code: WORKER_PROTOCOL_RESP.PAGE_DATA,
-                args: {
-                    logs: "Hello world!",
-                    lines: [1],
-                    startLogEventNum: 1,
-                },
+        case WORKER_REQ_CODE.LOAD_FILE: {
+            postResp(WORKER_RESP_CODE.PAGE_DATA, {
+                logs: "Hello world!",
+                lines: new Map([
+                    // eslint-disable-next-line @stylistic/js/array-element-newline
+                    [1, 1],
+                ]),
+                startLogEventNum: 1,
             });
-            postMessage({
-                code: WORKER_PROTOCOL_RESP.NUM_EVENTS,
-                args: {
-                    numEvents: 1,
-                },
+            postResp(WORKER_RESP_CODE.NUM_EVENTS, {
+                numEvents: 1,
             });
             break;
         }
