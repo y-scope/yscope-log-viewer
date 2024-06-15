@@ -11,11 +11,20 @@ import {
 } from "./Decoder";
 
 
+/**
+ * Type of values in JSON structures.
+ * Reference: https://www.json.org/json-en.html
+ */
 type JsonValue = string |
     number |
     boolean |
     { [key: string]: JsonValue | null } |
     Array<JsonValue | null>;
+
+/**
+ * Type of JSON object structure, which is a collection of name/value pairs.
+ * Reference: https://www.json.org/json-en.html
+ */
 type JsonObject = { [key: string]: JsonValue | null };
 
 class JsonlDecoder implements Decoder {
