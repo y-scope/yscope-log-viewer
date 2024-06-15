@@ -1,10 +1,9 @@
 /* eslint-env node */
 
 const {mergeWithRules} = require("webpack-merge");
+const common = require("./webpack.common.js");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const path = require("path");
-
-const common = require("./webpack.common.js");
 
 
 module.exports = mergeWithRules({
