@@ -22,11 +22,11 @@ const App = () => {
         FILE_VIEW: 1,
     };
 
-    const [fileInfo, setFileInfo] = useState(null);
+    const [fileSrc, setfileSrc] = useState(null);
     const [appMode, setAppMode] = useState();
 
     const handleFileChange = (file) => {
-        setFileInfo(file);
+        setfileSrc(file);
         setAppMode(APP_STATE.FILE_VIEW);
     };
     
@@ -42,7 +42,7 @@ const App = () => {
                     {appMode === APP_STATE.VIEWER &&
                         <Viewer logEventNumber={333}
                             prettifyLog={true}
-                            fileInfo={fileInfo}/>
+                            fileSrc={fileSrc}/>
                     }
                 </DropFile>
             </ThemeContextProvider>
