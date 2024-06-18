@@ -8,12 +8,26 @@ import {LOG_LEVEL} from "./logs";
 type FileSrcType = string | File;
 
 /**
- * Type of cursor used for locating some log event and navigating across pages.
- * - null: the last event
- * - timestamp: the first event that has a timestamp >= the given value
- * - pageNum: the first event on the given page
+ * Enum of cursors used for locating some log event and navigating across pages.
+ * - LAST_EVENT: the last event
+ * - TIMESTAMP: the first event that has a timestamp >= the given value
+ * - PAGE_NUM: the first event on the given page
  */
-type CursorType = null | { timestamp: number } | { pageNum: number };
+enum CURSOR_CODE {
+    LAST_EVENT = "lastEvent",
+    TIMESTAMP = "timestamp",
+    PAGE_NUM = "pageNum"
+}
+
+type CursorArgMap = {
+    [CURSOR_CODE.LAST_EVENT]: null;
+    [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number };
+};
+
+type CursorType = {
+    [T in keyof CursorArgMap]: { code: T, args: CursorArgMap[T] };
+}[keyof CursorArgMap];
 
 /**
  * Type mapping the first line number of each log event to the log event
@@ -75,6 +89,7 @@ type MainWorkerRespMessage = {
 }[keyof WorkerRespMap];
 
 export {
+    CURSOR_CODE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

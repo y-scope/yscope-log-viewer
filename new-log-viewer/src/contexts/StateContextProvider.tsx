@@ -8,6 +8,7 @@ import React, {
 
 import {
     BeginLineNumToLogEventNumMap,
+    CURSOR_CODE,
     FileSrcType,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
@@ -117,7 +118,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
-            cursor: null,
+            cursor: {code: CURSOR_CODE.LAST_EVENT, args: null},
             decodeOptions: {
                 // TODO: these shall come from config provider
                 logLevelKey: "log.level",

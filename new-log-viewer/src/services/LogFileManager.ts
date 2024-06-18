@@ -4,6 +4,7 @@ import {
 } from "../typings/decoders";
 import {
     BeginLineNumToLogEventNumMap,
+    CURSOR_CODE,
     CursorType,
     FileSrcType,
 } from "../typings/worker";
@@ -43,6 +44,33 @@ class LogFileManager {
         this.#numEvents = this.#decoder.buildIdx();
         console.log(`Found ${this.#numEvents} log events.`);
     };
+
+    /**
+     * Retrieves the range of log event numbers based on the given cursor.
+     *
+     * @param cursor The cursor object containing the code and arguments.
+     * @return The start and end log event numbers within the range.
+     * @throws {Error} If the type of cursor is not supported.
+     */
+    #getRangeFrom (cursor: CursorType) {
+        const {code, args} = cursor;
+        let startLogEventNum: number;
+
+        switch (code) {
+            case CURSOR_CODE.LAST_EVENT:
+                startLogEventNum =
+                    (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
+                break;
+            case CURSOR_CODE.PAGE_NUM:
+                startLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
+                break;
+            default:
+                throw new Error("other types of cursor not yet supported");
+        }
+
+        const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
+        return {startLogEventNum, endLogEventNum};
+    }
 
     constructor (pageSize: number) {
         this.#pageSize = pageSize;
@@ -97,16 +125,7 @@ class LogFileManager {
         }
 
         const results: Array<[string, number, number, number]> = [];
-        let startLogEventNum = (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
-        if (null !== cursor) {
-            if ("pageNum" in cursor) {
-                startLogEventNum = ((cursor.pageNum - 1) * this.#pageSize) + 1;
-            } else {
-                // TODO: support file loading via Open / Drag-n-drop
-                console.error("other types of cursor not yet supported");
-            }
-        }
-        const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
+        const {startLogEventNum, endLogEventNum} = this.#getRangeFrom(cursor);
 
         this.#decoder.decode(results, startLogEventNum - 1, endLogEventNum);
 
