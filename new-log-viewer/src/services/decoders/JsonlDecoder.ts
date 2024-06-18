@@ -78,7 +78,13 @@ class JsonlDecoder implements Decoders {
         if (null === dateFormatMatch) {
             console.warn(
                 "Unable to find date format string in #textPattern:",
-                this.#textPattern
+    /**
+    * Sets the text pattern for the decoder and extracts the date format and property names from it.
+    *
+    * @param {string} pattern - The text pattern to set for the decoder.
+    * @return {void}
+    */
+    #setTextPattern (pattern: string) {
             );
 
             return;
