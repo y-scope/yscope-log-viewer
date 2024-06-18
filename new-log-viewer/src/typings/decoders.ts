@@ -41,13 +41,11 @@ interface Decoders {
     /**
      * Decodes a given range of results.
      *
-     * @param results Output array of the results with each element of type
-     * DecodeResultType. Initial size shall be zero.
      * @param startIdx Starting point of the range.
      * @param endIdx Ending point of the range.
-     * @return True if the decoding is successful, false otherwise.
+     * @return An array of the results, or null if any error occurs.
      */
-    decode(results: DecodeResultType[], startIdx: number, endIdx: number): boolean;
+    decode(startIdx: number, endIdx: number): DecodeResultType[] | null;
 }
 
 

@@ -124,10 +124,13 @@ class LogFileManager {
             throw new Error("loadFile() must be first called.");
         }
 
-        const results: Array<[string, number, number, number]> = [];
         const {startLogEventNum, endLogEventNum} = this.#getRangeFrom(cursor);
-
-        this.#decoder.decode(results, startLogEventNum - 1, endLogEventNum);
+        const results = this.#decoder.decode(startLogEventNum - 1, endLogEventNum);
+        if (null === results) {
+            throw new Error("Error occurred during decoding." +
+                `startLogEventNum=${startLogEventNum}, ` +
+                `endLogEventNum=${endLogEventNum}`);
+        }
 
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
