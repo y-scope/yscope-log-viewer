@@ -18,7 +18,7 @@ dayjs.extend(dayjsTimezone);
 /* eslint-enable import/no-named-as-default-member */
 
 /**
- * Manages log files for the application.
+ * Manager for the currently opened log file.
  */
 let LOG_FILE_MANAGER : null | LogFileManager = null;
 
@@ -34,7 +34,6 @@ const postResp = <T extends WORKER_RESP_CODE>(
 ) => {
     postMessage({code, args});
 };
-
 
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
