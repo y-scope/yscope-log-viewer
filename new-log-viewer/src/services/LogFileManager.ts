@@ -9,7 +9,7 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
-import {getBasenameFromUrl} from "../utils/url";
+import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
@@ -87,7 +87,7 @@ class LogFileManager {
      */
     async loadFile (fileSrc: FileSrcType): Promise<number> {
         if ("string" === typeof fileSrc) {
-            this.#fileName = getBasenameFromUrl(fileSrc);
+            this.#fileName = getBasenameFromUrlOrDefault(fileSrc);
             this.#fileData = await getUint8ArrayFrom(fileSrc, () => null);
         } else {
             // TODO: support file loading via Open / Drag-n-drop

@@ -1,11 +1,15 @@
 /**
- * Extracts the basename (filename) from a given URL string.
+ * Extracts the basename (filename) from a given string containing a URL.
  *
- * @param urlString
+ * @param urlString a URL string that does not contain escaped `/` (%2F).
+ * @param defaultFileName
  * @return The extracted basename or "Unknown Filename" if extraction fails.
  */
-const getBasenameFromUrl = (urlString: string): string => {
-    let basename = "Unknown Filename";
+const getBasenameFromUrlOrDefault = (
+    urlString: string,
+    defaultFileName: string = "Unknown Filename"
+): string => {
+    let basename = defaultFileName;
     try {
         const url = new URL(urlString);
         const parts = url.pathname.split("/");
@@ -14,10 +18,10 @@ const getBasenameFromUrl = (urlString: string): string => {
             basename = popped;
         }
     } catch (e) {
-        console.error("Error happened in parsing file name");
+        console.error("Error happened in parsing file name", e);
     }
 
     return basename;
 };
 
-export {getBasenameFromUrl};
+export {getBasenameFromUrlOrDefault};
