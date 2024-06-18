@@ -47,6 +47,13 @@ class JsonlDecoder implements Decoders {
 
     #keys: string[] = [];
 
+    /**
+     * Converts a logback date format to a Day.js date format.
+     *
+     * @param {string} dateFormat The date format to convert.
+     * @return {string} with year, month and day capitalized
+     * @private
+     */
     static #convertLogbackDateFormatToDayjs (dateFormat: string) {
         // Fix year
         dateFormat = dateFormat.replace("yyyy", "YYYY");
