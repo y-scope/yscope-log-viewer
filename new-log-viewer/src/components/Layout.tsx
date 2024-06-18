@@ -34,7 +34,7 @@ const Layout = () => {
                     {logEventNum}
                     {" "}
                     |
-                    pageNum -
+                    PageNum -
                     {" "}
                     {Math.ceil(logEventNum / PAGE_SIZE)}
                 </h3>
