@@ -1,4 +1,5 @@
 import {DecodeOptionsType} from "./decoders";
+import {LOG_LEVEL} from "./logs";
 
 
 /**
@@ -29,7 +30,8 @@ enum WORKER_REQ_CODE {
 
 enum WORKER_RESP_CODE {
     PAGE_DATA = "pageData",
-    NUM_EVENTS = "numEvents"
+    NUM_EVENTS = "numEvents",
+    NOTIFICATION = "notification"
 }
 
 type WorkerReqMap = {
@@ -49,6 +51,10 @@ type WorkerRespMap = {
     };
     [WORKER_RESP_CODE.NUM_EVENTS]: {
         numEvents: number
+    };
+    [WORKER_RESP_CODE.NOTIFICATION]: {
+        logLevel: LOG_LEVEL,
+        message: string
     };
 };
 

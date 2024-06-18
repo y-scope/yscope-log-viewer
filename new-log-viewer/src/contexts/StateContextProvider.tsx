@@ -95,6 +95,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
                 break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
+                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;

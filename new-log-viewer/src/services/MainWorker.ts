@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import dayjsTimezone from "dayjs/plugin/timezone";
 import dayjsUtc from "dayjs/plugin/utc";
 
+import {LOG_LEVEL} from "../typings/logs";
 import {
     MainWorkerReqMessage,
     WORKER_REQ_CODE,
@@ -39,24 +40,40 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
 
-    switch (code) {
-        case WORKER_REQ_CODE.LOAD_FILE: {
-            LOG_FILE_MANAGER = new LogFileManager(args.pageSize);
-            const numEvents = await LOG_FILE_MANAGER.loadFile(args.fileSrc);
-            LOG_FILE_MANAGER.setDecodeOptions(args.decodeOptions);
+    try {
+        switch (code) {
+            case WORKER_REQ_CODE.LOAD_FILE: {
+                LOG_FILE_MANAGER = new LogFileManager(args.pageSize);
+                const numEvents = await LOG_FILE_MANAGER.loadFile(args.fileSrc);
+                LOG_FILE_MANAGER.setDecodeOptions(args.decodeOptions);
 
-            postResp(
-                WORKER_RESP_CODE.NUM_EVENTS,
-                {numEvents}
-            );
-            postResp(
-                WORKER_RESP_CODE.PAGE_DATA,
-                LOG_FILE_MANAGER.loadPage(args.cursor)
-            );
-            break;
+                postResp(
+                    WORKER_RESP_CODE.NUM_EVENTS,
+                    {numEvents}
+                );
+                postResp(
+                    WORKER_RESP_CODE.PAGE_DATA,
+                    LOG_FILE_MANAGER.loadPage(args.cursor)
+                );
+                break;
+            }
+            default:
+                console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
+                break;
         }
-        default:
-            console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
-            break;
+    } catch (e) {
+        if (e instanceof Error) {
+            postResp(WORKER_RESP_CODE.NOTIFICATION, {
+                logLevel: LOG_LEVEL.ERROR,
+                message: e.message,
+            });
+        } else {
+            postResp(WORKER_RESP_CODE.NOTIFICATION, {
+                logLevel: LOG_LEVEL.FATAL,
+                message: "An error occurred in the worker but cannot be serialized. " +
+                `Check the browser console for more details. Type: ${typeof e}`,
+            });
+            console.error(e);
+        }
     }
 };
