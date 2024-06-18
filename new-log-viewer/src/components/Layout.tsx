@@ -22,7 +22,11 @@ const Layout = () => {
     } = useContext(StateContext);
 
     useEffect(() => {
-        loadFile("http://localhost:3010/test/example.jsonl");
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const filePath = urlSearchParams.get("filePath");
+        if (null !== filePath) {
+            loadFile(filePath);
+        }
     }, [loadFile]);
 
     return (
