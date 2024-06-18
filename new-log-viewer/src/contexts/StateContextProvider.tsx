@@ -31,7 +31,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 /**
  * Default values of the state object.
  */
-const StateDefaultValue = Object.freeze({
+const STATE_DEFAULT = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
     loadFile: () => null,
     logData: "Loading...",
@@ -55,10 +55,10 @@ interface StateContextProviderProps {
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
-        useState<BeginLineNumToLogEventNumMap>(StateDefaultValue.beginLineNumToLogEventNum);
-    const [logData, setLogData] = useState<string>(StateDefaultValue.logData);
-    const [numEvents, setNumEvents] = useState<number>(StateDefaultValue.numEvents);
-    const [logEventNum, setLogEventNum] = useState<number>(StateDefaultValue.logEventNum);
+        useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
+    const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [logEventNum, setLogEventNum] = useState<number>(STATE_DEFAULT.logEventNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
