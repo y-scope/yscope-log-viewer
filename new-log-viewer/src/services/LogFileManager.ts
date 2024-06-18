@@ -1,4 +1,7 @@
-import {DecodeOptionsType} from "../typings/decoders";
+import {
+    DecodeOptionsType,
+    Decoders,
+} from "../typings/decoders";
 import {
     BeginLineNumToLogEventNumMap,
     CursorType,
@@ -6,19 +9,8 @@ import {
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getBasenameFromUrl} from "../utils/url";
-import {
-    Decoder,
-    DecoderConstructor,
-} from "./decoders/Decoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
-
-/**
- * A mapping of file name extensions to their respective decoders.
- */
-const FILE_EXT_TO_DECODER: Readonly<Record<string, DecoderConstructor>> = Object.freeze({
-    ".jsonl": JsonlDecoder as unknown as DecoderConstructor,
-});
 
 class LogFileManager {
     #pageSize: number;
@@ -29,26 +21,27 @@ class LogFileManager {
 
     #numEvents: number = 0;
 
-    #decoder: Decoder | null = null;
+    #decoder: Decoders | null = null;
 
 
     /**
-     * Retrieves the decoder constructor based on the file extension.
+     * Constructs and a decoder instance based on the file extension and let it build an index.
      *
-     * @param filename The filename from which to extract the file extension.
-     * @return The constructor associated with the file extension, or null if not found.
+     * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
      */
-    static #getDecoderConstructor = (filename: string): DecoderConstructor | null => {
-        for (const ext in FILE_EXT_TO_DECODER) {
-            if (Object.hasOwn(FILE_EXT_TO_DECODER, ext)) {
-                const decoderConstructor = FILE_EXT_TO_DECODER[ext];
-                if (filename.endsWith(ext) && "undefined" !== typeof decoderConstructor) {
-                    return decoderConstructor;
-                }
-            }
+    #initDecoder = (): void => {
+        if (null === this.#fileName || null === this.#fileData) {
+            throw new Error("Unexpected usage");
         }
 
-        return null;
+        if (this.#fileName.endsWith(".jsonl")) {
+            this.#decoder = new JsonlDecoder(this.#fileData);
+        } else {
+            throw new Error(`A decoder cannot be found for ${this.#fileName}`);
+        }
+
+        this.#numEvents = this.#decoder.buildIdx();
+        console.log(`Found ${this.#numEvents} log events.`);
     };
 
     constructor (pageSize: number) {
@@ -56,33 +49,24 @@ class LogFileManager {
     }
 
     /**
-    * Loads a file from a given source and decodes it using the appropriate decoder based on the file extension.
-    *
-    * @param {FileSrcType} fileSrc - The source of the file to load. This can be a string representing a URL, or a File object.
-    * @return {Promise<number>} - A promise that resolves with the number of log events found in the file.
-    * @throw {Error} - Throws an error if the file source type is not supported.
-    */
+     * Loads a file from a given source and decodes it using the appropriate decoder based on the
+     * file extension.
+     *
+     * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
+     * File object.
+     * @return A promise that resolves with the number of log events found in the file.
+     * @throws {Error} If the file source type is not supported.
+     */
     async loadFile (fileSrc: FileSrcType): Promise<number> {
         if ("string" === typeof fileSrc) {
             this.#fileName = getBasenameFromUrl(fileSrc);
             this.#fileData = await getUint8ArrayFrom(fileSrc, () => null);
         } else {
             // TODO: support file loading via Open / Drag-n-drop
-            console.error("Read from File not yet supported");
+            throw new Error("Read from File not yet supported");
         }
 
-        if (null === this.#fileData || null === this.#fileName) {
-            return 0;
-        }
-
-        const MatchingDecoder = LogFileManager.#getDecoderConstructor(this.#fileName);
-        if (null === MatchingDecoder) {
-            return 0;
-        }
-
-        this.#decoder = new MatchingDecoder(this.#fileData);
-        this.#numEvents = this.#decoder.buildIdx();
-        console.log(`Found ${this.#numEvents} log events.`);
+        this.#initDecoder();
 
         return this.#numEvents;
     }

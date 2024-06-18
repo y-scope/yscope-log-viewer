@@ -1,14 +1,14 @@
 import dayjs from "dayjs";
 
-import {JsonlDecodeOptionsType} from "../../typings/decoders";
+import {
+    DecodeResultType,
+    Decoders,
+    JsonlDecodeOptionsType,
+} from "../../typings/decoders";
 import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
 } from "../../typings/logs";
-import {
-    Decoder,
-    DecodeResultType,
-} from "./Decoder";
 
 
 /**
@@ -27,7 +27,7 @@ type JsonValue = string |
  */
 type JsonObject = { [key: string]: JsonValue | null };
 
-class JsonlDecoder implements Decoder {
+class JsonlDecoder implements Decoders {
     static TEXT_DECODER = new TextDecoder();
 
     readonly #dataArray: Uint8Array;
@@ -176,7 +176,11 @@ class JsonlDecoder implements Decoder {
         return logLevel;
     }
 
-    constructor (dataArray: Uint8Array) {
+    constructor (dataArray: Uint8Array | number, length?: number) {
+        if ("number" === typeof dataArray || "undefined" !== typeof length) {
+            throw new Error(":Loading via array pointer is not supported in non-Emscripten " +
+                "compiled decoders");
+        }
         this.#dataArray = dataArray;
     }
 
