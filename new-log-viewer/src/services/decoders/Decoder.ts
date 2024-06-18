@@ -6,7 +6,7 @@ import {DecodeOptionsType} from "../../typings/decoders";
  *
  * @property message
  * @property timestamp
- * @property verbosity
+ * @property level
  * @property logEventNum
  */
 type DecodeResultType = [string, number, number, number];

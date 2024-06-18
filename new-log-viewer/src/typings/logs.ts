@@ -1,4 +1,4 @@
-enum LOG_VERBOSITY {
+enum LOG_LEVEL {
     NONE = 0,
     TRACE,
     DEBUG,
@@ -12,5 +12,5 @@ const INVALID_TIMESTAMP_VALUE = 0;
 
 export {
     INVALID_TIMESTAMP_VALUE,
-    LOG_VERBOSITY,
+    LOG_LEVEL,
 };

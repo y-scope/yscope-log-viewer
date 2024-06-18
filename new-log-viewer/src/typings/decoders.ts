@@ -1,7 +1,7 @@
 interface JsonlDecodeOptionsType {
+    logLevelKey: string,
     textPattern: string,
-    timestampPropName: string,
-    verbosityPropName: string,
+    timestampKey: string,
 }
 
 /**

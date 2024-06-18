@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import {JsonlDecodeOptionsType} from "../../typings/decoders";
 import {
     INVALID_TIMESTAMP_VALUE,
-    LOG_VERBOSITY,
+    LOG_LEVEL,
 } from "../../typings/logs";
 import {
     Decoder,
@@ -41,11 +41,11 @@ class JsonlDecoder implements Decoder {
 
     #dateFormat: string = "YYYY-MM-DD HH:mm:ss.SSS ZZ";
 
-    #timestampPropName: string = "ts";
+    #timestampKey: string = "ts";
 
-    #verbosityPropName: string = "level";
+    #logLevelKey: string = "level";
 
-    #propertyNames: string[] = [];
+    #keys: string[] = [];
 
     static #convertLogbackDateFormatToDayjs (dateFormat: string) {
         // Fix year
@@ -97,7 +97,7 @@ class JsonlDecoder implements Decoder {
             // e.g., "%thread", "thread"
             const [, propName] = match;
             if ("undefined" !== typeof propName) {
-                this.#propertyNames.push(propName);
+                this.#keys.push(propName);
             }
         }
     }
@@ -110,7 +110,7 @@ class JsonlDecoder implements Decoder {
      * @return - An array containing the extracted timestamp and the formatted input string .
      */
     #extractAndFormatTimestamp (input: string, logEvent: JsonObject): [number, string] {
-        let timestamp = logEvent[this.#timestampPropName];
+        let timestamp = logEvent[this.#timestampKey];
         if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
             timestamp = INVALID_TIMESTAMP_VALUE;
         }
@@ -135,7 +135,7 @@ class JsonlDecoder implements Decoder {
      */
     #formatVariables (input: string, logEvent: JsonObject) {
         // Replace each placeholder with the corresponding property from logEvent
-        for (const propName of this.#propertyNames) {
+        for (const propName of this.#keys) {
             if (propName in logEvent) {
                 const placeholder = `%${propName}`;
                 const propValue = logEvent[propName];
@@ -158,22 +158,22 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Extracts the verbosity from the given log event.
+     * Extracts the log level from the given log event.
      *
-     * @param logEvent The log event containing the verbosity.
-     * @return The extracted verbosity.
+     * @param logEvent The log event containing the log level.
+     * @return The extracted log level.
      */
-    #extractVerbosity (logEvent: JsonObject) {
-        let verbosity = LOG_VERBOSITY.NONE;
-        const verbosityString: string = logEvent[this.#verbosityPropName] as string;
-        if (false === (verbosityString in LOG_VERBOSITY)) {
-            console.error(`Unable to find verbosity from key ${this.#verbosityPropName}` +
-                ` of type ${typeof verbosityString}`);
+    #extractLogLevel (logEvent: JsonObject) {
+        let logLevel = LOG_LEVEL.NONE;
+        const logLevelStr: string = logEvent[this.#logLevelKey] as string;
+        if (false === (logLevelStr in LOG_LEVEL)) {
+            console.error(`Unable to find log level from key ${this.#logLevelKey}` +
+                ` of type ${typeof logLevelStr}`);
         } else {
-            verbosity = LOG_VERBOSITY[verbosityString as (keyof typeof LOG_VERBOSITY)];
+            logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
         }
 
-        return verbosity;
+        return logLevel;
     }
 
     constructor (dataArray: Uint8Array) {
@@ -184,8 +184,8 @@ class JsonlDecoder implements Decoder {
         this.#setTextPattern(
             options.textPattern
         );
-        this.#timestampPropName = options.timestampPropName;
-        this.#verbosityPropName = options.verbosityPropName;
+        this.#timestampKey = options.timestampKey;
+        this.#logLevelKey = options.logLevelKey;
 
         return true;
     }
@@ -223,12 +223,12 @@ class JsonlDecoder implements Decoder {
                 this.#extractAndFormatTimestamp(this.#textPattern, logEvent);
 
             formatted = this.#formatVariables(formatted, logEvent);
-            const verbosity = this.#extractVerbosity(logEvent);
+            const logLevel = this.#extractLogLevel(logEvent);
 
             results.push([
                 formatted,
                 timestamp,
-                verbosity,
+                logLevel,
                 logEventIdx + 1,
             ]);
         }
