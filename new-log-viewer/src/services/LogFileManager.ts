@@ -94,6 +94,13 @@ class LogFileManager {
         this.#decoder.setDecodeOptions(options);
     }
 
+    /**
+    * Loads a page of log events based on the provided cursor.
+    *
+    * @param {CursorType} cursor - The cursor indicating the page to load. This can be a page number or other types of cursor.
+    * @returns {Object} An object containing the logs as a string, a map of line numbers to log event numbers, and the cursor line number.
+    * @throws {Error} - Throws an error if the loadFile method has not been called before this method.
+    */
     loadPage (cursor: CursorType): {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
