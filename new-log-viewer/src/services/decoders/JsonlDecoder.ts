@@ -227,6 +227,7 @@ class JsonlDecoder implements Decoders {
             if (0 === line.length) {
                 continue;
             }
+
             try {
                 const logEvent = JSON.parse(line) as JsonObject;
                 this.#logEvents.push(logEvent);
