@@ -222,7 +222,15 @@ class JsonlDecoder implements Decoders {
 
     buildIdx (): number {
         const text = JsonlDecoder.TEXT_DECODER.decode(this.#dataArray);
-        const split = text.split("\n");
+    /**
+    * Decodes log events from the #logEvents array and adds them to the results array.
+    *
+    * @param {DecodeResultType[]} results - The array to which the decoded log events will be added.
+    * @param {number} startIdx - The index in the #logEvents array at which to start decoding.
+    * @param {number} endIdx - The index in the #logEvents array at which to stop decoding.
+    * @return {boolean} - Returns true if the decoding was successful, false otherwise.
+    */
+    decode (results: DecodeResultType[], startIdx: number, endIdx: number): boolean {
         for (const line of split) {
             if (0 === line.length) {
                 continue;
