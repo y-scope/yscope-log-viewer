@@ -66,6 +66,12 @@ class JsonlDecoder implements Decoders {
         return dateFormat;
     }
 
+    /**
+     * Extracts date format from text, eventually in Dayjs form.
+     *
+     * @return {string} in Dayjs form.
+     * @private
+     */
     #extractDateFormat () {
         // Extract date format from text string
         const dateFormatMatch = this.#textPattern.match(/%d\{(.+?)}/);
