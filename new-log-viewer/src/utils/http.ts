@@ -32,7 +32,6 @@ const convertAxiosError = (e: AxiosError): Error => {
     );
 };
 
-
 /**
  * Downloads and reads a file as a Uint8Array with a given URL.
  *
