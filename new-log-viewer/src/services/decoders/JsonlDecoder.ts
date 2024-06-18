@@ -191,7 +191,14 @@ class JsonlDecoder implements Decoders {
         } else {
             logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
         }
-
+    /**
+    * Builds an index by decoding the data array and splitting it into lines.
+    * Each line is parsed as a JSON object and added to the log events array.
+    * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+    *
+    * @return {number} The number of log events in the log events array after building the index.
+    */
+    buildIdx (): number {
         return logLevel;
     }
 
