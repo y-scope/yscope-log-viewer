@@ -24,54 +24,6 @@ class LogFileManager {
 
     #decoder: Decoders | null = null;
 
-
-    /**
-     * Constructs and a decoder instance based on the file extension and let it build an index.
-     *
-     * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
-     */
-    #initDecoder = (): void => {
-        if (null === this.#fileName || null === this.#fileData) {
-            throw new Error("Unexpected usage");
-        }
-
-        if (this.#fileName.endsWith(".jsonl")) {
-            this.#decoder = new JsonlDecoder(this.#fileData);
-        } else {
-            throw new Error(`A decoder cannot be found for ${this.#fileName}`);
-        }
-
-        this.#numEvents = this.#decoder.buildIdx();
-        console.log(`Found ${this.#numEvents} log events.`);
-    };
-
-    /**
-     * Retrieves the range of log event numbers based on the given cursor.
-     *
-     * @param cursor The cursor object containing the code and arguments.
-     * @return The start and end log event numbers within the range.
-     * @throws {Error} If the type of cursor is not supported.
-     */
-    #getRangeFrom (cursor: CursorType) {
-        const {code, args} = cursor;
-        let startLogEventNum: number;
-
-        switch (code) {
-            case CURSOR_CODE.LAST_EVENT:
-                startLogEventNum =
-                    (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
-                break;
-            case CURSOR_CODE.PAGE_NUM:
-                startLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
-                break;
-            default:
-                throw new Error("other types of cursor not yet supported");
-        }
-
-        const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
-        return {startLogEventNum, endLogEventNum};
-    }
-
     constructor (pageSize: number) {
         this.#pageSize = pageSize;
     }
@@ -153,6 +105,53 @@ class LogFileManager {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
         };
+    }
+
+    /**
+     * Constructs and a decoder instance based on the file extension and let it build an index.
+     *
+     * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
+     */
+    #initDecoder = (): void => {
+        if (null === this.#fileName || null === this.#fileData) {
+            throw new Error("Unexpected usage");
+        }
+
+        if (this.#fileName.endsWith(".jsonl")) {
+            this.#decoder = new JsonlDecoder(this.#fileData);
+        } else {
+            throw new Error(`A decoder cannot be found for ${this.#fileName}`);
+        }
+
+        this.#numEvents = this.#decoder.buildIdx();
+        console.log(`Found ${this.#numEvents} log events.`);
+    };
+
+    /**
+     * Retrieves the range of log event numbers based on the given cursor.
+     *
+     * @param cursor The cursor object containing the code and arguments.
+     * @return The start and end log event numbers within the range.
+     * @throws {Error} If the type of cursor is not supported.
+     */
+    #getRangeFrom (cursor: CursorType) {
+        const {code, args} = cursor;
+        let startLogEventNum: number;
+
+        switch (code) {
+            case CURSOR_CODE.LAST_EVENT:
+                startLogEventNum =
+                    (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
+                break;
+            case CURSOR_CODE.PAGE_NUM:
+                startLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
+                break;
+            default:
+                throw new Error("other types of cursor not yet supported");
+        }
+
+        const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
+        return {startLogEventNum, endLogEventNum};
     }
 }
 

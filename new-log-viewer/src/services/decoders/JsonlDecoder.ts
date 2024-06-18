@@ -48,6 +48,14 @@ class JsonlDecoder implements Decoders {
 
     #keys: string[] = [];
 
+    constructor (dataArray: Uint8Array | number, length?: number) {
+        if ("number" === typeof dataArray || "undefined" !== typeof length) {
+            throw new Error(":Loading via array pointer is not supported in non-Emscripten " +
+                "compiled decoders");
+        }
+        this.#dataArray = dataArray;
+    }
+
     /**
      * Converts a Logback date format string to a Day.js date format string.
      *
@@ -64,6 +72,75 @@ class JsonlDecoder implements Decoders {
         dateFormat = dateFormat.replace("d", "D");
 
         return dateFormat;
+    }
+
+    setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
+        this.#setFormatString(
+            options.formatString
+        );
+        this.#timestampKey = options.timestampKey;
+        this.#logLevelKey = options.logLevelKey;
+
+        return true;
+    }
+
+    /**
+     * Builds an index by decoding the data array and splitting it into lines.
+     * Each line is parsed as a JSON object and added to the log events array.
+     * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     *
+     * @return The number of log events in the file.
+     */
+    buildIdx (): number {
+        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
+        const split = text.split("\n");
+        for (const line of split) {
+            if (0 === line.length) {
+                continue;
+            }
+
+            try {
+                const logEvent = JSON.parse(line) as JsonObject;
+                this.#logEvents.push(logEvent);
+            } catch (e) {
+                console.error(e, line);
+            }
+        }
+
+        return this.#logEvents.length;
+    }
+
+    /**
+     * Decodes log events from the #logEvents array and adds them to the results array.
+     *
+     * @param startIdx The index in the #logEvents array at which to start decoding.
+     * @param endIdx The index in the #logEvents array at which to stop decoding.
+     * @return - Returns true if the decoding was successful, false otherwise.
+     */
+    decode (startIdx: number, endIdx: number): DecodeResultType[] | null {
+        const results: DecodeResultType[] = [];
+
+        for (let logEventIdx = startIdx; logEventIdx < endIdx; logEventIdx++) {
+            const logEvent = this.#logEvents[logEventIdx];
+            if ("undefined" === typeof logEvent) {
+                return null;
+            }
+
+            let [timestamp, formatted] =
+                this.#extractAndFormatTimestamp(this.#formatString, logEvent);
+
+            formatted = this.#formatVariables(formatted, logEvent);
+            const logLevel = this.#extractLogLevel(logEvent);
+
+            results.push([
+                formatted,
+                timestamp,
+                logLevel,
+                logEventIdx + 1,
+            ]);
+        }
+
+        return results;
     }
 
     /**
@@ -186,83 +263,6 @@ class JsonlDecoder implements Decoders {
         }
 
         return logLevel;
-    }
-
-    constructor (dataArray: Uint8Array | number, length?: number) {
-        if ("number" === typeof dataArray || "undefined" !== typeof length) {
-            throw new Error(":Loading via array pointer is not supported in non-Emscripten " +
-                "compiled decoders");
-        }
-        this.#dataArray = dataArray;
-    }
-
-    setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
-        this.#setFormatString(
-            options.formatString
-        );
-        this.#timestampKey = options.timestampKey;
-        this.#logLevelKey = options.logLevelKey;
-
-        return true;
-    }
-
-    /**
-     * Builds an index by decoding the data array and splitting it into lines.
-     * Each line is parsed as a JSON object and added to the log events array.
-     * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
-     *
-     * @return The number of log events in the file.
-     */
-    buildIdx (): number {
-        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
-        const split = text.split("\n");
-        for (const line of split) {
-            if (0 === line.length) {
-                continue;
-            }
-
-            try {
-                const logEvent = JSON.parse(line) as JsonObject;
-                this.#logEvents.push(logEvent);
-            } catch (e) {
-                console.error(e, line);
-            }
-        }
-
-        return this.#logEvents.length;
-    }
-
-    /**
-     * Decodes log events from the #logEvents array and adds them to the results array.
-     *
-     * @param startIdx The index in the #logEvents array at which to start decoding.
-     * @param endIdx The index in the #logEvents array at which to stop decoding.
-     * @return - Returns true if the decoding was successful, false otherwise.
-     */
-    decode (startIdx: number, endIdx: number): DecodeResultType[] | null {
-        const results: DecodeResultType[] = [];
-
-        for (let logEventIdx = startIdx; logEventIdx < endIdx; logEventIdx++) {
-            const logEvent = this.#logEvents[logEventIdx];
-            if ("undefined" === typeof logEvent) {
-                return null;
-            }
-
-            let [timestamp, formatted] =
-                this.#extractAndFormatTimestamp(this.#formatString, logEvent);
-
-            formatted = this.#formatVariables(formatted, logEvent);
-            const logLevel = this.#extractLogLevel(logEvent);
-
-            results.push([
-                formatted,
-                timestamp,
-                logLevel,
-                logEventIdx + 1,
-            ]);
-        }
-
-        return results;
     }
 }
 
