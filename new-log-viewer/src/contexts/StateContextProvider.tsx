@@ -80,10 +80,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
-            case WORKER_RESP_CODE.PAGE_DATA:
+            case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
-                setLogEventNum(args.beginLineNumToLogEventNum.get(1) as number);
+                const lineNumbers = Array.from(args.beginLineNumToLogEventNum.values());
+                const lastLogEventNum = lineNumbers[args.beginLineNumToLogEventNum.size - 1];
+                if ("undefined" !== typeof lastLogEventNum) {
+                    setLogEventNum(lineNumbers[args.beginLineNumToLogEventNum.size - 1] as number);
+                } else {
+                    console.error("Last logEventNum expectedly undefined");
+                }
+            }
                 break;
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
