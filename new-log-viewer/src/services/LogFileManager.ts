@@ -55,6 +55,13 @@ class LogFileManager {
         this.#pageSize = pageSize;
     }
 
+    /**
+    * Loads a file from a given source and decodes it using the appropriate decoder based on the file extension.
+    *
+    * @param {FileSrcType} fileSrc - The source of the file to load. This can be a string representing a URL, or a File object.
+    * @return {Promise<number>} - A promise that resolves with the number of log events found in the file.
+    * @throw {Error} - Throws an error if the file source type is not supported.
+    */
     async loadFile (fileSrc: FileSrcType): Promise<number> {
         if ("string" === typeof fileSrc) {
             this.#fileName = getBasenameFromUrl(fileSrc);
