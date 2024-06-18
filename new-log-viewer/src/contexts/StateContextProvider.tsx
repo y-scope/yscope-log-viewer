@@ -121,9 +121,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.LAST_EVENT, args: null},
             decodeOptions: {
                 // TODO: these shall come from config provider
-                logLevelKey: "log.level",
-                textPattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
+                formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
                     " %message%n",
+                logLevelKey: "log.level",
                 timestampKey: "@timestamp",
             },
         });

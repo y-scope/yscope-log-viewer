@@ -35,7 +35,7 @@ class JsonlDecoder implements Decoders {
 
     #logEvents: JsonObject[] = [];
 
-    #textPattern: string =
+    #formatString: string =
         "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n";
 
     #datePattern: string = "%d{yyyy-MM-dd HH:mm:ss.SSS}";
@@ -71,11 +71,9 @@ class JsonlDecoder implements Decoders {
      */
     #extractDateFormat () {
         // Extract date format from text string
-        const dateFormatMatch = this.#textPattern.match(/%d\{(.+?)}/);
+        const dateFormatMatch = this.#formatString.match(/%d\{(.+?)}/);
         if (null === dateFormatMatch) {
-            console.warn(
-                "Unable to find date format string in #textPattern:",
-            );
+            console.warn("Unable to find date format string in #formatString:", this.#formatString);
 
             return;
         }
@@ -93,21 +91,21 @@ class JsonlDecoder implements Decoders {
     }
 
     /**
-     * Sets a text pattern for the decoder and extracts date format and property names from it.
+     * Sets a format string for the decoder and extracts date format and property names from it.
      *
-     * @param pattern The text pattern to be set.
+     * @param formatString The format string to be set.
      */
-    #setTextPattern (pattern: string) {
-        this.#textPattern = pattern;
+    #setFormatString (formatString: string) {
+        this.#formatString = formatString;
         this.#extractDateFormat();
 
         // Remove new line
-        this.#textPattern = this.#textPattern.replace("%n", "");
+        this.#formatString = this.#formatString.replace("%n", "");
 
         // Use a regular expression to find all placeholders
         const placeholderRegex = /%([\w.]+)/g;
         let match;
-        while (null !== (match = placeholderRegex.exec(this.#textPattern))) {
+        while (null !== (match = placeholderRegex.exec(this.#formatString))) {
             // e.g., "%thread", "thread"
             const [, propName] = match;
             if ("undefined" !== typeof propName) {
@@ -199,8 +197,8 @@ class JsonlDecoder implements Decoders {
     }
 
     setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
-        this.#setTextPattern(
-            options.textPattern
+        this.#setFormatString(
+            options.formatString
         );
         this.#timestampKey = options.timestampKey;
         this.#logLevelKey = options.logLevelKey;
@@ -251,7 +249,7 @@ class JsonlDecoder implements Decoders {
             }
 
             let [timestamp, formatted] =
-                this.#extractAndFormatTimestamp(this.#textPattern, logEvent);
+                this.#extractAndFormatTimestamp(this.#formatString, logEvent);
 
             formatted = this.#formatVariables(formatted, logEvent);
             const logLevel = this.#extractLogLevel(logEvent);
