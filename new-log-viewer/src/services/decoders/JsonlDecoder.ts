@@ -15,7 +15,8 @@ import {
  * Type of values in JSON structures.
  * Reference: https://www.json.org/json-en.html
  */
-type JsonValue = string |
+type JsonValue = null |
+    string |
     number |
     boolean |
     { [key: string]: JsonValue | null } |
@@ -25,10 +26,10 @@ type JsonValue = string |
  * Type of JSON object structure, which is a collection of name/value pairs.
  * Reference: https://www.json.org/json-en.html
  */
-type JsonObject = { [key: string]: JsonValue | null };
+type JsonObject = { [key: string]: JsonValue };
 
 class JsonlDecoder implements Decoders {
-    static TEXT_DECODER = new TextDecoder();
+    static #textDecoder = new TextDecoder();
 
     readonly #dataArray: Uint8Array;
 
@@ -48,11 +49,10 @@ class JsonlDecoder implements Decoders {
     #keys: string[] = [];
 
     /**
-     * Converts a logback date format to a Day.js date format.
+     * Converts a Logback date format string to a Day.js date format string.
      *
-     * @param {string} dateFormat The date format to convert.
-     * @return {string} with year, month and day capitalized
-     * @private
+     * @param dateFormat The Logback date format string to convert.
+     * @return The corresponding Day.js date format string.
      */
     static #convertLogbackDateFormatToDayjs (dateFormat: string) {
         // Fix year
@@ -69,7 +69,7 @@ class JsonlDecoder implements Decoders {
     /**
      * Extracts date format from text, eventually in Dayjs form.
      *
-     * @return {string} in Dayjs form.
+     * @return in Dayjs form.
      * @private
      */
     #extractDateFormat () {
@@ -78,13 +78,6 @@ class JsonlDecoder implements Decoders {
         if (null === dateFormatMatch) {
             console.warn(
                 "Unable to find date format string in #textPattern:",
-    /**
-    * Sets the text pattern for the decoder and extracts the date format and property names from it.
-    *
-    * @param {string} pattern - The text pattern to set for the decoder.
-    * @return {void}
-    */
-    #setTextPattern (pattern: string) {
             );
 
             return;
@@ -102,6 +95,11 @@ class JsonlDecoder implements Decoders {
         this.#dateFormat = JsonlDecoder.#convertLogbackDateFormatToDayjs(dateFormat);
     }
 
+    /**
+     * Sets a text pattern for the decoder and extracts date format and property names from it.
+     *
+     * @param pattern The text pattern to be set.
+     */
     #setTextPattern (pattern: string) {
         this.#textPattern = pattern;
         this.#extractDateFormat();
@@ -191,14 +189,7 @@ class JsonlDecoder implements Decoders {
         } else {
             logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
         }
-    /**
-    * Builds an index by decoding the data array and splitting it into lines.
-    * Each line is parsed as a JSON object and added to the log events array.
-    * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
-    *
-    * @return {number} The number of log events in the log events array after building the index.
-    */
-    buildIdx (): number {
+
         return logLevel;
     }
 
@@ -220,17 +211,16 @@ class JsonlDecoder implements Decoders {
         return true;
     }
 
-    buildIdx (): number {
-        const text = JsonlDecoder.TEXT_DECODER.decode(this.#dataArray);
     /**
-    * Decodes log events from the #logEvents array and adds them to the results array.
+    * Builds an index by decoding the data array and splitting it into lines.
+    * Each line is parsed as a JSON object and added to the log events array.
+    * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
     *
-    * @param {DecodeResultType[]} results - The array to which the decoded log events will be added.
-    * @param {number} startIdx - The index in the #logEvents array at which to start decoding.
-    * @param {number} endIdx - The index in the #logEvents array at which to stop decoding.
-    * @return {boolean} - Returns true if the decoding was successful, false otherwise.
+    * @return {number} The number of log events in the file.
     */
-    decode (results: DecodeResultType[], startIdx: number, endIdx: number): boolean {
+    buildIdx (): number {
+        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
+        const split = text.split("\n");
         for (const line of split) {
             if (0 === line.length) {
                 continue;
@@ -249,6 +239,14 @@ class JsonlDecoder implements Decoders {
         return this.#logEvents.length;
     }
 
+    /**
+    * Decodes log events from the #logEvents array and adds them to the results array.
+    *
+    * @param {DecodeResultType[]} results - The array to which the decoded log events will be added.
+    * @param {number} startIdx - The index in the #logEvents array at which to start decoding.
+    * @param {number} endIdx - The index in the #logEvents array at which to stop decoding.
+    * @return {boolean} - Returns true if the decoding was successful, false otherwise.
+    */
     decode (results: DecodeResultType[], startIdx: number, endIdx: number): boolean {
         console.assert(0 === results.length, "results array is non-empty");
 
