@@ -1,8 +1,8 @@
 import {DecodeOptionsType} from "../typings/decoders";
 import {
+    BeginLineNumToLogEventNumMap,
     CursorType,
     FileSrcType,
-    LineNumLogEventNumMap,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getBasenameFromUrl} from "../utils/url";
@@ -89,7 +89,7 @@ class LogFileManager {
 
     loadPage (cursor: CursorType): {
         logs: string,
-        lines: LineNumLogEventNumMap,
+        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
@@ -112,7 +112,7 @@ class LogFileManager {
         this.#decoder.decode(results, startLogEventNum - 1, endLogEventNum);
 
         const messages: string[] = [];
-        const lines: LineNumLogEventNumMap = new Map();
+        const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
         results.forEach((r) => {
             const [
@@ -123,13 +123,13 @@ class LogFileManager {
             ] = r;
 
             messages.push(m);
-            lines.set(currentLine, logEventNum);
+            beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += m.split("\n").length - 1;
         });
 
         return {
             logs: messages.join(""),
-            lines: lines,
+            beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
         };
     }

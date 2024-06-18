@@ -18,7 +18,7 @@ type CursorType = null | { timestamp: number } | { pageNum: number };
  * Type mapping the first line number of each log event to the log event
  * number.
  */
-type LineNumLogEventNumMap = Map<number, number>;
+type BeginLineNumToLogEventNumMap = Map<number, number>;
 
 /**
  * Enum of the protocol code for communications between the renderer and MainWorker.
@@ -44,7 +44,7 @@ type WorkerReqMap = {
 type WorkerRespMap = {
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
-        lines: LineNumLogEventNumMap,
+        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
     };
     [WORKER_RESP_CODE.NUM_EVENTS]: {
@@ -73,9 +73,9 @@ export {
     WORKER_RESP_CODE,
 };
 export type {
+    BeginLineNumToLogEventNumMap,
     CursorType,
     FileSrcType,
-    LineNumLogEventNumMap,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
     WorkerReq,

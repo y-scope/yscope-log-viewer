@@ -7,8 +7,8 @@ import React, {
 } from "react";
 
 import {
+    BeginLineNumToLogEventNumMap,
     FileSrcType,
-    LineNumLogEventNumMap,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -17,10 +17,10 @@ import {
 
 
 interface StateContextType {
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     loadFile: (fileSrc: FileSrcType) => void,
     logData: string,
     logEventNum: number,
-    logLines: LineNumLogEventNumMap,
     numEvents: number,
     numPages: number,
     pageNum: number
@@ -31,10 +31,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const StateDefaultValue = Object.freeze({
+    beginLineNumToLogEventNum: new Map(),
     loadFile: () => null,
     logData: "Loading...",
     logEventNum: 1,
-    logLines: new Map(),
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
@@ -53,7 +53,8 @@ interface StateContextProviderProps {
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const [logLines, setLogLines] = useState<LineNumLogEventNumMap>(StateDefaultValue.logLines);
+    const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
+        useState<BeginLineNumToLogEventNumMap>(StateDefaultValue.beginLineNumToLogEventNum);
     const [logData, setLogData] = useState<string>(StateDefaultValue.logData);
     const [numEvents, setNumEvents] = useState<number>(StateDefaultValue.numEvents);
     const [logEventNum, setLogEventNum] = useState<number>(StateDefaultValue.logEventNum);
@@ -81,8 +82,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.PAGE_DATA:
                 setLogData(args.logs);
-                setLogLines(args.lines);
-                setLogEventNum(args.lines.get(1) as number);
+                setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
+                setLogEventNum(args.beginLineNumToLogEventNum.get(1) as number);
                 break;
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
@@ -121,10 +122,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                beginLineNumToLogEventNum,
                 loadFile,
                 logData,
                 logEventNum,
-                logLines,
                 numEvents,
                 numPages,
                 pageNum,
