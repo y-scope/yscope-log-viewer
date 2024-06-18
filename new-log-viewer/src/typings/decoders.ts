@@ -30,7 +30,7 @@ interface Decoders {
      * Sets options before the decoder decodes log events into formatted text.
      *
      * @param options
-     * @return True if the options are successfully set, false otherwises.
+     * @return True if the options are successfully set, false otherwise.
      */
     setDecodeOptions(options: DecodeOptionsType): boolean;
 
