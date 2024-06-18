@@ -79,12 +79,13 @@ class LogFileManager {
     }
 
     /**
-    * Loads a page of log events based on the provided cursor.
-    *
-    * @param {CursorType} cursor - The cursor indicating the page to load. This can be a page number or other types of cursor.
-    * @returns {Object} An object containing the logs as a string, a map of line numbers to log event numbers, and the cursor line number.
-    * @throws {Error} - Throws an error if the loadFile method has not been called before this method.
-    */
+     * Loads a page of log events based on the provided cursor.
+     *
+     * @param cursor The cursor indicating the page to load. See {@link CursorType}.
+     * @return An object containing the logs as a string, a map of line numbers to log event
+     * numbers, and the line number of the first line in the cursor identified event.
+     * @throws {Error} - If the loadFile method has not been called before this method.
+     */
     loadPage (cursor: CursorType): {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
@@ -114,15 +115,15 @@ class LogFileManager {
         let currentLine = 1;
         results.forEach((r) => {
             const [
-                m,
+                msg,
                 ,
                 ,
                 logEventNum,
             ] = r;
 
-            messages.push(m);
+            messages.push(msg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
-            currentLine += m.split("\n").length - 1;
+            currentLine += msg.split("\n").length - 1;
         });
 
         return {
