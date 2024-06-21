@@ -1,6 +1,6 @@
 import {
     DecodeOptionsType,
-    Decoders,
+    Decoder,
 } from "../typings/decoders";
 import {
     BeginLineNumToLogEventNumMap,
@@ -22,7 +22,7 @@ class LogFileManager {
 
     #numEvents: number = 0;
 
-    #decoder: Decoders | null = null;
+    #decoder: Decoder | null = null;
 
     constructor (pageSize: number) {
         this.#pageSize = pageSize;

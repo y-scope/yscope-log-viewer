@@ -1,6 +1,6 @@
 import {
+    Decoder,
     DecodeResultType,
-    Decoders,
     JsonlDecodeOptionsType,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
@@ -9,7 +9,7 @@ import {LOG_LEVEL} from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
-class JsonlDecoder implements Decoders {
+class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
     readonly #dataArray: Uint8Array;

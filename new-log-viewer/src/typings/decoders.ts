@@ -23,7 +23,7 @@ type DecodeOptionsType = JsonlDecodeOptionsType;
  */
 type DecodeResultType = [string, number, number, number];
 
-interface Decoders {
+interface Decoder {
 
     /**
      * Scans the file to compute a total number of events.
@@ -53,7 +53,7 @@ interface Decoders {
 
 export type {
     DecodeOptionsType,
+    Decoder,
     DecodeResultType,
-    Decoders,
     JsonlDecodeOptionsType,
 };
