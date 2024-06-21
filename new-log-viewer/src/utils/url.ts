@@ -13,10 +13,7 @@ const getBasenameFromUrlOrDefault = (
     try {
         const url = new URL(urlString);
         const parts = url.pathname.split("/");
-        const popped = parts.pop();
-        if ("string" === typeof popped) {
-            basename = popped;
-        }
+        basename = parts.pop() as string;
     } catch (e) {
         console.error("Failed to parse basename.", e);
     }
