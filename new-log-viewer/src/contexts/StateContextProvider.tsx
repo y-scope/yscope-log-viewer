@@ -84,12 +84,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
-                const lineNumbers = Array.from(args.beginLineNumToLogEventNum.values());
-                const lastLogEventNum = lineNumbers[args.beginLineNumToLogEventNum.size - 1];
+                const logEventNums = Array.from(args.beginLineNumToLogEventNum.values());
+                const lastLogEventNum = logEventNums[args.beginLineNumToLogEventNum.size - 1];
                 if ("undefined" !== typeof lastLogEventNum) {
-                    setLogEventNum(lineNumbers[args.beginLineNumToLogEventNum.size - 1] as number);
+                    setLogEventNum(logEventNums[args.beginLineNumToLogEventNum.size - 1] as number);
                 } else {
-                    console.error("Last logEventNum expectedly undefined");
+                    console.error("Last logEventNum unexpectedly undefined");
                 }
             }
                 break;
