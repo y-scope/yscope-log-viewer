@@ -1,52 +1,24 @@
-import dayjs from "dayjs";
-
 import {
     DecodeResultType,
     Decoders,
     JsonlDecodeOptionsType,
 } from "../../typings/decoders";
-import {
-    INVALID_TIMESTAMP_VALUE,
-    LOG_LEVEL,
-} from "../../typings/logs";
+import {Formatter} from "../../typings/formatters";
+import {JsonObject} from "../../typings/js";
+import {LOG_LEVEL} from "../../typings/logs";
+import LogbackFormatter from "../formatters/LogbackFormatter";
 
-
-/**
- * Type of values in JSON structures.
- * Reference: https://www.json.org/json-en.html
- */
-type JsonValue = null |
-    string |
-    number |
-    boolean |
-    { [key: string]: JsonValue } |
-    Array<JsonValue>;
-
-/**
- * Type of JSON object structure, which is a collection of name/value pairs.
- * Reference: https://www.json.org/json-en.html
- */
-type JsonObject = { [key: string]: JsonValue };
 
 class JsonlDecoder implements Decoders {
     static #textDecoder = new TextDecoder();
 
     readonly #dataArray: Uint8Array;
 
-    #logEvents: JsonObject[] = [];
-
-    #formatString: string =
-        "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n";
-
-    #datePattern: string = "%d{yyyy-MM-dd HH:mm:ss.SSS}";
-
-    #dateFormat: string = "YYYY-MM-DD HH:mm:ss.SSS ZZ";
-
-    #timestampKey: string = "ts";
-
     #logLevelKey: string = "level";
 
-    #keys: string[] = [];
+    #logEvents: JsonObject[] = [];
+
+    #formatter: Formatter | null = null;
 
     constructor (dataArray: Uint8Array | number, length?: number) {
         if ("number" === typeof dataArray || "undefined" !== typeof length) {
@@ -57,28 +29,13 @@ class JsonlDecoder implements Decoders {
     }
 
     /**
-     * Converts a Logback date format string to a Day.js date format string.
+     * Sets the decode options for the decoder to understand the JSON structure.
      *
-     * @param dateFormat The Logback date format string to convert.
-     * @return The corresponding Day.js date format string.
+     * @param options The options for decoding the JSONL log data.
+     * @return Whether the options were successfully set.
      */
-    static #convertLogbackDateFormatToDayjs (dateFormat: string) {
-        // Fix year
-        dateFormat = dateFormat.replace("yyyy", "YYYY");
-        dateFormat = dateFormat.replace("yy", "YY");
-
-        // Fix day
-        dateFormat = dateFormat.replace("dd", "D");
-        dateFormat = dateFormat.replace("d", "D");
-
-        return dateFormat;
-    }
-
     setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
-        this.#setFormatString(
-            options.formatString
-        );
-        this.#timestampKey = options.timestampKey;
+        this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
 
         return true;
@@ -115,23 +72,22 @@ class JsonlDecoder implements Decoders {
      *
      * @param startIdx The index in the #logEvents array at which to start decoding.
      * @param endIdx The index in the #logEvents array at which to stop decoding.
-     * @return - Returns true if the decoding was successful, false otherwise.
+     * @return True if the decoding was successful, false otherwise.
+     * @throws {Error} if setDecodeOptions() was not invoked before calling this.
      */
     decode (startIdx: number, endIdx: number): DecodeResultType[] | null {
-        const results: DecodeResultType[] = [];
+        if (null === this.#formatter) {
+            throw new Error("Please setDecodeOptions() to init the formatter.");
+        }
 
+        const results: DecodeResultType[] = [];
         for (let logEventIdx = startIdx; logEventIdx < endIdx; logEventIdx++) {
             const logEvent = this.#logEvents[logEventIdx];
             if ("undefined" === typeof logEvent) {
                 return null;
             }
-
-            let [timestamp, formatted] =
-                this.#extractAndFormatTimestamp(this.#formatString, logEvent);
-
-            formatted = this.#formatVariables(formatted, logEvent);
+            const [timestamp, formatted] = this.#formatter.formatLogEvent(logEvent);
             const logLevel = this.#extractLogLevel(logEvent);
-
             results.push([
                 formatted,
                 timestamp,
@@ -141,108 +97,6 @@ class JsonlDecoder implements Decoders {
         }
 
         return results;
-    }
-
-    /**
-     * Extracts date format from the format string and converts that into a Day.js compatible one.
-     */
-    #extractDateFormat () {
-        // Extract date format from text string
-        const dateFormatMatch = this.#formatString.match(/%d\{(.+?)}/);
-        if (null === dateFormatMatch) {
-            console.warn("Unable to find date format string in #formatString:", this.#formatString);
-
-            return;
-        }
-
-        // e.g. "%d{yyyy-MM-dd HH:mm:ss.SSS}", "yyyy-MM-dd HH:mm:ss.SSS"
-        const [pattern, dateFormat] = dateFormatMatch;
-        this.#datePattern = pattern;
-        if ("undefined" === typeof dateFormat) {
-            console.error("Unexpected undefined dateFormat");
-
-            return;
-        }
-
-        this.#dateFormat = JsonlDecoder.#convertLogbackDateFormatToDayjs(dateFormat);
-    }
-
-    /**
-     * Sets a format string for the decoder and extracts date format and property names from it.
-     *
-     * @param formatString The format string to be set.
-     */
-    #setFormatString (formatString: string) {
-        this.#formatString = formatString;
-        this.#extractDateFormat();
-
-        // Remove new line
-        this.#formatString = this.#formatString.replace("%n", "");
-
-        // Use a regular expression to find all placeholders
-        const placeholderRegex = /%([\w.]+)/g;
-        let match;
-        while (null !== (match = placeholderRegex.exec(this.#formatString))) {
-            // e.g., "%thread", "thread"
-            const [, propName] = match;
-            if ("undefined" !== typeof propName) {
-                this.#keys.push(propName);
-            }
-        }
-    }
-
-    /**
-     * Extracts the timestamp from the log event and formats the input string with it.
-     *
-     * @param input The input string to format.
-     * @param logEvent The log event containing the timestamp.
-     * @return An array containing the extracted timestamp and the formatted input string.
-     */
-    #extractAndFormatTimestamp (input: string, logEvent: JsonObject): [number, string] {
-        let timestamp = logEvent[this.#timestampKey];
-        if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
-            timestamp = INVALID_TIMESTAMP_VALUE;
-        }
-        const dayjsObj: dayjs.Dayjs = dayjs.utc(timestamp);
-        const formattedDate = dayjsObj.format(this.#dateFormat);
-        input = input.replace(this.#datePattern, formattedDate);
-
-        return [
-            dayjsObj.valueOf(),
-            input,
-        ];
-    }
-
-    /**
-     * Replaces placeholders in the input string with corresponding properties from the logEvent
-     * object.
-     *
-     * @param input The input string with placeholders to be replaced.
-     * @param logEvent The log event object containing properties to replace the placeholders.
-     * @return - The input string with placeholders replaced by corresponding property values.
-     */
-    #formatVariables (input: string, logEvent: JsonObject) {
-        // Replace each placeholder with the corresponding property from logEvent
-        for (const propName of this.#keys) {
-            if (propName in logEvent) {
-                const placeholder = `%${propName}`;
-                const propValue = logEvent[propName];
-                let propValueString: string;
-                if ("undefined" === typeof propValue || null === propValue) {
-                    console.error(`Unexpected undefined logEvent[${propName}]`);
-                    propValueString = "undefined";
-                } else if ("object" === typeof propValue) {
-                    propValueString = JSON.stringify(propValue);
-                } else {
-                    propValueString = propValue.toString();
-                }
-                input = input.replace(placeholder, propValueString);
-            }
-        }
-
-        input += "\n";
-
-        return input;
     }
 
     /**
