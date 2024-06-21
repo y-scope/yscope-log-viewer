@@ -19,8 +19,8 @@ type JsonValue = null |
     string |
     number |
     boolean |
-    { [key: string]: JsonValue | null } |
-    Array<JsonValue | null>;
+    { [key: string]: JsonValue } |
+    Array<JsonValue>;
 
 /**
  * Type of JSON object structure, which is a collection of name/value pairs.
