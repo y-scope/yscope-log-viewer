@@ -43,11 +43,11 @@ interface Decoder {
     /**
      * Decodes a given range of results.
      *
-     * @param startIdx Starting point of the range.
+     * @param beginIdx Beginning point of the range.
      * @param endIdx Ending point of the range.
      * @return An array of the results, or null if any error occurs.
      */
-    decode(startIdx: number, endIdx: number): DecodeResultType[] | null;
+    decode(beginIdx: number, endIdx: number): DecodeResultType[] | null;
 }
 
 
