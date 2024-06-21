@@ -1,3 +1,10 @@
+/**
+ * Options for the JSONL decoder.
+ *
+ * @property formatString The format string to use to serialize records as plain text.
+ * @property logLevelKey The key of the kv-pair that contains the log level in every record.
+ * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
+ */
 interface JsonlDecodeOptionsType {
     formatString: string,
     logLevelKey: string,
@@ -19,8 +26,7 @@ type DecodeResultType = [string, number, number, number];
 interface Decoders {
 
     /**
-     * Decodes preamble when available and scans the file to compute a total
-     * number of events.
+     * Decodes preamble when available and scans the file to compute a total number of events.
      *
      * @return the total number of log event.
      */
@@ -30,7 +36,7 @@ interface Decoders {
      * Sets options before the decoder decodes log events into formatted text.
      *
      * @param options
-     * @return True if the options are successfully set, false otherwise.
+     * @return Whether the options were successfully set.
      */
     setDecodeOptions(options: DecodeOptionsType): boolean;
 

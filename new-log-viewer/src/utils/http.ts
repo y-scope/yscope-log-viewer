@@ -33,12 +33,12 @@ const convertAxiosError = (e: AxiosError): Error => {
 };
 
 /**
- * Downloads and reads a file as a Uint8Array with a given URL.
+ * Downloads (bypassing any caching) and reads a file as a Uint8Array with a given URL.
  *
  * @param fileUrl
  * @param progressCallback Callback to update progress
  * @return File content
- * @throws {Error}
+ * @throws {Error} if the download fails.
  */
 const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCallback)
     : Promise<Uint8Array> => {

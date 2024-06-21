@@ -50,7 +50,7 @@ class JsonlDecoder implements Decoders {
 
     constructor (dataArray: Uint8Array | number, length?: number) {
         if ("number" === typeof dataArray || "undefined" !== typeof length) {
-            throw new Error(":Loading via array pointer is not supported in non-Emscripten " +
+            throw new Error("Loading via array pointer is not supported in non-Emscripten " +
                 "compiled decoders");
         }
         this.#dataArray = dataArray;
@@ -196,7 +196,7 @@ class JsonlDecoder implements Decoders {
      *
      * @param input The input string to format.
      * @param logEvent The log event containing the timestamp.
-     * @return - An array containing the extracted timestamp and the formatted input string .
+     * @return An array containing the extracted timestamp and the formatted input string.
      */
     #extractAndFormatTimestamp (input: string, logEvent: JsonObject): [number, string] {
         let timestamp = logEvent[this.#timestampKey];
@@ -220,7 +220,6 @@ class JsonlDecoder implements Decoders {
      * @param input The input string with placeholders to be replaced.
      * @param logEvent The log event object containing properties to replace the placeholders.
      * @return - The input string with placeholders replaced by corresponding property values.
-     * @private
      */
     #formatVariables (input: string, logEvent: JsonObject) {
         // Replace each placeholder with the corresponding property from logEvent

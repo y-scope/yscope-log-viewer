@@ -3,7 +3,7 @@
  *
  * @param urlString a URL string that does not contain escaped `/` (%2F).
  * @param defaultFileName
- * @return The extracted basename or "Unknown Filename" if extraction fails.
+ * @return The extracted basename or `defaultFileName` if extraction fails.
  */
 const getBasenameFromUrlOrDefault = (
     urlString: string,
@@ -18,7 +18,7 @@ const getBasenameFromUrlOrDefault = (
             basename = popped;
         }
     } catch (e) {
-        console.error("Error happened in parsing file name", e);
+        console.error("Failed to parse basename.", e);
     }
 
     return basename;
