@@ -105,7 +105,7 @@ class JsonlDecoder implements Decoders {
      * @param logEvent The log event containing the log level.
      * @return The extracted log level.
      */
-    #extractLogLevel (logEvent: JsonObject) {
+    #extractLogLevel (logEvent: JsonObject): number {
         let logLevel = LOG_LEVEL.NONE;
         const logLevelStr: string = logEvent[this.#logLevelKey] as string;
         if (false === (logLevelStr in LOG_LEVEL)) {
