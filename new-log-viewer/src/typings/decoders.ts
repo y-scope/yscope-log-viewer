@@ -26,7 +26,7 @@ type DecodeResultType = [string, number, number, number];
 interface Decoders {
 
     /**
-     * Decodes preamble when available and scans the file to compute a total number of events.
+     * Scans the file to compute a total number of events.
      *
      * @return the total number of log event.
      */
