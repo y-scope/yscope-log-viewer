@@ -91,8 +91,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 } else {
                     console.error("Last logEventNum unexpectedly undefined");
                 }
-            }
                 break;
+            }
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
                 break;
