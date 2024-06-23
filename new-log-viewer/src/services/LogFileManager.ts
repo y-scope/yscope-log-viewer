@@ -2,12 +2,14 @@ import {
     DecodeOptionsType,
     Decoder,
 } from "../typings/decoders";
+import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
     FileSrcType,
 } from "../typings/worker";
+import {formatSizeInBytes} from "../utils/file";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
@@ -121,6 +123,12 @@ class LogFileManager {
             this.#decoder = new JsonlDecoder(this.#fileData);
         } else {
             throw new Error(`A decoder cannot be found for ${this.#fileName}`);
+        }
+
+        if (this.#fileData.length > MAX_V8_STRING_LENGTH) {
+            throw new Error(`Cannot handle files larger than ${
+                formatSizeInBytes(MAX_V8_STRING_LENGTH)
+            } due to a limitation in Chromium-based browsers.`);
         }
 
         this.#numEvents = this.#decoder.buildIdx();
