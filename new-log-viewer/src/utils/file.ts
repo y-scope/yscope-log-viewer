@@ -1,3 +1,8 @@
+/* eslint-disable @stylistic/js/array-element-newline */
+const SI_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "RB", "QB"];
+const IEC_UNITS = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB", "RiB", "QiB"];
+/* eslint-enable @stylistic/js/array-element-newline */
+
 /**
  * Formats the given size value using either SI (kB, MB, etc.) or IEC (KiB, MiB, etc.) units.
  *
@@ -11,11 +16,6 @@ const formatSizeInBytes = (
     useSiUnits: boolean = true,
     numFractionalDigits: number = 1
 ): string => {
-    /* eslint-disable @stylistic/js/array-element-newline */
-    const SI_UNITS = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "RB", "QB"];
-    const IEC_UNITS = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB", "RiB", "QiB"];
-    /* eslint-enable @stylistic/js/array-element-newline */
-
     const units = useSiUnits ?
         SI_UNITS :
         IEC_UNITS;
@@ -23,12 +23,13 @@ const formatSizeInBytes = (
         10 ** 3 :
         2 ** 10;
 
-    let unitIdx = 0;
     const multiplier = 10 ** numFractionalDigits;
-
+    let unitIdx = 0;
     while (unitIdx < units.length - 1) {
         const roundedValue = Math.round(Math.abs(value) * multiplier) / multiplier;
-        if (roundedValue < divisor) break;
+        if (roundedValue < divisor) {
+            break;
+        }
         value /= divisor;
         unitIdx++;
     }
