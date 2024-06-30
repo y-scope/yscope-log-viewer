@@ -7,15 +7,18 @@
  */
 const getBasenameFromUrlOrDefault = (
     urlString: string,
-    defaultFileName: string = "Unknown Filename"
+    defaultFileName: string = "Unknown filename"
 ): string => {
     let basename = defaultFileName;
     try {
         const url = new URL(urlString);
         const parts = url.pathname.split("/");
+
+        // Explicit cast since typescript thinks `parts.pop()` can be undefined, but it can't be
+        // since `parts` can't be empty.
         basename = parts.pop() as string;
     } catch (e) {
-        console.error("Failed to parse basename.", e);
+        console.error(`Failed to parse basename from ${urlString}.`, e);
     }
 
     return basename;
