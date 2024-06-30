@@ -6,10 +6,10 @@ const IEC_UNITS = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB", 
 /**
  * Formats the given size value using either SI (kB, MB, etc.) or IEC (KiB, MiB, etc.) units.
  *
- * @param value The input value in bytes
- * @param useSiUnits Whether to use SI units (default: true)
- * @param numFractionalDigits Number of digits to keep after the decimal point (default: 1)
- * @return The value formatted as "<value> <unit>"
+ * @param value The input value in bytes.
+ * @param useSiUnits Whether to use SI units.
+ * @param numFractionalDigits Number of digits to keep after the decimal point.
+ * @return The value formatted as "<value> <unit>".
  */
 const formatSizeInBytes = (
     value: number,
@@ -19,10 +19,13 @@ const formatSizeInBytes = (
     const units = useSiUnits ?
         SI_UNITS :
         IEC_UNITS;
+    /* eslint-disable no-magic-numbers */
     const divisor = useSiUnits ?
         10 ** 3 :
         2 ** 10;
+    /* eslint-enable no-magic-numbers */
 
+    // eslint-disable-next-line no-magic-numbers
     const multiplier = 10 ** numFractionalDigits;
     let unitIdx = 0;
     while (unitIdx < units.length - 1) {
@@ -31,7 +34,7 @@ const formatSizeInBytes = (
             break;
         }
         value /= divisor;
-        unitIdx++;
+        ++unitIdx;
     }
 
     return `${value.toFixed(numFractionalDigits)} ${units[unitIdx]}`;
