@@ -1,5 +1,5 @@
 /**
- * Type of values in JSON structures.
+ * Type for values in a JSON object/array.
  * Reference: https://www.json.org/json-en.html
  */
 type JsonValue = null |
@@ -10,7 +10,7 @@ type JsonValue = null |
     Array<JsonValue>;
 
 /**
- * Type of JSON object structure, which is a collection of name/value pairs.
+ * JSON object type.
  * Reference: https://www.json.org/json-en.html
  */
 type JsonObject = { [key: string]: JsonValue };
