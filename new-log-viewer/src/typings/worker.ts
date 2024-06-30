@@ -30,8 +30,7 @@ type CursorType = {
 }[keyof CursorArgMap];
 
 /**
- * Type mapping the first line number of each log event to the log event
- * number.
+ * Type mapping the first line number of each log event to the log event number.
  */
 type BeginLineNumToLogEventNumMap = Map<number, number>;
 
