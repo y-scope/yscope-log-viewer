@@ -78,7 +78,7 @@ class LogFileManager {
             throw new Error("loadFile() must be first called.");
         }
 
-        const {startLogEventNum, endLogEventNum} = this.#getRangeFrom(cursor);
+        const {startLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
         const results = this.#decoder.decode(startLogEventNum - 1, endLogEventNum);
         if (null === results) {
             throw new Error("Error occurred during decoding." +
@@ -142,7 +142,7 @@ class LogFileManager {
      * @return The start and end log event numbers within the range.
      * @throws {Error} If the type of cursor is not supported.
      */
-    #getRangeFrom (cursor: CursorType) {
+    #getCursorRange (cursor: CursorType) {
         const {code, args} = cursor;
         let startLogEventNum: number;
 
