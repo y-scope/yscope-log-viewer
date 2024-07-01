@@ -144,20 +144,21 @@ class LogFileManager {
      */
     #getCursorRange (cursor: CursorType) {
         const {code, args} = cursor;
-        let beginLogEventNum: number;
+        let beginLogEventIdx: number;
 
         switch (code) {
             case CURSOR_CODE.LAST_EVENT:
-                beginLogEventNum =
-                    (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
+                beginLogEventIdx =
+                    (Math.floor((this.#numEvents - 1) / this.#pageSize) * this.#pageSize);
                 break;
             case CURSOR_CODE.PAGE_NUM:
-                beginLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
+                beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
                 break;
             default:
                 throw new Error("other types of cursor not yet supported");
         }
 
+        const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
         return {beginLogEventNum, endLogEventNum};
     }
