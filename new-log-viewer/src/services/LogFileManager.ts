@@ -45,7 +45,7 @@ class LogFileManager {
             this.#fileData = await getUint8ArrayFrom(fileSrc, () => null);
         } else {
             // TODO: support file loading via Open / Drag-n-drop
-            throw new Error("Read from File not yet supported");
+            throw new Error("Read from file not yet supported");
         }
 
         this.#initDecoder();
@@ -66,7 +66,7 @@ class LogFileManager {
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
-     * @throws {Error} - If the loadFile method has not been called before this method.
+     * @throws {Error} if the `loadFile` method has not been called before this method.
      */
     loadPage (cursor: CursorType): {
         logs: string,
@@ -110,7 +110,7 @@ class LogFileManager {
     }
 
     /**
-     * Constructs and a decoder instance based on the file extension and let it build an index.
+     * Constructs a decoder instance based on the file extension.
      *
      * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
      */
@@ -122,7 +122,7 @@ class LogFileManager {
         if (this.#fileName.endsWith(".jsonl")) {
             this.#decoder = new JsonlDecoder(this.#fileData);
         } else {
-            throw new Error(`A decoder cannot be found for ${this.#fileName}`);
+            throw new Error(`No decoder supports ${this.#fileName}`);
         }
 
         if (this.#fileData.length > MAX_V8_STRING_LENGTH) {
@@ -136,13 +136,13 @@ class LogFileManager {
     };
 
     /**
-     * Retrieves the range of log event numbers based on the given cursor.
+     * Gets the range of log event numbers for the page containing the given cursor.
      *
      * @param cursor The cursor object containing the code and arguments.
-     * @return The start and end log event numbers within the range.
-     * @throws {Error} If the type of cursor is not supported.
+     * @return The range.
+     * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorRange (cursor: CursorType) {
+    #getCursorRange (cursor: CursorType): {beginLogEventNum: number, endLogEventNum: number} {
         const {code, args} = cursor;
         let beginLogEventIdx: number;
 
@@ -155,7 +155,7 @@ class LogFileManager {
                 beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
                 break;
             default:
-                throw new Error("other types of cursor not yet supported");
+                throw new Error(`Unsupported cursor type: ${code}`);
         }
 
         const beginLogEventNum = beginLogEventIdx + 1;
