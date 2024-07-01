@@ -69,7 +69,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
         } else {
             postResp(WORKER_RESP_CODE.NOTIFICATION, {
                 logLevel: LOG_LEVEL.FATAL,
-                message: "An error occurred in the worker but cannot be serialized. " +
+                message: "An error occurred in the worker that cannot be serialized. " +
                 `Check the browser console for more details. Type: ${typeof e}`,
             });
             console.error(e);
