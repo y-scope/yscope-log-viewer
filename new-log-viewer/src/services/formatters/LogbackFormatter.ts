@@ -56,12 +56,13 @@ class LogbackFormatter implements Formatter {
      * @return An array containing the formatted log event timestamp and message.
      */
     formatLogEvent (logEvent: JsonObject): TimestampAndMessageType {
+        const timestamp = this.#parseTimestamp(logEvent);
         const input = this.#formatString;
-        let [timestamp, formatted] = this.#extractAndFormatTimestamp(input, logEvent);
+        let formatted = this.#formatTimestamp(timestamp, input);
         formatted = this.#formatVariables(formatted, logEvent);
 
         return [
-            timestamp,
+            timestamp.valueOf(),
             formatted,
         ];
     }
@@ -105,26 +106,20 @@ class LogbackFormatter implements Formatter {
         }
     }
 
-    /**
-     * Extracts the timestamp from the log event and formats the input string with it.
-     *
-     * @param input The input string to format.
-     * @param logEvent The log event containing the timestamp.
-     * @return An array containing the extracted timestamp and the formatted input string.
-     */
-    #extractAndFormatTimestamp (input: string, logEvent: JsonObject): [number, string] {
+    #parseTimestamp (logEvent: JsonObject): dayjs.Dayjs {
         let timestamp = logEvent[this.#timestampKey];
         if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
             timestamp = INVALID_TIMESTAMP_VALUE;
         }
-        const dayjsObj = dayjs.utc(timestamp);
-        const formattedDate = dayjsObj.format(this.#dateFormat);
-        input = input.replace(this.#datePattern, formattedDate);
 
-        return [
-            dayjsObj.valueOf(),
-            input,
-        ];
+        return dayjs.utc(timestamp);
+    }
+
+    #formatTimestamp (timestamp: dayjs.Dayjs, formatString: string): string {
+        const formattedDate = timestamp.format(this.#dateFormat);
+        formatString = formatString.replace(this.#datePattern, formattedDate);
+
+        return formatString;
     }
 
     /**
