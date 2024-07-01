@@ -45,8 +45,8 @@ class LogbackFormatter implements Formatter {
         // Remove new line
         this.#formatString = this.#formatString.replace("%n", "");
 
-        this.#extractDateFormat();
-        this.#extractKeys();
+        this.#parseDateFormat();
+        this.#parseKeys();
     }
 
     /**
@@ -69,7 +69,7 @@ class LogbackFormatter implements Formatter {
     /**
      * Extracts date format from the format string and converts that into a Day.js compatible one.
      */
-    #extractDateFormat () {
+    #parseDateFormat () {
         const dateFormatMatch = this.#formatString.match(/%d\{(.+?)}/);
         if (null === dateFormatMatch) {
             console.warn("Unable to find date format string in #formatString:", this.#formatString);
@@ -93,7 +93,7 @@ class LogbackFormatter implements Formatter {
      * Extracts all placeholders (expected LogEvent keys) in the format string with a regular
      * expression.
      */
-    #extractKeys () {
+    #parseKeys () {
         const placeholderRegex = /%([\w.]+)/g;
         let match;
         while (null !== (match = placeholderRegex.exec(this.#formatString))) {
