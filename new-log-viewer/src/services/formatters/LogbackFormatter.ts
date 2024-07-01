@@ -78,14 +78,13 @@ class LogbackFormatter implements Formatter {
             return;
         }
 
-        // e.g. "%d{yyyy-MM-dd HH:mm:ss.SSS}", "yyyy-MM-dd HH:mm:ss.SSS"
-        const [pattern, dateFormat] = dateFormatMatch;
-        this.#datePattern = pattern;
-        if ("undefined" === typeof dateFormat) {
-            console.error("Unexpected undefined dateFormat");
+        // E.g. "%d{yyyy-MM-dd HH:mm:ss.SSS}", "yyyy-MM-dd HH:mm:ss.SSS"
+        // Explicit cast since typescript thinks `dateFormat` can be undefined, but it can't be
+        // since the pattern contains a capture group.
+        const [pattern, dateFormat] =
+            <[pattern: RegExpMatchArray[0], dateFormat: string]>dateFormatMatch;
 
-            return;
-        }
+        this.#datePattern = pattern;
 
         this.#dateFormat = convertDateTimeFormatterPatternToDayJs(dateFormat);
     }
@@ -96,13 +95,13 @@ class LogbackFormatter implements Formatter {
      */
     #parseKeys () {
         const placeholderRegex = /%([\w.]+)/g;
-        let match;
-        while (null !== (match = placeholderRegex.exec(this.#formatString))) {
-            // e.g., "%thread", "thread"
+        for (const match of this.#formatString.matchAll(placeholderRegex)) {
+            // E.g., "%thread", "thread"
             const [, propName] = match;
-            if ("undefined" !== typeof propName) {
-                this.#keys.push(propName);
-            }
+
+            // Explicit cast since typescript thinks `key` can be undefined, but it can't be
+            // since the pattern contains a capture group.
+            this.#keys.push(propName as string);
         }
     }
 
