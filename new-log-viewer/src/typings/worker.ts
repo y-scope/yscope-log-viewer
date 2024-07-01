@@ -1,21 +1,38 @@
+import {DecoderOptionsType} from "./decoders";
+import {LOG_LEVEL} from "./logs";
+
+
 /**
  * Type of input file, which can be either a URL string or a File object.
  */
 type FileSrcType = string | File;
 
 /**
- * Type of cursor used for locating some log event and navigating across pages.
- * - null: the last event
- * - timestamp: the first event that has a timestamp >= the given value
- * - pageNum: the first event on the given page
+ * Enum of cursors used for locating some log event and navigating across pages.
+ * - LAST_EVENT: the last event
+ * - TIMESTAMP: the first event that has a timestamp >= the given value
+ * - PAGE_NUM: the first event on the given page
  */
-type CursorType = null | { timestamp: number } | { pageNum: number };
+enum CURSOR_CODE {
+    LAST_EVENT = "lastEvent",
+    TIMESTAMP = "timestamp",
+    PAGE_NUM = "pageNum"
+}
+
+type CursorArgMap = {
+    [CURSOR_CODE.LAST_EVENT]: null;
+    [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number };
+};
+
+type CursorType = {
+    [T in keyof CursorArgMap]: { code: T, args: CursorArgMap[T] };
+}[keyof CursorArgMap];
 
 /**
- * Type mapping the first line number of each log event to the log event
- * number.
+ * Type mapping the first line number of each log event to the log event number.
  */
-type LineNumLogEventNumMap = Map<number, number>;
+type BeginLineNumToLogEventNumMap = Map<number, number>;
 
 /**
  * Enum of the protocol code for communications between the renderer and MainWorker.
@@ -26,7 +43,8 @@ enum WORKER_REQ_CODE {
 
 enum WORKER_RESP_CODE {
     PAGE_DATA = "pageData",
-    NUM_EVENTS = "numEvents"
+    NUM_EVENTS = "numEvents",
+    NOTIFICATION = "notification"
 }
 
 type WorkerReqMap = {
@@ -34,17 +52,22 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
+        decoderOptions: DecoderOptionsType
     };
 };
 
 type WorkerRespMap = {
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
-        lines: LineNumLogEventNumMap,
-        startLogEventNum: number
+        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+        cursorLineNum: number
     };
     [WORKER_RESP_CODE.NUM_EVENTS]: {
         numEvents: number
+    };
+    [WORKER_RESP_CODE.NOTIFICATION]: {
+        logLevel: LOG_LEVEL,
+        message: string
     };
 };
 
@@ -65,12 +88,14 @@ type MainWorkerRespMessage = {
 }[keyof WorkerRespMap];
 
 export {
+    CURSOR_CODE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
 export type {
+    BeginLineNumToLogEventNumMap,
+    CursorType,
     FileSrcType,
-    LineNumLogEventNumMap,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
     WorkerReq,
