@@ -14,12 +14,13 @@ interface JsonlDecoderOptionsType {
 type DecoderOptionsType = JsonlDecoderOptionsType;
 
 /**
- * Type of the decoded log event.
+ * Type of the decoded log event. We use an array rather than object so that it's easier to return
+ * results from WASM-based decoders.
  *
  * @property message
  * @property timestamp
  * @property level
- * @property logEventNum
+ * @property number
  */
 type DecodeResultType = [string, number, number, number];
 
@@ -33,7 +34,7 @@ interface Decoder {
     buildIdx(): number;
 
     /**
-     * Sets options before the decoder decodes log events into formatted text.
+     * Sets options for the decoder.
      *
      * @param options
      * @return Whether the options were successfully set.
@@ -41,11 +42,12 @@ interface Decoder {
     setDecoderOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decodes a given range of results.
+     * Decodes the log events in the range `[beginIdx, endIdx)`.
      *
-     * @param beginIdx Beginning point of the range.
-     * @param endIdx Ending point of the range.
-     * @return An array of the results, or null if any error occurs.
+     * @param beginIdx
+     * @param endIdx
+     * @return The decoded log events on success or null if any log event in the range doesn't exist
+     * (e.g., the range exceeds the number of log events in the file).
      */
     decode(beginIdx: number, endIdx: number): DecodeResultType[] | null;
 }
