@@ -87,7 +87,7 @@ class JsonlDecoder implements Decoder {
                 return null;
             }
             const [timestamp, formatted] = this.#formatter.formatLogEvent(logEvent);
-            const logLevel = this.#extractLogLevel(logEvent);
+            const logLevel = this.#parseLogLevel(logEvent);
             results.push([
                 formatted,
                 timestamp,
@@ -105,7 +105,7 @@ class JsonlDecoder implements Decoder {
      * @param logEvent The log event containing the log level.
      * @return The extracted log level.
      */
-    #extractLogLevel (logEvent: JsonObject): number {
+    #parseLogLevel (logEvent: JsonObject): number {
         let logLevel = LOG_LEVEL.NONE;
         const logLevelStr: string = logEvent[this.#logLevelKey] as string;
         if (false === (logLevelStr in LOG_LEVEL)) {
