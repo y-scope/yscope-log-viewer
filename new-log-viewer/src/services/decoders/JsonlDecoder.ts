@@ -9,6 +9,10 @@ import {LOG_LEVEL} from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
+/**
+ * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for
+ * properties that are specific to log events (compared to generic JSON records).
+ */
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
@@ -28,12 +32,6 @@ class JsonlDecoder implements Decoder {
         this.#dataArray = dataArray;
     }
 
-    /**
-     * Sets the decode options for the decoder to understand the JSON structure.
-     *
-     * @param options The options for decoding the JSONL log data.
-     * @return Whether the options were successfully set.
-     */
     setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
         this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
@@ -68,12 +66,12 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Decodes log events from the #logEvents array and adds them to the results array.
+     * Decodes the log events in the range `[beginIdx, endIdx)`.
      *
-     * @param beginIdx The index in the #logEvents array at which to start decoding.
-     * @param endIdx The index in the #logEvents array at which to stop decoding.
-     * @return True if the decoding was successful, false otherwise.
-     * @throws {Error} if setDecoderOptions() was not invoked before calling this.
+     * @param beginIdx
+     * @param endIdx
+     * @return The decoded log events on success, null otherwise.
+     * @throws {Error} if setDecodeOptions() was not invoked before calling this.
      */
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
         if (null === this.#formatter) {
@@ -100,10 +98,10 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Extracts the log level from the given log event.
+     * Parses the log level from the given log event.
      *
-     * @param logEvent The log event containing the log level.
-     * @return The extracted log level.
+     * @param logEvent
+     * @return The parsed log level.
      */
     #parseLogLevel (logEvent: JsonObject): number {
         let logLevel = LOG_LEVEL.NONE;
