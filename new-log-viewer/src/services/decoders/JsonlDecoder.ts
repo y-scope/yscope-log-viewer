@@ -105,10 +105,19 @@ class JsonlDecoder implements Decoder {
      */
     #parseLogLevel (logEvent: JsonObject): number {
         let logLevel = LOG_LEVEL.NONE;
-        const logLevelStr: string = logEvent[this.#logLevelKey] as string;
-        if (false === (logLevelStr in LOG_LEVEL)) {
-            console.error(`Unable to find log level from key ${this.#logLevelKey}` +
-                ` of type ${typeof logLevelStr}`);
+
+        const parsedLogLevel = logEvent[this.#logLevelKey];
+        if ("undefined" === typeof parsedLogLevel) {
+            console.error(`${this.#logLevelKey} doesn't exist in log event.`);
+
+            return logLevel;
+        }
+
+        const logLevelStr = "object" === typeof parsedLogLevel ?
+            JSON.stringify(parsedLogLevel) :
+            String(parsedLogLevel);
+        if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
+            console.error(`${logLevelStr} doesn't match any known log level.`);
         } else {
             logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
         }
