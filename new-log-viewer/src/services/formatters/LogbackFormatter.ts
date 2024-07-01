@@ -10,18 +10,21 @@ import {INVALID_TIMESTAMP_VALUE} from "../../typings/logs";
 
 
 /**
- * Converts a Logback date format string to a Day.js date format string.
+ * Converts a *simple* java.time.format.DateTimeFormatter pattern to a Day.js date format string.
  *
- * @param dateFormat The Logback date format string to convert.
+ * NOTE: This method doesn't handle all possible patterns. Check the implementation to determine
+ * what's supported.
+ *
+ * @param pattern
  * @return The corresponding Day.js date format string.
  */
-const convertLogbackDateFormatToDayjs = (dateFormat: string): string => {
-    dateFormat = dateFormat.replace("yyyy", "YYYY");
-    dateFormat = dateFormat.replace("yy", "YY");
-    dateFormat = dateFormat.replace("dd", "D");
-    dateFormat = dateFormat.replace("d", "D");
+const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
+    pattern = pattern.replace("yyyy", "YYYY");
+    pattern = pattern.replace("yy", "YY");
+    pattern = pattern.replace("dd", "D");
+    pattern = pattern.replace("d", "D");
 
-    return dateFormat;
+    return pattern;
 };
 
 class LogbackFormatter implements Formatter {
@@ -84,7 +87,7 @@ class LogbackFormatter implements Formatter {
             return;
         }
 
-        this.#dateFormat = convertLogbackDateFormatToDayjs(dateFormat);
+        this.#dateFormat = convertDateTimeFormatterPatternToDayJs(dateFormat);
     }
 
     /**
