@@ -6,9 +6,9 @@ interface LogbackFormatterOptionsType {
     timestampKey: string,
 }
 
-type FormatterOptionsType = LogbackFormatterOptionsType
+type FormatterOptionsType = LogbackFormatterOptionsType;
 
-type TimestampAndMessageType = [number, string]
+type TimestampAndMessageType = [number, string];
 
 interface Formatter {
     formatLogEvent: (jsonObject: JsonObject) => TimestampAndMessageType
