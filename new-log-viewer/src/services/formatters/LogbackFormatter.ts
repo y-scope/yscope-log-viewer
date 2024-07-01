@@ -28,14 +28,13 @@ const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
 };
 
 class LogbackFormatter implements Formatter {
-    #formatString: string =
-        "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n";
+    #formatString: string;
 
-    #datePattern: string = "%d{yyyy-MM-dd HH:mm:ss.SSS}";
+    #datePattern: string = "";
 
-    #dateFormat: string = "YYYY-MM-DD HH:mm:ss.SSS ZZ";
+    #dateFormat: string = "";
 
-    #timestampKey: string = "ts";
+    #timestampKey: string;
 
     #keys: string[] = [];
 
