@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 
 import {
-    FormatOptionsType,
     Formatter,
+    FormatterOptionsType,
     TimestampAndMessageType,
 } from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
@@ -36,7 +36,7 @@ class LogbackFormatter implements Formatter {
 
     #keys: string[] = [];
 
-    constructor (options: FormatOptionsType) {
+    constructor (options: FormatterOptionsType) {
         this.#formatString = options.formatString;
         this.#timestampKey = options.timestampKey;
 

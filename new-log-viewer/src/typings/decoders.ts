@@ -5,13 +5,13 @@
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecodeOptionsType {
+interface JsonlDecoderOptionsType {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
 }
 
-type DecodeOptionsType = JsonlDecodeOptionsType;
+type DecoderOptionsType = JsonlDecoderOptionsType;
 
 /**
  * Type of the decoded log event.
@@ -38,7 +38,7 @@ interface Decoder {
      * @param options
      * @return Whether the options were successfully set.
      */
-    setDecodeOptions(options: DecodeOptionsType): boolean;
+    setDecoderOptions(options: DecoderOptionsType): boolean;
 
     /**
      * Decodes a given range of results.
@@ -52,8 +52,8 @@ interface Decoder {
 
 
 export type {
-    DecodeOptionsType,
     Decoder,
     DecodeResultType,
-    JsonlDecodeOptionsType,
+    DecoderOptionsType,
+    JsonlDecoderOptionsType,
 };

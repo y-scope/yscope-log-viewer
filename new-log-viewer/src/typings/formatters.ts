@@ -1,12 +1,12 @@
 import {JsonObject} from "./js";
 
 
-interface LogbackFormatOptionsType {
+interface LogbackFormatterOptionsType {
     formatString: string,
     timestampKey: string,
 }
 
-type FormatOptionsType = LogbackFormatOptionsType
+type FormatterOptionsType = LogbackFormatterOptionsType
 
 type TimestampAndMessageType = [number, string]
 
@@ -15,8 +15,8 @@ interface Formatter {
 }
 
 export type {
-    FormatOptionsType,
     Formatter,
-    LogbackFormatOptionsType,
+    FormatterOptionsType,
+    LogbackFormatterOptionsType,
     TimestampAndMessageType,
 };

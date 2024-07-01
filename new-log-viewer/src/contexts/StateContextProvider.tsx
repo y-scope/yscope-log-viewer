@@ -118,7 +118,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
             cursor: {code: CURSOR_CODE.LAST_EVENT, args: null},
-            decodeOptions: {
+            decoderOptions: {
                 // TODO: these shall come from config provider
                 formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
                     " %message%n",

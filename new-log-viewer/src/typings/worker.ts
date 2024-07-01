@@ -1,4 +1,4 @@
-import {DecodeOptionsType} from "./decoders";
+import {DecoderOptionsType} from "./decoders";
 import {LOG_LEVEL} from "./logs";
 
 
@@ -52,7 +52,7 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        decodeOptions: DecodeOptionsType
+        decoderOptions: DecoderOptionsType
     };
 };
 

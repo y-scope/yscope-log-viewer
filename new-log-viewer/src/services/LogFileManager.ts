@@ -1,6 +1,6 @@
 import {
-    DecodeOptionsType,
     Decoder,
+    DecoderOptionsType,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -53,11 +53,11 @@ class LogFileManager {
         return this.#numEvents;
     }
 
-    setDecodeOptions (options: DecodeOptionsType) {
+    setDecoderOptions (options: DecoderOptionsType) {
         if (null === this.#decoder) {
             throw new Error("loadFile() must be first called.");
         }
-        this.#decoder.setDecodeOptions(options);
+        this.#decoder.setDecoderOptions(options);
     }
 
     /**

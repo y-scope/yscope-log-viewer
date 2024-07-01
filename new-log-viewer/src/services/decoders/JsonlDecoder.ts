@@ -1,7 +1,7 @@
 import {
     Decoder,
     DecodeResultType,
-    JsonlDecodeOptionsType,
+    JsonlDecoderOptionsType,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
@@ -34,7 +34,7 @@ class JsonlDecoder implements Decoder {
      * @param options The options for decoding the JSONL log data.
      * @return Whether the options were successfully set.
      */
-    setDecodeOptions (options: JsonlDecodeOptionsType): boolean {
+    setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
         this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
 
@@ -73,11 +73,11 @@ class JsonlDecoder implements Decoder {
      * @param beginIdx The index in the #logEvents array at which to start decoding.
      * @param endIdx The index in the #logEvents array at which to stop decoding.
      * @return True if the decoding was successful, false otherwise.
-     * @throws {Error} if setDecodeOptions() was not invoked before calling this.
+     * @throws {Error} if setDecoderOptions() was not invoked before calling this.
      */
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
         if (null === this.#formatter) {
-            throw new Error("Please setDecodeOptions() to init the formatter.");
+            throw new Error("Please setDecoderOptions() to init the formatter.");
         }
 
         const results: DecodeResultType[] = [];
