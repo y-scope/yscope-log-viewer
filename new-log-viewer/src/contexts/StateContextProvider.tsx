@@ -85,12 +85,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
                 const logEventNums = Array.from(args.beginLineNumToLogEventNum.values());
-                const lastLogEventNum = logEventNums[args.beginLineNumToLogEventNum.size - 1];
-                if ("undefined" !== typeof lastLogEventNum) {
-                    setLogEventNum(logEventNums[args.beginLineNumToLogEventNum.size - 1] as number);
-                } else {
-                    console.error("Last logEventNum unexpectedly undefined");
-                }
+
+                // Explicit cast since typescript thinks the last item of `logEventNums` can be
+                // undefined, but it can't be.
+                const lastLogEventNum = logEventNums.at(-1) as number;
+                setLogEventNum(lastLogEventNum);
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
