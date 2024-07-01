@@ -27,6 +27,10 @@ const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
     return pattern;
 };
 
+/**
+ * A formatter that uses a Logback-like format string to format log events into a string. See
+ * `LogbackFormatterOptionsType` for details about the format string.
+ */
 class LogbackFormatter implements Formatter {
     #formatString: string;
 
@@ -39,6 +43,7 @@ class LogbackFormatter implements Formatter {
     #keys: string[] = [];
 
     constructor (options: FormatterOptionsType) {
+        // NOTE: It's safe for these values to be empty strings.
         this.#formatString = options.formatString;
         this.#timestampKey = options.timestampKey;
 
@@ -50,15 +55,14 @@ class LogbackFormatter implements Formatter {
     }
 
     /**
-     * Formats the log event based on the provided log event object.
+     * Formats the given log event.
      *
-     * @param logEvent The log event object to be formatted.
-     * @return An array containing the formatted log event timestamp and message.
+     * @param logEvent
+     * @return The log event's timestamp and the formatted string.
      */
     formatLogEvent (logEvent: JsonObject): TimestampAndMessageType {
         const timestamp = this.#parseTimestamp(logEvent);
-        const input = this.#formatString;
-        let formatted = this.#formatTimestamp(timestamp, input);
+        let formatted = this.#formatTimestamp(timestamp, this.#formatString);
         formatted = this.#formatVariables(formatted, logEvent);
 
         return [
@@ -68,7 +72,8 @@ class LogbackFormatter implements Formatter {
     }
 
     /**
-     * Extracts date format from the format string and converts that into a Day.js compatible one.
+     * Parses the timestamp specifier from the format string and converts the date pattern into a
+     * Day.js-compatible one.
      */
     #parseDateFormat () {
         const dateFormatMatch = this.#formatString.match(/%d\{(.+?)}/);
@@ -90,21 +95,28 @@ class LogbackFormatter implements Formatter {
     }
 
     /**
-     * Extracts all placeholders (expected LogEvent keys) in the format string with a regular
-     * expression.
+     * Parses all non-Logback specifiers (expected log event keys) from the format string.
      */
     #parseKeys () {
-        const placeholderRegex = /%([\w.]+)/g;
-        for (const match of this.#formatString.matchAll(placeholderRegex)) {
+        const specifierRegex = /%([\w.]+)/g;
+        for (const match of this.#formatString.matchAll(specifierRegex)) {
             // E.g., "%thread", "thread"
-            const [, propName] = match;
+            const [, key] = match;
 
             // Explicit cast since typescript thinks `key` can be undefined, but it can't be
             // since the pattern contains a capture group.
-            this.#keys.push(propName as string);
+            this.#keys.push(key as string);
         }
     }
 
+    /**
+     * Gets the timestamp from the log event.
+     *
+     * @param logEvent
+     * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
+     * - the timestamp key doesn't exist in the log, or
+     * - the timestamp's value is not a number.
+     */
     #parseTimestamp (logEvent: JsonObject): dayjs.Dayjs {
         let timestamp = logEvent[this.#timestampKey];
         if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
@@ -114,6 +126,14 @@ class LogbackFormatter implements Formatter {
         return dayjs.utc(timestamp);
     }
 
+    /**
+     * Replaces the timestamp specifier in `formatString` with `timestamp`, formatted with
+     * `#dateFormat`.
+     *
+     * @param timestamp
+     * @param formatString
+     * @return The formatted string.
+     */
     #formatTimestamp (timestamp: dayjs.Dayjs, formatString: string): string {
         const formattedDate = timestamp.format(this.#dateFormat);
         formatString = formatString.replace(this.#datePattern, formattedDate);
@@ -122,28 +142,28 @@ class LogbackFormatter implements Formatter {
     }
 
     /**
-     * Replaces placeholders in the input string with corresponding properties from the logEvent
-     * object.
+     * Replaces format specifiers in `formatString` with the corresponding kv-pairs from `logEvent`.
      *
-     * @param input The input string with placeholders to be replaced.
-     * @param logEvent The log event object containing properties to replace the placeholders.
-     * @return - The input string with placeholders replaced by corresponding property values.
+     * @param formatString
+     * @param logEvent
+     * @return The formatted string.
      */
-    #formatVariables (input: string, logEvent: JsonObject): string {
-        for (const propName of this.#keys) {
-            if (false === (propName in logEvent)) {
+    #formatVariables (formatString: string, logEvent: JsonObject): string {
+        // TODO These don't handle the case where a variable value may contain a '%' itself
+        for (const key of this.#keys) {
+            if (false === (key in logEvent)) {
                 continue;
             }
-            const placeholder = `%${propName}`;
-            const propValue = logEvent[propName];
-            const propValueString = "object" === typeof propValue ?
-                JSON.stringify(propValue) :
-                String(propValue);
+            const specifier = `%${key}`;
+            const value = logEvent[key];
+            const valueStr = "object" === typeof value ?
+                JSON.stringify(value) :
+                String(value);
 
-            input = input.replace(placeholder, propValueString);
+            formatString = formatString.replace(specifier, valueStr);
         }
 
-        return `${input}\n`;
+        return `${formatString}\n`;
     }
 }
 
