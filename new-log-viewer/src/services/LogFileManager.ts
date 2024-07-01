@@ -78,11 +78,11 @@ class LogFileManager {
             throw new Error("loadFile() must be first called.");
         }
 
-        const {startLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
-        const results = this.#decoder.decode(startLogEventNum - 1, endLogEventNum);
+        const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
+        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
         if (null === results) {
             throw new Error("Error occurred during decoding." +
-                `startLogEventNum=${startLogEventNum}, ` +
+                `beginLogEventNum=${beginLogEventNum}, ` +
                 `endLogEventNum=${endLogEventNum}`);
         }
 
@@ -144,22 +144,22 @@ class LogFileManager {
      */
     #getCursorRange (cursor: CursorType) {
         const {code, args} = cursor;
-        let startLogEventNum: number;
+        let beginLogEventNum: number;
 
         switch (code) {
             case CURSOR_CODE.LAST_EVENT:
-                startLogEventNum =
+                beginLogEventNum =
                     (Math.floor(this.#numEvents / this.#pageSize) * this.#pageSize) + 1;
                 break;
             case CURSOR_CODE.PAGE_NUM:
-                startLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
+                beginLogEventNum = ((args.pageNum - 1) * this.#pageSize) + 1;
                 break;
             default:
                 throw new Error("other types of cursor not yet supported");
         }
 
-        const endLogEventNum = Math.min(this.#numEvents, startLogEventNum + this.#pageSize - 1);
-        return {startLogEventNum, endLogEventNum};
+        const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
+        return {beginLogEventNum, endLogEventNum};
     }
 }
 
