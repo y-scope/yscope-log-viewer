@@ -42,13 +42,15 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     try {
         switch (code) {
             case WORKER_REQ_CODE.LOAD_FILE: {
-                LOG_FILE_MANAGER = new LogFileManager(args.pageSize);
-                const numEvents = await LOG_FILE_MANAGER.loadFile(args.fileSrc);
-                LOG_FILE_MANAGER.setDecoderOptions(args.decoderOptions);
+                LOG_FILE_MANAGER = await LogFileManager.create(
+                    args.fileSrc,
+                    args.pageSize,
+                    args.decoderOptions
+                );
 
                 postResp(
                     WORKER_RESP_CODE.NUM_EVENTS,
-                    {numEvents}
+                    {numEvents: LOG_FILE_MANAGER.numEvents}
                 );
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
