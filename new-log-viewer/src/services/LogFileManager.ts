@@ -131,7 +131,7 @@ class LogFileManager {
             } due to a limitation in Chromium-based browsers.`);
         }
 
-        this.#numEvents = this.#decoder.buildIdx();
+        this.#numEvents = this.#decoder.getEstimatedNumEvents();
         console.log(`Found ${this.#numEvents} log events.`);
     };
 

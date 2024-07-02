@@ -1,3 +1,8 @@
+interface LogEventCount {
+    numValidEvents: number,
+    numInvalidEvents: number,
+}
+
 /**
  * Options for the JSONL decoder.
  *
@@ -27,11 +32,22 @@ type DecodeResultType = [string, number, number, number];
 interface Decoder {
 
     /**
-     * Scans the file to compute a total number of events.
+     * Retrieves an estimated number of log events based on the initial deserialization results.
      *
-     * @return the total number of log event.
+     * @return The estimated number of events.
      */
-    buildIdx(): number;
+    getEstimatedNumEvents(): number;
+
+    /**
+     * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @return Count of the successfully deserialized ("valid") log events and count of any
+     * undeserializable ("invalid") log events within the range, or null if any log event in the
+     * range doesn't exist (e.g., the range exceeds the number of log events in the file).
+     */
+    buildIdx(beginIdx: number, endIdx: number): LogEventCount | null;
 
     /**
      * Sets options for the decoder.
@@ -58,4 +74,5 @@ export type {
     DecodeResultType,
     DecoderOptionsType,
     JsonlDecoderOptionsType,
+    LogEventCount,
 };

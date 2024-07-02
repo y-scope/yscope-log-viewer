@@ -2,6 +2,7 @@ import {
     Decoder,
     DecodeResultType,
     JsonlDecoderOptionsType,
+    LogEventCount,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
@@ -16,20 +17,49 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
-    readonly #dataArray: Uint8Array;
-
     #logLevelKey: string = "level";
 
     #logEvents: JsonObject[] = [];
 
     #formatter: Formatter | null = null;
 
-    constructor (dataArray: Uint8Array | number, length?: number) {
-        if ("number" === typeof dataArray || "undefined" !== typeof length) {
-            throw new Error("Loading via array pointer is not supported in non-Emscripten " +
-                "compiled decoders");
+    /**
+     * Decodes the data array and process it line-by-line.
+     * Each line is parsed as a JSON object and added to the log events array.
+     * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     *
+     * @param dataArray
+     */
+    constructor (dataArray: Uint8Array) {
+        const text = JsonlDecoder.#textDecoder.decode(dataArray);
+        let beginIdx = 0;
+        while (beginIdx < text.length) {
+            const endIdx = text.indexOf("\n", beginIdx);
+            let line;
+            if (-1 === endIdx) {
+                line = text.substring(beginIdx);
+                beginIdx = text.length;
+            } else {
+                line = text.substring(beginIdx, endIdx);
+                beginIdx = endIdx + 1;
+            }
+
+            try {
+                const logEvent = JSON.parse(line) as JsonObject;
+                this.#logEvents.push(logEvent);
+            } catch (e) {
+                if (0 !== line.length) console.error(e, line);
+            }
         }
-        this.#dataArray = dataArray;
+    }
+
+    /**
+     * Retrieves the number of log events based on the deserialization results.
+     *
+     * @return The number of events.
+     */
+    getEstimatedNumEvents (): number {
+        return this.#logEvents.length;
     }
 
     setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
@@ -40,29 +70,22 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Builds an index by decoding the data array and splitting it into lines.
-     * Each line is parsed as a JSON object and added to the log events array.
-     * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     * Dummy implementation to build an index of log events in the range `[beginIdx, endIdx)`.
+     * Note in this decoder, the actual deserialization is done in the constructor.
      *
-     * @return The number of log events in the file.
+     * @param beginIdx
+     * @param endIdx
+     * @return Count of the valid and invalid events within the range.
      */
-    buildIdx (): number {
-        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
-        const split = text.split("\n");
-        for (const line of split) {
-            if (0 === line.length) {
-                continue;
-            }
-
-            try {
-                const logEvent = JSON.parse(line) as JsonObject;
-                this.#logEvents.push(logEvent);
-            } catch (e) {
-                console.error(e, line);
-            }
+    buildIdx (beginIdx: number, endIdx: number): LogEventCount | null {
+        if (0 > beginIdx || endIdx >= this.#logEvents.length) {
+            return null;
         }
 
-        return this.#logEvents.length;
+        return {
+            numValidEvents: endIdx - beginIdx,
+            numInvalidEvents: 0,
+        };
     }
 
     /**
@@ -116,6 +139,7 @@ class JsonlDecoder implements Decoder {
         const logLevelStr = "object" === typeof parsedLogLevel ?
             JSON.stringify(parsedLogLevel) :
             String(parsedLogLevel);
+
         if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
             console.error(`${logLevelStr} doesn't match any known log level.`);
         } else {
