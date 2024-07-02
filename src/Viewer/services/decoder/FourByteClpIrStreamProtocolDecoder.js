@@ -139,8 +139,6 @@ class FourByteClpIrStreamProtocolDecoder {
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_LONG:
                 timestampDelta = dataInputStream.readSignedLong();
                 break;
-            case PROTOCOL.PAYLOAD.TIMESTAMP_NULL:
-                return PROTOCOL.PAYLOAD.TIMESTAMP_NULL_VAL;
             default:
                 throw new Error("Timestamp missing from stream.");
         }
@@ -151,8 +149,7 @@ class FourByteClpIrStreamProtocolDecoder {
 
     readAndValidateEncodingType (dataInputStream) {
         for (let i = 0; i < PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER.length; ++i) {
-            if (PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER[i] !== dataInputStream.readUnsignedByte())
-            {
+            if (PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER[i] !== dataInputStream.readUnsignedByte()) {
                 throw new Error("IR stream doesn't use the four-byte encoding.");
             }
         }

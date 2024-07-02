@@ -82,7 +82,11 @@ class FourByteClpIrStreamReader {
             //  since it actually stores the log event in preparation for
             //  decoding whereas indexing the log event only needs to read
             //  the tag and length bytes.
-            const {timestamp, verbosityIx} = this._readLogEvent();
+            const logEvent = this._readLogEvent();
+            if (null === logEvent) {
+                return true;
+            }
+            const {timestamp, verbosityIx} = logEvent;
             logEventIndex.push({
                 "startIndex": beginIdx,
                 "endIndex": this._dataInputStream.getPos(),
@@ -117,7 +121,11 @@ class FourByteClpIrStreamReader {
         let verbosityIx;
         let numValidVars;
         try {
-            ({timestamp, verbosityIx, numValidVars} = this._readLogEvent());
+            const logEvent = this._readLogEvent();
+            if (null === logEvent) {
+                return true;
+            }
+            ({timestamp, verbosityIx, numValidVars} = logEvent);
         } catch (error) {
             if (error instanceof FourByteClpIrStreamReaderEOFError) {
                 return false;
@@ -201,8 +209,7 @@ class FourByteClpIrStreamReader {
             // FIXME: This only supports verbosity levels starting at the 2nd
             //  character of the log type
             if (uint8ArrayContains(this._logtype.getValueUint8Array(), 1,
-                verbosityUint8Array, 0))
-            {
+                verbosityUint8Array, 0)) {
                 return i;
             }
         }
@@ -213,9 +220,8 @@ class FourByteClpIrStreamReader {
 
     /**
      * Reads a log event from the stream
-     * @return {{timestamp: bigint, verbosityIx: number, numValidVars: number}}
-     * The log event's timestamp, verbosity index, and
-     * number of valid variables
+     * @return {{timestamp: bigint, verbosityIx: number, numValidVars: number} | null} The log event's timestamp,
+     * verbosity index, and number of valid variables; or null if no message is corresponding to the log event
      * @throws {FourByteClpIrStreamReaderEOFError} on EOF
      * @private
      */
@@ -223,6 +229,11 @@ class FourByteClpIrStreamReader {
         let tag = this._streamProtocolDecoder.readTag(this._dataInputStream);
         if (PROTOCOL.PAYLOAD.EOF === tag) {
             throw new FourByteClpIrStreamReaderEOFError();
+        } else if (PROTOCOL.PAYLOAD.TIMESTAMP_UTC_OFFSET_CHANGE === tag) {
+            // TODO: add support for UTC offset changes
+            // Drain the int64 packet
+            this._dataInputStream.readSignedLong();
+            return null;
         }
 
         // Read variables if present in this message
