@@ -86,7 +86,7 @@ class LogFileManager {
         const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
         const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
         if (null === results) {
-            throw new Error("Error occurred during decoding." +
+            throw new Error("Error occurred during decoding. " +
                 `beginLogEventNum=${beginLogEventNum}, ` +
                 `endLogEventNum=${endLogEventNum}`);
         }
@@ -168,9 +168,15 @@ class LogFileManager {
      * @throws {Error} if the type of cursor is not supported.
      */
     #getCursorRange (cursor: CursorType): {beginLogEventNum: number, endLogEventNum: number} {
-        const {code, args} = cursor;
-        let beginLogEventIdx: number;
+        if (0 === this.numEvents) {
+            return {
+                beginLogEventNum: 1,
+                endLogEventNum: 0,
+            };
+        }
 
+        let beginLogEventIdx: number;
+        const {code, args} = cursor;
         switch (code) {
             case CURSOR_CODE.LAST_EVENT:
                 beginLogEventIdx =

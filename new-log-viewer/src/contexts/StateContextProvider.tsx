@@ -86,9 +86,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
                 const logEventNums = Array.from(args.beginLineNumToLogEventNum.values());
 
-                // Explicit cast since typescript thinks the last item of `logEventNums` can be
-                // undefined, but it can't be.
-                const lastLogEventNum = logEventNums.at(-1) as number;
+                let lastLogEventNum = logEventNums.at(-1);
+                if ("undefined" === typeof lastLogEventNum) {
+                    lastLogEventNum = 1;
+                }
                 setLogEventNum(lastLogEventNum);
                 break;
             }

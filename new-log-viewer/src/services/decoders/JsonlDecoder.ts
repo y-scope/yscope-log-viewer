@@ -21,7 +21,8 @@ class JsonlDecoder implements Decoder {
 
     #logEvents: JsonObject[] = [];
 
-    #formatter: Formatter | null = null;
+    // @ts-expect-error #fomatter is set in the constructor by `setDecoderOptions()`
+    #formatter: Formatter;
 
     /**
      * Decodes the data array and process it line-by-line.
@@ -70,6 +71,12 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
+    /**
+     * Sets the options for the decoder.
+     *
+     * @param options
+     * @return true if the options were successfully set.
+     */
     setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
         this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
@@ -105,10 +112,6 @@ class JsonlDecoder implements Decoder {
      * @throws {Error} if setDecodeOptions() was not invoked before calling this.
      */
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
-        if (null === this.#formatter) {
-            throw new Error("Please setDecoderOptions() to init the formatter.");
-        }
-
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
             const logEvent = this.#logEvents[logEventIdx];
