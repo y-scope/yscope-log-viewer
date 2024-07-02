@@ -57,7 +57,9 @@ class JsonlDecoder implements Decoder {
                 const logEvent = JSON.parse(line) as JsonObject;
                 this.#logEvents.push(logEvent);
             } catch (e) {
-                if (0 !== line.length) console.error(e, line);
+                if (0 !== line.length) {
+                    console.error(e, line);
+                }
             }
         }
     }
