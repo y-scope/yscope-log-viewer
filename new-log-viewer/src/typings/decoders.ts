@@ -44,7 +44,7 @@ interface Decoder {
      * @param beginIdx
      * @param endIdx
      * @return Count of the successfully deserialized ("valid") log events and count of any
-     * undeserializable ("invalid") log events within the range, or null if any log event in the
+     * un-deserializable ("invalid") log events within the range; or null if any log event in the
      * range doesn't exist (e.g., the range exceeds the number of log events in the file).
      */
     buildIdx(beginIdx: number, endIdx: number): LogEventCount | null;
