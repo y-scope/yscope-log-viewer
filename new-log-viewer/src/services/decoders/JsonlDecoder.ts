@@ -67,13 +67,6 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
-    setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
-        this.#formatter = new LogbackFormatter(options);
-        this.#logLevelKey = options.logLevelKey;
-
-        return true;
-    }
-
     buildIdx (beginIdx: number, endIdx: number): LogEventCount | null {
         // This method is a dummy implementation since the actual deserialization is done in the
         // constructor.
@@ -86,6 +79,13 @@ class JsonlDecoder implements Decoder {
             numValidEvents: endIdx - beginIdx,
             numInvalidEvents: 0,
         };
+    }
+
+    setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
+        this.#formatter = new LogbackFormatter(options);
+        this.#logLevelKey = options.logLevelKey;
+
+        return true;
     }
 
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
