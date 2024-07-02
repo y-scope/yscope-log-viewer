@@ -47,7 +47,7 @@ class LogFileManager {
     ): Promise<LogFileManager> {
         const mgr = new LogFileManager(pageSize);
         await mgr.#loadFile(fileSrc);
-        mgr.setDecoderOptions(decoderOptions);
+        mgr.#initDecoder(decoderOptions);
 
         return mgr;
     }
@@ -131,22 +131,21 @@ class LogFileManager {
             // TODO: support file loading via Open / Drag-n-drop
             throw new Error("Read from file not yet supported");
         }
-
-        this.#initDecoder();
     }
 
     /**
      * Constructs a decoder instance based on the file extension.
      *
+     * @param decoderOptions Initial decoder options.
      * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
      */
-    #initDecoder = (): void => {
+    #initDecoder = (decoderOptions: DecoderOptionsType): void => {
         if (null === this.#fileName || null === this.#fileData) {
             throw new Error("Unexpected usage");
         }
 
         if (this.#fileName.endsWith(".jsonl")) {
-            this.#decoder = new JsonlDecoder(this.#fileData);
+            this.#decoder = new JsonlDecoder(this.#fileData, decoderOptions);
         } else {
             throw new Error(`No decoder supports ${this.#fileName}`);
         }

@@ -29,8 +29,16 @@ class JsonlDecoder implements Decoder {
      * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
      *
      * @param dataArray
+     * @param decoderOptions
      */
-    constructor (dataArray: Uint8Array) {
+    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
+        const isOptionSet = this.setDecoderOptions(decoderOptions);
+        if (false === isOptionSet) {
+            throw new Error(
+                `Initial decoder options are erroneous: ${JSON.stringify(decoderOptions)}`
+            );
+        }
+
         const text = JsonlDecoder.#textDecoder.decode(dataArray);
         let beginIdx = 0;
         while (beginIdx < text.length) {
