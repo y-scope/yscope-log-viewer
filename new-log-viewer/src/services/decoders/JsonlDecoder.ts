@@ -25,9 +25,8 @@ class JsonlDecoder implements Decoder {
     #formatter: Formatter;
 
     /**
-     * Decodes the data array and process it line-by-line.
-     * Each line is parsed as a JSON object and added to the log events array.
-     * If a line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     * Parses each line from the given data array as a JSON object and buffers it internally. If a
+     * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
      *
      * @param dataArray
      * @param decoderOptions
@@ -64,21 +63,10 @@ class JsonlDecoder implements Decoder {
         }
     }
 
-    /**
-     * Retrieves the number of log events based on the deserialization results.
-     *
-     * @return The number of events.
-     */
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
 
-    /**
-     * Sets the options for the decoder.
-     *
-     * @param options
-     * @return true if the options were successfully set.
-     */
     setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
         this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
@@ -86,15 +74,10 @@ class JsonlDecoder implements Decoder {
         return true;
     }
 
-    /**
-     * Dummy implementation to build an index of log events in the range `[beginIdx, endIdx)`.
-     * Note in this decoder, the actual deserialization is done in the constructor.
-     *
-     * @param beginIdx
-     * @param endIdx
-     * @return Count of the valid and invalid events within the range.
-     */
     buildIdx (beginIdx: number, endIdx: number): LogEventCount | null {
+        // This method is a dummy implementation since the actual deserialization is done in the
+        // constructor.
+
         if (0 > beginIdx || endIdx >= this.#logEvents.length) {
             return null;
         }
@@ -105,15 +88,11 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    /**
-     * Decodes the log events in the range `[beginIdx, endIdx)`.
-     *
-     * @param beginIdx
-     * @param endIdx
-     * @return The decoded log events on success, null otherwise.
-     * @throws {Error} if setDecodeOptions() was not invoked before calling this.
-     */
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
+        if (0 < beginIdx || endIdx > this.#logEvents.length) {
+            return null;
+        }
+
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
             const logEvent = this.#logEvents[logEventIdx];
