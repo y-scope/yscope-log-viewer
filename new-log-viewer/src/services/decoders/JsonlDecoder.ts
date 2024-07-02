@@ -118,10 +118,10 @@ class JsonlDecoder implements Decoder {
             if ("undefined" === typeof logEvent) {
                 return null;
             }
-            const [timestamp, formatted] = this.#formatter.formatLogEvent(logEvent);
+            const {timestamp, message} = this.#formatter.formatLogEvent(logEvent);
             const logLevel = this.#parseLogLevel(logEvent);
             results.push([
-                formatted,
+                message,
                 timestamp,
                 logLevel,
                 logEventIdx + 1,

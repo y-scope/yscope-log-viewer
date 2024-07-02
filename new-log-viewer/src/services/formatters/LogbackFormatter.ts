@@ -65,10 +65,10 @@ class LogbackFormatter implements Formatter {
         let formatted = this.#formatTimestamp(timestamp, this.#formatString);
         formatted = this.#formatVariables(formatted, logEvent);
 
-        return [
-            timestamp.valueOf(),
-            formatted,
-        ];
+        return {
+            timestamp: timestamp.valueOf(),
+            message: formatted,
+        };
     }
 
     /**
