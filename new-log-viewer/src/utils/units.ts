@@ -19,13 +19,10 @@ const formatSizeInBytes = (
     const units = useSiUnits ?
         SI_UNITS :
         IEC_UNITS;
-    /* eslint-disable no-magic-numbers */
     const divisor = useSiUnits ?
         10 ** 3 :
         2 ** 10;
-    /* eslint-enable no-magic-numbers */
 
-    // eslint-disable-next-line no-magic-numbers
     const multiplier = 10 ** numFractionalDigits;
     let unitIdx = 0;
     while (unitIdx < units.length - 1) {

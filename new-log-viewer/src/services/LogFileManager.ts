@@ -9,8 +9,8 @@ import {
     CursorType,
     FileSrcType,
 } from "../typings/worker";
-import {formatSizeInBytes} from "../utils/file";
 import {getUint8ArrayFrom} from "../utils/http";
+import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
