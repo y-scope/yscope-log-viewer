@@ -15,6 +15,9 @@ import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
+/**
+ * Class to manage the retrieval and decoding of a given log file.
+ */
 class LogFileManager {
     numEvents: number = 0;
 
@@ -31,8 +34,7 @@ class LogFileManager {
     }
 
     /**
-     * Creates a new instance of LogFileManager, which manages the retrieval and decoding of a
-     * given log file.
+     * Creates a new LogFileManager.
      *
      * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
      * File object.
