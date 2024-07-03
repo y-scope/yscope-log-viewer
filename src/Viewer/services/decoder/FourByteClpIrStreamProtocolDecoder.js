@@ -149,7 +149,8 @@ class FourByteClpIrStreamProtocolDecoder {
 
     readAndValidateEncodingType (dataInputStream) {
         for (let i = 0; i < PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER.length; ++i) {
-            if (PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER[i] !== dataInputStream.readUnsignedByte()) {
+            if (PROTOCOL.FOUR_BYTE_ENCODING_MAGIC_NUMBER[i] !== dataInputStream.readUnsignedByte())
+            {
                 throw new Error("IR stream doesn't use the four-byte encoding.");
             }
         }

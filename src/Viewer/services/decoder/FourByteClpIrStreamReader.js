@@ -220,8 +220,9 @@ class FourByteClpIrStreamReader {
 
     /**
      * Reads a log event from the stream
-     * @return {{timestamp: bigint, verbosityIx: number, numValidVars: number} | null} The log event's timestamp,
-     * verbosity index, and number of valid variables; or null if no message is corresponding to the log event
+     * @return {{timestamp: bigint, verbosityIx: number, numValidVars: number} | null}
+     * The log event's timestamp, verbosity index, and number of valid variables
+     * or null if no log events were read but the stream may contain more events
      * @throws {FourByteClpIrStreamReaderEOFError} on EOF
      * @private
      */
@@ -230,7 +231,7 @@ class FourByteClpIrStreamReader {
         if (PROTOCOL.PAYLOAD.EOF === tag) {
             throw new FourByteClpIrStreamReaderEOFError();
         } else if (PROTOCOL.PAYLOAD.TIMESTAMP_UTC_OFFSET_CHANGE === tag) {
-            // TODO: add support for UTC offset changes
+            // TODO: add formatting support for UTC offset changes
             // Drain the int64 packet
             this._dataInputStream.readSignedLong();
             return null;
