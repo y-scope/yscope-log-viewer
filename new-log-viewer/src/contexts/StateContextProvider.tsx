@@ -7,8 +7,9 @@ import React, {
 } from "react";
 
 import {
+    BeginLineNumToLogEventNumMap,
+    CURSOR_CODE,
     FileSrcType,
-    LineNumLogEventNumMap,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -17,10 +18,10 @@ import {
 
 
 interface StateContextType {
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     loadFile: (fileSrc: FileSrcType) => void,
     logData: string,
     logEventNum: number,
-    logLines: LineNumLogEventNumMap,
     numEvents: number,
     numPages: number,
     pageNum: number
@@ -30,11 +31,11 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 /**
  * Default values of the state object.
  */
-const StateDefaultValue = Object.freeze({
+const STATE_DEFAULT = Object.freeze({
+    beginLineNumToLogEventNum: new Map(),
     loadFile: () => null,
-    logData: "",
+    logData: "Loading...",
     logEventNum: 1,
-    logLines: new Map(),
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
@@ -53,10 +54,11 @@ interface StateContextProviderProps {
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const [logLines, setLogLines] = useState<LineNumLogEventNumMap>(StateDefaultValue.logLines);
-    const [logData, setLogData] = useState<string>(StateDefaultValue.logData);
-    const [numEvents, setNumEvents] = useState<number>(StateDefaultValue.numEvents);
-    const [logEventNum, setLogEventNum] = useState<number>(StateDefaultValue.logEventNum);
+    const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
+        useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
+    const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [logEventNum, setLogEventNum] = useState<number>(STATE_DEFAULT.logEventNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -79,13 +81,25 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
-            case WORKER_RESP_CODE.PAGE_DATA:
+            case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                setLogLines(args.lines);
-                setLogEventNum(args.startLogEventNum);
+                setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
+                const logEventNums = Array.from(args.beginLineNumToLogEventNum.values());
+
+                let lastLogEventNum = logEventNums.at(-1);
+                if ("undefined" === typeof lastLogEventNum) {
+                    lastLogEventNum = 1;
+                }
+                setLogEventNum(lastLogEventNum);
                 break;
+            }
             case WORKER_RESP_CODE.NUM_EVENTS:
                 setNumEvents(args.numEvents);
+                break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -104,7 +118,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
-            cursor: null,
+            cursor: {code: CURSOR_CODE.LAST_EVENT, args: null},
+            decoderOptions: {
+                // TODO: these shall come from config provider
+                formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
+                    " %message%n",
+                logLevelKey: "log.level",
+                timestampKey: "@timestamp",
+            },
         });
     }, [
         handleMainWorkerResp,
@@ -114,10 +135,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                beginLineNumToLogEventNum,
                 loadFile,
                 logData,
                 logEventNum,
-                logLines,
                 numEvents,
                 numPages,
                 pageNum,
@@ -130,4 +151,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
 
 export default StateContextProvider;
-export {StateContext};
+export {
+    PAGE_SIZE,
+    StateContext,
+};
