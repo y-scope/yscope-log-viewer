@@ -9,7 +9,10 @@ import {
     JsonObject,
     JsonValue,
 } from "../../typings/js";
-import {LOG_LEVEL} from "../../typings/logs";
+import {
+    INVALID_TIMESTAMP_VALUE,
+    LOG_LEVEL,
+} from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
@@ -86,7 +89,7 @@ class JsonlDecoder implements Decoder {
             let message: string;
             let logLevel: LOG_LEVEL;
             if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
-                timestamp = 0;
+                timestamp = INVALID_TIMESTAMP_VALUE;
                 message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
                 logLevel = LOG_LEVEL.NONE;
             } else {
