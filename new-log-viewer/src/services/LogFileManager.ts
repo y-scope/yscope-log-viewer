@@ -103,7 +103,6 @@ class LogFileManager {
      * Sets options for the decoder.
      *
      * @param options
-     * @throws {Error} if #loadFile() has not been called first.
      */
     setDecoderOptions (options: DecoderOptionsType) {
         this.#decoder.setDecoderOptions(options);
@@ -115,7 +114,6 @@ class LogFileManager {
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
-     * @throws {Error} if the `#loadFile` method has not been called before this method.
      */
     loadPage (cursor: CursorType): {
         logs: string,
@@ -160,7 +158,7 @@ class LogFileManager {
      *
      * @param decoderOptions Initial decoder options.
      * @return The constructed decoder.
-     * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
+     * @throws {Error} if a decoder cannot be found.
      */
     #initDecoder = (decoderOptions: DecoderOptionsType): Decoder => {
         let decoder: Decoder;
