@@ -78,6 +78,8 @@ class JsonlDecoder implements Decoder {
             return null;
         }
 
+        // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
+        // every iteration.
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
             let timestamp: number;
@@ -88,6 +90,9 @@ class JsonlDecoder implements Decoder {
                 message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
                 logLevel = LOG_LEVEL.NONE;
             } else {
+                // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
+                // but it shouldn't be since we performed a bounds check at the beginning of the
+                // method.
                 const logEvent = this.#logEvents[logEventIdx] as JsonObject;
                 (
                     {timestamp, message} = this.#formatter.formatLogEvent(logEvent)
