@@ -32,6 +32,7 @@ class JsonlDecoder implements Decoder {
     /**
      * @param dataArray
      * @param decoderOptions
+     * @throws {Error} if the initial decoder options are erroneous.
      */
     constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
         const isOptionSet = this.setDecoderOptions(decoderOptions);
