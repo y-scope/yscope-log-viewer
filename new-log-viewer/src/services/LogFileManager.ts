@@ -21,16 +21,33 @@ import JsonlDecoder from "./decoders/JsonlDecoder";
 class LogFileManager {
     readonly #pageSize: number;
 
-    #fileData: Uint8Array | null = null;
+    readonly #fileData: Uint8Array;
 
-    #fileName: string | null = null;
+    readonly #fileName: string;
 
-    #decoder: Decoder | null = null;
+    #decoder: Decoder;
 
     #numEvents: number = 0;
 
-    constructor (pageSize: number) {
+    /**
+     * Private constructor for LogFileManager. This is not intended to be invoked publicly.
+     * Instead, use LogFileManager.create() to create a new instance of the class.
+     *
+     * @param fileName
+     * @param fileData
+     * @param pageSize Page size for setting up pagination.
+     * @param decoderOptions Initial decoder options.
+     */
+    constructor (
+        fileName: string,
+        fileData: Uint8Array,
+        pageSize: number,
+        decoderOptions: DecoderOptionsType
+    ) {
+        this.#fileName = fileName;
+        this.#fileData = fileData;
         this.#pageSize = pageSize;
+        this.#decoder = this.#initDecoder(decoderOptions);
     }
 
     get numEvents () {
@@ -51,11 +68,35 @@ class LogFileManager {
         pageSize: number,
         decoderOptions: DecoderOptionsType
     ): Promise<LogFileManager> {
-        const mgr = new LogFileManager(pageSize);
-        await mgr.#loadFile(fileSrc);
-        mgr.#initDecoder(decoderOptions);
+        const {fileName, fileData} = await LogFileManager.#loadFile(fileSrc);
+        return new LogFileManager(fileName, fileData, pageSize, decoderOptions);
+    }
 
-        return mgr;
+    /**
+     * Loads a file from a given source and decodes it using the appropriate decoder based on the
+     * file extension.
+     *
+     * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
+     * File object.
+     * @return A promise that resolves with the number of log events found in the file.
+     * @throws {Error} If the file source type is not supported.
+     */
+    static async #loadFile (fileSrc: FileSrcType)
+        : Promise<{ fileName: string, fileData: Uint8Array }> {
+        let fileName: string;
+        let fileData: Uint8Array;
+        if ("string" === typeof fileSrc) {
+            fileName = getBasenameFromUrlOrDefault(fileSrc);
+            fileData = await getUint8ArrayFrom(fileSrc, () => null);
+        } else {
+            // TODO: support file loading via Open / Drag-n-drop
+            throw new Error("Read from file not yet supported");
+        }
+
+        return {
+            fileName,
+            fileData,
+        };
     }
 
     /**
@@ -65,9 +106,6 @@ class LogFileManager {
      * @throws {Error} if #loadFile() has not been called first.
      */
     setDecoderOptions (options: DecoderOptionsType) {
-        if (null === this.#decoder) {
-            throw new Error("#loadFile() must be first called.");
-        }
         this.#decoder.setDecoderOptions(options);
     }
 
@@ -85,9 +123,6 @@ class LogFileManager {
         cursorLineNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
-        if (null === this.#decoder) {
-            throw new Error("#loadFile() must be first called.");
-        }
 
         const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
         const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
@@ -121,37 +156,16 @@ class LogFileManager {
     }
 
     /**
-     * Loads a file from a given source and decodes it using the appropriate decoder based on the
-     * file extension.
-     *
-     * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
-     * File object.
-     * @return A promise that resolves with the number of log events found in the file.
-     * @throws {Error} If the file source type is not supported.
-     */
-    async #loadFile (fileSrc: FileSrcType) {
-        if ("string" === typeof fileSrc) {
-            this.#fileName = getBasenameFromUrlOrDefault(fileSrc);
-            this.#fileData = await getUint8ArrayFrom(fileSrc, () => null);
-        } else {
-            // TODO: support file loading via Open / Drag-n-drop
-            throw new Error("Read from file not yet supported");
-        }
-    }
-
-    /**
      * Constructs a decoder instance based on the file extension.
      *
      * @param decoderOptions Initial decoder options.
+     * @return The constructed decoder.
      * @throws {Error} if #fileName or #fileData hasn't been init, or a decoder cannot be found.
      */
-    #initDecoder = (decoderOptions: DecoderOptionsType): void => {
-        if (null === this.#fileName || null === this.#fileData) {
-            throw new Error("Unexpected usage");
-        }
-
+    #initDecoder = (decoderOptions: DecoderOptionsType): Decoder => {
+        let decoder: Decoder;
         if (this.#fileName.endsWith(".jsonl")) {
-            this.#decoder = new JsonlDecoder(this.#fileData, decoderOptions);
+            decoder = new JsonlDecoder(this.#fileData, decoderOptions);
         } else {
             throw new Error(`No decoder supports ${this.#fileName}`);
         }
@@ -162,8 +176,10 @@ class LogFileManager {
             } due to a limitation in Chromium-based browsers.`);
         }
 
-        this.#numEvents = this.#decoder.getEstimatedNumEvents();
+        this.#numEvents = decoder.getEstimatedNumEvents();
         console.log(`Found ${this.#numEvents} log events.`);
+
+        return decoder;
     };
 
     /**
@@ -173,7 +189,7 @@ class LogFileManager {
      * @return The range.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorRange (cursor: CursorType): {beginLogEventNum: number, endLogEventNum: number} {
+    #getCursorRange (cursor: CursorType): { beginLogEventNum: number, endLogEventNum: number } {
         if (0 === this.#numEvents) {
             return {
                 beginLogEventNum: 1,
