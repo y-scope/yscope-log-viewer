@@ -16,6 +16,32 @@ import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
 /**
+ * Loads a file from a given source.
+ *
+ * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
+ * object.
+ * @return A promise that resolves with the number of log events found in the file.
+ * @throws {Error} If the file source type is not supported.
+ */
+const loadFile = async (fileSrc: FileSrcType)
+    : Promise<{ fileName: string, fileData: Uint8Array }> => {
+    let fileName: string;
+    let fileData: Uint8Array;
+    if ("string" === typeof fileSrc) {
+        fileName = getBasenameFromUrlOrDefault(fileSrc);
+        fileData = await getUint8ArrayFrom(fileSrc, () => null);
+    } else {
+        // TODO: support file loading via Open / Drag-n-drop
+        throw new Error("Read from file not yet supported");
+    }
+
+    return {
+        fileName,
+        fileData,
+    };
+};
+
+/**
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
@@ -68,34 +94,8 @@ class LogFileManager {
         pageSize: number,
         decoderOptions: DecoderOptionsType
     ): Promise<LogFileManager> {
-        const {fileName, fileData} = await LogFileManager.#loadFile(fileSrc);
+        const {fileName, fileData} = await loadFile(fileSrc);
         return new LogFileManager(fileName, fileData, pageSize, decoderOptions);
-    }
-
-    /**
-     * Loads a file from a given source.
-     *
-     * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
-     * File object.
-     * @return A promise that resolves with the number of log events found in the file.
-     * @throws {Error} If the file source type is not supported.
-     */
-    static async #loadFile (fileSrc: FileSrcType)
-        : Promise<{ fileName: string, fileData: Uint8Array }> {
-        let fileName: string;
-        let fileData: Uint8Array;
-        if ("string" === typeof fileSrc) {
-            fileName = getBasenameFromUrlOrDefault(fileSrc);
-            fileData = await getUint8ArrayFrom(fileSrc, () => null);
-        } else {
-            // TODO: support file loading via Open / Drag-n-drop
-            throw new Error("Read from file not yet supported");
-        }
-
-        return {
-            fileName,
-            fileData,
-        };
     }
 
     /**
