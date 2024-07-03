@@ -95,10 +95,7 @@ class JsonlDecoder implements Decoder {
 
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
-            const logEvent = this.#logEvents[logEventIdx];
-            if ("undefined" === typeof logEvent) {
-                return null;
-            }
+            const logEvent = this.#logEvents[logEventIdx] as JsonObject;
             const {timestamp, message} = this.#formatter.formatLogEvent(logEvent);
             const logLevel = this.#parseLogLevel(logEvent);
             results.push([
