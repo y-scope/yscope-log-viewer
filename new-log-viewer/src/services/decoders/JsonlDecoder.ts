@@ -5,7 +5,10 @@ import {
     LogEventCount,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
-import {JsonObject} from "../../typings/js";
+import {
+    JsonObject,
+    JsonValue,
+} from "../../typings/js";
 import {LOG_LEVEL} from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
@@ -21,13 +24,12 @@ class JsonlDecoder implements Decoder {
 
     #logEvents: JsonObject[] = [];
 
+    #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
+
     // @ts-expect-error #fomatter is set in the constructor by `setDecoderOptions()`
     #formatter: Formatter;
 
     /**
-     * Parses each line from the given data array as a JSON object and buffers it internally. If a
-     * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
-     *
      * @param dataArray
      * @param decoderOptions
      */
@@ -38,29 +40,7 @@ class JsonlDecoder implements Decoder {
                 `Initial decoder options are erroneous: ${JSON.stringify(decoderOptions)}`
             );
         }
-
-        const text = JsonlDecoder.#textDecoder.decode(dataArray);
-        let beginIdx = 0;
-        while (beginIdx < text.length) {
-            const endIdx = text.indexOf("\n", beginIdx);
-            let line;
-            if (-1 === endIdx) {
-                line = text.substring(beginIdx);
-                beginIdx = text.length;
-            } else {
-                line = text.substring(beginIdx, endIdx);
-                beginIdx = endIdx + 1;
-            }
-
-            try {
-                const logEvent = JSON.parse(line) as JsonObject;
-                this.#logEvents.push(logEvent);
-            } catch (e) {
-                if (0 !== line.length) {
-                    console.error(e, line);
-                }
-            }
-        }
+        this.#deserialize(dataArray);
     }
 
     getEstimatedNumEvents (): number {
@@ -71,13 +51,17 @@ class JsonlDecoder implements Decoder {
         // This method is a dummy implementation since the actual deserialization is done in the
         // constructor.
 
-        if (0 > beginIdx || endIdx >= this.#logEvents.length) {
+        if (0 > beginIdx || this.#logEvents.length < endIdx) {
             return null;
         }
 
+        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
+            .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
+            .length;
+
         return {
-            numValidEvents: endIdx - beginIdx,
-            numInvalidEvents: 0,
+            numValidEvents: endIdx - beginIdx - numInvalidEvents,
+            numInvalidEvents: numInvalidEvents,
         };
     }
 
@@ -95,9 +79,21 @@ class JsonlDecoder implements Decoder {
 
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
-            const logEvent = this.#logEvents[logEventIdx] as JsonObject;
-            const {timestamp, message} = this.#formatter.formatLogEvent(logEvent);
-            const logLevel = this.#parseLogLevel(logEvent);
+            let timestamp: number;
+            let message: string;
+            let logLevel: LOG_LEVEL;
+            if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
+                timestamp = 0;
+                message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
+                logLevel = LOG_LEVEL.NONE;
+            } else {
+                const logEvent = this.#logEvents[logEventIdx] as JsonObject;
+                (
+                    {timestamp, message} = this.#formatter.formatLogEvent(logEvent)
+                );
+                logLevel = this.#parseLogLevel(logEvent);
+            }
+
             results.push([
                 message,
                 timestamp,
@@ -107,6 +103,43 @@ class JsonlDecoder implements Decoder {
         }
 
         return results;
+    }
+
+    /**
+     * Parses each line from the given data array as a JSON object and buffers it internally. If a
+     * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     *
+     * @param dataArray
+     */
+    #deserialize (dataArray: Uint8Array) {
+        const text = JsonlDecoder.#textDecoder.decode(dataArray);
+        let beginIdx = 0;
+        while (beginIdx < text.length) {
+            const endIdx = text.indexOf("\n", beginIdx);
+            const line = (-1 === endIdx) ?
+                text.substring(beginIdx) :
+                text.substring(beginIdx, endIdx);
+
+            beginIdx = (-1 === endIdx) ?
+                text.length :
+                endIdx + 1;
+
+            try {
+                const logEvent = JSON.parse(line) as JsonValue;
+                if ("object" !== typeof logEvent) {
+                    throw new Error("Unexpected non-object.");
+                }
+                this.#logEvents.push(logEvent as JsonObject);
+            } catch (e) {
+                if (0 === line.length) {
+                    continue;
+                }
+                console.error(e, line);
+                const currentLogEventIdx = this.#logEvents.length;
+                this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
+                this.#logEvents.push({});
+            }
+        }
     }
 
     /**
