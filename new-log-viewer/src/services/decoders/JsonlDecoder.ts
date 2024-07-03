@@ -89,7 +89,7 @@ class JsonlDecoder implements Decoder {
     }
 
     decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
-        if (0 < beginIdx || endIdx > this.#logEvents.length) {
+        if (0 > beginIdx || this.#logEvents.length < endIdx) {
             return null;
         }
 
