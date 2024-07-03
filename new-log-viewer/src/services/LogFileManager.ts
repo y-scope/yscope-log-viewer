@@ -73,8 +73,7 @@ class LogFileManager {
     }
 
     /**
-     * Loads a file from a given source and decodes it using the appropriate decoder based on the
-     * file extension.
+     * Loads a file from a given source.
      *
      * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
      * File object.
