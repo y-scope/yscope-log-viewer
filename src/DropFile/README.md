@@ -19,16 +19,16 @@ import {DropFile} from "./DropFile/DropFile";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
-    const [fileInfo, setFileInfo] = useState(null);
+    const [fileSrc, setFileSrc] = useState(null);
 
     const handleFileChange = (file) => {
-        setFileInfo(file);
+        setFileSrc(file);
     };
 
     return (
         <div id="app">
             <DropFile handleFileDrop={handleFileChange}>
-                <CustomComponent fileInfo={fileInfo}>
+                <CustomComponent fileSrc={fileSrc}>
             </DropFile>
         </div>
     );
