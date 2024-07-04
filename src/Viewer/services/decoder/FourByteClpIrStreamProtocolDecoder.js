@@ -139,8 +139,6 @@ class FourByteClpIrStreamProtocolDecoder {
             case PROTOCOL.PAYLOAD.TIMESTAMP_DELTA_SIGNED_LONG:
                 timestampDelta = dataInputStream.readSignedLong();
                 break;
-            case PROTOCOL.PAYLOAD.TIMESTAMP_NULL:
-                return PROTOCOL.PAYLOAD.TIMESTAMP_NULL_VAL;
             default:
                 throw new Error("Timestamp missing from stream.");
         }
