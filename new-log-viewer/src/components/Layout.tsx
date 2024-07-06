@@ -7,6 +7,7 @@ import {
     PAGE_SIZE,
     StateContext,
 } from "../contexts/StateContextProvider";
+import {UrlContext} from "../contexts/UrlContextProvider";
 
 
 /**
@@ -20,6 +21,12 @@ const Layout = () => {
         loadFile,
         logEventNum,
     } = useContext(StateContext);
+
+    const {
+        setSearchParamSet,
+        setHashParamSet,
+        copyToClipboard,
+    } = useContext(UrlContext);
 
     useEffect(() => {
         const urlSearchParams = new URLSearchParams(window.location.search);
