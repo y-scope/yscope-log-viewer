@@ -1,4 +1,4 @@
-import React, {
+import {
     createContext,
     useEffect,
     useState,
@@ -8,7 +8,10 @@ import React, {
 interface UrlContextType {
     setSearchParamSet: (searchParamSet: Record<string, string | null>) => void;
     setHashParamSet: (hashParamSet: Record<string, string | null>) => void;
-    copyToClipboard: (searchParamSet: Record<string, string | null>, hashParamSet: Record<string, string | null>) => void;
+    copyToClipboard: (
+        searchParamSet: Record<string, string | null>,
+        hashParamSet: Record<string, string | null>
+    ) => void;
 }
 
 const UrlContext = createContext <UrlContextType>({} as UrlContextType);
@@ -19,7 +22,9 @@ interface UrlContextProviderProps {
 }
 
 /**
- * Provides a context for managing URL parameters and hash values, including utilities for setting search and hash parameters, and copying the current URL with these parameters to the clipboard.
+ * Provides a context for managing URL parameters and hash values,
+ * including utilities for setting search and hash parameters,
+ * and copying the current URL with these parameters to the clipboard.
  *
  * @param children.children
  * @param children The child components that will have access to the context.
@@ -77,7 +82,10 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         window.history.pushState({}, "", newUrl.toString());
     };
 
-    const copyToClipboard = (searchParamSet: Record<string, string | null>, hashParamSet: Record<string, string | null>) => {
+    const copyToClipboard = (
+        searchParamSet: Record<string, string | null>,
+        hashParamSet: Record<string, string | null>
+    ) => {
         const newUrl = new URL(window.location.href);
         newUrl.search = setSearchParamSetHelper(searchParamSet).toString();
         newUrl.hash = setHashParamSetHelper(hashParamSet).toString();
