@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import config from "./config.json";
 import {DropFile} from "./DropFile/DropFile";
 import {ThemeContextProvider} from "./ThemeContext/ThemeContext";
+import {getAbsoluteUrl} from "./Viewer/services/utils";
 import {Viewer} from "./Viewer/Viewer";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -52,7 +53,8 @@ export function App () {
 
         const filePath = urlSearchParams.get("filePath");
         if (null !== filePath) {
-            setFileInfo(filePath);
+            const absoluteUrl = getAbsoluteUrl(filePath);
+            setFileInfo(absoluteUrl);
             setAppMode(APP_STATE.FILE_VIEW);
         } else {
             if (null !== config.defaultFileUrl) {

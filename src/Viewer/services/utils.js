@@ -44,6 +44,25 @@ const modifyPage = (action, currentPage, requestedPage, pages) => {
 };
 
 /**
+ * Returns an absolute URL of a given path relative to the window.location,
+ * if the given path is a relative reference.
+ *
+ * @param {string} path The path to be resolved.
+ * @return {string} The absolute URL as a string.
+ * @throws {Error} if the given `path` is a relative reference but invalid.
+ */
+const getAbsoluteUrl = (path) => {
+    try {
+        // eslint-disable-next-line no-new
+        new URL(path);
+    } catch (e) {
+        path = new URL(path, window.location.origin).href;
+    }
+
+    return path;
+};
+
+/**
  * Get modified URL from `window.location` based on the provided search and
  * hash parameters.
  *
@@ -147,4 +166,4 @@ function binarySearchWithTimestamp (timestamp, logEventMetadata) {
     return null;
 }
 
-export {binarySearchWithTimestamp, getModifiedUrl, isNumeric, modifyPage};
+export {binarySearchWithTimestamp, getAbsoluteUrl, getModifiedUrl, isNumeric, modifyPage};
