@@ -89,6 +89,7 @@ module.exports = {
             "buffer": require.resolve("buffer/"),
             "path": false,
             "fs": false,
+            "vm": false,
         },
         extensions: [".json", ".js", ".jsx"],
         modules: ["node_modules"],
