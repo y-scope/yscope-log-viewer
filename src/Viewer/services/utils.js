@@ -44,11 +44,12 @@ const modifyPage = (action, currentPage, requestedPage, pages) => {
 };
 
 /**
- * Returns an absolute URL of a given path relative to the window.location,
- * if the given path is a relative reference.
+ * Gets an absolute URL composed of a given path relative to the
+ * window.location, if the given path is a relative reference; otherwise
+ * the given path is returned verbatim.
  *
  * @param {string} path The path to be resolved.
- * @return {string} The absolute URL as a string.
+ * @return {string} The absolute URL of the given path.
  * @throws {Error} if the given `path` is a relative reference but invalid.
  */
 const getAbsoluteUrl = (path) => {
