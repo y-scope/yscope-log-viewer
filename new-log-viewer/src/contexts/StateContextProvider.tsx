@@ -1,6 +1,8 @@
 import React, {
     createContext,
     useCallback,
+    useContext,
+    useEffect,
     useMemo,
     useRef,
     useState,
@@ -15,6 +17,7 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
+import {UrlContext} from "./UrlContextProvider";
 
 
 interface StateContextType {
@@ -54,6 +57,8 @@ interface StateContextProviderProps {
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
+    const {filePath} = useContext(UrlContext);
+
     const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
         useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
@@ -130,6 +135,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [
         handleMainWorkerResp,
         mainWorkerPostReq,
+    ]);
+
+    useEffect(() => {
+        if ("undefined" !== typeof filePath) {
+            loadFile(filePath);
+        }
+    }, [
+        filePath,
+        loadFile,
     ]);
 
     return (
