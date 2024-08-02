@@ -3,36 +3,16 @@ import React, {
     useEffect,
     useState,
 } from "react";
+import {
+    SEARCH_PARAM_NAME,
+    HASH_PARAM_NAME,
+    UrlSearchParams,
+    UrlHashParams,
+    UrlSearchParamUpdatesType,
+    UrlHashParamUpdatesType,
+    UrlParamsType
+} from "../typings/url";
 
-
-enum SEARCH_PARAM_NAME {
-    FILE_PATH = "filePath"
-}
-
-enum HASH_PARAM_NAME {
-    LOG_EVENT_NUM = "logEventNum"
-}
-
-interface UrlSearchParams {
-    [SEARCH_PARAM_NAME.FILE_PATH]?: string,
-}
-
-interface UrlHashParams {
-    logEventNum?: number,
-}
-
-type UrlSearchParamUpdatesType = {
-    [key in keyof UrlSearchParams]?: UrlSearchParams[key] | null
-}
-type UrlHashParamUpdatesType = {
-    [key in keyof UrlHashParams]?: UrlHashParams[key] | null
-}
-
-type UrlParamsType = {
-    [key in keyof UrlSearchParams]?: UrlSearchParams[key];
-} & {
-    [key in keyof UrlHashParams]?: UrlHashParams[key];
-};
 
 const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
 
@@ -120,10 +100,12 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
 };
 
 /**
+ * Retrieves all search parameters from the current window's URL.
  *
+ * @return {UrlSearchParams} An object containing the search parameters.
  */
 const getAllWindowSearchParams = () => {
-    const urlSearchParams: UrlParamsType = {};
+    const urlSearchParams: UrlSearchParams = {};
 
     // TODO: use Ajv to read and validate
     const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
@@ -135,7 +117,9 @@ const getAllWindowSearchParams = () => {
 };
 
 /**
+ * Retrieves all hash parameters from the current window's URL.
  *
+ * @return {UrlHashParams} An object containing the hash parameters.
  */
 const getAllWindowHashParams = () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -196,7 +180,6 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         });
 
         const handleHashChange = () => {
-            // FIXME: handle removal of hash params
             setUrlParams({
                 ...searchParams,
                 ...getAllWindowHashParams(),
