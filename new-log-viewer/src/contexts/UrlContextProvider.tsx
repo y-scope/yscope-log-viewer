@@ -40,6 +40,8 @@ interface UrlContextProviderProps {
     children: React.ReactNode
 }
 
+let searchParams = new URLSearchParams(window.location.search.substring(1));
+
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
  *
@@ -48,7 +50,7 @@ interface UrlContextProviderProps {
  * @return - The updated search string as a URLSearchParams object.
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
-    const newSearchParams = new URLSearchParams(window.location.search.substring(1));
+    const newSearchParams = searchParams;
     const {filePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
@@ -96,7 +98,8 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
  */
 const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(updates).toString();
+    searchParams = getUpdatedSearchParams(updates);
+    newUrl.search = searchParams.toString();
     if (!(/%23|%26/).test(newUrl.search)) {
         newUrl.search = decodeURIComponent(newUrl.search);
     }
@@ -120,7 +123,6 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
  *
  */
 const getAllWindowSearchParams = () => {
-    const searchParams = new URLSearchParams(window.location.search.substring(1));
     const urlSearchParams: UrlParamsType = {};
 
     // TODO: use Ajv to read and validate
@@ -195,10 +197,10 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
         const handleHashChange = () => {
             // FIXME: handle removal of hash params
-            setUrlParams((v) => ({
-                ...v,
+            setUrlParams({
+                ...searchParams,
                 ...getAllWindowHashParams(),
-            }));
+            });
         };
 
         window.addEventListener("hashchange", handleHashChange);
