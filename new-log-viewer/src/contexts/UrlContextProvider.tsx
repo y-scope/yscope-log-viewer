@@ -20,8 +20,6 @@ interface UrlContextProviderProps {
     children: React.ReactNode
 }
 
-let searchParams = new URLSearchParams(window.location.search.substring(1));
-
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
  *
@@ -30,7 +28,7 @@ let searchParams = new URLSearchParams(window.location.search.substring(1));
  * @return - The updated search string as a URLSearchParams object.
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
-    const newSearchParams = searchParams;
+    const newSearchParams = new URLSearchParams(window.location.search.substring(1));
     const {filePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
@@ -78,8 +76,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
  */
 const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
-    searchParams = getUpdatedSearchParams(updates);
-    newUrl.search = searchParams.toString();
+    newUrl.search = getUpdatedSearchParams(updates).toString();
     if (!(/%23|%26/).test(newUrl.search)) {
         newUrl.search = decodeURIComponent(newUrl.search);
     }
@@ -106,6 +103,7 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
  */
 const getAllWindowSearchParams = () => {
     const urlSearchParams: UrlSearchParams = {};
+    const searchParams = new URLSearchParams(window.location.search.substring(1));
 
     // TODO: use Ajv to read and validate
     const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
@@ -161,6 +159,8 @@ const copyToClipboard = (
         });
 };
 
+const searchParams = getAllWindowSearchParams();
+
 /**
  * Provides a context for managing URL parameters and hash values,
  * including utilities for setting search and hash parameters,
@@ -175,12 +175,16 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
     useEffect(() => {
         setUrlParams({
-            ...getAllWindowSearchParams(),
+            ...searchParams,
             ...getAllWindowHashParams(),
         });
 
         const handleHashChange = () => {
             setUrlParams({
+                ...searchParams,
+                ...getAllWindowHashParams(),
+            });
+            console.log({
                 ...searchParams,
                 ...getAllWindowHashParams(),
             });
