@@ -17,14 +17,16 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {UrlContext} from "./UrlContextProvider";
+import {
+    updateWindowHashParams,
+    UrlContext,
+} from "./UrlContextProvider";
 
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     loadFile: (fileSrc: FileSrcType) => void,
     logData: string,
-    logEventNum: number,
     numEvents: number,
     numPages: number,
     pageNum: number
@@ -38,7 +40,6 @@ const STATE_DEFAULT = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
     loadFile: () => null,
     logData: "Loading...",
-    logEventNum: 1,
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
@@ -57,19 +58,20 @@ interface StateContextProviderProps {
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const {filePath} = useContext(UrlContext);
+    const {filePath, logEventNum} = useContext(UrlContext);
 
     const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
         useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [logEventNum, setLogEventNum] = useState<number>(STATE_DEFAULT.logEventNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const pageNum = useMemo(() => {
-        return Math.ceil(logEventNum / PAGE_SIZE);
-    }, [logEventNum]);
+    const pageNum = useMemo(() => (
+        "undefined" === typeof logEventNum ?
+            0 :
+            Math.ceil(logEventNum / PAGE_SIZE)
+    ), [logEventNum]);
 
     const numPages = useMemo(() => {
         return Math.ceil(numEvents / PAGE_SIZE);
@@ -95,7 +97,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if ("undefined" === typeof lastLogEventNum) {
                     lastLogEventNum = 1;
                 }
-                setLogEventNum(lastLogEventNum);
+                updateWindowHashParams({logEventNum: lastLogEventNum});
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
@@ -152,7 +154,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum,
                 loadFile,
                 logData,
-                logEventNum,
                 numEvents,
                 numPages,
                 pageNum,

@@ -1,10 +1,10 @@
-import {useContext} from "react";
+import React, {useContext} from "react";
 
+import {StateContext} from "../contexts/StateContextProvider";
 import {
-    PAGE_SIZE,
-    StateContext,
-} from "../contexts/StateContextProvider";
-import {updateWindowHashParams} from "../contexts/UrlContextProvider";
+    updateWindowHashParams,
+    UrlContext,
+} from "../contexts/UrlContextProvider";
 
 
 /**
@@ -15,8 +15,13 @@ import {updateWindowHashParams} from "../contexts/UrlContextProvider";
 const Layout = () => {
     const {
         logData,
-        logEventNum,
+        pageNum,
     } = useContext(StateContext);
+    const {logEventNum} = useContext(UrlContext);
+
+    const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        updateWindowHashParams({logEventNum: Number(ev.target.value)});
+    };
 
     return (
         <>
@@ -24,20 +29,17 @@ const Layout = () => {
                 <h3>
                     LogEventNum -
                     {" "}
-                    {logEventNum}
+                    <input
+                        type={"number"}
+                        value={logEventNum}
+                        onChange={handleLogEventNumInputChange}/>
                     {" "}
                     |
                     PageNum -
                     {" "}
-                    {Math.ceil(logEventNum / PAGE_SIZE)}
+                    {pageNum}
                 </h3>
-                <button
-                    onClick={() => {
-                        updateWindowHashParams({logEventNum: 3});
-                    }}
-                >
-                    Set logEventNum to 3
-                </button>
+
                 {logData.split("\n").map((line, index) => (
                     <p key={index}>
                         {`<${index + 1}>`}
