@@ -4,6 +4,7 @@ import {
     PAGE_SIZE,
     StateContext,
 } from "../contexts/StateContextProvider";
+import {updateWindowHashParams} from "../contexts/UrlContextProvider";
 
 
 /**
@@ -30,6 +31,13 @@ const Layout = () => {
                     {" "}
                     {Math.ceil(logEventNum / PAGE_SIZE)}
                 </h3>
+                <button
+                    onClick={() => {
+                        updateWindowHashParams({logEventNum: 3});
+                    }}
+                >
+                    Set logEventNum to 3
+                </button>
                 {logData.split("\n").map((line, index) => (
                     <p key={index}>
                         {`<${index + 1}>`}

@@ -1,9 +1,6 @@
 import Layout from "./components/Layout";
 import StateContextProvider from "./contexts/StateContextProvider";
-import UrlContextProvider, {
-    copyToClipboard,
-    updateWindowHashParams
-} from "./contexts/UrlContextProvider";
+import UrlContextProvider from "./contexts/UrlContextProvider";
 
 
 /**
@@ -17,13 +14,6 @@ const App = () => {
             <UrlContextProvider>
                 <StateContextProvider>
                     <Layout/>
-                    <button
-                        onClick={() => {
-                            updateWindowHashParams({logEventNum: 3});
-                        }}
-                    >
-                        Set logEventNum to 3
-                    </button>
                 </StateContextProvider>
             </UrlContextProvider>
         </>

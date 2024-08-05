@@ -3,14 +3,15 @@ import React, {
     useEffect,
     useState,
 } from "react";
+
 import {
-    SEARCH_PARAM_NAME,
     HASH_PARAM_NAME,
-    UrlSearchParams,
+    SEARCH_PARAM_NAME,
     UrlHashParams,
-    UrlSearchParamUpdatesType,
     UrlHashParamUpdatesType,
-    UrlParamsType
+    UrlParamsType,
+    UrlSearchParams,
+    UrlSearchParamUpdatesType,
 } from "../typings/url";
 
 
@@ -99,7 +100,7 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
 /**
  * Retrieves all search parameters from the current window's URL.
  *
- * @return {UrlSearchParams} An object containing the search parameters.
+ * @return An object containing the search parameters.
  */
 const getAllWindowSearchParams = () => {
     const urlSearchParams: UrlSearchParams = {};
@@ -117,7 +118,7 @@ const getAllWindowSearchParams = () => {
 /**
  * Retrieves all hash parameters from the current window's URL.
  *
- * @return {UrlHashParams} An object containing the hash parameters.
+ * @return An object containing the hash parameters.
  */
 const getAllWindowHashParams = () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -181,10 +182,6 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
         const handleHashChange = () => {
             setUrlParams({
-                ...searchParams,
-                ...getAllWindowHashParams(),
-            });
-            console.log({
                 ...searchParams,
                 ...getAllWindowHashParams(),
             });
