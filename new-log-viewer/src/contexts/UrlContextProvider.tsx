@@ -92,9 +92,14 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
  * If a key's value is `null`, the key will be removed from the hash parameters.
  */
 const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
-    const newUrl = new URL(window.location.href);
-    newUrl.hash = getUpdatedHashParams(updates).toString();
-    window.history.pushState({}, "", newUrl);
+    const newHash = getUpdatedHashParams(updates).toString();
+    const currHash = window.location.hash.substring(1);
+    if (newHash !== currHash) {
+        const newUrl = new URL(window.location.href);
+        newUrl.hash = newHash;
+        window.history.pushState({}, "", newUrl);
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }
 };
 
 /**
