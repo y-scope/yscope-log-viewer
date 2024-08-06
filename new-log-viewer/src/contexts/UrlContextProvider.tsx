@@ -26,14 +26,14 @@ interface UrlContextProviderProps {
  *
  * @param updates An object containing key-value pairs to update the search parameters.
  * If a key's value is `null`, the key will be removed from the search parameters.
- * @return - The updated search string as a URLSearchParams object.
+ * @return The updated search parameters string.
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newSearchParams = new URLSearchParams(window.location.search.substring(1));
     const {filePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
-        if ("filePath" === key) {
+        if (SEARCH_PARAM_NAME.FILE_PATH as string === key) {
             continue;
         }
         if (null === value) {
@@ -42,19 +42,26 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
             newSearchParams.set(key, String(value));
         }
     }
-    if ("string" === typeof filePath) {
-        newSearchParams.set("filePath", filePath);
+    if (null === filePath) {
+        newSearchParams.delete(SEARCH_PARAM_NAME.FILE_PATH);
+    } else if ("string" === typeof filePath) {
+        newSearchParams.set(SEARCH_PARAM_NAME.FILE_PATH, filePath);
     }
 
-    return newSearchParams;
+    let searchString = newSearchParams.toString();
+    if (!(/%23|%26/).test(searchString)) {
+        searchString = decodeURIComponent(searchString);
+    }
+
+    return searchString;
 };
 
 /**
- * Computes updated URL search parameters based on the provided key-value pairs.
+ * Computes updated URL hash parameters based on the provided key-value pairs.
  *
  * @param updates An object containing key-value pairs to update the hash parameters.
  * If a key's value is `null`, the key will be removed from the hash parameters.
- * @return - The updated search string as a URLSearchParams object.
+ * @return The updated hash parameters string.
  */
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -66,7 +73,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
         }
     }
 
-    return newHashParams;
+    return newHashParams.toString();
 };
 
 /**
@@ -77,10 +84,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
  */
 const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(updates).toString();
-    if (!(/%23|%26/).test(newUrl.search)) {
-        newUrl.search = decodeURIComponent(newUrl.search);
-    }
+    newUrl.search = getUpdatedSearchParams(updates);
     window.history.pushState({}, "", newUrl);
 };
 
@@ -92,7 +96,7 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
  * If a key's value is `null`, the key will be removed from the hash parameters.
  */
 const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
-    const newHash = getUpdatedHashParams(updates).toString();
+    const newHash = getUpdatedHashParams(updates);
     const currHash = window.location.hash.substring(1);
     if (newHash !== currHash) {
         const newUrl = new URL(window.location.href);
@@ -154,8 +158,8 @@ const copyToClipboard = (
     hashParamsUpdates: UrlHashParamUpdatesType,
 ) => {
     const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(searchParamUpdates).toString();
-    newUrl.hash = getUpdatedHashParams(hashParamsUpdates).toString();
+    newUrl.search = getUpdatedSearchParams(searchParamUpdates);
+    newUrl.hash = getUpdatedHashParams(hashParamsUpdates);
     navigator.clipboard.writeText(newUrl.toString())
         .then(() => {
             console.log("URL copied to clipboard.");
