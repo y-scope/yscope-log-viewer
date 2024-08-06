@@ -28,13 +28,13 @@ type UrlParamsType = {
 };
 
 export {
+    HASH_PARAM_NAME,
     SEARCH_PARAM_NAME,
-    HASH_PARAM_NAME
 };
 export type {
-    UrlSearchParams,
     UrlHashParams,
-    UrlSearchParamUpdatesType,
     UrlHashParamUpdatesType,
-    UrlParamsType
+    UrlParamsType,
+    UrlSearchParams,
+    UrlSearchParamUpdatesType,
 };
