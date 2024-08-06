@@ -2,6 +2,7 @@ import React, {useContext} from "react";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
+    copyToClipboard,
     updateWindowHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
@@ -16,11 +17,16 @@ const Layout = () => {
     const {
         logData,
         pageNum,
+        numEvents,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         updateWindowHashParams({logEventNum: Number(ev.target.value)});
+    };
+
+    const handleCopyLinkButtonClick = () => {
+        copyToClipboard({}, {logEventNum: numEvents});
     };
 
     return (
@@ -30,8 +36,8 @@ const Layout = () => {
                     LogEventNum -
                     {" "}
                     <input
+                        defaultValue={logEventNum}
                         type={"number"}
-                        value={logEventNum}
                         onChange={handleLogEventNumInputChange}/>
                     {" "}
                     |
@@ -39,6 +45,10 @@ const Layout = () => {
                     {" "}
                     {pageNum}
                 </h3>
+
+                <button onClick={handleCopyLinkButtonClick}>
+                    Copy link to last log
+                </button>
 
                 {logData.split("\n").map((line, index) => (
                     <p key={index}>
