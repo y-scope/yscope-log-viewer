@@ -18,7 +18,6 @@ import {
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
-    WorkerRespMap,
 } from "../typings/worker";
 import {clamp} from "../utils/math";
 import {
@@ -56,27 +55,38 @@ interface StateContextProviderProps {
 }
 
 /**
- * Update the log event number and modify the window hash params.
+ * Updates a user-input log event number value for the window hash parameters.
  *
- * @param args The arguments containing the log event numbers.
- * @param currentLogEventNum The current log event number.
+ * @param lastLogEventNum The last log event number value.
+ * @param inputLogEventNum The current log event number value.
  */
 const updateLogEventNum = (
-    args: WorkerRespMap[WORKER_RESP_CODE.PAGE_DATA],
-    currentLogEventNum: Nullable<number>
+    lastLogEventNum: number,
+    inputLogEventNum: Nullable<number>
 ) => {
-    const allLogEventNums = Array.from(args.beginLineNumToLogEventNum.values());
-    let lastLogEventNum = allLogEventNums.at(-1);
-    if ("undefined" === typeof lastLogEventNum) {
-        lastLogEventNum = 1;
-    }
-    const newLogEventNum = (null === currentLogEventNum) ?
+    const newLogEventNum = (null === inputLogEventNum) ?
         lastLogEventNum :
-        clamp(currentLogEventNum, 1, lastLogEventNum);
+        clamp(inputLogEventNum, 1, lastLogEventNum);
 
     updateWindowHashParams({
         logEventNum: newLogEventNum,
     });
+};
+
+/**
+ * Gets the last log event number from a map of begin line numbers to log event numbers.
+ *
+ * @param beginLineNumToLogEventNum
+ * @return The last log event number.
+ */
+const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
+    const allLogEventNums = Array.from(beginLineNumToLogEventNum.values());
+    let lastLogEventNum = allLogEventNums.at(-1);
+    if ("undefined" === typeof lastLogEventNum) {
+        lastLogEventNum = 1;
+    }
+
+    return lastLogEventNum;
 };
 
 /**
@@ -116,7 +126,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
-                updateLogEventNum(args, logEventNumRef.current);
+                const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
+                updateLogEventNum(lastLogEventNum, logEventNumRef.current);
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
@@ -165,23 +176,28 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         const newPage = (null === logEventNum || 0 >= logEventNum) ?
             1 :
-            Math.max(Math.ceil(logEventNum / PAGE_SIZE));
+            Math.max(1, numPages);
 
-        if (newPage !== pageNumRef.current) {
+        if (newPage === pageNumRef.current) {
+            const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);
+            updateLogEventNum(lastLogEventNum, logEventNumRef.current);
+        } else {
             pageNumRef.current = newPage;
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}},
                 decoderOptions: {
-                // TODO: these shall come from config provider
+                    // TODO: these shall come from config provider
                     formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
-                    " %message%n",
+                        " %message%n",
                     logLevelKey: "log.level",
                     timestampKey: "@timestamp",
                 },
             });
         }
     }, [
+        beginLineNumToLogEventNum,
         logEventNum,
+        numPages,
         mainWorkerPostReq,
     ]);
 
