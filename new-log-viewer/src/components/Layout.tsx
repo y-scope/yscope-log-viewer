@@ -36,8 +36,10 @@ const Layout = () => {
                     LogEventNum -
                     {" "}
                     <input
-                        defaultValue={logEventNum}
                         type={"number"}
+                        value={null === logEventNum ?
+                            -1 :
+                            logEventNum}
                         onChange={handleLogEventNumInputChange}/>
                     {" "}
                     |

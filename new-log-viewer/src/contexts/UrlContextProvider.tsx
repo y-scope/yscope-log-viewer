@@ -4,6 +4,7 @@ import React, {
     useState,
 } from "react";
 
+import {Nullable} from "../typings/common";
 import {
     HASH_PARAM_NAME,
     SEARCH_PARAM_NAME,
@@ -17,9 +18,19 @@ import {
 
 const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
 
-interface UrlContextProviderProps {
-    children: React.ReactNode
-}
+/**
+ * Default values of the search parameters.
+ */
+const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
+    [SEARCH_PARAM_NAME.FILE_PATH]: null,
+});
+
+/**
+ * Default values of the hash parameters.
+ */
+const URL_HASH_PARAMS_DEFAULT = Object.freeze({
+    [HASH_PARAM_NAME.LOG_EVENT_NUM]: null,
+});
 
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
@@ -88,7 +99,6 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
     window.history.pushState({}, "", newUrl);
 };
 
-
 /**
  * Updates hash parameters in the current window's URL based on the provided key-value pairs.
  *
@@ -112,10 +122,9 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
  * @return An object containing the search parameters.
  */
 const getAllWindowSearchParams = () => {
-    const urlSearchParams: UrlSearchParams = {};
+    const urlSearchParams: Nullable<UrlSearchParams> = structuredClone(URL_SEARCH_PARAMS_DEFAULT);
     const searchParams = new URLSearchParams(window.location.search.substring(1));
 
-    // TODO: use Ajv to read and validate
     const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
     if (null !== filePath) {
         urlSearchParams[SEARCH_PARAM_NAME.FILE_PATH] = filePath;
@@ -131,9 +140,8 @@ const getAllWindowSearchParams = () => {
  */
 const getAllWindowHashParams = () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const urlHashParams: UrlHashParams = {};
+    const urlHashParams: Nullable<UrlHashParams> = structuredClone(URL_HASH_PARAMS_DEFAULT);
 
-    // TODO: use Ajv to read and validate
     const logEventNum = hashParams.get(HASH_PARAM_NAME.LOG_EVENT_NUM);
     if (null !== logEventNum) {
         urlHashParams[HASH_PARAM_NAME.LOG_EVENT_NUM] = Number(logEventNum);
@@ -171,6 +179,10 @@ const copyToClipboard = (
 
 const searchParams = getAllWindowSearchParams();
 
+interface UrlContextProviderProps {
+    children: React.ReactNode
+}
+
 /**
  * Provides a context for managing URL parameters and hash values,
  * including utilities for setting search and hash parameters,
@@ -181,16 +193,18 @@ const searchParams = getAllWindowSearchParams();
  * @return
  */
 const UrlContextProvider = ({children}: UrlContextProviderProps) => {
-    const [urlParams, setUrlParams] = useState<UrlParamsType>({});
+    const [urlParams, setUrlParams] = useState<UrlParamsType>({
+        ...URL_SEARCH_PARAMS_DEFAULT,
+        ...URL_HASH_PARAMS_DEFAULT,
+        ...searchParams,
+        ...getAllWindowHashParams(),
+    });
 
     useEffect(() => {
-        setUrlParams({
-            ...searchParams,
-            ...getAllWindowHashParams(),
-        });
-
         const handleHashChange = () => {
             setUrlParams({
+                ...URL_SEARCH_PARAMS_DEFAULT,
+                ...URL_HASH_PARAMS_DEFAULT,
                 ...searchParams,
                 ...getAllWindowHashParams(),
             });

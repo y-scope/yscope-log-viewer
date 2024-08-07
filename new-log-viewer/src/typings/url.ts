@@ -7,24 +7,24 @@ enum HASH_PARAM_NAME {
 }
 
 interface UrlSearchParams {
-    [SEARCH_PARAM_NAME.FILE_PATH]?: string,
+    [SEARCH_PARAM_NAME.FILE_PATH]: string,
 }
 
 interface UrlHashParams {
-    logEventNum?: number,
+    logEventNum: number,
 }
 
 type UrlSearchParamUpdatesType = {
-    [key in keyof UrlSearchParams]?: UrlSearchParams[key] | null
+    [T in keyof UrlSearchParams]?: UrlSearchParams[T] | null
 }
 type UrlHashParamUpdatesType = {
-    [key in keyof UrlHashParams]?: UrlHashParams[key] | null
+    [T in keyof UrlHashParams]?: UrlHashParams[T] | null
 }
 
 type UrlParamsType = {
-    [key in keyof UrlSearchParams]?: UrlSearchParams[key];
+    [T in keyof UrlSearchParams]: UrlSearchParams[T] | null
 } & {
-    [key in keyof UrlHashParams]?: UrlHashParams[key];
+    [T in keyof UrlHashParams]: UrlHashParams[T] | null
 };
 
 export {
