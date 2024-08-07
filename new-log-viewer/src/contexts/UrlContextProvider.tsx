@@ -14,6 +14,7 @@ import {
     UrlSearchParams,
     UrlSearchParamUpdatesType,
 } from "../typings/url";
+import {getAbsoluteUrl} from "../utils/url";
 
 
 const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
@@ -129,7 +130,7 @@ const getAllWindowSearchParams = () => {
 
     const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
     if (null !== filePath) {
-        urlSearchParams[SEARCH_PARAM_NAME.FILE_PATH] = filePath;
+        urlSearchParams[SEARCH_PARAM_NAME.FILE_PATH] = getAbsoluteUrl(filePath);
     }
 
     return urlSearchParams;
