@@ -194,24 +194,17 @@ class LogFileManager {
             };
         }
 
-        let beginLogEventIdx: number;
+        let beginLogEventIdx: number = 1;
         const {code, args} = cursor;
-        switch (code) {
-            case CURSOR_CODE.LAST_EVENT:
-                beginLogEventIdx =
-                    (Math.floor((this.#numEvents - 1) / this.#pageSize) * this.#pageSize);
-                break;
-            case CURSOR_CODE.PAGE_NUM:
-                beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
-                break;
-            default:
-                throw new Error(`Unsupported cursor type: ${code}`);
+        if (CURSOR_CODE.PAGE_NUM === code) {
+            beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
         }
-        if (beginLogEventIdx > this.#numEvents) {
+        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
             beginLogEventIdx =
                     (Math.floor((this.#numEvents - 1) / this.#pageSize) * this.#pageSize);
+        } else if (CURSOR_CODE.TIMESTAMP === code) {
+            throw new Error(`Unsupported cursor type: ${code}`);
         }
-
         const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
         return {beginLogEventNum, endLogEventNum};
