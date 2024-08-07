@@ -4,7 +4,7 @@ import React, {
     useState,
 } from "react";
 
-import {Nullable} from "../typings/common";
+import {NullableProperties} from "../typings/common";
 import {
     HASH_PARAM_NAME,
     SEARCH_PARAM_NAME,
@@ -122,7 +122,7 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
  * @return An object containing the search parameters.
  */
 const getAllWindowSearchParams = () => {
-    const urlSearchParams: Nullable<UrlSearchParams> = structuredClone(URL_SEARCH_PARAMS_DEFAULT);
+    const urlSearchParams: NullableProperties<UrlSearchParams> = structuredClone(URL_SEARCH_PARAMS_DEFAULT);
     const searchParams = new URLSearchParams(window.location.search.substring(1));
 
     const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
@@ -140,7 +140,7 @@ const getAllWindowSearchParams = () => {
  */
 const getAllWindowHashParams = () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const urlHashParams: Nullable<UrlHashParams> = structuredClone(URL_HASH_PARAMS_DEFAULT);
+    const urlHashParams: NullableProperties<UrlHashParams> = structuredClone(URL_HASH_PARAMS_DEFAULT);
 
     const logEventNum = hashParams.get(HASH_PARAM_NAME.LOG_EVENT_NUM);
     if (null !== logEventNum) {

@@ -8,6 +8,7 @@ import React, {
     useState,
 } from "react";
 
+import {Nullable} from "../typings/common";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -17,7 +18,9 @@ import {
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
+    WorkerRespMap,
 } from "../typings/worker";
+import {clamp} from "../utils/math";
 import {
     updateWindowHashParams,
     UrlContext,
@@ -30,7 +33,7 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
-    pageNum: number
+    pageNum: Nullable<number>
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -46,12 +49,35 @@ const STATE_DEFAULT = Object.freeze({
     pageNum: 0,
 });
 
-const INVALID_PAGE_NUM = 0;
 const PAGE_SIZE = 10_000;
 
 interface StateContextProviderProps {
     children: React.ReactNode
 }
+
+/**
+ * Update the log event number and modify the window hash params.
+ *
+ * @param args The arguments containing the log event numbers.
+ * @param currentLogEventNum The current log event number.
+ */
+const updateLogEventNum = (
+    args: WorkerRespMap[WORKER_RESP_CODE.PAGE_DATA],
+    currentLogEventNum: Nullable<number>
+) => {
+    const allLogEventNums = Array.from(args.beginLineNumToLogEventNum.values());
+    let lastLogEventNum = allLogEventNums.at(-1);
+    if ("undefined" === typeof lastLogEventNum) {
+        lastLogEventNum = 1;
+    }
+    const newLogEventNum = (null === currentLogEventNum) ?
+        lastLogEventNum :
+        clamp(currentLogEventNum, 1, lastLogEventNum);
+
+    updateWindowHashParams({
+        logEventNum: newLogEventNum,
+    });
+};
 
 /**
  * Provides state management for the application.
@@ -68,7 +94,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const logEventNumRef = useRef(logEventNum);
-    const pageNumRef = useRef(INVALID_PAGE_NUM);
+    const pageNumRef = useRef<Nullable<number>>(null);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -90,20 +116,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
-
-                // Correct logEventNum if it is out of valid range
-                const allLogEventNums = Array.from(args.beginLineNumToLogEventNum.values());
-                let lastLogEventNum = allLogEventNums.at(-1);
-                if ("undefined" === typeof lastLogEventNum) {
-                    lastLogEventNum = 1;
-                }
-                const newLogEventNum = (null === logEventNumRef.current) ?
-                    lastLogEventNum :
-                    Math.min(logEventNumRef.current, lastLogEventNum);
-
-                updateWindowHashParams({
-                    logEventNum: newLogEventNum,
-                });
+                updateLogEventNum(args, logEventNumRef.current);
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
@@ -150,9 +163,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [logEventNum]);
 
     useEffect(() => {
-        const newPage = (null === logEventNum) ?
-            INVALID_PAGE_NUM :
-            Math.ceil(logEventNum / PAGE_SIZE);
+        const newPage = (null === logEventNum || 0 >= logEventNum) ?
+            1 :
+            Math.max(Math.ceil(logEventNum / PAGE_SIZE));
 
         if (newPage !== pageNumRef.current) {
             pageNumRef.current = newPage;
@@ -174,7 +187,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     useEffect(() => {
         if (null !== filePath) {
-            const cursor: CursorType = (INVALID_PAGE_NUM === pageNumRef.current) ?
+            const cursor: CursorType = (null === pageNumRef.current) ?
                 {code: CURSOR_CODE.LAST_EVENT, args: null} :
                 {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}};
 

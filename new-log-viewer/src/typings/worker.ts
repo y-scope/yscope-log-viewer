@@ -105,4 +105,5 @@ export type {
     MainWorkerRespMessage,
     WorkerReq,
     WorkerResp,
+    WorkerRespMap,
 };

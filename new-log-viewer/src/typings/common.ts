@@ -1,5 +1,10 @@
-type Nullable<T> = {
-    [P in keyof T]: T[P] | null;
+type Nullable<T> = T | null;
+
+type NullableProperties<T> = {
+    [P in keyof T]: Nullable<T[P]>;
 };
 
-export type {Nullable};
+export type {
+    Nullable,
+    NullableProperties,
+};
