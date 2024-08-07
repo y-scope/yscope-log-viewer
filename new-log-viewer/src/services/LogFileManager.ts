@@ -207,6 +207,10 @@ class LogFileManager {
             default:
                 throw new Error(`Unsupported cursor type: ${code}`);
         }
+        if (beginLogEventIdx > this.#numEvents) {
+            beginLogEventIdx =
+                    (Math.floor((this.#numEvents - 1) / this.#pageSize) * this.#pageSize);
+        }
 
         const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
