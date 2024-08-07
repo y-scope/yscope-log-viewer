@@ -67,7 +67,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const initialLogEventRef = useRef(logEventNum);
+    const logEventNumRef = useRef(logEventNum);
     const pageNumRef = useRef(INVALID_PAGE_NUM);
 
     const mainWorkerRef = useRef<null|Worker>(null);
@@ -97,9 +97,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if ("undefined" === typeof lastLogEventNum) {
                     lastLogEventNum = 1;
                 }
-                const newLogEventNum = (null === initialLogEventRef.current) ?
+                const newLogEventNum = (null === logEventNumRef.current) ?
                     lastLogEventNum :
-                    Math.min(initialLogEventRef.current, lastLogEventNum);
+                    Math.min(logEventNumRef.current, lastLogEventNum);
 
                 updateWindowHashParams({
                     logEventNum: newLogEventNum,
@@ -146,10 +146,31 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     useEffect(() => {
-        pageNumRef.current = (null === logEventNum) ?
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
+    useEffect(() => {
+        const newPage = (null === logEventNum) ?
             INVALID_PAGE_NUM :
             Math.ceil(logEventNum / PAGE_SIZE);
-    }, [logEventNum]);
+
+        if (newPage !== pageNumRef.current) {
+            pageNumRef.current = newPage;
+            mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
+                cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}},
+                decoderOptions: {
+                // TODO: these shall come from config provider
+                    formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
+                    " %message%n",
+                    logLevelKey: "log.level",
+                    timestampKey: "@timestamp",
+                },
+            });
+        }
+    }, [
+        logEventNum,
+        mainWorkerPostReq,
+    ]);
 
     useEffect(() => {
         if (null !== filePath) {
