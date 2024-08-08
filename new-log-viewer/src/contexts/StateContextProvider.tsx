@@ -55,10 +55,12 @@ interface StateContextProviderProps {
 }
 
 /**
- * Updates a user-input log event number value for the window hash parameters.
- *
- * @param lastLogEventNum The last log event number value.
- * @param inputLogEventNum The current log event number value.
+Updates the log event number in the current window's URL hash parameters.
+
+@param lastLogEventNum The last log event number value.
+@param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
+number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
+hash parameter log event number will be clamped to that range.
  */
 const updateLogEventNum = (
     lastLogEventNum: number,
