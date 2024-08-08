@@ -56,7 +56,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     }
     if (null === filePath) {
         newSearchParams.delete(SEARCH_PARAM_NAME.FILE_PATH);
-    } else if ("string" === typeof filePath) {
+    } else if ("undefined" !== typeof filePath) {
         newSearchParams.set(SEARCH_PARAM_NAME.FILE_PATH, filePath);
     }
 
