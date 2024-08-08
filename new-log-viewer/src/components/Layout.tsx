@@ -3,7 +3,7 @@ import React, {useContext} from "react";
 import {StateContext} from "../contexts/StateContextProvider";
 import {
     copyToClipboard,
-    updateWindowHashParams,
+    updateWindowUrlHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
 
@@ -22,7 +22,7 @@ const Layout = () => {
     const {logEventNum} = useContext(UrlContext);
 
     const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        updateWindowHashParams({logEventNum: Number(ev.target.value)});
+        updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
     };
 
     const handleCopyLinkButtonClick = () => {

@@ -94,7 +94,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
  * @param updates An object containing key-value pairs to update the search parameters. If a value
  * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
  */
-const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
+const updateWindowUrlSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
     newUrl.search = getUpdatedSearchParams(updates);
     window.history.pushState({}, "", newUrl);
@@ -106,7 +106,7 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
  * @param updates An object containing key-value pairs to update the hash parameters. If a value is
  * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
-const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
+const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHash = getUpdatedHashParams(updates);
     const currHash = window.location.hash.substring(1);
     if (newHash === currHash) {
@@ -238,7 +238,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 export default UrlContextProvider;
 export {
     copyToClipboard,
-    updateWindowHashParams,
-    updateWindowSearchParams,
+    updateWindowUrlHashParams,
+    updateWindowUrlSearchParams,
     UrlContext,
 };

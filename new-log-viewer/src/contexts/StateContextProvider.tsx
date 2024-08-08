@@ -24,7 +24,7 @@ import {
     getPageNumFromLogEventNum,
 } from "../utils/math";
 import {
-    updateWindowHashParams,
+    updateWindowUrlHashParams,
     UrlContext,
 } from "./UrlContextProvider";
 
@@ -73,7 +73,7 @@ const updateLogEventNumInUrl = (
         lastLogEventNum :
         clamp(inputLogEventNum, 1, lastLogEventNum);
 
-    updateWindowHashParams({
+    updateWindowUrlHashParams({
         logEventNum: newLogEventNum,
     });
 };
