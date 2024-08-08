@@ -122,6 +122,32 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
 };
 
 /**
+ * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,
+ * the copied URL will include these modifications, but the original window's URL will not be
+ * changed.
+ *
+ * @param searchParamUpdates An object containing key-value pairs to update the search parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
+ * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
+ */
+const copyWindowUrlToClipboard = (
+    searchParamUpdates: UrlSearchParamUpdatesType,
+    hashParamsUpdates: UrlHashParamUpdatesType,
+) => {
+    const newUrl = new URL(window.location.href);
+    newUrl.search = getUpdatedSearchParams(searchParamUpdates);
+    newUrl.hash = getUpdatedHashParams(hashParamsUpdates);
+    navigator.clipboard.writeText(newUrl.toString())
+        .then(() => {
+            console.log("URL copied to clipboard.");
+        })
+        .catch((error: unknown) => {
+            console.error("Failed to copy URL to clipboard:", error);
+        });
+};
+
+/**
  * Retrieves all search parameters from the current window's URL.
  *
  * @return An object containing the search parameters.
@@ -160,33 +186,6 @@ const getWindowHashParams = () => {
     }
 
     return urlHashParams;
-};
-
-
-/**
- * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,
- * the copied URL will include these modifications, but the original window's URL will not be
- * changed.
- *
- * @param searchParamUpdates An object containing key-value pairs to update the search parameters.
- * If a value is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
- * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
- * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
- */
-const copyToClipboard = (
-    searchParamUpdates: UrlSearchParamUpdatesType,
-    hashParamsUpdates: UrlHashParamUpdatesType,
-) => {
-    const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(searchParamUpdates);
-    newUrl.hash = getUpdatedHashParams(hashParamsUpdates);
-    navigator.clipboard.writeText(newUrl.toString())
-        .then(() => {
-            console.log("URL copied to clipboard.");
-        })
-        .catch((error: unknown) => {
-            console.error("Failed to copy URL to clipboard:", error);
-        });
 };
 
 const searchParams = getWindowSearchParams();
@@ -238,7 +237,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
 export default UrlContextProvider;
 export {
-    copyToClipboard,
+    copyWindowUrlToClipboard,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
     UrlContext,
