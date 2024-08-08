@@ -60,7 +60,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
             }
             case WORKER_REQ_CODE.LOAD_PAGE:
                 if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager is not initialized");
+                    throw new Error("Log file manager hasn't been initialized");
                 }
                 if ("undefined" !== typeof args.decoderOptions) {
                     LOG_FILE_MANAGER.setDecoderOptions(args.decoderOptions);

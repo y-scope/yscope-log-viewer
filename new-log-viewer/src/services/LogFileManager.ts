@@ -202,6 +202,7 @@ class LogFileManager {
             beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
         }
         if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
+            // Set to the first event of the last page
             beginLogEventIdx =
                 getPageNumFromLogEventNum(this.#numEvents, this.#pageSize) * this.#pageSize;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
