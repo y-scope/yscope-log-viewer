@@ -126,18 +126,18 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
  *
  * @return An object containing the search parameters.
  */
-const getAllWindowSearchParams = () => {
-    const urlSearchParams: NullableProperties<UrlSearchParams> = structuredClone(
+const getWindowSearchParams = () => {
+    const searchParams : NullableProperties<UrlSearchParams> = structuredClone(
         URL_SEARCH_PARAMS_DEFAULT
     );
-    const searchParams = new URLSearchParams(window.location.search.substring(1));
+    const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
-    const filePath = searchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
+    const filePath = urlSearchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
     if (null !== filePath) {
-        urlSearchParams[SEARCH_PARAM_NAME.FILE_PATH] = getAbsoluteUrl(filePath);
+        searchParams[SEARCH_PARAM_NAME.FILE_PATH] = getAbsoluteUrl(filePath);
     }
 
-    return urlSearchParams;
+    return searchParams;
 };
 
 /**
@@ -145,11 +145,11 @@ const getAllWindowSearchParams = () => {
  *
  * @return An object containing the hash parameters.
  */
-const getAllWindowHashParams = () => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+const getWindowHashParams = () => {
     const urlHashParams: NullableProperties<UrlHashParams> = structuredClone(
         URL_HASH_PARAMS_DEFAULT
     );
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
     const logEventNum = hashParams.get(HASH_PARAM_NAME.LOG_EVENT_NUM);
     if (null !== logEventNum) {
@@ -189,7 +189,7 @@ const copyToClipboard = (
         });
 };
 
-const searchParams = getAllWindowSearchParams();
+const searchParams = getWindowSearchParams();
 
 interface UrlContextProviderProps {
     children: React.ReactNode
@@ -209,7 +209,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         ...URL_SEARCH_PARAMS_DEFAULT,
         ...URL_HASH_PARAMS_DEFAULT,
         ...searchParams,
-        ...getAllWindowHashParams(),
+        ...getWindowHashParams(),
     });
 
     useEffect(() => {
@@ -218,7 +218,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
                 ...URL_SEARCH_PARAMS_DEFAULT,
                 ...URL_HASH_PARAMS_DEFAULT,
                 ...searchParams,
-                ...getAllWindowHashParams(),
+                ...getWindowHashParams(),
             });
         };
 
