@@ -165,13 +165,13 @@ const getWindowHashParams = () => {
 
 /**
  * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,
- * the copied URL will include these modifications, while the original window's URL remains
- * unchanged.
+ * the copied URL will include these modifications, but the original window's URL will not be
+ * changed.
  *
  * @param searchParamUpdates An object containing key-value pairs to update the search parameters.
- * If a key's value is `null`, the key will be removed from the search parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
  * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
- * If a key's value is `null`, the key will be removed from the hash parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
 const copyToClipboard = (
     searchParamUpdates: UrlSearchParamUpdatesType,
