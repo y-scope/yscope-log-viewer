@@ -174,10 +174,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq,
     ]);
 
+    // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
+    // On `logEventNum` updates, clamp the number or switch page when needed.
     useEffect(() => {
         const newPage = (null === logEventNum) ?
             1 :
@@ -206,6 +208,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq,
     ]);
 
+    // On `filePath` updates, load file.
     useEffect(() => {
         if (null !== filePath) {
             const cursor: CursorType = (null === pageNumRef.current) ?
