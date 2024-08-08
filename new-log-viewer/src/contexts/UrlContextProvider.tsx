@@ -113,6 +113,7 @@ const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
         const newUrl = new URL(window.location.href);
         newUrl.hash = newHash;
         window.history.pushState({}, "", newUrl);
+        // `history.pushState` doesn't trigger a `hashchange`, so we need to dispatch one manually.
         window.dispatchEvent(new HashChangeEvent("hashchange"));
     }
 };
