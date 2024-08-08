@@ -195,9 +195,8 @@ interface UrlContextProviderProps {
 }
 
 /**
- * Provides a context for managing URL parameters and hash values,
- * including utilities for setting search and hash parameters,
- * and copying the current URL with these parameters to the clipboard.
+ * Provides a context for managing URL search and hash parameters including utilities for setting
+ * each, and copying the current URL with these parameters to the clipboard.
  *
  * @param props
  * @param props.children The child components that will have access to the context.
