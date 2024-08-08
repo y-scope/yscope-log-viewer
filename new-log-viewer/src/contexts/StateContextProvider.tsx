@@ -19,7 +19,10 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {clamp} from "../utils/math";
+import {
+    clamp,
+    getPageNumFromLogEventNum,
+} from "../utils/math";
 import {
     updateWindowHashParams,
     UrlContext,
@@ -111,7 +114,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const numPages = useMemo(() => {
-        return Math.ceil(numEvents / PAGE_SIZE);
+        return getPageNumFromLogEventNum(numEvents, PAGE_SIZE);
     }, [numEvents]);
 
     const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
@@ -176,9 +179,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [logEventNum]);
 
     useEffect(() => {
-        const newPage = (null === logEventNum || 0 >= logEventNum) ?
+        const newPage = (null === logEventNum) ?
             1 :
-            Math.max(1, numPages);
+            clamp(getPageNumFromLogEventNum(logEventNum, PAGE_SIZE), 1, numPages);
 
         if (newPage === pageNumRef.current) {
             const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);

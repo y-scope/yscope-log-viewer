@@ -9,4 +9,17 @@
  */
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
-export {clamp};
+/**
+ * Returns the page number based on the log event number and page size.
+ *
+ * @param logEventNum The log event number.
+ * @param pageSize The number of log events in each page.
+ * @return The calculated page number.
+ */
+const getPageNumFromLogEventNum =
+    (logEventNum: number, pageSize: number) => Math.ceil(logEventNum / pageSize);
+
+export {
+    clamp,
+    getPageNumFromLogEventNum,
+};
