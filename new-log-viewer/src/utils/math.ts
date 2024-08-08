@@ -7,8 +7,6 @@
  * @param max The upper boundary of the output range.
  * @return The clamped number.
  */
-const clamp = function (num: number, min: number, max: number) {
-    return Math.min(Math.max(num, min), max);
-};
+const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
 export {clamp};
