@@ -1,35 +1,51 @@
-.menu-left {
-  float: left;
+#menu-bar {
   display: flex;
-  flex-direction: row;
-  height: 100%;
-}
+  flex-wrap: wrap;
+  height: 36px;
 
-.menu-right {
-  float: right;
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-}
-
-.menu-item {
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
   align-items: center;
-  padding: 0 7px;
+
+  font-size: 14px;
+  color: white;
 }
 
-.menu-item-btn {
-  cursor: pointer;
-}
+#menu-bar-left {
+  flex-grow: 1;
 
-.menu-divider {
-  width: 1px;
   height: 100%;
-  background: #494c50;
 }
+
+#menu-bar-file-info {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  white-space: nowrap;
+}
+
+#menu-bar-file-info-icon {
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+
+//.menu-item {
+//  height: 100%;
+//  display: flex;
+//  flex-direction: row;
+//  justify-content: center;
+//  align-items: center;
+//  padding: 0 7px;
+//}
+//
+//.menu-item-btn {
+//  cursor: pointer;
+//}
+
+//.menu-divider {
+//  width: 1px;
+//  height: 100%;
+//  background: #494c50;
+//}
 
 kbd {
   display: inline-block;
@@ -38,34 +54,6 @@ kbd {
   margin: 0 0.1em;
   font-size: 9px;
   background-color: #f7f7f7;
-}
-
-.viewer-header[data-theme="light"] {
-  .menu-divider {
-    background: #c4c8cd;
-  }
-
-  .page-input {
-    border-color: red;
-  }
-
-  .menu-item-btn:hover {
-    background: #cecece;
-  }
-}
-
-.viewer-header[data-theme="dark"] {
-  .menu-divider {
-    background: #494c50;
-  }
-
-  .page-input {
-    border-color: green;
-  }
-
-  .menu-item-btn:hover {
-    background: #454545;
-  }
 }
 
 .modal-light {
@@ -128,4 +116,25 @@ kbd {
   kbd {
     background: #000;
   }
+}
+
+#theme-dropdown-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+#theme-dropdown-label {
+  display: block;
+  color: var(--foreground);
+  font-size: var(--type-ramp-base-font-size);
+  cursor: pointer;
+  line-height: var(--type-ramp-base-line-height);
+  margin-bottom: 2px;
+}
+
+#theme-dropdown {
+
 }
