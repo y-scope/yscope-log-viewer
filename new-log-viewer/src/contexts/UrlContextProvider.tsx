@@ -109,13 +109,15 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
 const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHash = getUpdatedHashParams(updates);
     const currHash = window.location.hash.substring(1);
-    if (newHash !== currHash) {
-        const newUrl = new URL(window.location.href);
-        newUrl.hash = newHash;
-        window.history.pushState({}, "", newUrl);
-        // `history.pushState` doesn't trigger a `hashchange`, so we need to dispatch one manually.
-        window.dispatchEvent(new HashChangeEvent("hashchange"));
+    if (newHash === currHash) {
+        return;
     }
+
+    const newUrl = new URL(window.location.href);
+    newUrl.hash = newHash;
+    window.history.pushState({}, "", newUrl);
+    // `history.pushState` doesn't trigger a `hashchange`, so we need to dispatch one manually.
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
 };
 
 /**
