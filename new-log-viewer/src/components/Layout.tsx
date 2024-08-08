@@ -38,7 +38,7 @@ const Layout = () => {
                     <input
                         type={"number"}
                         value={null === logEventNum ?
-                            -1 :
+                            1 :
                             logEventNum}
                         onChange={handleLogEventNumInputChange}/>
                     {" "}
