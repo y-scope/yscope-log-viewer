@@ -6,7 +6,7 @@ import LoadingIcons from "react-loading-icons";
 
 import {THEME_NAMES} from "../ThemeContext/constants";
 import {ThemeContext} from "../ThemeContext/ThemeContext";
-import {MenuBar} from "./components/MenuBar/MenuBar";
+import MenuBar from "./components/MenuBar/MenuBar";
 import MonacoInstance from "./components/Monaco/MonacoInstance";
 import {StatusBar} from "./components/StatusBar/StatusBar";
 import CLP_WORKER_PROTOCOL from "./services/CLP_WORKER_PROTOCOL";
@@ -286,11 +286,11 @@ export function Viewer ({fileInfo, prettifyLog, logEventNumber, timestamp}) {
             {false === loadingFile &&
                 <div className="d-flex h-100 flex-column">
                     <MenuBar
-                        loadingLogs={loadingLogs}
+                        isLoadingLogs={loadingLogs}
                         fileMetaData={fileMetadata}
                         logFileState={logFileState}
-                        changeStateCallback={changeState}
-                        loadFileCallback={loadFile}/>
+                        onStateChange={changeState}
+                        onFileLoad={loadFile}/>
 
                     <div className="flex-fill h-100 overflow-hidden">
                         <MonacoInstance
