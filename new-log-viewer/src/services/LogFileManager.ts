@@ -114,7 +114,7 @@ class LogFileManager {
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
-     * @throws Error if any error occurs during decode.
+     * @throws {Error} if any error occurs during decode.
      */
     loadPage (cursor: CursorType): {
         logs: string,
