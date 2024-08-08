@@ -96,6 +96,7 @@ const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNum
 
 /**
  * Provides state management for the application.
+ * This provider must be wrapped by UrlContextProvider to function correctly.
  *
  * @param props
  * @param props.children
