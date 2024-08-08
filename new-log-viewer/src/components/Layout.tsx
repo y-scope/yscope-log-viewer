@@ -2,7 +2,7 @@ import React, {useContext} from "react";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
-    copyWindowUrlToClipboard,
+    copyPermalinkToClipboard,
     updateWindowUrlHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
@@ -26,7 +26,7 @@ const Layout = () => {
     };
 
     const handleCopyLinkButtonClick = () => {
-        copyWindowUrlToClipboard({}, {logEventNum: numEvents});
+        copyPermalinkToClipboard({}, {logEventNum: numEvents});
     };
 
     return (

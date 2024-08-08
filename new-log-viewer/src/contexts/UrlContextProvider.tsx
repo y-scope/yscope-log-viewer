@@ -131,7 +131,7 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
  * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
  * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
-const copyWindowUrlToClipboard = (
+const copyPermalinkToClipboard = (
     searchParamUpdates: UrlSearchParamUpdatesType,
     hashParamsUpdates: UrlHashParamUpdatesType,
 ) => {
@@ -236,7 +236,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
 export default UrlContextProvider;
 export {
-    copyWindowUrlToClipboard,
+    copyPermalinkToClipboard,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
     UrlContext,
