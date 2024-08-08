@@ -36,8 +36,8 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
  *
- * @param updates An object containing key-value pairs to update the search parameters.
- * If a key's value is `null`, the key will be removed from the search parameters.
+ * @param updates An object containing key-value pairs to update the search parameters. If a value
+ * is `null`, the corresponding kv-pair will be removed from the updated search parameters.
  * @return The updated search parameters string.
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
@@ -71,8 +71,8 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
 /**
  * Computes updated URL hash parameters based on the provided key-value pairs.
  *
- * @param updates An object containing key-value pairs to update the hash parameters.
- * If a key's value is `null`, the key will be removed from the hash parameters.
+ * @param updates An object containing key-value pairs to update the hash parameters. If a key's
+  * value is `null`, the key will be removed from the updated hash parameters.
  * @return The updated hash parameters string.
  */
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
@@ -89,10 +89,10 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
 };
 
 /**
- * Updates search parameters in the current window's URL based on the provided key-value pairs.
+ * Updates search parameters in the current window's URL with the given key-value pairs.
  *
- * @param updates An object containing key-value pairs to update the search parameters.
- * If a key's value is `null`, the key will be removed from the search parameters.
+ * @param updates An object containing key-value pairs to update the search parameters. If a value
+ * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
  */
 const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
@@ -101,10 +101,10 @@ const updateWindowSearchParams = (updates: UrlSearchParamUpdatesType) => {
 };
 
 /**
- * Updates hash parameters in the current window's URL based on the provided key-value pairs.
+ * Updates hash parameters in the current window's URL with the given key-value pairs.
  *
- * @param updates An object containing key-value pairs to update the hash parameters.
- * If a key's value is `null`, the key will be removed from the hash parameters.
+ * @param updates An object containing key-value pairs to update the hash parameters. If a value is
+ * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
 const updateWindowHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHash = getUpdatedHashParams(updates);
