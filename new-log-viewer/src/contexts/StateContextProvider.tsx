@@ -55,14 +55,14 @@ interface StateContextProviderProps {
 }
 
 /**
-Updates the log event number in the current window's URL hash parameters.
-
-@param lastLogEventNum The last log event number value.
-@param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
-number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
-hash parameter log event number will be clamped to that range.
+ * Updates the log event number in the current window's URL hash parameters.
+ *
+ * @param lastLogEventNum The last log event number value.
+ * @param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
+ * number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
+ * hash parameter log event number will be clamped to that range.
  */
-const updateLogEventNum = (
+const updateLogEventNumInUrl = (
     lastLogEventNum: number,
     inputLogEventNum: Nullable<number>
 ) => {
@@ -129,7 +129,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
                 const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
-                updateLogEventNum(lastLogEventNum, logEventNumRef.current);
+                updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
@@ -182,7 +182,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         if (newPage === pageNumRef.current) {
             const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);
-            updateLogEventNum(lastLogEventNum, logEventNumRef.current);
+            updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
         } else {
             pageNumRef.current = newPage;
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
