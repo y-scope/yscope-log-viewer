@@ -196,7 +196,7 @@ class LogFileManager {
             };
         }
 
-        let beginLogEventIdx: number = 1;
+        let beginLogEventIdx: number = 0;
         const {code, args} = cursor;
         if (CURSOR_CODE.PAGE_NUM === code) {
             beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
