@@ -154,7 +154,7 @@ const getWindowHashParams = () => {
     const logEventNum = hashParams.get(HASH_PARAM_NAME.LOG_EVENT_NUM);
     if (null !== logEventNum) {
         const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAME.LOG_EVENT_NUM] = isNaN(parsed) ?
+        urlHashParams[HASH_PARAM_NAME.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
             null :
             parsed;
     }
