@@ -6,8 +6,8 @@ import React, {
 
 import {NullableProperties} from "../typings/common";
 import {
-    HASH_PARAM_NAME,
-    SEARCH_PARAM_NAME,
+    HASH_PARAM_NAMES,
+    SEARCH_PARAM_NAMES,
     UrlHashParams,
     UrlHashParamUpdatesType,
     UrlParamsType,
@@ -23,14 +23,14 @@ const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
  * Default values of the search parameters.
  */
 const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
-    [SEARCH_PARAM_NAME.FILE_PATH]: null,
+    [SEARCH_PARAM_NAMES.FILE_PATH]: null,
 });
 
 /**
  * Default values of the hash parameters.
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
-    [HASH_PARAM_NAME.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
 });
 
 /**
@@ -45,7 +45,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const {filePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
-        if (SEARCH_PARAM_NAME.FILE_PATH as string === key) {
+        if (SEARCH_PARAM_NAMES.FILE_PATH as string === key) {
             continue;
         }
         if (null === value) {
@@ -55,9 +55,9 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
         }
     }
     if (null === filePath) {
-        newSearchParams.delete(SEARCH_PARAM_NAME.FILE_PATH);
+        newSearchParams.delete(SEARCH_PARAM_NAMES.FILE_PATH);
     } else if ("undefined" !== typeof filePath) {
-        newSearchParams.set(SEARCH_PARAM_NAME.FILE_PATH, filePath);
+        newSearchParams.set(SEARCH_PARAM_NAMES.FILE_PATH, filePath);
     }
 
     let searchString = newSearchParams.toString();
@@ -158,9 +158,9 @@ const getWindowSearchParams = () => {
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
-    const filePath = urlSearchParams.get(SEARCH_PARAM_NAME.FILE_PATH);
+    const filePath = urlSearchParams.get(SEARCH_PARAM_NAMES.FILE_PATH);
     if (null !== filePath) {
-        searchParams[SEARCH_PARAM_NAME.FILE_PATH] = getAbsoluteUrl(filePath);
+        searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(filePath);
     }
 
     return searchParams;
@@ -177,10 +177,10 @@ const getWindowHashParams = () => {
     );
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const logEventNum = hashParams.get(HASH_PARAM_NAME.LOG_EVENT_NUM);
+    const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
     if (null !== logEventNum) {
         const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAME.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
+        urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
             null :
             parsed;
     }

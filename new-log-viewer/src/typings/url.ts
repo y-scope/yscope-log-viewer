@@ -1,16 +1,16 @@
 import {Nullable} from "./common";
 
 
-enum SEARCH_PARAM_NAME {
+enum SEARCH_PARAM_NAMES {
     FILE_PATH = "filePath",
 }
 
-enum HASH_PARAM_NAME {
+enum HASH_PARAM_NAMES {
     LOG_EVENT_NUM = "logEventNum",
 }
 
 interface UrlSearchParams {
-    [SEARCH_PARAM_NAME.FILE_PATH]: string,
+    [SEARCH_PARAM_NAMES.FILE_PATH]: string,
 }
 
 interface UrlHashParams {
@@ -31,8 +31,8 @@ type UrlParamsType = {
 };
 
 export {
-    HASH_PARAM_NAME,
-    SEARCH_PARAM_NAME,
+    HASH_PARAM_NAMES,
+    SEARCH_PARAM_NAMES,
 };
 export type {
     UrlHashParams,
