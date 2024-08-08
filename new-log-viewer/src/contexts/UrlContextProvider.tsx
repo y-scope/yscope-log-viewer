@@ -72,7 +72,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
  * Computes updated URL hash parameters based on the provided key-value pairs.
  *
  * @param updates An object containing key-value pairs to update the hash parameters. If a key's
-  * value is `null`, the key will be removed from the updated hash parameters.
+ * value is `null`, the key will be removed from the updated hash parameters.
  * @return The updated hash parameters string.
  */
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
@@ -116,6 +116,7 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
     newUrl.hash = newHash;
     window.history.pushState({}, "", newUrl);
+
     // `history.pushState` doesn't trigger a `hashchange`, so we need to dispatch one manually.
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 };
