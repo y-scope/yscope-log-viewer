@@ -1,10 +1,11 @@
 /**
- * Returns a number whose value is limited to the given range.
+ * Clamps a number to the given range. E.g. If the number is greater than the range's upper bound,
+ * the range's upper bound is returned.
  *
  * @param num The number to be clamped.
  * @param min The lower boundary of the output range.
  * @param max The upper boundary of the output range.
- * @return A number in the range [min, max].
+ * @return The clamped number.
  */
 const clamp = function (num: number, min: number, max: number) {
     return Math.min(Math.max(num, min), max);
