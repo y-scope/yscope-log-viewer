@@ -39,6 +39,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
  */
 enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
+    LOAD_PAGE = "loadPage",
 }
 
 enum WORKER_RESP_CODE {
@@ -53,7 +54,11 @@ type WorkerReqMap = {
         pageSize: number,
         cursor: CursorType,
         decoderOptions: DecoderOptionsType
-    };
+    },
+    [WORKER_REQ_CODE.LOAD_PAGE]: {
+        cursor: CursorType,
+        decoderOptions?: DecoderOptionsType
+    },
 };
 
 type WorkerRespMap = {

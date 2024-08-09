@@ -1,12 +1,11 @@
-import {
-    useContext,
-    useEffect,
-} from "react";
+import React, {useContext} from "react";
 
+import {StateContext} from "../contexts/StateContextProvider";
 import {
-    PAGE_SIZE,
-    StateContext,
-} from "../contexts/StateContextProvider";
+    copyPermalinkToClipboard,
+    updateWindowUrlHashParams,
+    UrlContext,
+} from "../contexts/UrlContextProvider";
 
 
 /**
@@ -17,17 +16,18 @@ import {
 const Layout = () => {
     const {
         logData,
-        loadFile,
-        logEventNum,
+        pageNum,
+        numEvents,
     } = useContext(StateContext);
+    const {logEventNum} = useContext(UrlContext);
 
-    useEffect(() => {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        const filePath = urlSearchParams.get("filePath");
-        if (null !== filePath) {
-            loadFile(filePath);
-        }
-    }, [loadFile]);
+    const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
+    };
+
+    const handleCopyLinkButtonClick = () => {
+        copyPermalinkToClipboard({}, {logEventNum: numEvents});
+    };
 
     return (
         <>
@@ -35,13 +35,23 @@ const Layout = () => {
                 <h3>
                     LogEventNum -
                     {" "}
-                    {logEventNum}
+                    <input
+                        type={"number"}
+                        value={null === logEventNum ?
+                            1 :
+                            logEventNum}
+                        onChange={handleLogEventNumInputChange}/>
                     {" "}
                     |
                     PageNum -
                     {" "}
-                    {Math.ceil(logEventNum / PAGE_SIZE)}
+                    {pageNum}
                 </h3>
+
+                <button onClick={handleCopyLinkButtonClick}>
+                    Copy link to last log
+                </button>
+
                 {logData.split("\n").map((line, index) => (
                     <p key={index}>
                         {`<${index + 1}>`}
