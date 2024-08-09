@@ -209,7 +209,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq,
     ]);
 
-    // On `filePath` updates, load file.
+    // On `filePath` update, load file.
     useEffect(() => {
         if (null !== filePath) {
             const cursor: CursorType = (null === pageNumRef.current) ?

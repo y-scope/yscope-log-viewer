@@ -73,6 +73,10 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
         newSearchParams.set(SEARCH_PARAM_NAMES.FILE_PATH, newFilePath);
     }
 
+    // If the stringified search params doesn't contain characters that would make the URL ambiguous
+    // to parse, URL-decode it so that the `filePath` remains human-readable. E.g.
+    // "filePath=https://example.com/log/?s1=1&s2=2#h1=0" would make the final URL ambiguous to
+    // parse since `filePath` itself contains URL parameters.
     let searchString = newSearchParams.toString();
     if (false === (/%23|%26/).test(searchString)) {
         searchString = decodeURIComponent(searchString);
