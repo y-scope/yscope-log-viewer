@@ -72,7 +72,6 @@ const updateLogEventNumInUrl = (
         lastLogEventNum :
         clamp(inputLogEventNum, 1, lastLogEventNum);
 
-    console.log(newLogEventNum);
     updateWindowUrlHashParams({
         logEventNum: newLogEventNum,
     });
