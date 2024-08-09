@@ -10,14 +10,15 @@
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
 /**
- * Returns the page number based on the log event number and page size.
+ * Gets the chunk number that contains an item (assuming that item is in a collection and that
+ * collection is divided into chunks of a given size).
  *
- * @param logEventNum The log event number.
- * @param pageSize The number of log events in each page.
- * @return The calculated page number.
+ * @param itemNum
+ * @param chunkSize
+ * @return The chunk number.
  */
-const getPageNumFromLogEventNum =
-    (logEventNum: number, pageSize: number) => Math.ceil(logEventNum / pageSize);
+const getChunkNum =
+    (itemNum: number, chunkSize: number) => Math.ceil(itemNum / chunkSize);
 
 export {
     clamp,
