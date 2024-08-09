@@ -42,10 +42,11 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     const newSearchParams = new URLSearchParams(window.location.search.substring(1));
-    const {filePath} = updates;
+    const {filePath: newFilePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
         if (SEARCH_PARAM_NAMES.FILE_PATH as string === key) {
+            // Updates to `filePath` should be handled last.
             continue;
         }
         if (null === value) {
@@ -54,10 +55,16 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
             newSearchParams.set(key, String(value));
         }
     }
-    if (null === filePath) {
-        newSearchParams.delete(SEARCH_PARAM_NAMES.FILE_PATH);
-    } else if ("undefined" !== typeof filePath) {
-        newSearchParams.set(SEARCH_PARAM_NAMES.FILE_PATH, filePath);
+
+    // `filePath` should always be the last search parameter
+    const originalFilePath = newSearchParams.get(SEARCH_PARAM_NAMES.FILE_PATH);
+    newSearchParams.delete(SEARCH_PARAM_NAMES.FILE_PATH);
+    if ("undefined" === typeof newFilePath && null !== originalFilePath) {
+        // If no change in `filePath` is specified, put the original `filePath` back.
+        newSearchParams.set(SEARCH_PARAM_NAMES.FILE_PATH, originalFilePath);
+    } else if ("undefined" !== typeof newFilePath && null !== newFilePath) {
+        // If the new `filePath` has a non-null value, set the value.
+        newSearchParams.set(SEARCH_PARAM_NAMES.FILE_PATH, newFilePath);
     }
 
     let searchString = newSearchParams.toString();
