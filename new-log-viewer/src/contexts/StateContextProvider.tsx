@@ -114,9 +114,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const numPages = useMemo(() => {
-        return getChunkNum(numEvents, PAGE_SIZE);
-    }, [numEvents]);
+    const numPages = useMemo(() => getChunkNum(numEvents, PAGE_SIZE), [numEvents]);
 
     const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
         code: T,
