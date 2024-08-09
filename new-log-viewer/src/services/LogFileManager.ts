@@ -204,7 +204,7 @@ class LogFileManager {
         if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
             // Set to the first event of the last page
             beginLogEventIdx =
-                getChunkNum(this.#numEvents, this.#pageSize) * this.#pageSize;
+                (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
             throw new Error(`Unsupported cursor type: ${code}`);
         }
