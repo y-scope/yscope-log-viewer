@@ -165,9 +165,12 @@ const getWindowSearchParams = () => {
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
-    const filePath = urlSearchParams.get(SEARCH_PARAM_NAMES.FILE_PATH);
-    if (null !== filePath) {
-        searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(filePath);
+    if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
+        let [, filePath] = window.location.search.split("filePath=");
+        if ("undefined" !== typeof filePath && 0 !== filePath.length) {
+            filePath = filePath.substring(filePath.indexOf("#"));
+            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(filePath);
+        }
     }
 
     return searchParams;
