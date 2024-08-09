@@ -175,7 +175,7 @@ const copyPermalinkToClipboard = (
  *
  * @return An object containing the search parameters.
  */
-const getWindowSearchParams = () => {
+const getWindowUrlSearchParams = () => {
     const searchParams : NullableProperties<UrlSearchParams> = structuredClone(
         URL_SEARCH_PARAMS_DEFAULT
     );
@@ -198,7 +198,7 @@ const getWindowSearchParams = () => {
  *
  * @return An object containing the hash parameters.
  */
-const getWindowHashParams = () => {
+const getWindowUrlHashParams = () => {
     const urlHashParams: NullableProperties<UrlHashParams> = structuredClone(
         URL_HASH_PARAMS_DEFAULT
     );
@@ -215,7 +215,7 @@ const getWindowHashParams = () => {
     return urlHashParams;
 };
 
-const searchParams = getWindowSearchParams();
+const searchParams = getWindowUrlSearchParams();
 
 interface UrlContextProviderProps {
     children: React.ReactNode
@@ -234,7 +234,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         ...URL_SEARCH_PARAMS_DEFAULT,
         ...URL_HASH_PARAMS_DEFAULT,
         ...searchParams,
-        ...getWindowHashParams(),
+        ...getWindowUrlHashParams(),
     });
 
     useEffect(() => {
@@ -243,7 +243,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
                 ...URL_SEARCH_PARAMS_DEFAULT,
                 ...URL_HASH_PARAMS_DEFAULT,
                 ...searchParams,
-                ...getWindowHashParams(),
+                ...getWindowUrlHashParams(),
             });
         };
 
