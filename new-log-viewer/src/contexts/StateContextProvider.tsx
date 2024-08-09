@@ -9,6 +9,7 @@ import React, {
 } from "react";
 
 import {Nullable} from "../typings/common";
+import {CONFIG_NAME} from "../typings/config";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -19,6 +20,7 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
+import {getConfig} from "../utils/config";
 import {
     clamp,
     getPageNumFromLogEventNum,
@@ -162,13 +164,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
             cursor: cursor,
-            decoderOptions: {
-                // TODO: these shall come from config provider
-                formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
-                    " %message%n",
-                logLevelKey: "log.level",
-                timestampKey: "@timestamp",
-            },
+            decoderOptions: getConfig(CONFIG_NAME.DECODER_OPTIONS),
         });
     }, [
         handleMainWorkerResp,
@@ -193,13 +189,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             pageNumRef.current = newPage;
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}},
-                decoderOptions: {
-                    // TODO: these shall come from config provider
-                    formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
-                        " %message%n",
-                    logLevelKey: "log.level",
-                    timestampKey: "@timestamp",
-                },
+                decoderOptions: getConfig(CONFIG_NAME.DECODER_OPTIONS),
             });
         }
     }, [
