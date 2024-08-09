@@ -181,10 +181,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         if (null === logEventNum || 0 === numEvents) {
             return;
-        } else if (0 === numPagesRef.current) {
+        }
+        if (0 === numPagesRef.current) {
             numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
         }
-
         const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
             updateLogEventNumInUrl(numEvents, logEventNumRef.current);
