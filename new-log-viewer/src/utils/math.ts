@@ -18,7 +18,7 @@ const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, 
  * @return The chunk number.
  */
 const getChunkNum =
-    (itemNum: number, chunkSize: number) => Math.ceil(itemNum / chunkSize);
+    (itemNum: number, chunkSize: number) => Math.max(1, Math.ceil(itemNum / chunkSize));
 
 export {
     clamp,
