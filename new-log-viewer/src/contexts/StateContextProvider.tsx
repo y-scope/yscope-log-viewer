@@ -95,8 +95,8 @@ const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNum
 };
 
 /**
- * Provides state management for the application.
- * This provider must be wrapped by UrlContextProvider to function correctly.
+ * Provides state management for the application. This provider must be wrapped by
+ * UrlContextProvider to function correctly.
  *
  * @param props
  * @param props.children
@@ -180,7 +180,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // On `logEventNum` updates, clamp the number or switch page when needed.
+    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         const newPage = (null === logEventNum) ?
             1 :

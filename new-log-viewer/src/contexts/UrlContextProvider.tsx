@@ -56,7 +56,13 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
         }
     }
 
-    // `filePath` should always be the last search parameter
+    // `filePath` should always be the last search parameter so that:
+    // 1. Users can specify a remote filePath (a URL) that itself contains URL parameters without
+    //    encoding them. E.g. "<log-viewer-url>/?filePath=https://example.com/log/?p1=v1&p2=v2"
+    // 2. Users can easily modify it in the URL
+    //
+    // NOTE: We're relying on URLSearchParams.set() and URLSearchParams.toString() to store and
+    // serialize the parameters in the order that they were set.
     const originalFilePath = newSearchParams.get(SEARCH_PARAM_NAMES.FILE_PATH);
     newSearchParams.delete(SEARCH_PARAM_NAMES.FILE_PATH);
     if ("undefined" === typeof newFilePath && null !== originalFilePath) {
@@ -68,7 +74,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     }
 
     let searchString = newSearchParams.toString();
-    if (!(/%23|%26/).test(searchString)) {
+    if (false === (/%23|%26/).test(searchString)) {
         searchString = decodeURIComponent(searchString);
     }
 
