@@ -166,6 +166,8 @@ const getWindowSearchParams = () => {
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
+        // Split the search string and take everything after as `filePath` value.
+        // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
         let [, filePath] = window.location.search.split("filePath=");
         if ("undefined" !== typeof filePath && 0 !== filePath.length) {
             filePath = filePath.substring(filePath.indexOf("#"));
