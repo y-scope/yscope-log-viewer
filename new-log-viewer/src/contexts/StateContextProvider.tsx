@@ -182,15 +182,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        const newPage = (null === logEventNum) ?
+        const newPageNum = (null === logEventNum) ?
             1 :
             clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPages);
 
-        if (newPage === pageNumRef.current) {
+        if (newPageNum === pageNumRef.current) {
             const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);
             updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
         } else {
-            pageNumRef.current = newPage;
+            pageNumRef.current = newPageNum;
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}},
                 decoderOptions: {
