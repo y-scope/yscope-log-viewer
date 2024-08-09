@@ -10,7 +10,7 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
-import {getPageNumFromLogEventNum} from "../utils/math";
+import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
@@ -204,7 +204,7 @@ class LogFileManager {
         if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
             // Set to the first event of the last page
             beginLogEventIdx =
-                getPageNumFromLogEventNum(this.#numEvents, this.#pageSize) * this.#pageSize;
+                getChunkNum(this.#numEvents, this.#pageSize) * this.#pageSize;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
             throw new Error(`Unsupported cursor type: ${code}`);
         }

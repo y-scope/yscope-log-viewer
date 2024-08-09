@@ -21,7 +21,7 @@ import {
 } from "../typings/worker";
 import {
     clamp,
-    getPageNumFromLogEventNum,
+    getChunkNum,
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
@@ -115,7 +115,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const numPages = useMemo(() => {
-        return getPageNumFromLogEventNum(numEvents, PAGE_SIZE);
+        return getChunkNum(numEvents, PAGE_SIZE);
     }, [numEvents]);
 
     const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
@@ -184,7 +184,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         const newPage = (null === logEventNum) ?
             1 :
-            clamp(getPageNumFromLogEventNum(logEventNum, PAGE_SIZE), 1, numPages);
+            clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPages);
 
         if (newPage === pageNumRef.current) {
             const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);

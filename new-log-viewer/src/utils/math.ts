@@ -22,5 +22,5 @@ const getChunkNum =
 
 export {
     clamp,
-    getPageNumFromLogEventNum,
+    getChunkNum,
 };
