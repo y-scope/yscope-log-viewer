@@ -34,6 +34,12 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
 });
 
 /**
+ * Regular expression pattern for identifying ambiguous characters in URL.
+ */
+const AMBIGUOUS_URL_CHARS_REGEX =
+    new RegExp(`${encodeURIComponent("#")}|${encodeURIComponent("&")}`);
+
+/**
  * Computes updated URL search parameters based on the provided key-value pairs.
  *
  * @param updates An object containing key-value pairs to update the search parameters. If a value
@@ -78,7 +84,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
     // "filePath=https://example.com/log/?s1=1&s2=2#h1=0" would make the final URL ambiguous to
     // parse since `filePath` itself contains URL parameters.
     let searchString = newSearchParams.toString();
-    if (false === (/%23|%26/).test(searchString)) {
+    if (false === AMBIGUOUS_URL_CHARS_REGEX.test(searchString)) {
         searchString = decodeURIComponent(searchString);
     }
 
