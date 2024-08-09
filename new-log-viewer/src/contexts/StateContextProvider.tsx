@@ -3,7 +3,6 @@ import React, {
     useCallback,
     useContext,
     useEffect,
-    useMemo,
     useRef,
     useState,
 } from "react";
@@ -43,12 +42,12 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT = Object.freeze({
-    beginLineNumToLogEventNum: new Map(),
+    beginLineNumToLogEventNum: new Map<number, number>(),
     loadFile: () => null,
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
-    pageNum: 0,
+    pageNum: null,
 });
 
 const PAGE_SIZE = 10_000;
@@ -73,6 +72,7 @@ const updateLogEventNumInUrl = (
         lastLogEventNum :
         clamp(inputLogEventNum, 1, lastLogEventNum);
 
+    console.log(newLogEventNum);
     updateWindowUrlHashParams({
         logEventNum: newLogEventNum,
     });
@@ -105,16 +105,16 @@ const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNum
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
-    const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
-        useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const beginLineNumToLogEventNumRef =
+        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
-    const pageNumRef = useRef<Nullable<number>>(null);
+    const numEventsRef = useRef<number>(STATE_DEFAULT.numEvents);
+    const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
+    const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
-
-    const numPages = useMemo(() => getChunkNum(numEvents, PAGE_SIZE), [numEvents]);
 
     const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
         code: T,
@@ -129,7 +129,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
+                beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
@@ -178,19 +178,24 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
+    // On `numEvents` update, synchronize `numEventsRef` and update `numPagesRef`.
+    useEffect(() => {
+        numEventsRef.current = numEvents;
+        numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
+    }, [numEvents]);
+
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        const newPageNum = (null === logEventNum) ?
-            1 :
-            clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPages);
+        if (null === logEventNum) {
+            return;
+        }
 
+        const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
-            const lastLogEventNum = getLastLogEventNum(beginLineNumToLogEventNum);
-            updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
-        } else {
-            pageNumRef.current = newPageNum;
+            updateLogEventNumInUrl(numEventsRef.current, logEventNumRef.current);
+        } else if (null !== pageNumRef.current) {
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
-                cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}},
+                cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
                 decoderOptions: {
                     // TODO: these shall come from config provider
                     formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
@@ -200,10 +205,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 },
             });
         }
+
+        pageNumRef.current = newPageNum;
     }, [
-        beginLineNumToLogEventNum,
         logEventNum,
-        numPages,
         mainWorkerPostReq,
     ]);
 
@@ -224,11 +229,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
-                beginLineNumToLogEventNum: beginLineNumToLogEventNum,
+                beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 loadFile: loadFile,
                 logData: logData,
                 numEvents: numEvents,
-                numPages: numPages,
+                numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
             }}
         >
