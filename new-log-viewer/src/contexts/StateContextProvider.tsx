@@ -109,7 +109,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
-    const numEventsRef = useRef<number>(STATE_DEFAULT.numEvents);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
 
@@ -177,21 +176,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // On `numEvents` update, synchronize `numEventsRef` and update `numPagesRef`.
-    useEffect(() => {
-        numEventsRef.current = numEvents;
-        numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
-    }, [numEvents]);
-
+    // On `numEvents` update, re-calculate `numPagesRef`.
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === logEventNum) {
+        if (null === logEventNum || 0 === numEvents) {
             return;
+        } else if (0 === numPagesRef.current) {
+            numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
         }
 
         const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
-            updateLogEventNumInUrl(numEventsRef.current, logEventNumRef.current);
+            updateLogEventNumInUrl(numEvents, logEventNumRef.current);
         } else if (null !== pageNumRef.current) {
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
@@ -207,19 +203,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         pageNumRef.current = newPageNum;
     }, [
+        numEvents,
         logEventNum,
         mainWorkerPostReq,
     ]);
 
     // On `filePath` update, load file.
     useEffect(() => {
-        if (null !== filePath) {
-            const cursor: CursorType = (null === pageNumRef.current) ?
-                {code: CURSOR_CODE.LAST_EVENT, args: null} :
-                {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: pageNumRef.current}};
-
-            loadFile(filePath, cursor);
+        if (null === filePath) {
+            return;
         }
+        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+        if (null !== logEventNumRef.current) {
+            const newPageNum = Math.max(getChunkNum(logEventNumRef.current, PAGE_SIZE), 1);
+            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
+        }
+        loadFile(filePath, cursor);
     }, [
         filePath,
         loadFile,
