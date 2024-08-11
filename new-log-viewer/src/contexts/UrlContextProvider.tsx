@@ -266,5 +266,7 @@ export {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
 };

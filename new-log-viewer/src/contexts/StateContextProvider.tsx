@@ -24,6 +24,8 @@ import {
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
 } from "./UrlContextProvider";
 
@@ -179,16 +181,23 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // On `numEvents` update, re-calculate `numPagesRef`.
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === logEventNum || 0 === numEvents) {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
+            STATE_DEFAULT.numEvents === numEvents) {
             return;
         }
-        if (0 === numPagesRef.current) {
+        if (STATE_DEFAULT.numPages === numPagesRef.current) {
             numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
         }
         const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
+            // If no page switching is needed, update `logEventNum` in the URL.
             updateLogEventNumInUrl(numEvents, logEventNumRef.current);
-        } else if (null !== pageNumRef.current) {
+        } else if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
+            // On non-initial page load, when `pageNum` changes due to a `logEventNum` update,
+            // request page switching.
+            // Note `updateLogEventNumInUrl()` is called in the handling of any received
+            // `WORKER_RESP_CODE.PAGE_DATA`, which the response code of
+            // any `WORKER_REQ_CODE.LOAD_PAGE` requests.
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
                 decoderOptions: {
@@ -210,11 +219,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
-        if (null === filePath) {
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
             return;
         }
+
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (null !== logEventNumRef.current) {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
+            // If user provides an initial `logEventNum`, calculate `pageNum` so that the initially
+            // loaded page will contain the desired log event.
             const newPageNum = Math.max(getChunkNum(logEventNumRef.current, PAGE_SIZE), 1);
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
         }
