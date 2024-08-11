@@ -195,7 +195,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         } else if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
             // On non-initial page load, when `pageNum` changes due to a `logEventNum` update,
             // request page switching.
-            // Note `updateLogEventNumInUrl()` is called in the handling of any received
+            // Note `updateLogEventNumInUrl()` is also called in the handling of any received
             // `WORKER_RESP_CODE.PAGE_DATA`, which the response code of
             // any `WORKER_REQ_CODE.LOAD_PAGE` requests.
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
