@@ -1,30 +1,42 @@
 import React, {
     createContext,
     useCallback,
-    useMemo,
+    useContext,
+    useEffect,
     useRef,
     useState,
 } from "react";
 
+import {Nullable} from "../typings/common";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
+    CursorType,
     FileSrcType,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
+import {
+    clamp,
+    getChunkNum,
+} from "../utils/math";
+import {
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
+    UrlContext,
+} from "./UrlContextProvider";
 
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-    loadFile: (fileSrc: FileSrcType) => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     logData: string,
-    logEventNum: number,
     numEvents: number,
     numPages: number,
-    pageNum: number
+    pageNum: Nullable<number>
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -32,14 +44,14 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT = Object.freeze({
-    beginLineNumToLogEventNum: new Map(),
+    beginLineNumToLogEventNum: new Map<number, number>(),
     loadFile: () => null,
     logData: "Loading...",
-    logEventNum: 1,
     numEvents: 0,
     numPages: 0,
-    pageNum: 0,
+    pageNum: null,
 });
+
 const PAGE_SIZE = 10_000;
 
 interface StateContextProviderProps {
@@ -47,28 +59,62 @@ interface StateContextProviderProps {
 }
 
 /**
- * Provides state management for the application.
+ * Updates the log event number in the current window's URL hash parameters.
+ *
+ * @param lastLogEventNum The last log event number value.
+ * @param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
+ * number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
+ * hash parameter log event number will be clamped to that range.
+ */
+const updateLogEventNumInUrl = (
+    lastLogEventNum: number,
+    inputLogEventNum: Nullable<number>
+) => {
+    const newLogEventNum = (null === inputLogEventNum) ?
+        lastLogEventNum :
+        clamp(inputLogEventNum, 1, lastLogEventNum);
+
+    updateWindowUrlHashParams({
+        logEventNum: newLogEventNum,
+    });
+};
+
+/**
+ * Gets the last log event number from a map of begin line numbers to log event numbers.
+ *
+ * @param beginLineNumToLogEventNum
+ * @return The last log event number.
+ */
+const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
+    const allLogEventNums = Array.from(beginLineNumToLogEventNum.values());
+    let lastLogEventNum = allLogEventNums.at(-1);
+    if ("undefined" === typeof lastLogEventNum) {
+        lastLogEventNum = 1;
+    }
+
+    return lastLogEventNum;
+};
+
+/**
+ * Provides state management for the application. This provider must be wrapped by
+ * UrlContextProvider to function correctly.
  *
  * @param props
  * @param props.children
  * @return
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const [beginLineNumToLogEventNum, setBeginLineNumToLogEventNum] =
-        useState<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const {filePath, logEventNum} = useContext(UrlContext);
+
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [logEventNum, setLogEventNum] = useState<number>(STATE_DEFAULT.logEventNum);
+    const beginLineNumToLogEventNumRef =
+        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const logEventNumRef = useRef(logEventNum);
+    const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
+    const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
-
-    const pageNum = useMemo(() => {
-        return Math.ceil(logEventNum / PAGE_SIZE);
-    }, [logEventNum]);
-
-    const numPages = useMemo(() => {
-        return Math.ceil(numEvents / PAGE_SIZE);
-    }, [numEvents]);
 
     const mainWorkerPostReq = useCallback(<T extends WORKER_REQ_CODE>(
         code: T,
@@ -83,14 +129,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                setBeginLineNumToLogEventNum(args.beginLineNumToLogEventNum);
-                const logEventNums = Array.from(args.beginLineNumToLogEventNum.values());
-
-                let lastLogEventNum = logEventNums.at(-1);
-                if ("undefined" === typeof lastLogEventNum) {
-                    lastLogEventNum = 1;
-                }
-                setLogEventNum(lastLogEventNum);
+                beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
+                const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
+                updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
             case WORKER_RESP_CODE.NUM_EVENTS:
@@ -107,7 +148,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, []);
 
-    const loadFile = useCallback((fileSrc: FileSrcType) => {
+    const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
@@ -118,7 +159,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,
             pageSize: PAGE_SIZE,
-            cursor: {code: CURSOR_CODE.LAST_EVENT, args: null},
+            cursor: cursor,
             decoderOptions: {
                 // TODO: these shall come from config provider
                 formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
@@ -132,16 +173,83 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerPostReq,
     ]);
 
+    // Synchronize `logEventNumRef` with `logEventNum`.
+    useEffect(() => {
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
+    // On `numEvents` update, recalculate `numPagesRef`.
+    useEffect(() => {
+        if (STATE_DEFAULT.numEvents === numEvents) {
+            return;
+        }
+
+        numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
+    }, [numEvents]);
+
+    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
+    useEffect(() => {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+            return;
+        }
+
+        const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
+        if (newPageNum === pageNumRef.current) {
+            // Don't need to switch pages so just update `logEventNum` in the URL.
+            updateLogEventNumInUrl(numEvents, logEventNumRef.current);
+        } else if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
+            // This is not the initial page load, so request a page switch.
+            // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
+            // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
+            // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
+            mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
+                cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
+                decoderOptions: {
+                    // TODO: these shall come from config provider
+                    formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
+                        " %message%n",
+                    logLevelKey: "log.level",
+                    timestampKey: "@timestamp",
+                },
+            });
+        }
+
+        pageNumRef.current = newPageNum;
+    }, [
+        numEvents,
+        logEventNum,
+        mainWorkerPostReq,
+    ]);
+
+    // On `filePath` update, load file.
+    useEffect(() => {
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
+            return;
+        }
+
+        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
+            // Set which page to load since the user specified a specific `logEventNum`.
+            // NOTE: Since we don't know how many pages the log file contains, we only clamp the
+            // minimum of the page number.
+            const newPageNum = Math.max(getChunkNum(logEventNumRef.current, PAGE_SIZE), 1);
+            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
+        }
+        loadFile(filePath, cursor);
+    }, [
+        filePath,
+        loadFile,
+    ]);
+
     return (
         <StateContext.Provider
             value={{
-                beginLineNumToLogEventNum,
-                loadFile,
-                logData,
-                logEventNum,
-                numEvents,
-                numPages,
-                pageNum,
+                beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
+                loadFile: loadFile,
+                logData: logData,
+                numEvents: numEvents,
+                numPages: numPagesRef.current,
+                pageNum: pageNumRef.current,
             }}
         >
             {children}

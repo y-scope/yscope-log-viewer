@@ -1,3 +1,4 @@
+import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
@@ -51,7 +52,7 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
-    buildIdx (beginIdx: number, endIdx: number): LogEventCount | null {
+    buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
         // This method is a dummy implementation since the actual deserialization is done in the
         // constructor.
 
@@ -76,7 +77,7 @@ class JsonlDecoder implements Decoder {
         return true;
     }
 
-    decode (beginIdx: number, endIdx: number): DecodeResultType[] | null {
+    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
         if (0 > beginIdx || this.#logEvents.length < endIdx) {
             return null;
         }

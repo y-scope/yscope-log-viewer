@@ -10,6 +10,7 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
+import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import JsonlDecoder from "./decoders/JsonlDecoder";
@@ -113,6 +114,7 @@ class LogFileManager {
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
+     * @throws {Error} if any error occurs during decode.
      */
     loadPage (cursor: CursorType): {
         logs: string,
@@ -194,20 +196,17 @@ class LogFileManager {
             };
         }
 
-        let beginLogEventIdx: number;
+        let beginLogEventIdx: number = 0;
         const {code, args} = cursor;
-        switch (code) {
-            case CURSOR_CODE.LAST_EVENT:
-                beginLogEventIdx =
-                    (Math.floor((this.#numEvents - 1) / this.#pageSize) * this.#pageSize);
-                break;
-            case CURSOR_CODE.PAGE_NUM:
-                beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
-                break;
-            default:
-                throw new Error(`Unsupported cursor type: ${code}`);
+        if (CURSOR_CODE.PAGE_NUM === code) {
+            beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
         }
-
+        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
+            // Set to the first event of the last page
+            beginLogEventIdx = (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
+        } else if (CURSOR_CODE.TIMESTAMP === code) {
+            throw new Error(`Unsupported cursor type: ${code}`);
+        }
         const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
         return {beginLogEventNum, endLogEventNum};
