@@ -52,7 +52,7 @@ const STATE_DEFAULT = Object.freeze({
     pageNum: null,
 });
 
-const PAGE_SIZE = 10_000;
+const PAGE_SIZE = 1_000;
 
 interface StateContextProviderProps {
     children: React.ReactNode
@@ -179,16 +179,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [logEventNum]);
 
     // On `numEvents` update, recalculate `numPagesRef`.
-    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
-            STATE_DEFAULT.numEvents === numEvents) {
+        if (STATE_DEFAULT.numEvents === numEvents) {
             return;
         }
 
-        if (STATE_DEFAULT.numPages === numPagesRef.current) {
-            numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
+        numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
+    }, [numEvents]);
+
+    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
+    useEffect(() => {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+            return;
         }
+
         const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
             // Don't need to switch pages so just update `logEventNum` in the URL.
