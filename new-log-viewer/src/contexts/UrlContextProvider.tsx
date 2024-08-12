@@ -34,7 +34,7 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
 });
 
 /**
- * Regular expression pattern for identifying ambiguous characters in URL.
+ * Regular expression pattern for identifying ambiguous characters in a URL.
  */
 const AMBIGUOUS_URL_CHARS_REGEX =
     new RegExp(`${encodeURIComponent("#")}|${encodeURIComponent("&")}`);

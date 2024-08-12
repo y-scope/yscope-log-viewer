@@ -178,26 +178,26 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // On `numEvents` update, re-calculate `numPagesRef`.
+    // On `numEvents` update, recalculate `numPagesRef`.
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
             STATE_DEFAULT.numEvents === numEvents) {
             return;
         }
+
         if (STATE_DEFAULT.numPages === numPagesRef.current) {
             numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
         }
         const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
         if (newPageNum === pageNumRef.current) {
-            // If no page switching is needed, update `logEventNum` in the URL.
+            // Don't need to switch pages so just update `logEventNum` in the URL.
             updateLogEventNumInUrl(numEvents, logEventNumRef.current);
         } else if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
-            // On non-initial page load, when `pageNum` changes due to a `logEventNum` update,
-            // request page switching.
-            // Note `updateLogEventNumInUrl()` is also called in the handling of any received
-            // `WORKER_RESP_CODE.PAGE_DATA`, which the response code of
-            // any `WORKER_REQ_CODE.LOAD_PAGE` requests.
+            // This is not the initial page load, so request a page switch.
+            // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
+            // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
+            // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
                 decoderOptions: {
@@ -225,8 +225,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            // If user provides an initial `logEventNum`, calculate `pageNum` so that the initially
-            // loaded page will contain the desired log event.
+            // Set which page to load since the user specified a specific `logEventNum`.
+            // NOTE: Since we don't know how many pages the log file contains, we only clamp the
+            // minimum of the page number.
             const newPageNum = Math.max(getChunkNum(logEventNumRef.current, PAGE_SIZE), 1);
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
         }
