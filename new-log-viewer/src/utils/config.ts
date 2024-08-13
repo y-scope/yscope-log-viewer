@@ -1,3 +1,4 @@
+import {PAGE_SIZE} from "../contexts/StateContextProvider";
 import {
     CONFIG_NAME,
     ConfigMap,
@@ -5,6 +6,15 @@ import {
     LOCAL_STORAGE_KEY,
 } from "../typings/config";
 
+
+const DECODER_OPTIONS_DEFAULT = {
+    formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" + " %message%n",
+    logLevelKey: "log.level",
+    timestampKey: "@timestamp",
+};
+const THEMES = ["light",
+    "dark"];
+const THEME_DEFAULT = "light";
 
 /**
  * Retrieves the configuration value from local storage based on the provided configuration name.
@@ -36,12 +46,41 @@ const getConfig = <T extends CONFIG_NAME>(code: T): ConfigMap[T] | null => {
 };
 
 /**
+ * Validates the configuration updates based on the provided configuration updates.
+ *
+ * @param configUpdates
+ * The configuration updates containing the code and value to be validated.
+ * @return
+ * A result message indicating any validation errors, or an empty string if no errors.
+ */
+const testConfig = (configUpdates: ConfigUpdate) => {
+    const {code, value} = configUpdates;
+    let result = "";
+    switch (code) {
+        case CONFIG_NAME.THEME:
+            if (false === THEMES.includes(code)) {
+                result = "Invalid theme name.";
+            }
+            break;
+        case CONFIG_NAME.PAGE_SIZE:
+            if (PAGE_SIZE < value) {
+                result = "Page size must be less or equal to 10_000.";
+            }
+            break;
+        default: break;
+    }
+
+    return result;
+};
+
+/**
  * Updates the configuration value in local storage based on the provided configuration updates.
  *
  * @param configUpdates The configuration updates containing the code and value to be set.
  */
 const setConfig = (configUpdates: ConfigUpdate) => {
     const {code, value} = configUpdates;
+    let error = "";
     switch (code) {
         case CONFIG_NAME.DECODER_OPTIONS:
             window.localStorage.setItem(
@@ -58,11 +97,32 @@ const setConfig = (configUpdates: ConfigUpdate) => {
             );
             break;
         case CONFIG_NAME.THEME:
+            error = testConfig(configUpdates);
+            if (error) {
+                console.error(error, "Setting theme to default");
+                window.localStorage.setItem(LOCAL_STORAGE_KEY.THEME, THEME_DEFAULT);
+                break;
+            }
             window.localStorage.setItem(LOCAL_STORAGE_KEY.THEME, value);
             break;
         case CONFIG_NAME.PAGE_SIZE:
+            error = testConfig(configUpdates);
+            if (error) {
+                console.error(error, "Setting page size to default");
+                window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, PAGE_SIZE.toString());
+                break;
+            }
             window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
             break;
         default: break;
     }
+};
+
+export {
+    DECODER_OPTIONS_DEFAULT,
+    getConfig,
+    setConfig,
+    testConfig,
+    THEME_DEFAULT,
+    THEMES,
 };

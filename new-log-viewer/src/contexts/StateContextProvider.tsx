@@ -18,6 +18,7 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
+import {DECODER_OPTIONS_DEFAULT} from "../utils/config";
 import {
     clamp,
     getChunkNum,
@@ -206,10 +207,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
                 decoderOptions: {
                     // TODO: these shall come from config provider
-                    formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
-                        " %message%n",
-                    logLevelKey: "log.level",
-                    timestampKey: "@timestamp",
+                    formatString: DECODER_OPTIONS_DEFAULT.formatString,
+                    logLevelKey: DECODER_OPTIONS_DEFAULT.logLevelKey,
+                    timestampKey: DECODER_OPTIONS_DEFAULT.timestampKey,
                 },
             });
         }
