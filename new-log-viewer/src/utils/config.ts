@@ -4,27 +4,14 @@ import {
     ConfigUpdate,
     LOCAL_STORAGE_KEY,
 } from "../typings/config";
-import {
-    WORKER_RESP_CODE,
-    WorkerResp,
-} from "../typings/worker";
 
 
 /**
+ * Retrieves the configuration value from local storage based on the provided configuration name.
  *
- * @param code
- * @param args
- */
-const postResp = <T extends WORKER_RESP_CODE>(
-    code: T,
-    args: WorkerResp<T>
-) => {
-    postMessage({code, args});
-};
-
-/**
- *
- * @param code
+ * @template T - The type of the configuration name.
+ * @param code The configuration name to retrieve the value for.
+ * @return - The configuration value or null if not found.
  */
 const getConfig = <T extends CONFIG_NAME>(code: T): ConfigMap[T] | null => {
     switch (code) {
@@ -49,8 +36,9 @@ const getConfig = <T extends CONFIG_NAME>(code: T): ConfigMap[T] | null => {
 };
 
 /**
+ * Updates the configuration value in local storage based on the provided configuration updates.
  *
- * @param configUpdates
+ * @param configUpdates The configuration updates containing the code and value to be set.
  */
 const setConfig = (configUpdates: ConfigUpdate) => {
     const {code, value} = configUpdates;
