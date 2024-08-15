@@ -13,7 +13,6 @@ enum CONFIG_CODE {
     PAGE_SIZE = "pageSize",
 }
 
-
 /* eslint-disable @typescript-eslint/prefer-literal-enum-member */
 enum LOCAL_STORAGE_KEY {
     DECODER_OPTIONS_FORMAT_STRING = `${CONFIG_CODE.DECODER_OPTIONS}/formatString`,
