@@ -45,8 +45,8 @@ const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
             }
             break;
         case CONFIG_CODE.PAGE_SIZE:
-            if (MAX_PAGE_SIZE < value || 0 >= value) {
-                result = "Invalid page size.";
+            if (0 >= value || MAX_PAGE_SIZE < value) {
+                result = `Page size must be greater than 0 and not exceed ${MAX_PAGE_SIZE}.`;
             }
             break;
         default: break;
