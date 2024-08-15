@@ -29,12 +29,12 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
 });
 
 /**
- * Validates the configuration updates based on the provided configuration updates.
+ * Validates the configuration value based on the provided code and value.
  *
- * @param props The configuration updates containing the code and value to be validated.
+ * @param props The code and value to be validated.
  * @param props.code
  * @param props.value
- * @return A result message indicating any validation errors, or an empty string if no errors.
+ * @return Null if the value is valid, otherwise returns an error message.
  */
 const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
@@ -57,11 +57,12 @@ const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
 
 
 /**
- * Updates the configuration value in local storage based on the provided configuration updates.
+ * Updates the configuration value based on the provided code and value.
  *
- * @param props The configuration updates containing the code and value to be set.
+ * @param props The code and value to be updated.
  * @param props.code
  * @param props.value
+ * @return Null if the update succeeds, otherwise returns an error message.
  */
 const setConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     const error = testConfig({code, value} as ConfigUpdate);
@@ -99,10 +100,10 @@ const setConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
 };
 
 /**
- * Retrieves the configuration value from local storage based on the provided configuration name.
+ * Retrieves the configuration value for the specified code.
  *
- * @param code The configuration name to retrieve the value for.
- * @return The configuration value or null if not found.
+ * @param code The code representing the configuration to retrieve.
+ * @return The value.
  */
 const getConfig = <T extends CONFIG_CODE>(code: T): ConfigMap[T] => {
     let value = null;
