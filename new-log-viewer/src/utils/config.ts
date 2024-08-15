@@ -4,19 +4,14 @@ import {
     ConfigMap,
     ConfigUpdate,
     LOCAL_STORAGE_KEY,
+    THEME_NAME,
 } from "../typings/config";
 
-
-enum THEME {
-    SYSTEM = "system",
-    DARK = "dark",
-    LIGHT = "light",
-}
 
 const MAX_PAGE_SIZE = 1_000_000;
 
 /**
- *
+ * The default configuration values.
  */
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_CODE.DECODER_OPTIONS]: {
@@ -24,7 +19,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },
-    [CONFIG_CODE.THEME]: THEME.SYSTEM,
+    [CONFIG_CODE.THEME]: THEME_NAME.SYSTEM,
     [CONFIG_CODE.PAGE_SIZE]: 10_000,
 });
 
@@ -40,7 +35,7 @@ const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
     switch (code) {
         case CONFIG_CODE.THEME:
-            if (false === (Object.values(THEME) as string[]).includes(value)) {
+            if (false === (Object.values(THEME_NAME)).includes(value)) {
                 result = "Invalid theme name.";
             }
             break;
