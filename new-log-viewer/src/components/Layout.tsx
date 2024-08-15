@@ -6,7 +6,10 @@ import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
-import {CONFIG_CODE} from "../typings/config";
+import {
+    CONFIG_CODE,
+    THEME_NAME,
+} from "../typings/config";
 import {
     getConfig,
     setConfig,
@@ -81,7 +84,7 @@ const ConfigForm = () => {
         if ("string" === typeof theme) {
             error ||= setConfig({
                 code: CONFIG_CODE.THEME,
-                value: theme,
+                value: theme as THEME_NAME,
             });
         }
         if ("string" === typeof pageSize) {
