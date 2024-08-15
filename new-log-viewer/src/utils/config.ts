@@ -152,7 +152,6 @@ const getConfig = <T extends CONFIG_CODE>(code: T): ConfigMap[T] => {
 };
 
 export {
-    CONFIG_DEFAULT,
     getConfig,
     setConfig,
     testConfig,
