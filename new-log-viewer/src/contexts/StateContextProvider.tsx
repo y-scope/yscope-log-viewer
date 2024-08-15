@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 import {Nullable} from "../typings/common";
-import {CONFIG_NAME} from "../typings/config";
+import {CONFIG_CODE} from "../typings/config";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -53,8 +53,6 @@ const STATE_DEFAULT = Object.freeze({
     numPages: 0,
     pageNum: null,
 });
-
-const PAGE_SIZE = 10_000;
 
 interface StateContextProviderProps {
     children: React.ReactNode
@@ -160,15 +158,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         mainWorkerRef.current.onmessage = handleMainWorkerResp;
         mainWorkerPostReq(WORKER_REQ_CODE.LOAD_FILE, {
             fileSrc: fileSrc,
-            pageSize: PAGE_SIZE,
+            pageSize: getConfig(CONFIG_CODE.PAGE_SIZE),
             cursor: cursor,
-            decoderOptions: {
-                // TODO: these shall come from config provider
-                formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level" +
-                    " %message%n",
-                logLevelKey: "log.level",
-                timestampKey: "@timestamp",
-            },
+            decoderOptions: getConfig(CONFIG_CODE.DECODER_OPTIONS),
         });
     }, [
         handleMainWorkerResp,
@@ -186,7 +178,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numEvents, PAGE_SIZE);
+        numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_CODE.PAGE_SIZE));
     }, [numEvents]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -195,7 +187,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        const newPageNum = clamp(getChunkNum(logEventNum, PAGE_SIZE), 1, numPagesRef.current);
+        const newPageNum = clamp(
+            getChunkNum(logEventNum, getConfig(CONFIG_CODE.PAGE_SIZE)),
+            1,
+            numPagesRef.current
+        );
+
         if (newPageNum === pageNumRef.current) {
             // Don't need to switch pages so just update `logEventNum` in the URL.
             updateLogEventNumInUrl(numEvents, logEventNumRef.current);
@@ -206,7 +203,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                decoderOptions: getConfig(CONFIG_NAME.DECODER_OPTIONS),
+                decoderOptions: getConfig(CONFIG_CODE.DECODER_OPTIONS),
             });
         }
 
@@ -228,7 +225,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             // Set which page to load since the user specified a specific `logEventNum`.
             // NOTE: Since we don't know how many pages the log file contains, we only clamp the
             // minimum of the page number.
-            const newPageNum = Math.max(getChunkNum(logEventNumRef.current, PAGE_SIZE), 1);
+            const newPageNum = Math.max(
+                getChunkNum(logEventNumRef.current, getConfig(CONFIG_CODE.PAGE_SIZE)),
+                1
+            );
+
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
         }
         loadFile(filePath, cursor);
@@ -255,7 +256,4 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
 
 export default StateContextProvider;
-export {
-    PAGE_SIZE,
-    StateContext,
-};
+export {StateContext};
