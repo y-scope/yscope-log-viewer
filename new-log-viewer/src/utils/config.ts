@@ -34,6 +34,11 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
 const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
     switch (code) {
+        case CONFIG_CODE.DECODER_OPTIONS:
+            if (Object.values(value).includes("")) {
+                result = "Decoder options cannot be empty.";
+            }
+            break;
         case CONFIG_CODE.THEME:
             if (false === (Object.values(THEME_NAME)).includes(value)) {
                 result = "Invalid theme name.";
