@@ -130,7 +130,7 @@ const getConfig = <T extends CONFIG_CODE>(code: T): ConfigMap[T] => {
 
     // Fallback to default values if the config is absent from `localStorage`.
     if (null === value ||
-        ("object" === typeof value && Object.values(value as object).includes(null))) {
+        ("object" === typeof value && Object.values(value).includes(null))) {
         value = CONFIG_DEFAULT[code];
         setConfig({code, value} as ConfigUpdate);
     }
