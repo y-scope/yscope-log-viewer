@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 import {Nullable} from "../typings/common";
+import {CONFIG_NAME} from "../typings/config";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -18,7 +19,7 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {DECODER_OPTIONS_DEFAULT} from "../utils/config";
+import {getConfig} from "../utils/config";
 import {
     clamp,
     getChunkNum,
@@ -205,12 +206,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
             mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
                 cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                decoderOptions: {
-                    // TODO: these shall come from config provider
-                    formatString: DECODER_OPTIONS_DEFAULT.formatString,
-                    logLevelKey: DECODER_OPTIONS_DEFAULT.logLevelKey,
-                    timestampKey: DECODER_OPTIONS_DEFAULT.timestampKey,
-                },
+                decoderOptions: getConfig(CONFIG_NAME.DECODER_OPTIONS),
             });
         }
 

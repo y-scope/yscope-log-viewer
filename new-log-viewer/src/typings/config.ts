@@ -22,13 +22,15 @@ type ConfigMap = {
     [CONFIG_NAME.PAGE_SIZE]: number,
 }
 
+type ConfigValueType<T extends CONFIG_NAME>= { code: T, value: ConfigMap[T] | null};
+
 type ConfigUpdate = {
-    [T in keyof ConfigMap]: { code: T, value: ConfigMap[T] };
+    [T in keyof ConfigMap]: ConfigValueType<T>;
 }[keyof ConfigMap];
 
 export {
     CONFIG_NAME, LOCAL_STORAGE_KEY,
 };
 export type {
-    ConfigMap, ConfigUpdate,
+    ConfigMap, ConfigUpdate, ConfigValueType,
 };
