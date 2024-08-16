@@ -121,7 +121,7 @@ const getConfig = <T extends CONFIG_CODE>(code: T): ConfigMap[T] => {
                 timestampKey: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
-            };
+            } as DecoderOptionsType;
             break;
         case CONFIG_CODE.THEME: {
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.THEME);
