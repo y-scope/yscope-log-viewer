@@ -7,7 +7,7 @@ import {
     UrlContext,
 } from "../contexts/UrlContextProvider";
 import {
-    CONFIG_CODE,
+    CONFIG_KEY,
     THEME_NAME,
 } from "../typings/config";
 import {
@@ -18,31 +18,31 @@ import {
 
 const formFields = [
     {
-        initialValue: getConfig(CONFIG_CODE.DECODER_OPTIONS).formatString,
+        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "decoderOptions/formatString",
         name: "formatString",
         type: "text",
     },
     {
-        initialValue: getConfig(CONFIG_CODE.DECODER_OPTIONS).logLevelKey,
+        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
         label: "decoderOptions/logLevelKey",
         name: "logLevelKey",
         type: "text",
     },
     {
-        initialValue: getConfig(CONFIG_CODE.DECODER_OPTIONS).timestampKey,
+        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
         label: "decoderOptions/timestampKey",
         name: "timestampKey",
         type: "text",
     },
     {
-        initialValue: getConfig(CONFIG_CODE.THEME),
+        initialValue: getConfig(CONFIG_KEY.THEME),
         label: "Theme",
         name: "theme",
         type: "text",
     },
     {
-        initialValue: getConfig(CONFIG_CODE.PAGE_SIZE),
+        initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
         label: "Page Size",
         name: "pageSize",
         type: "number",
@@ -77,19 +77,19 @@ const ConfigForm = () => {
             "string" === typeof timestampKey
         ) {
             error ||= setConfig({
-                code: CONFIG_CODE.DECODER_OPTIONS,
+                key: CONFIG_KEY.DECODER_OPTIONS,
                 value: {formatString, logLevelKey, timestampKey},
             });
         }
         if ("string" === typeof theme) {
             error ||= setConfig({
-                code: CONFIG_CODE.THEME,
+                key: CONFIG_KEY.THEME,
                 value: theme as THEME_NAME,
             });
         }
         if ("string" === typeof pageSize) {
             error ||= setConfig({
-                code: CONFIG_CODE.PAGE_SIZE,
+                key: CONFIG_KEY.PAGE_SIZE,
                 value: Number(pageSize),
             });
         }
