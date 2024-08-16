@@ -24,12 +24,12 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
 });
 
 /**
- * Validates the configuration value based on the provided code and value.
+ * Validates the config denoted by the given code and value.
  *
- * @param props The code and value to be validated.
+ * @param props
  * @param props.code
  * @param props.value
- * @return Null if the value is valid, otherwise returns an error message.
+ * @return `null` if the value is valid, or an error message otherwise.
  */
 const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
@@ -46,7 +46,7 @@ const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
             break;
         case CONFIG_CODE.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
-                result = `Page size must be greater than 0 and not exceed ${MAX_PAGE_SIZE}.`;
+                result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
         default: break;
@@ -57,12 +57,12 @@ const testConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
 
 
 /**
- * Updates the configuration value based on the provided code and value.
+ * Updates the config denoted by the given code and value.
  *
- * @param props The code and value to be updated.
+ * @param props
  * @param props.code
  * @param props.value
- * @return Null if the update succeeds, otherwise returns an error message.
+ * @return `null` if the update succeeds, or an error message otherwise.
  */
 const setConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
     const error = testConfig({code, value} as ConfigUpdate);
@@ -100,9 +100,9 @@ const setConfig = ({code, value}: ConfigUpdate): Nullable<string> => {
 };
 
 /**
- * Retrieves the configuration value for the specified code.
+ * Retrieves the config value for the specified code.
  *
- * @param code The code representing the configuration to retrieve.
+ * @param code
  * @return The value.
  */
 const getConfig = <T extends CONFIG_CODE>(code: T): ConfigMap[T] => {
