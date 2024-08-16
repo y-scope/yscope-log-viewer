@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 
+import {Nullable} from "../../typings/common";
 import {
     Formatter,
     FormatterOptionsType,
@@ -34,7 +35,7 @@ const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
 class LogbackFormatter implements Formatter {
     #formatString: string;
 
-    #datePattern: string = "";
+    #datePattern: Nullable<string> = null;
 
     #dateFormat: string = "";
 
@@ -135,6 +136,10 @@ class LogbackFormatter implements Formatter {
      * @return The formatted string.
      */
     #formatTimestamp (timestamp: dayjs.Dayjs, formatString: string): string {
+        if (null === this.#datePattern) {
+            return formatString;
+        }
+
         const formattedDate = timestamp.format(this.#dateFormat);
         formatString = formatString.replace(this.#datePattern, formattedDate);
 
