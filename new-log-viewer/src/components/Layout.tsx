@@ -8,6 +8,7 @@ import {
 } from "../contexts/UrlContextProvider";
 import {
     CONFIG_KEY,
+    LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
 import {
@@ -19,32 +20,32 @@ import {
 const formFields = [
     {
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
-        label: "decoderOptions/formatString",
-        name: "formatString",
+        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
+        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
         type: "text",
     },
     {
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
-        label: "decoderOptions/logLevelKey",
-        name: "logLevelKey",
+        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
+        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
         type: "text",
     },
     {
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
-        label: "decoderOptions/timestampKey",
-        name: "timestampKey",
+        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
+        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
         type: "text",
     },
     {
         initialValue: getConfig(CONFIG_KEY.THEME),
-        label: "Theme",
-        name: "theme",
+        label: LOCAL_STORAGE_KEY.THEME,
+        name: LOCAL_STORAGE_KEY.THEME,
         type: "text",
     },
     {
         initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
-        label: "Page Size",
-        name: "pageSize",
+        label: LOCAL_STORAGE_KEY.PAGE_SIZE,
+        name: LOCAL_STORAGE_KEY.PAGE_SIZE,
         type: "number",
     },
 ];
@@ -65,11 +66,11 @@ const ConfigForm = () => {
         ev.preventDefault();
         const formData = new FormData(ev.target as HTMLFormElement);
 
-        const formatString = formData.get("formatString");
-        const logLevelKey = formData.get("logLevelKey");
-        const timestampKey = formData.get("timestampKey");
-        const theme = formData.get("theme");
-        const pageSize = formData.get("pageSize");
+        const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+        const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const theme = formData.get(LOCAL_STORAGE_KEY.THEME);
+        const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
         let error = null;
         if (
             "string" === typeof formatString &&
