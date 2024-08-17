@@ -29,6 +29,7 @@ import {
     getNextItemNumInNextChunk,
 } from "../utils/math";
 import Editor from "./Editor";
+import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
 
 const formFields = [
@@ -205,13 +206,14 @@ const Layout = () => {
                 updateWindowUrlHashParams({logEventNum: numEventsRef.current});
                 break;
             case ACTION.PAGE_TOP:
-                editor.setPosition({lineNumber: 1, column: 1});
+                goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
                 break;
             case ACTION.PAGE_BOTTOM: {
                 const lineCount = editor.getModel()?.getLineCount();
-                if ("undefined" !== typeof lineCount) {
-                    editor.setPosition({lineNumber: lineCount, column: 1});
+                if ("undefined" === typeof lineCount) {
+                    break;
                 }
+                goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 break;
             }
             default: break;
