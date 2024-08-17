@@ -1,4 +1,11 @@
-import React, {useContext} from "react";
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+} from "react";
+
+import * as monaco from "monaco-editor";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
@@ -6,15 +13,22 @@ import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
+import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
+import {ACTION} from "../utils/actions";
 import {
     getConfig,
     setConfig,
 } from "../utils/config";
+import {
+    getLastItemNumInPrevChunk,
+    getNextItemNumInNextChunk,
+} from "../utils/math";
+import Editor from "./Editor";
 
 
 const formFields = [
@@ -134,29 +148,89 @@ const ConfigForm = () => {
 };
 
 /**
+ * Handles `logEventNum` input value change for debug purpose.
+ *
+ * @param ev
+ */
+const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
+};
+
+/**
  * Renders the major layout of the log viewer.
  *
  * @return
  */
 const Layout = () => {
     const {
-        logData,
         pageNum,
         numEvents,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
-    const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
-    };
+    const logEventNumRef = useRef<Nullable<number>>(logEventNum);
+    const numEventsRef = useRef<Nullable<number>>(numEvents);
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
     };
 
+    const handleCustomAction = useCallback((
+        editor: monaco.editor.IStandaloneCodeEditor,
+        action: ACTION
+    ) => {
+        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+
+        switch (action) {
+            case ACTION.FIRST_PAGE:
+                updateWindowUrlHashParams({logEventNum: 1});
+                break;
+            case ACTION.PREV_PAGE:
+                if (null !== logEventNumRef.current) {
+                    updateWindowUrlHashParams({
+                        logEventNum: (logEventNumRef.current <= pageSize) ?
+                            1 :
+                            getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
+                    });
+                }
+                break;
+            case ACTION.NEXT_PAGE:
+                if (null !== logEventNumRef.current) {
+                    updateWindowUrlHashParams({
+                        logEventNum: getNextItemNumInNextChunk(logEventNumRef.current, pageSize),
+                    });
+                }
+                break;
+            case ACTION.LAST_PAGE:
+                updateWindowUrlHashParams({logEventNum: numEventsRef.current});
+                break;
+            case ACTION.PAGE_TOP:
+                editor.setPosition({lineNumber: 1, column: 1});
+                break;
+            case ACTION.PAGE_BOTTOM: {
+                const lineCount = editor.getModel()?.getLineCount();
+                if ("undefined" !== typeof lineCount) {
+                    editor.setPosition({lineNumber: lineCount, column: 1});
+                }
+                break;
+            }
+            default: break;
+        }
+    }, []);
+
+    // Synchronize `logEventNumRef` with `logEventNum`.
+    useEffect(() => {
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
+    // Synchronize `numEventsRef` with `numEvents`.
+    useEffect(() => {
+        numEventsRef.current = numEvents;
+    }, [numEvents]);
+
     return (
         <>
-            <div>
+            <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
                 <h3>
                     LogEventNum -
                     {" "}
@@ -178,14 +252,9 @@ const Layout = () => {
                 </button>
 
                 <ConfigForm/>
-
-                {logData.split("\n").map((line, index) => (
-                    <p key={index}>
-                        {`<${index + 1}>`}
-                        -
-                        {line}
-                    </p>
-                ))}
+                <div style={{flexDirection: "column", flexGrow: 1}}>
+                    <Editor onCustomAction={handleCustomAction}/>
+                </div>
             </div>
         </>
     );
