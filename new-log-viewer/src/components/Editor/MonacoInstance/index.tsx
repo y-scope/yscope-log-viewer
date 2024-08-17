@@ -31,7 +31,9 @@ interface MonacoEditorProps {
 }
 
 /**
- * Wraps a Monaco editor and manager .
+ * Wraps a `monaco-editor` instance created from the DOM rendered, which accepts a variety of props
+ * to configure text content, custome actions, and various lifecycle hooks for interacting with
+ * the editor.
  *
  * @param props
  * @param props.text
