@@ -94,6 +94,7 @@ const MonacoEditor = ({
         onMount,
     ]);
 
+    // On `text` update, set the text and position cursor in the editor.
     useEffect(() => {
         if (null === editorRef.current) {
             return;
@@ -108,6 +109,7 @@ const MonacoEditor = ({
         onTextUpdate,
     ]);
 
+    // On `lineNum` update, set the updated position cursor in the editor.
     useEffect(() => {
         if (null === editorRef.current) {
             return;
