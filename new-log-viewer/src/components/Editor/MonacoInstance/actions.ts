@@ -43,6 +43,7 @@ const setupCursorExplicitPosChangeAction = (
 };
 
 /**
+ * Sets up editor focus on `backtick` key down.
  *
  * @param editor
  */
