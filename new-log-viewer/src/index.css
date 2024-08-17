@@ -1,15 +1,5 @@
-html {
-    height: 100%;
-    width: 100%;
-}
-
-body {
+html, body, #root {
     margin: 0;
-    height: 100%;
-    width: 100%;
-}
-
-#root {
     height: 100%;
     width: 100%;
 }
