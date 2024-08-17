@@ -41,7 +41,7 @@ const initMonacoEditor = (
     const editor = monaco.editor.create(
         editorContainer,
         {
-            // FIXME: add custom observer debounce automatic layout
+            // TODO: add custom observer debounce automatic layout
             automaticLayout: true,
             maxTokenizationLineLength: 30_000,
             mouseWheelZoom: true,
