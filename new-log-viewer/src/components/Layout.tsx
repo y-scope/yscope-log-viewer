@@ -176,6 +176,12 @@ const Layout = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
     };
 
+    /**
+     * Handles custom actions in the editor.
+     *
+     * @param editor
+     * @param action The custom action to perform.
+     */
     const handleCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
         action: ACTION
