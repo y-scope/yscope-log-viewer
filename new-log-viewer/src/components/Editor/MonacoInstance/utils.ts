@@ -33,7 +33,7 @@ const goToPositionAndCenter = (
  * @param handlers
  * @return The initialized editor instance.
  */
-const initMonacoEditor = (
+const createMonacoEditor = (
     editorContainer: HTMLDivElement,
     actions: ActionType[],
     handlers: CustomMonacoEditorHandlers
@@ -65,6 +65,6 @@ const initMonacoEditor = (
 };
 
 export {
+    createMonacoEditor,
     goToPositionAndCenter,
-    initMonacoEditor,
 };

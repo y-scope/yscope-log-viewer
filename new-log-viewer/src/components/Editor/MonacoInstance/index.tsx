@@ -15,8 +15,8 @@ import {
     TextUpdateCallback,
 } from "./typings";
 import {
+    createMonacoEditor,
     goToPositionAndCenter,
-    initMonacoEditor,
 } from "./utils";
 
 import "./index.css";
@@ -80,7 +80,7 @@ const MonacoInstance = ({
         }
 
         beforeMount?.();
-        editorRef.current = initMonacoEditor(editorContainerRef.current, actions, {
+        editorRef.current = createMonacoEditor(editorContainerRef.current, actions, {
             onCursorExplicitPosChange: onCursorExplicitPosChange,
             onCustomAction: onCustomAction,
         });
