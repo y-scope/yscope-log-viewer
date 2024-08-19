@@ -65,12 +65,12 @@ const setupFocusOnBacktickDown = (editor: monaco.editor.IStandaloneCodeEditor) =
 /**
  * Calculates the distance between two touch points.
  *
+ * @param touch0
  * @param touch1
- * @param touch2
  * @return The Euclidean distance between the touch points.
  */
-const getTouchDistance = (touch1: Touch, touch2: Touch): number => Math.sqrt(
-    ((touch2.pageX - touch1.pageX) ** 2) + ((touch2.pageY - touch1.pageY) ** 2)
+const getTouchDistance = (touch0: Touch, touch1: Touch): number => Math.sqrt(
+    ((touch1.pageX - touch0.pageX) ** 2) + ((touch1.pageY - touch0.pageY) ** 2)
 );
 
 /**
