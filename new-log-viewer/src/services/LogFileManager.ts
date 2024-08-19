@@ -32,8 +32,8 @@ const loadFile = async (fileSrc: FileSrcType)
         fileName = getBasenameFromUrlOrDefault(fileSrc);
         fileData = await getUint8ArrayFrom(fileSrc, () => null);
     } else {
-        // TODO: support file loading via Open / Drag-n-drop
-        throw new Error("Read from file not yet supported");
+        fileName = fileSrc.name;
+        fileData = new Uint8Array(await fileSrc.arrayBuffer());
     }
 
     return {

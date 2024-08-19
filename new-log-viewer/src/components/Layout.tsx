@@ -11,10 +11,12 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
+import {CURSOR_CODE} from "../typings/worker";
 import {
     getConfig,
     setConfig,
 } from "../utils/config";
+import {openFile} from "../utils/file";
 
 
 const formFields = [
@@ -141,8 +143,9 @@ const ConfigForm = () => {
 const Layout = () => {
     const {
         logData,
-        pageNum,
+        loadFile,
         numEvents,
+        pageNum,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -152,6 +155,12 @@ const Layout = () => {
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
+    };
+
+    const handleOpenFileButtonClick = () => {
+        openFile((file) => {
+            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+        });
     };
 
     return (
@@ -175,6 +184,10 @@ const Layout = () => {
 
                 <button onClick={handleCopyLinkButtonClick}>
                     Copy link to last log
+                </button>
+
+                <button onClick={handleOpenFileButtonClick}>
+                    Open File
                 </button>
 
                 <ConfigForm/>
