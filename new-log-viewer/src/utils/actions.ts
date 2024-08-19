@@ -3,7 +3,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import {Nullable} from "../typings/common";
 
 
-enum ACTION {
+enum ACTION_NAME {
     FIRST_PAGE = "firstPage",
     PREV_PAGE = "prevPage",
     NEXT_PAGE = "nextPage",
@@ -13,7 +13,7 @@ enum ACTION {
 }
 
 type ActionType = {
-    action: Nullable<ACTION>,
+    actionName: Nullable<ACTION_NAME>,
     label: string,
     keybindings: monaco.KeyCode[],
 }
@@ -21,37 +21,37 @@ type ActionType = {
 /* eslint-disable sort-keys */
 const EDITOR_ACTIONS : ActionType[] = [
     {
-        action: null,
+        actionName: null,
         label: "Focus on Editor",
         keybindings: [monaco.KeyCode.Backquote],
     },
     {
-        action: ACTION.FIRST_PAGE,
+        actionName: ACTION_NAME.FIRST_PAGE,
         label: "First page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
     },
     {
-        action: ACTION.PREV_PAGE,
+        actionName: ACTION_NAME.PREV_PAGE,
         label: "Previous page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
     },
     {
-        action: ACTION.NEXT_PAGE,
+        actionName: ACTION_NAME.NEXT_PAGE,
         label: "Next page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
     },
     {
-        action: ACTION.LAST_PAGE,
+        actionName: ACTION_NAME.LAST_PAGE,
         label: "Last page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
     },
     {
-        action: ACTION.PAGE_TOP,
+        actionName: ACTION_NAME.PAGE_TOP,
         label: "Top of page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
     },
     {
-        action: ACTION.PAGE_BOTTOM,
+        actionName: ACTION_NAME.PAGE_BOTTOM,
         label: "Bottom of page",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
     },
@@ -59,7 +59,7 @@ const EDITOR_ACTIONS : ActionType[] = [
 /* eslint-enable sort-keys */
 
 export {
-    ACTION,
+    ACTION_NAME,
     EDITOR_ACTIONS,
 };
 export type {ActionType};

@@ -153,16 +153,16 @@ const setupCustomActions = (
     actions: ActionType[],
     onCustomAction: CustomActionCallback
 ) => {
-    actions.forEach(({action, label, keybindings}) => {
-        if (null === action) {
+    actions.forEach(({actionName, label, keybindings}) => {
+        if (null === actionName) {
             return;
         }
         editor.addAction({
-            id: action,
+            id: actionName,
             label: label,
             keybindings: keybindings,
             run: () => {
-                onCustomAction(editor, action);
+                onCustomAction(editor, actionName);
             },
         });
     });

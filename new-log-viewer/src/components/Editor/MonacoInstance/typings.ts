@@ -4,7 +4,7 @@
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {ACTION} from "../../../utils/actions";
+import {ACTION_NAME} from "../../../utils/actions";
 
 
 /**
@@ -29,10 +29,10 @@ type CursorExplicitPosChangeCallback = (ev: monaco.editor.ICursorPositionChanged
 /**
  * Gets called in registered Monaco editor actions.
  *
- * @param action Identifier representing the custom action being performed.
+ * @param actionName The custom action to perform.
  */
 type CustomActionCallback =
-    (editor: monaco.editor.IStandaloneCodeEditor, actionName: ACTION) => void;
+    (editor: monaco.editor.IStandaloneCodeEditor, actionName: ACTION_NAME) => void;
 
 /**
  * Gets called after the `monaco-editor` instance is mounted.

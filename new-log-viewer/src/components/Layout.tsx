@@ -19,7 +19,7 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
-import {ACTION} from "../utils/actions";
+import {ACTION_NAME} from "../utils/actions";
 import {
     getConfig,
     setConfig,
@@ -180,19 +180,19 @@ const Layout = () => {
      * Handles custom actions in the editor.
      *
      * @param editor
-     * @param action The custom action to perform.
+     * @param actionName The custom action to perform.
      */
     const handleCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
-        action: ACTION
+        actionName: ACTION_NAME
     ) => {
         const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
 
-        switch (action) {
-            case ACTION.FIRST_PAGE:
+        switch (actionName) {
+            case ACTION_NAME.FIRST_PAGE:
                 updateWindowUrlHashParams({logEventNum: 1});
                 break;
-            case ACTION.PREV_PAGE:
+            case ACTION_NAME.PREV_PAGE:
                 if (null !== logEventNumRef.current) {
                     updateWindowUrlHashParams({
                         logEventNum: (logEventNumRef.current <= pageSize) ?
@@ -201,20 +201,20 @@ const Layout = () => {
                     });
                 }
                 break;
-            case ACTION.NEXT_PAGE:
+            case ACTION_NAME.NEXT_PAGE:
                 if (null !== logEventNumRef.current) {
                     updateWindowUrlHashParams({
                         logEventNum: getNextItemNumInNextChunk(logEventNumRef.current, pageSize),
                     });
                 }
                 break;
-            case ACTION.LAST_PAGE:
+            case ACTION_NAME.LAST_PAGE:
                 updateWindowUrlHashParams({logEventNum: numEventsRef.current});
                 break;
-            case ACTION.PAGE_TOP:
+            case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
                 break;
-            case ACTION.PAGE_BOTTOM: {
+            case ACTION_NAME.PAGE_BOTTOM: {
                 const lineCount = editor.getModel()?.getLineCount();
                 if ("undefined" === typeof lineCount) {
                     break;
