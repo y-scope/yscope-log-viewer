@@ -51,7 +51,7 @@ const STATE_DEFAULT = Object.freeze({
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
-    pageNum: null,
+    pageNum: 0,
 });
 
 interface StateContextProviderProps {
@@ -193,18 +193,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             numPagesRef.current
         );
 
-        if (newPageNum === pageNumRef.current) {
-            // Don't need to switch pages so just update `logEventNum` in the URL.
-            updateLogEventNumInUrl(numEvents, logEventNumRef.current);
-        } else if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
-            // This is not the initial page load, so request a page switch.
-            // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
-            // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
-            // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
-            mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
-                cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-            });
+        if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
+            if (newPageNum === pageNumRef.current) {
+                // Don't need to switch pages so just update `logEventNum` in the URL.
+                updateLogEventNumInUrl(numEvents, logEventNumRef.current);
+            } else {
+                // This is not the initial page load, so request a page switch.
+                // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
+                // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
+                // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
+                mainWorkerPostReq(WORKER_REQ_CODE.LOAD_PAGE, {
+                    cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
+                    decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                });
+            }
         }
 
         pageNumRef.current = newPageNum;
