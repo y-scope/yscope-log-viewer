@@ -23,7 +23,7 @@ import {
     setConfig,
 } from "../../utils/config";
 import {getMapKeyByValue} from "../../utils/data";
-import MonacoEditor from "./MonacoInstance";
+import MonacoInstance from "./MonacoInstance";
 import {CustomActionCallback} from "./MonacoInstance/typings";
 
 
@@ -123,7 +123,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     ]);
 
     return (
-        <MonacoEditor
+        <MonacoInstance
             actions={EDITOR_ACTIONS}
             beforeTextUpdate={unsetCachedPageSize}
             lineNum={lineNum}

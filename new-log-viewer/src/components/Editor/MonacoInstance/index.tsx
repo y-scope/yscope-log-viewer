@@ -51,7 +51,7 @@ interface MonacoEditorProps {
  * @param props.onTextUpdate
  * @return
  */
-const MonacoEditor = ({
+const MonacoInstance = ({
     lineNum,
     text,
     actions,
@@ -128,4 +128,4 @@ const MonacoEditor = ({
     );
 };
 
-export default MonacoEditor;
+export default MonacoInstance;
