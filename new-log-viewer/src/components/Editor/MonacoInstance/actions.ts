@@ -97,6 +97,8 @@ const setupMobileZoom = (
     editorContainer.addEventListener("touchstart", (e) => {
         const [touch0, touch1] = e.touches;
 
+        // Ensures there are only two touches and performs type-checking before applying custom
+        // handling logic.
         if (2 !== e.touches.length ||
             "undefined" === typeof touch0 ||
             "undefined" === typeof touch1) {
@@ -110,6 +112,7 @@ const setupMobileZoom = (
 
     editorContainer.addEventListener("touchmove", (e) => {
         const [touch0, touch1] = e.touches;
+
         if (2 !== e.touches.length ||
             "undefined" === typeof touch0 ||
             "undefined" === typeof touch1 ||
