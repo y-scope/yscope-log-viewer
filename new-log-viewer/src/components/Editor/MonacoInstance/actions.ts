@@ -93,7 +93,7 @@ const setupMobileZoom = (
     // NOTE: We explicitly set `passive=false` for the listeners below since it defaults to `true`
     // in Safari for touch events (whereas it defaults to `false` otherwise).
 
-    const initialDistanceRef: {current: Nullable<number>} = {current: null};
+    const currDistanceRef: {current: Nullable<number>} = {current: null};
     editorContainer.addEventListener("touchstart", (e) => {
         const [touch0, touch1] = e.touches;
 
@@ -105,7 +105,7 @@ const setupMobileZoom = (
 
         e.preventDefault();
 
-        initialDistanceRef.current = getTouchDistance(touch0, touch1);
+        currDistanceRef.current = getTouchDistance(touch0, touch1);
     }, {passive: false});
 
     editorContainer.addEventListener("touchmove", (e) => {
@@ -113,14 +113,14 @@ const setupMobileZoom = (
         if (2 !== e.touches.length ||
             "undefined" === typeof touch0 ||
             "undefined" === typeof touch1 ||
-            null === initialDistanceRef.current) {
+            null === currDistanceRef.current) {
             return;
         }
 
         e.preventDefault();
 
         const newDistance = getTouchDistance(touch0, touch1);
-        let newZoomLevel = (newDistance > initialDistanceRef.current) ?
+        let newZoomLevel = (newDistance > currDistanceRef.current) ?
             monaco.editor.EditorZoom.getZoomLevel() + MOBILE_ZOOM_LEVEL_INCREMENT :
             monaco.editor.EditorZoom.getZoomLevel() - MOBILE_ZOOM_LEVEL_DECREMENT;
 
@@ -129,12 +129,12 @@ const setupMobileZoom = (
             MIN_ZOOM_LEVEL,
             MAX_ZOOM_LEVEL
         );
-        initialDistanceRef.current = newDistance;
+        currDistanceRef.current = newDistance;
         monaco.editor.EditorZoom.setZoomLevel(newZoomLevel);
     }, {passive: false});
 
     editorContainer.addEventListener("touchend", () => {
-        initialDistanceRef.current = null;
+        currDistanceRef.current = null;
     });
 };
 
