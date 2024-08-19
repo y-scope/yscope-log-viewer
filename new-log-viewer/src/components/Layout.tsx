@@ -142,6 +142,7 @@ const ConfigForm = () => {
  */
 const Layout = () => {
     const {
+        fileName,
         logData,
         loadFile,
         numEvents,
@@ -180,6 +181,10 @@ const Layout = () => {
                     PageNum -
                     {" "}
                     {pageNum}
+                    {" "}
+                    | FileName -
+                    {" "}
+                    {fileName}
                 </h3>
 
                 <button onClick={handleCopyLinkButtonClick}>

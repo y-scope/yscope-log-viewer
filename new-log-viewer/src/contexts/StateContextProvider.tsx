@@ -34,6 +34,7 @@ import {
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+    fileName: string,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     logData: string,
     numEvents: number,
@@ -45,8 +46,9 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 /**
  * Default values of the state object.
  */
-const STATE_DEFAULT = Object.freeze({
+const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
+    fileName: "",
     loadFile: () => null,
     logData: "Loading...",
     numEvents: 0,
@@ -106,6 +108,7 @@ const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNum
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
+    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const beginLineNumToLogEventNumRef =
@@ -127,6 +130,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
+            case WORKER_RESP_CODE.LOG_FILE_INFO:
+                setFileName(args.fileName);
+                setNumEvents(args.numEvents);
+                break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
@@ -134,9 +141,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.NUM_EVENTS:
-                setNumEvents(args.numEvents);
-                break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // TODO: notifications should be shown in the UI when the NotificationProvider
                 //  is added
@@ -244,6 +248,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
+                fileName: fileName,
                 loadFile: loadFile,
                 logData: logData,
                 numEvents: numEvents,

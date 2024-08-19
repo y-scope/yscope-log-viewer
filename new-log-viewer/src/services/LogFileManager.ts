@@ -77,6 +77,10 @@ class LogFileManager {
         this.#decoder = this.#initDecoder(decoderOptions);
     }
 
+    get fileName () {
+        return this.#fileName;
+    }
+
     get numEvents () {
         return this.#numEvents;
     }
