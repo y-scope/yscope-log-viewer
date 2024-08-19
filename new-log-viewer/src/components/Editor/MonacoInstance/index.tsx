@@ -7,8 +7,12 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
 import {ActionType} from "../../../utils/actions";
 import {
+    BeforeMountCallback,
+    BeforeTextUpdateCallback,
     CursorExplicitPosChangeCallback,
     CustomActionCallback,
+    MountCallback,
+    TextUpdateCallback,
 } from "./typings";
 import {
     goToPositionAndCenter,
@@ -22,12 +26,12 @@ interface MonacoEditorProps {
     lineNum: number,
     text: string,
     actions: ActionType[],
-    beforeMount?: () => void,
-    beforeTextUpdate?: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+    beforeMount?: BeforeMountCallback,
+    beforeTextUpdate?: BeforeTextUpdateCallback,
     onCursorExplicitPosChange: CursorExplicitPosChangeCallback,
     onCustomAction: CustomActionCallback,
-    onMount?: (editor: monaco.editor.IStandaloneCodeEditor) => void,
-    onTextUpdate?: (editor: monaco.editor.IStandaloneCodeEditor) => void,
+    onMount?: MountCallback,
+    onTextUpdate?: TextUpdateCallback,
 }
 
 /**
