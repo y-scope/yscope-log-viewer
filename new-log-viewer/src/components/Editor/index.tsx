@@ -51,7 +51,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
 
     /**
-     * Stores editorRef and configures callbacks for mouse down detection.
+     * Sets `editorRef` and configures callbacks for mouse down detection.
      */
     const handleMount = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor

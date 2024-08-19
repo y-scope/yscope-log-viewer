@@ -11,7 +11,7 @@ import {CustomMonacoEditorHandlers} from "./typings";
 
 
 /**
- * Centers the line in the editor and change the cursor position.
+ * Centers the line in the editor and moves the cursor to the given position.
  *
  * @param editor
  * @param position
@@ -26,7 +26,7 @@ const goToPositionAndCenter = (
 };
 
 /**
- * Initializes a Monaco Editor instance.
+ * Creates and initializes a Monaco Editor instance.
  *
  * @param editorContainer
  * @param actions
@@ -41,7 +41,7 @@ const initMonacoEditor = (
     const editor = monaco.editor.create(
         editorContainer,
         {
-            // TODO: add custom observer to debounce automatic layout
+            // TODO: Add custom observer to debounce automatic layout
             automaticLayout: true,
             maxTokenizationLineLength: 30_000,
             mouseWheelZoom: true,

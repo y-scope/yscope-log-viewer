@@ -36,8 +36,8 @@ interface MonacoEditorProps {
  * the editor.
  *
  * @param props
- * @param props.text
  * @param props.lineNum
+ * @param props.text
  * @param props.actions
  * @param props.beforeMount
  * @param props.beforeTextUpdate
@@ -68,7 +68,7 @@ const MonacoEditor = ({
     }, [lineNum]);
 
     useEffect(() => {
-        console.log("Initiating monaco instance");
+        console.log("Initiating Monaco instance");
         if (null === editorContainerRef.current) {
             console.error("Unexpected unmounted editor container div element");
 

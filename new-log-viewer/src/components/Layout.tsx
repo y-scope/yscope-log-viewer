@@ -149,7 +149,7 @@ const ConfigForm = () => {
 };
 
 /**
- * Handles `logEventNum` input value change for debug purpose.
+ * Handles `logEventNum` input value change for debugging.
  *
  * @param ev
  */

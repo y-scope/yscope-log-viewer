@@ -16,7 +16,7 @@ const MOBILE_ZOOM_LEVEL_DECREMENT = 1;
 const POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS = 50;
 
 /**
- * Sets up an action that is triggered when the cursor position changes in a Monaco code editor.
+ * Sets up a callback for when the cursor position changes in the editor.
  *
  * @param editor
  * @param onCursorExplicitPosChange
@@ -90,6 +90,9 @@ const setupMobileZoom = (
         return;
     }
 
+    // NOTE: We explicitly set `passive=false` for the listeners below since it defaults to `true`
+    // in Safari for touch events (whereas it defaults to `false` otherwise).
+
     const initialDistanceRef: {current: Nullable<number>} = {current: null};
     editorContainer.addEventListener("touchstart", (e) => {
         const [touch0, touch1] = e.touches;
@@ -101,6 +104,7 @@ const setupMobileZoom = (
         }
 
         e.preventDefault();
+
         initialDistanceRef.current = getTouchDistance(touch0, touch1);
     }, {passive: false});
 
@@ -112,6 +116,7 @@ const setupMobileZoom = (
             null === initialDistanceRef.current) {
             return;
         }
+
         e.preventDefault();
 
         const newDistance = getTouchDistance(touch0, touch1);
@@ -134,7 +139,7 @@ const setupMobileZoom = (
 };
 
 /**
- * Sets up custom actions for a monaco editor.
+ * Sets up custom actions for the editor.
  *
  * @param editor
  * @param actions
