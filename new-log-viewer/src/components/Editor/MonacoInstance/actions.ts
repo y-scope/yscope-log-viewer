@@ -21,7 +21,7 @@ const POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS = 50;
  * @param editor
  * @param onCursorExplicitPosChange
  */
-const setupCursorExplicitPosChangeAction = (
+const setupCursorExplicitPosChangeCallback = (
     editor: monaco.editor.IStandaloneCodeEditor,
     onCursorExplicitPosChange: CursorExplicitPosChangeCallback
 ) => {
@@ -166,7 +166,7 @@ const setupCustomActions = (
 };
 
 export {
-    setupCursorExplicitPosChangeAction,
+    setupCursorExplicitPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,
     setupMobileZoom,
