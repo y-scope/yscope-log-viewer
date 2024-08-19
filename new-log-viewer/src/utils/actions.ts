@@ -15,7 +15,7 @@ enum ACTION_NAME {
 type ActionType = {
     actionName: Nullable<ACTION_NAME>,
     label: string,
-    keybindings: monaco.KeyCode[],
+    keyBindings: monaco.KeyCode[],
 }
 
 /* eslint-disable sort-keys */
@@ -23,37 +23,37 @@ const EDITOR_ACTIONS : ActionType[] = [
     {
         actionName: null,
         label: "Focus on Editor",
-        keybindings: [monaco.KeyCode.Backquote],
+        keyBindings: [monaco.KeyCode.Backquote],
     },
     {
         actionName: ACTION_NAME.FIRST_PAGE,
         label: "First page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
     },
     {
         actionName: ACTION_NAME.PREV_PAGE,
         label: "Previous page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
     },
     {
         actionName: ACTION_NAME.NEXT_PAGE,
         label: "Next page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
     },
     {
         actionName: ACTION_NAME.LAST_PAGE,
         label: "Last page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
     },
     {
         actionName: ACTION_NAME.PAGE_TOP,
         label: "Top of page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
     },
     {
         actionName: ACTION_NAME.PAGE_BOTTOM,
         label: "Bottom of page",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
     },
 ];
 /* eslint-enable sort-keys */
