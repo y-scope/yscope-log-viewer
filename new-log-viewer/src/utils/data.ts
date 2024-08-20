@@ -2,7 +2,7 @@ import {Nullable} from "../typings/common";
 
 
 /**
- * Finds the key in a map based on the provided value
+ * Finds the key in a map based on the provided value.
  *
  * @param map
  * @param value
