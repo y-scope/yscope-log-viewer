@@ -34,16 +34,14 @@ const getLastItemNumInPrevChunk = (itemNum: number, chunkSize: number) => (
 );
 
 /**
- * Calculates the last item number in the previous chunk.
+ * Calculates the first item number in the next chunk.
  *
  * @param itemNum
  * @param chunkSize
- * @return The last item number in the previous chunk.
+ * @return The first item number in the next chunk.
  */
 const getNextItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
-    ((
-        getChunkNum(itemNum + chunkSize, chunkSize) - 1
-    ) * chunkSize) + 1
+    (getChunkNum(itemNum, chunkSize) * chunkSize) + 1
 );
 
 

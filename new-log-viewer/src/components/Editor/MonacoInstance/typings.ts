@@ -22,25 +22,30 @@ type BeforeTextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) =>
 /**
  * Gets called when the cursor position is explicitly changed in the editor.
  *
- * @param ev The event object containing information about the cursor position changes.
+ * @param ev The event object containing information about the cursor position change.
  */
 type CursorExplicitPosChangeCallback = (ev: monaco.editor.ICursorPositionChangedEvent) => void;
 
 /**
- * Gets called in registered Monaco editor actions.
+ * Gets called from registered Monaco editor actions.
  *
- * @param actionName The custom action to perform.
+ * @param editor
+ * @param actionName
  */
 type CustomActionCallback =
     (editor: monaco.editor.IStandaloneCodeEditor, actionName: ACTION_NAME) => void;
 
 /**
  * Gets called after the `monaco-editor` instance is mounted.
+ * 
+ * @param editor
  */
 type MountCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
 
 /**
  * Gets called after the text of the editor is updated.
+ * 
+ * @param editor
  */
 type TextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
 

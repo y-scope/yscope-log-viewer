@@ -180,7 +180,7 @@ const Layout = () => {
      * Handles custom actions in the editor.
      *
      * @param editor
-     * @param actionName The custom action to perform.
+     * @param actionName
      */
     const handleCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,

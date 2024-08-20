@@ -18,6 +18,10 @@ type ActionType = {
     keyBindings: monaco.KeyCode[],
 }
 
+/**
+ * Actions that can be performed in the editor. Actions without a name are not triggered by Monaco
+ * but will be displayed in a help dialog.
+ */
 /* eslint-disable sort-keys */
 const EDITOR_ACTIONS : ActionType[] = [
     {

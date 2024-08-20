@@ -90,15 +90,17 @@ const setupMobileZoom = (
         return;
     }
 
-    // NOTE: We explicitly set `passive=false` for the listeners below since it defaults to `true`
-    // in Safari for touch events (whereas it defaults to `false` otherwise).
+    // NOTE:
+    // - We explicitly set `passive=false` for the listeners below since, on Safari, it defaults to
+    //   `true` for touch events (whereas it defaults to `false` otherwise).
+    // - The "undefined" type checks below are to satisfy TypeScript.
+    // - We only call `e.preventDefault()` after we validate that this is a two-touch event, to
+    //   avoid affecting other touch events.
 
     const currDistanceRef: {current: Nullable<number>} = {current: null};
     editorContainer.addEventListener("touchstart", (e) => {
         const [touch0, touch1] = e.touches;
 
-        // Ensures there are only two touches and performs type-checking before applying custom
-        // handling logic.
         if (2 !== e.touches.length ||
             "undefined" === typeof touch0 ||
             "undefined" === typeof touch1) {

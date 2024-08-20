@@ -35,8 +35,8 @@ interface MonacoEditorProps {
 }
 
 /**
- * Wraps a `monaco-editor` instance created from the DOM rendered, which accepts a variety of props
- * to configure text content, custom actions, and various lifecycle hooks for interacting with
+ * Wraps a `monaco-editor` instance for viewing text content. The component accepts a variety of
+ * props to configure the content, custom actions, and various lifecycle hooks for interacting with
  * the editor.
  *
  * @param props
@@ -113,7 +113,7 @@ const MonacoInstance = ({
         onTextUpdate,
     ]);
 
-    // On `lineNum` update, set the updated position cursor in the editor.
+    // On `lineNum` update, update the cursor's position in the editor.
     useEffect(() => {
         if (null === editorRef.current) {
             return;

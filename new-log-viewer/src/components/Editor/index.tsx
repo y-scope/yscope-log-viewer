@@ -32,7 +32,7 @@ interface EditorProps {
 }
 
 /**
- * Renders a readonly log editor component.
+ * Renders a read-only editor for viewing logs.
  *
  * @param props
  * @param props.onCustomAction
@@ -66,7 +66,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     }, []);
 
     /**
-     * Unsets the cached page size in case it causes a client OOM. If it doesn't, the saved value
+     * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
      * will be restored when {@link restoreCachedPageSize} is called.
      */
     const unsetCachedPageSize = useCallback(() => {
@@ -81,8 +81,8 @@ const Editor = ({onCustomAction}: EditorProps) => {
     }, []);
 
     /**
-     * On explicit position change of the cursor in the editor, get `logEventNum` corresponding to
-     * the message at the cursor position and update the parameter.
+     * On explicit position change of the cursor in the editor, get the `logEventNum` corresponding
+     * to the line number at the cursor's position and update the URL parameter.
      *
      * @param ev The event object containing information about the cursor position change.
      */
@@ -105,11 +105,11 @@ const Editor = ({onCustomAction}: EditorProps) => {
         if (null === editorRef.current) {
             return;
         }
+
         const logEventLineNum = getMapKeyByValue(beginLineNumToLogEventNum, logEventNum);
         if (null === logEventLineNum) {
-            // Not able to find logEventLineNum from logEventNum because
-            // `beginLineNumToLogEventNum` is either uninitialized or holds the value from the
-            // last loaded page.
+            // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
+            // is either uninitialized or holds the value from the last loaded page.
             return;
         }
         if (false === isMouseDownRef.current ||
