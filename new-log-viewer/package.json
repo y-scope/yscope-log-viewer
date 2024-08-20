@@ -5,6 +5,8 @@
   "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
+    "lint:check": "npx eslint --no-eslintrc --config package.json ./src",
+    "lint:fix": "npx eslint --fix --no-eslintrc --config package.json ./src",
     "start": "webpack serve --open --config webpack.dev.js"
   },
   "repository": {
