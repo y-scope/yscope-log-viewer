@@ -21,9 +21,9 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: "Install task"
+      - name: "Install dependencies"
         shell: "bash"
-        run: "npm install -g @go-task/cli"
+        run: "npm --prefix new-log-viewer/ install"
 
       - name: "Run lint task"
         shell: "bash"
