@@ -1,0 +1,30 @@
+name: "lint"
+
+on:
+  pull_request:
+  push:
+  schedule:
+    # Run at midnight UTC every day with 15 minutes delay added to avoid high load periods
+    - cron: "15 0 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  # Cancel in-progress jobs for efficiency
+  cancel-in-progress: true
+
+jobs:
+  lint-check:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          submodules: "recursive"
+
+      - name: "Install task"
+        shell: "bash"
+        run: "npm install -g @go-task/cli"
+
+      - name: "Run lint task"
+        shell: "bash"
+        run: "task lint:check"
