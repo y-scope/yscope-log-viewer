@@ -1,4 +1,5 @@
-type OnFileOpenCallback = (file: File) => void;
+import type {OnFileOpenCallback} from "../typings/file";
+
 
 /**
  * Open a file and invokes the provided callback on the file.
@@ -22,4 +23,3 @@ const openFile = (onOpen: OnFileOpenCallback) => {
 };
 
 export {openFile};
-export type {OnFileOpenCallback};
