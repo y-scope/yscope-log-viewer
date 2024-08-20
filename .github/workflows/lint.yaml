@@ -23,7 +23,7 @@ jobs:
 
       - name: "Install dependencies"
         shell: "bash"
-        run: "npm --prefix new-log-viewer/ install"
+        run: "npm --prefix new-log-viewer/ clean-install"
 
       - name: "Run lint task"
         shell: "bash"
