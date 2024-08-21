@@ -8,18 +8,6 @@ import {ACTION_NAME} from "../../../utils/actions";
 
 
 /**
- * Gets called before the `monaco-editor` instance is mounted.
- */
-type BeforeMountCallback = () => void;
-
-/**
- * Gets called before the text of the editor is updated.
- *
- * @param editor
- */
-type BeforeTextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
-
-/**
  * Gets called when the cursor position is explicitly changed in the editor.
  *
  * @param ev The event object containing information about the cursor position change.
@@ -35,16 +23,29 @@ type CursorExplicitPosChangeCallback = (ev: monaco.editor.ICursorPositionChanged
 type CustomActionCallback =
     (editor: monaco.editor.IStandaloneCodeEditor, actionName: ACTION_NAME) => void;
 
+
+/**
+ * Gets called before the `monaco-editor` instance is mounted.
+ */
+type BeforeMountCallback = () => void;
+
 /**
  * Gets called after the `monaco-editor` instance is mounted.
- * 
+ *
  * @param editor
  */
 type MountCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
 
 /**
+ * Gets called before the text of the editor is updated.
+ *
+ * @param editor
+ */
+type BeforeTextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
+
+/**
  * Gets called after the text of the editor is updated.
- * 
+ *
  * @param editor
  */
 type TextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
