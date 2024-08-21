@@ -195,9 +195,7 @@ const Layout = () => {
             case ACTION_NAME.PREV_PAGE:
                 if (null !== logEventNumRef.current) {
                     updateWindowUrlHashParams({
-                        logEventNum: (logEventNumRef.current <= pageSize) ?
-                            1 :
-                            getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
+                        logEventNum: getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
                     });
                 }
                 break;
