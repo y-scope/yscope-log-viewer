@@ -119,25 +119,24 @@ const Editor = ({onCustomAction}: EditorProps) => {
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {
-        if (null === editorRef.current) {
+        if (null === editorRef.current || true === isMouseDownRef.current) {
             return;
         }
 
         const logEventLineNum = getMapKeyByValue(beginLineNumToLogEventNum, logEventNum);
         if (null === logEventLineNum) {
-            // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
-            // is either uninitialized or holds the value from the last loaded page.
+        // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
+        // is either uninitialized or holds the value from the last loaded page.
             return;
         }
-        if (false === isMouseDownRef.current ||
-            editorRef.current.getPosition()?.lineNumber !== logEventLineNum) {
-            // Updates the line number only if the user is not actively selecting text.
-            setLineNum(logEventLineNum);
-        }
+
+        // Updates the line number only if the user is not actively selecting text.
+        setLineNum(logEventLineNum);
     }, [
         logEventNum,
         beginLineNumToLogEventNum,
     ]);
+
 
     return (
         <MonacoInstance
