@@ -70,14 +70,24 @@ const Editor = ({onCustomAction}: EditorProps) => {
      * will be restored when {@link restoreCachedPageSize} is called.
      */
     const resetCachedPageSize = useCallback(() => {
-        setConfig({key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]});
+        const error = setConfig(
+            {key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]}
+        );
+
+        if (null !== error) {
+            console.error(`Unexpected error returned by setConfig(): ${error}`);
+        }
     }, []);
 
     /**
      * Restores the cached page size that was unset in {@link resetCachedPageSize};
      */
     const restoreCachedPageSize = useCallback(() => {
-        setConfig({key: CONFIG_KEY.PAGE_SIZE, value: pageSizeRef.current});
+        const error = setConfig({key: CONFIG_KEY.PAGE_SIZE, value: pageSizeRef.current});
+
+        if (null !== error) {
+            console.error(`Unexpected error returned by setConfig(): ${error}`);
+        }
     }, []);
 
     /**
