@@ -69,12 +69,12 @@ const Editor = ({onCustomAction}: EditorProps) => {
      * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
      * will be restored when {@link restoreCachedPageSize} is called.
      */
-    const unsetCachedPageSize = useCallback(() => {
+    const resetCachedPageSize = useCallback(() => {
         setConfig({key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]});
     }, []);
 
     /**
-     * Restores the cached page size that was unset in {@link unsetCachedPageSize};
+     * Restores the cached page size that was unset in {@link resetCachedPageSize};
      */
     const restoreCachedPageSize = useCallback(() => {
         setConfig({key: CONFIG_KEY.PAGE_SIZE, value: pageSizeRef.current});
@@ -125,7 +125,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     return (
         <MonacoInstance
             actions={EDITOR_ACTIONS}
-            beforeTextUpdate={unsetCachedPageSize}
+            beforeTextUpdate={resetCachedPageSize}
             lineNum={lineNum}
             text={logData}
             onCursorExplicitPosChange={handleCursorExplicitPosChange}
