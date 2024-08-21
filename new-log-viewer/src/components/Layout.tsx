@@ -25,8 +25,8 @@ import {
     setConfig,
 } from "../utils/config";
 import {
+    getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
-    getNextItemNumInNextChunk,
 } from "../utils/math";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
@@ -202,7 +202,7 @@ const Layout = () => {
             case ACTION_NAME.NEXT_PAGE:
                 if (null !== logEventNumRef.current) {
                     updateWindowUrlHashParams({
-                        logEventNum: getNextItemNumInNextChunk(logEventNumRef.current, pageSize),
+                        logEventNum: getFirstItemNumInNextChunk(logEventNumRef.current, pageSize),
                     });
                 }
                 break;

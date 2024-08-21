@@ -43,7 +43,7 @@ const getLastItemNumInPrevChunk = (itemNum: number, chunkSize: number) => {
  * @param chunkSize
  * @return The first item number in the next chunk.
  */
-const getNextItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
+const getFirstItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
     (getChunkNum(itemNum, chunkSize) * chunkSize) + 1
 );
 
@@ -51,6 +51,6 @@ const getNextItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
 export {
     clamp,
     getChunkNum,
+    getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
-    getNextItemNumInNextChunk,
 };
