@@ -22,7 +22,10 @@ import {
     getConfig,
     setConfig,
 } from "../../utils/config";
-import {getMapKeyByValue} from "../../utils/data";
+import {
+    getMapKeyByValue,
+    getMapValueByNearestKey,
+} from "../../utils/data";
 import MonacoInstance from "./MonacoInstance";
 import {CustomActionCallback} from "./MonacoInstance/typings";
 
@@ -99,8 +102,12 @@ const Editor = ({onCustomAction}: EditorProps) => {
     const handleCursorExplicitPosChange = useCallback((
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
-        const newLogEventNum = beginLineNumToLogEventNumRef.current.get(ev.position.lineNumber);
-        if ("undefined" !== typeof newLogEventNum) {
+        const newLogEventNum = getMapValueByNearestKey(
+            beginLineNumToLogEventNumRef.current,
+            ev.position.lineNumber
+        );
+
+        if (null !== newLogEventNum) {
             updateWindowUrlHashParams({logEventNum: newLogEventNum});
         }
     }, []);

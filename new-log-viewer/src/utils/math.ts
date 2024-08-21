@@ -47,10 +47,22 @@ const getFirstItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
     (getChunkNum(itemNum, chunkSize) * chunkSize) + 1
 );
 
+/**
+ * Checks if a number is within a specified range [min, max].
+ *
+ * @param number
+ * @param min The lower bound.
+ * @param max The upper bound.
+ * @return True if the number is within the range, false otherwise.
+ */
+const isNumberInRange = (number: number, min: number, max: number) => {
+    return number >= min && number <= max;
+};
 
 export {
     clamp,
     getChunkNum,
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
+    isNumberInRange,
 };
