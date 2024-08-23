@@ -24,7 +24,7 @@ import {
 } from "../../utils/config";
 import {
     getMapKeyByValue,
-    getMapValueByNearestKey,
+    getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import MonacoInstance from "./MonacoInstance";
 import {CustomActionCallback} from "./MonacoInstance/typings";
@@ -102,7 +102,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     const handleCursorExplicitPosChange = useCallback((
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
-        const newLogEventNum = getMapValueByNearestKey(
+        const newLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
             beginLineNumToLogEventNumRef.current,
             ev.position.lineNumber
         );

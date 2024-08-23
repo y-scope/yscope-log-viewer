@@ -22,7 +22,7 @@ const getMapKeyByValue = <T, M>(map: Map<T, M>, value: M): Nullable<T> => {
  * @param targetKey
  * @return The value if found, null otherwise.
  */
-const getMapValueByNearestKey = <T>(
+const getMapValueWithNearestLessThanOrEqualKey = <T>(
     map: Map<number, T>,
     targetKey: number
 ): Nullable<T> => {
@@ -40,5 +40,5 @@ const getMapValueByNearestKey = <T>(
 
 export {
     getMapKeyByValue,
-    getMapValueByNearestKey,
+    getMapValueWithNearestLessThanOrEqualKey,
 };
