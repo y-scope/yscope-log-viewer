@@ -107,9 +107,13 @@ const Editor = ({onCustomAction}: EditorProps) => {
             ev.position.lineNumber
         );
 
-        if (null !== newLogEventNum) {
-            updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        if (null === newLogEventNum) {
+            console.error(`Unable to find log event number from cursor: \`position.lineNumber\`=${
+                ev.position.lineNumber}`);
+
+            return;
         }
+        updateWindowUrlHashParams({logEventNum: newLogEventNum});
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
