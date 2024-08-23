@@ -22,7 +22,10 @@
     "dayjs": "^1.11.11",
     "monaco-editor": "^0.50.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@emotion/react": "^11.13.0",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/joy": "^5.0.0-beta.48"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
