@@ -108,8 +108,10 @@ const Editor = ({onCustomAction}: EditorProps) => {
         );
 
         if (null === newLogEventNum) {
-            console.error(`Unable to find log event number from cursor: \`position.lineNumber\`=${
-                ev.position.lineNumber}`);
+            console.error(
+                "Unable to find log event number corresponding to cursor:",
+                `\`position.lineNumber\`=${ev.position.lineNumber}`
+            );
 
             return;
         }
@@ -124,7 +126,7 @@ const Editor = ({onCustomAction}: EditorProps) => {
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {
         if (null === editorRef.current || true === isMouseDownRef.current) {
-            // Update the line number only if the user is not actively selecting text.
+            // Don't update the line number if the user is actively selecting text.
             return;
         }
 
