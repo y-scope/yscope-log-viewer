@@ -16,7 +16,7 @@ const getMapKeyByValue = <T, M>(map: Map<T, M>, value: M): Nullable<T> => {
 };
 
 /**
- * Finds the value associated with the nearest lower bound key to the target key in a map.
+ * Finds the value associated with the key that's nearest but less than or equal to a target key.
  *
  * @param map
  * @param targetKey
