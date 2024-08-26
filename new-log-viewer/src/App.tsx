@@ -1,6 +1,7 @@
 import {
     CssVarsProvider,
     extendTheme,
+    useTheme,
 } from "@mui/joy/styles";
 
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
@@ -61,20 +62,6 @@ const monacoTheme = extendTheme({
                         "minHeight": "32px",
                         "fontSize": "14px",
                         "--Button-paddingInline": "1rem",
-                    }),
-                    ...("success" === ownerState.color &&
-            "solid" === ownerState.variant && {
-                        "--gh-palette-focusVisible": "rgba(46, 164, 79, 0.4)",
-                        "border": "1px solid rgba(27, 31, 36, 0.15)",
-                        "&:active": {
-                            boxShadow: "inset 0px 1px 0px rgba(20, 70, 32, 0.2)",
-                        },
-                    }),
-                    ...("neutral" === ownerState.color &&
-            "outlined" === ownerState.variant && {
-                        "&:active": {
-                            boxShadow: "none",
-                        },
                     }),
                 }),
             },
