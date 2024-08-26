@@ -1,7 +1,6 @@
 import {
     CssVarsProvider,
     extendTheme,
-    useTheme,
 } from "@mui/joy/styles";
 
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
@@ -21,9 +20,9 @@ const monacoTheme = extendTheme({
                     solidActiveBg: "#0062a3",
                 },
                 neutral: {
-                    outlinedBg: "#F6F8FA",
-                    outlinedHoverBg: "#F3F4F6",
-                    outlinedActiveBg: "#F3F4F6",
+                    solidBg: "#5f6a79",
+                    solidHoverBg: "#4c5561",
+                    solidActiveBg: "#4c5561",
                 },
                 focusVisible: "#0090f1",
             },
@@ -36,9 +35,9 @@ const monacoTheme = extendTheme({
                     solidActiveBg: "#1177bb",
                 },
                 neutral: {
-                    outlinedBg: "#313131",
-                    outlinedHoverBg: "#3c3c3c",
-                    outlinedActiveBg: "#3c3c3c",
+                    solidBg: "#313131",
+                    solidHoverBg: "#45494e",
+                    solidActiveBg: "#45494e",
                 },
                 focusVisible: "#007fd4",
             },
@@ -93,7 +92,7 @@ const monacoTheme = extendTheme({
  */
 const App = () => {
     return (
-        <CssVarsProvider>
+        <CssVarsProvider theme={monacoTheme}>
             <UrlContextProvider>
                 <StateContextProvider>
                     <Layout/>

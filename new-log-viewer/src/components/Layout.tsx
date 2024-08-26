@@ -7,6 +7,8 @@ import React, {
 
 import * as monaco from "monaco-editor";
 
+import {Button} from "@mui/joy";
+
 import {StateContext} from "../contexts/StateContextProvider";
 import {
     copyPermalinkToClipboard,
@@ -141,8 +143,18 @@ const ConfigForm = () => {
                 </tbody>
             </table>
             <div>
-                <button type={"submit"}>Apply</button>
-                <button type={"reset"}>Clear localStorage</button>
+                <Button
+                    color={"success"}
+                    type={"submit"}
+                >
+                    Apply
+                </Button>
+                <Button
+                    color={"neutral"}
+                    type={"reset"}
+                >
+                    Clear localStorage
+                </Button>
             </div>
         </form>
     );
@@ -253,9 +265,12 @@ const Layout = () => {
                     {pageNum}
                 </h3>
 
-                <button onClick={handleCopyLinkButtonClick}>
+                <Button
+                    color={"success"}
+                    onClick={handleCopyLinkButtonClick}
+                >
                     Copy link to last log
-                </button>
+                </Button>
 
                 <ConfigForm/>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
