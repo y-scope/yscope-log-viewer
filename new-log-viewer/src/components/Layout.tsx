@@ -30,6 +30,7 @@ import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
+import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
@@ -277,7 +278,9 @@ const Layout = () => {
 
                 <ConfigForm/>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
-                    <Editor onCustomAction={handleCustomAction}/>
+                    <DropFileContainer>
+                        <Editor onCustomAction={handleCustomAction}/>
+                    </DropFileContainer>
                 </div>
             </div>
         </>

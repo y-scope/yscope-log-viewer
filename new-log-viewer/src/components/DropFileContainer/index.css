@@ -1,0 +1,31 @@
+.drop-file-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.drop-file-children {
+    width: 100%;
+    height: 100%;
+}
+
+.hover-mask {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(2, 88, 168, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.hover-message {
+    padding: 8px;
+    color: #616161;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    background-color: #f3f3f3;
+    z-index: 11;
+}
