@@ -153,6 +153,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
 };
 
 export {
+    CONFIG_DEFAULT,
     getConfig,
     setConfig,
     testConfig,

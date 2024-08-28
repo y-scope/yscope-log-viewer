@@ -20,6 +20,7 @@
   "dependencies": {
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
+    "monaco-editor": "^0.50.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -39,6 +40,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "html-webpack-plugin": "^5.6.0",
     "mini-css-extract-plugin": "^2.9.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
     "react-refresh": "^0.14.2",
     "style-loader": "^4.0.0",
     "typescript": "^5.4.5",

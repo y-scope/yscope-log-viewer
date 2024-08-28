@@ -1,4 +1,11 @@
-import React, {useContext} from "react";
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+} from "react";
+
+import * as monaco from "monaco-editor";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
@@ -6,17 +13,25 @@ import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../contexts/UrlContextProvider";
+import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
 import {CURSOR_CODE} from "../typings/worker";
+import {ACTION_NAME} from "../utils/actions";
 import {
     getConfig,
     setConfig,
 } from "../utils/config";
 import {openFile} from "../utils/file";
+import {
+    getFirstItemNumInNextChunk,
+    getLastItemNumInPrevChunk,
+} from "../utils/math";
+import Editor from "./Editor";
+import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
 
 const formFields = [
@@ -136,6 +151,15 @@ const ConfigForm = () => {
 };
 
 /**
+ * Handles `logEventNum` input value change for debugging.
+ *
+ * @param ev
+ */
+const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
+};
+
+/**
  * Renders the major layout of the log viewer.
  *
  * @return
@@ -143,16 +167,14 @@ const ConfigForm = () => {
 const Layout = () => {
     const {
         fileName,
-        logData,
         loadFile,
         numEvents,
         pageNum,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
-    const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
-    };
+    const logEventNumRef = useRef<Nullable<number>>(logEventNum);
+    const numEventsRef = useRef<Nullable<number>>(numEvents);
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
@@ -164,9 +186,67 @@ const Layout = () => {
         });
     };
 
+    /**
+     * Handles custom actions in the editor.
+     *
+     * @param editor
+     * @param actionName
+     */
+    const handleCustomAction = useCallback((
+        editor: monaco.editor.IStandaloneCodeEditor,
+        actionName: ACTION_NAME
+    ) => {
+        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+
+        switch (actionName) {
+            case ACTION_NAME.FIRST_PAGE:
+                updateWindowUrlHashParams({logEventNum: 1});
+                break;
+            case ACTION_NAME.PREV_PAGE:
+                if (null !== logEventNumRef.current) {
+                    updateWindowUrlHashParams({
+                        logEventNum: getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
+                    });
+                }
+                break;
+            case ACTION_NAME.NEXT_PAGE:
+                if (null !== logEventNumRef.current) {
+                    updateWindowUrlHashParams({
+                        logEventNum: getFirstItemNumInNextChunk(logEventNumRef.current, pageSize),
+                    });
+                }
+                break;
+            case ACTION_NAME.LAST_PAGE:
+                updateWindowUrlHashParams({logEventNum: numEventsRef.current});
+                break;
+            case ACTION_NAME.PAGE_TOP:
+                goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+                break;
+            case ACTION_NAME.PAGE_BOTTOM: {
+                const lineCount = editor.getModel()?.getLineCount();
+                if ("undefined" === typeof lineCount) {
+                    break;
+                }
+                goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+                break;
+            }
+            default: break;
+        }
+    }, []);
+
+    // Synchronize `logEventNumRef` with `logEventNum`.
+    useEffect(() => {
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
+    // Synchronize `numEventsRef` with `numEvents`.
+    useEffect(() => {
+        numEventsRef.current = numEvents;
+    }, [numEvents]);
+
     return (
         <>
-            <div>
+            <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
                 <h3>
                     LogEventNum -
                     {" "}
@@ -196,14 +276,9 @@ const Layout = () => {
                 </button>
 
                 <ConfigForm/>
-
-                {logData.split("\n").map((line, index) => (
-                    <p key={index}>
-                        {`<${index + 1}>`}
-                        -
-                        {line}
-                    </p>
-                ))}
+                <div style={{flexDirection: "column", flexGrow: 1}}>
+                    <Editor onCustomAction={handleCustomAction}/>
+                </div>
             </div>
         </>
     );
