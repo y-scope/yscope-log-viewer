@@ -4,6 +4,7 @@ import {
     DecodeResultType,
     JsonlDecoderOptionsType,
     LogEventCount,
+    FULL_RANGE_END_IDX,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
 import {
@@ -16,6 +17,11 @@ import {
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
+// Define the interface for a log event
+interface LogEvent {
+    level: LOG_LEVEL      // The severity level of the log event
+    jsonLog: JsonObject
+}
 
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for
@@ -24,13 +30,15 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
+    #dataArray: Uint8Array;
+
     #logLevelKey: string = "level";
 
-    #logEvents: JsonObject[] = [];
+    #logEvents: LogEvent[] = [];
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
-    // @ts-expect-error #fomatter is set in the constructor by `setDecoderOptions()`
+    // @ts-expect-error #formatter is set in the constructor by `setDecoderOptions()`
     #formatter: Formatter;
 
     /**
@@ -45,7 +53,7 @@ class JsonlDecoder implements Decoder {
                 `Initial decoder options are erroneous: ${JSON.stringify(decoderOptions)}`
             );
         }
-        this.#deserialize(dataArray);
+        this.#dataArray = dataArray;
     }
 
     getEstimatedNumEvents (): number {
@@ -53,16 +61,53 @@ class JsonlDecoder implements Decoder {
     }
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
-        // This method is a dummy implementation since the actual deserialization is done in the
-        // constructor.
 
-        if (0 > beginIdx || this.#logEvents.length < endIdx) {
-            return null;
+        if (beginIdx !== 0 || endIdx !== FULL_RANGE_END_IDX) {
+            throw new Error("Partial range deserialization is not yet supported.");
         }
 
-        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
-            .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
-            .length;
+        let numInvalidEvents: number = 0
+
+        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
+
+        while (beginIdx < text.length) {
+            const endIdx = text.indexOf("\n", beginIdx);
+            const line = (-1 === endIdx) ?
+                text.substring(beginIdx) :
+                text.substring(beginIdx, endIdx);
+
+            beginIdx = (-1 === endIdx) ?
+                text.length :
+                endIdx + 1;
+
+            try {
+                const jsonLog = JSON.parse(line) as JsonValue;
+                if ("object" !== typeof jsonLog) {
+                    throw new Error("Unexpected non-object.");
+                }
+                let level: LOG_LEVEL = this.#parseLogLevel(jsonLog as JsonObject)
+
+                const logEvent : LogEvent = {
+                    level: level,
+                    jsonLog: jsonLog as JsonObject
+                }
+                this.#logEvents.push(logEvent);
+
+            } catch (e) {
+                if (0 === line.length) {
+                    continue;
+                }
+                numInvalidEvents++
+                console.error(e, line);
+                const currentLogEventIdx = this.#logEvents.length;
+                this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
+                const logEvent : LogEvent = {
+                    level: LOG_LEVEL.NONE,
+                    jsonLog: {}
+                }
+                this.#logEvents.push(logEvent);
+            }
+        }
 
         return {
             numValidEvents: endIdx - beginIdx - numInvalidEvents,
@@ -86,6 +131,7 @@ class JsonlDecoder implements Decoder {
         // every iteration.
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
+            let logEvent: LogEvent;
             let timestamp: number;
             let message: string;
             let logLevel: LOG_LEVEL;
@@ -97,11 +143,13 @@ class JsonlDecoder implements Decoder {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since we performed a bounds check at the beginning of the
                 // method.
-                const logEvent = this.#logEvents[logEventIdx] as JsonObject;
+                logEvent = this.#logEvents[logEventIdx] as LogEvent;
+                let jsonLog: JsonObject = logEvent.jsonLog;
                 (
-                    {timestamp, message} = this.#formatter.formatLogEvent(logEvent)
+                    {timestamp, message} = this.#formatter.formatLogEvent(jsonLog)
                 );
-                logLevel = this.#parseLogLevel(logEvent);
+                logLevel = logEvent.level;
+
             }
 
             results.push([
@@ -113,43 +161,6 @@ class JsonlDecoder implements Decoder {
         }
 
         return results;
-    }
-
-    /**
-     * Parses each line from the given data array as a JSON object and buffers it internally. If a
-     * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
-     *
-     * @param dataArray
-     */
-    #deserialize (dataArray: Uint8Array) {
-        const text = JsonlDecoder.#textDecoder.decode(dataArray);
-        let beginIdx = 0;
-        while (beginIdx < text.length) {
-            const endIdx = text.indexOf("\n", beginIdx);
-            const line = (-1 === endIdx) ?
-                text.substring(beginIdx) :
-                text.substring(beginIdx, endIdx);
-
-            beginIdx = (-1 === endIdx) ?
-                text.length :
-                endIdx + 1;
-
-            try {
-                const logEvent = JSON.parse(line) as JsonValue;
-                if ("object" !== typeof logEvent) {
-                    throw new Error("Unexpected non-object.");
-                }
-                this.#logEvents.push(logEvent as JsonObject);
-            } catch (e) {
-                if (0 === line.length) {
-                    continue;
-                }
-                console.error(e, line);
-                const currentLogEventIdx = this.#logEvents.length;
-                this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
-                this.#logEvents.push({});
-            }
-        }
     }
 
     /**

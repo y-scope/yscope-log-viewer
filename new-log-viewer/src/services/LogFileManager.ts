@@ -1,6 +1,8 @@
 import {
     Decoder,
     DecoderOptionsType,
+    LogEventCount,
+    FULL_RANGE_END_IDX
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -173,6 +175,11 @@ class LogFileManager {
             throw new Error(`Cannot handle files larger than ${
                 formatSizeInBytes(MAX_V8_STRING_LENGTH)
             } due to a limitation in Chromium-based browsers.`);
+        }
+
+        const result = decoder.buildIdx(0, FULL_RANGE_END_IDX)
+        if (result != null && result.numInvalidEvents > 0) {
+            console.error(`${result.numInvalidEvents} were invalid.`);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
