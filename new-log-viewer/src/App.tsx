@@ -49,7 +49,7 @@ const monacoTheme = extendTheme({
         },
     },
     fontFamily: {
-        body: "SF Pro Text, var(--gh-fontFamily-fallback)",
+        body: "-apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     },
     components: {
         JoyButton: {
@@ -92,7 +92,10 @@ const monacoTheme = extendTheme({
  */
 const App = () => {
     return (
-        <CssVarsProvider theme={monacoTheme}>
+        <CssVarsProvider
+            defaultMode={"light"}
+            theme={monacoTheme}
+        >
             <UrlContextProvider>
                 <StateContextProvider>
                     <Layout/>

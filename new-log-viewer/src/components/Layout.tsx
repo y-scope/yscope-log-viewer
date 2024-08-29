@@ -7,7 +7,10 @@ import React, {
 
 import * as monaco from "monaco-editor";
 
-import {Button} from "@mui/joy";
+import {
+    Button,
+    Input,
+} from "@mui/joy";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
@@ -132,11 +135,15 @@ const ConfigForm = () => {
                                 {field.label}
                             </td>
                             <td>
-                                <input
-                                    defaultValue={field.initialValue}
-                                    name={field.name}
-                                    size={100}
-                                    type={field.type}/>
+                                <Input
+                                    slotProps={{
+                                        input: {
+                                            defaultValue: field.initialValue,
+                                            name: field.name,
+                                            size: 100,
+                                            type: field.type,
+                                        },
+                                    }}/>
                             </td>
                         </tr>
                     ))}
@@ -252,12 +259,16 @@ const Layout = () => {
                 <h3>
                     LogEventNum -
                     {" "}
-                    <input
-                        type={"number"}
-                        value={null === logEventNum ?
-                            1 :
-                            logEventNum}
-                        onChange={handleLogEventNumInputChange}/>
+                    <Input
+                        slotProps={{
+                            input: {
+                                type: "number",
+                                value: null === logEventNum ?
+                                    1 :
+                                    logEventNum,
+                                onChange: handleLogEventNumInputChange,
+                            },
+                        }}/>
                     {" "}
                     |
                     PageNum -
