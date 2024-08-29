@@ -9,8 +9,20 @@ import * as monaco from "monaco-editor";
 
 import {
     Button,
+    IconButton,
     Input,
 } from "@mui/joy";
+
+import {
+    Description,
+    NavigateBefore,
+    NavigateNext,
+    Settings,
+    SettingsAccessibilityOutlined,
+    SkipNext,
+    SkipPrevious,
+    TipsAndUpdates,
+} from "@mui/icons-material";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
@@ -195,18 +207,9 @@ const Layout = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
     };
 
-    /**
-     * Handles custom actions in the editor.
-     *
-     * @param editor
-     * @param actionName
-     */
-    const handleCustomAction = useCallback((
-        editor: monaco.editor.IStandaloneCodeEditor,
-        actionName: ACTION_NAME
-    ) => {
-        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
 
+    const handleAction = (actionName: ACTION_NAME) => {
+        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
         switch (actionName) {
             case ACTION_NAME.FIRST_PAGE:
                 updateWindowUrlHashParams({logEventNum: 1});
@@ -228,6 +231,29 @@ const Layout = () => {
             case ACTION_NAME.LAST_PAGE:
                 updateWindowUrlHashParams({logEventNum: numEventsRef.current});
                 break;
+            default: break;
+        }
+    };
+
+    /**
+     * Handles custom actions in the editor.
+     *
+     * @param editor
+     * @param actionName
+     */
+    const handleEditorCustomAction = useCallback((
+        editor: monaco.editor.IStandaloneCodeEditor,
+        actionName: ACTION_NAME
+    ) => {
+        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+
+        switch (actionName) {
+            case ACTION_NAME.FIRST_PAGE:
+            case ACTION_NAME.PREV_PAGE:
+            case ACTION_NAME.NEXT_PAGE:
+            case ACTION_NAME.LAST_PAGE:
+                handleAction(actionName);
+                break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
                 break;
@@ -242,6 +268,12 @@ const Layout = () => {
             default: break;
         }
     }, []);
+    const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const actionName = event.currentTarget.getAttribute("data-action-name") as ACTION_NAME;
+        if (Object.values(ACTION_NAME).includes(actionName)) {
+            handleAction(actionName);
+        }
+    };
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -255,6 +287,42 @@ const Layout = () => {
 
     return (
         <>
+            <div style={{display: "flex", flexDirection: "row", height: "2%"}}>
+                <IconButton>
+                    <Description/>
+                </IconButton>
+                <IconButton
+                    data-action-name={ACTION_NAME.FIRST_PAGE}
+                    onClick={handleButtonClick}
+                >
+                    <SkipPrevious/>
+                </IconButton>
+                <IconButton
+                    data-action-name={ACTION_NAME.PREV_PAGE}
+                    onClick={handleButtonClick}
+                >
+                    <NavigateBefore/>
+                </IconButton>
+                <IconButton
+                    data-action-name={ACTION_NAME.NEXT_PAGE}
+                    onClick={handleButtonClick}
+                >
+                    <NavigateNext/>
+                </IconButton>
+                <IconButton
+                    data-action-name={ACTION_NAME.LAST_PAGE}
+                    onClick={handleButtonClick}
+                >
+                    <SkipNext/>
+                </IconButton>
+                <IconButton>
+                    <Settings/>
+                </IconButton>
+                <IconButton>
+                    <TipsAndUpdates/>
+                </IconButton>
+
+            </div>
             <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
                 <h3>
                     LogEventNum -
@@ -285,7 +353,7 @@ const Layout = () => {
 
                 <ConfigForm/>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
-                    <Editor onCustomAction={handleCustomAction}/>
+                    <Editor onCustomAction={handleEditorCustomAction}/>
                 </div>
             </div>
         </>
