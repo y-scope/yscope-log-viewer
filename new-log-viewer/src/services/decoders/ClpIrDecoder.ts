@@ -1,4 +1,8 @@
 import clpFfijsModuleInit from "../../../deps/ClpFfijs.js";
+import type {
+    ClpIrStreamReader,
+    EmbindModule,
+} from "../../../deps/interface";
 import {Nullable} from "../../typings/common.js";
 import {
     Decoder,
@@ -6,17 +10,6 @@ import {
     LogEventCount,
 } from "../../typings/decoders";
 
-
-interface ClpIrStreamReader {
-    getNumEventsBuffered: () => number,
-    deserializeRange: (beginIdx: number, endIdx: number) => number,
-    decodeRange: (beginIdx: number, endIdx: number) => DecodeResultType[],
-}
-
-// FIXME
-interface ClpFfiJsModule {
-    ClpIrStreamReader: ClpIrStreamReader
-}
 
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpIrStreamReader;
@@ -26,8 +19,8 @@ class ClpIrDecoder implements Decoder {
     }
 
     static async create (dataArray: Uint8Array): Promise<ClpIrDecoder> {
-        const module = await clpFfijsModuleInit() as ClpFfiJsModule;
-        const streamReader = new module.ClpIrStreamReader(dataArray) as ClpIrStreamReader;
+        const module = await clpFfijsModuleInit() as EmbindModule;
+        const streamReader = new module.ClpIrStreamReader(dataArray);
         return new ClpIrDecoder(streamReader);
     }
 
