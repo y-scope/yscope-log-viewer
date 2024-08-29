@@ -70,9 +70,10 @@ interface Decoder {
      */
     decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 }
-
-// Magic number to be passed as arg endIdx into buildIdx() to deserialize the entire range of log
-// events.
+/**
+ * Magic number to be passed as arg endIdx into buildIdx() to deserialize the entire range of log
+ * events.
+ */
 const FULL_RANGE_END_IDX: number = 0
 
 export type {

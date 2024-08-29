@@ -17,8 +17,10 @@ import {
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
-
-// Container for deserialized and parsed json logs.
+/**
+ * Parsed JSONL.
+ * TODO: Add timestamp to interface by parsing in buildIdx and remove functionality from decode.
+ */
 interface JsonLogEvent {
     level: LOG_LEVEL
     jsonLog: JsonObject
@@ -130,7 +132,6 @@ class JsonlDecoder implements Decoder {
         // every iteration.
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
-            let logEvent: JsonLogEvent;
             let timestamp: number;
             let message: string;
             let logLevel: LOG_LEVEL;
@@ -142,13 +143,12 @@ class JsonlDecoder implements Decoder {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since we performed a bounds check at the beginning of the
                 // method.
-                logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
+                const logEvent: JsonLogEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
                 let jsonLog: JsonObject = logEvent.jsonLog;
                 (
                     {timestamp, message} = this.#formatter.formatLogEvent(jsonLog)
                 );
                 logLevel = logEvent.level;
-
             }
 
             results.push([
