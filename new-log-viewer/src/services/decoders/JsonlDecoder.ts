@@ -17,9 +17,10 @@ import {
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
-// Define the interface for a log event
-interface LogEvent {
-    level: LOG_LEVEL      // The severity level of the log event
+
+// Container for deserialized and parsed json logs.
+interface JsonLogEvent {
+    level: LOG_LEVEL
     jsonLog: JsonObject
 }
 
@@ -34,7 +35,7 @@ class JsonlDecoder implements Decoder {
 
     #logLevelKey: string = "level";
 
-    #logEvents: LogEvent[] = [];
+    #logEvents: JsonLogEvent[] = [];
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
@@ -65,7 +66,6 @@ class JsonlDecoder implements Decoder {
         if (beginIdx !== 0 || endIdx !== FULL_RANGE_END_IDX) {
             throw new Error("Partial range deserialization is not yet supported.");
         }
-
         let numInvalidEvents: number = 0
 
         const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
@@ -86,8 +86,7 @@ class JsonlDecoder implements Decoder {
                     throw new Error("Unexpected non-object.");
                 }
                 let level: LOG_LEVEL = this.#parseLogLevel(jsonLog as JsonObject)
-
-                const logEvent : LogEvent = {
+                const logEvent : JsonLogEvent = {
                     level: level,
                     jsonLog: jsonLog as JsonObject
                 }
@@ -101,7 +100,7 @@ class JsonlDecoder implements Decoder {
                 console.error(e, line);
                 const currentLogEventIdx = this.#logEvents.length;
                 this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
-                const logEvent : LogEvent = {
+                const logEvent : JsonLogEvent = {
                     level: LOG_LEVEL.NONE,
                     jsonLog: {}
                 }
@@ -131,7 +130,7 @@ class JsonlDecoder implements Decoder {
         // every iteration.
         const results: DecodeResultType[] = [];
         for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
-            let logEvent: LogEvent;
+            let logEvent: JsonLogEvent;
             let timestamp: number;
             let message: string;
             let logLevel: LOG_LEVEL;
@@ -143,7 +142,7 @@ class JsonlDecoder implements Decoder {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since we performed a bounds check at the beginning of the
                 // method.
-                logEvent = this.#logEvents[logEventIdx] as LogEvent;
+                logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
                 let jsonLog: JsonObject = logEvent.jsonLog;
                 (
                     {timestamp, message} = this.#formatter.formatLogEvent(jsonLog)

@@ -1,7 +1,6 @@
 import {
     Decoder,
     DecoderOptionsType,
-    LogEventCount,
     FULL_RANGE_END_IDX
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
