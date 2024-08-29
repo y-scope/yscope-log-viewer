@@ -18,14 +18,15 @@
   },
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/joy": "^5.0.0-beta.48",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "monaco-editor": "^0.50.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@emotion/react": "^11.13.0",
-    "@mui/icons-material": "^5.16.7",
-    "@mui/joy": "^5.0.0-beta.48"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
