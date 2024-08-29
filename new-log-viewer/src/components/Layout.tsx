@@ -11,6 +11,7 @@ import {
     Button,
     IconButton,
     Input,
+    Modal,
 } from "@mui/joy";
 
 import {
@@ -274,6 +275,8 @@ const Layout = () => {
             handleAction(actionName);
         }
     };
+    const [open, setOpen] = React.useState<boolean>(false);
+
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -287,72 +290,88 @@ const Layout = () => {
 
     return (
         <>
-            <div style={{display: "flex", flexDirection: "row", height: "2%"}}>
-                <IconButton>
-                    <Description/>
-                </IconButton>
-                <IconButton
-                    data-action-name={ACTION_NAME.FIRST_PAGE}
-                    onClick={handleButtonClick}
-                >
-                    <SkipPrevious/>
-                </IconButton>
-                <IconButton
-                    data-action-name={ACTION_NAME.PREV_PAGE}
-                    onClick={handleButtonClick}
-                >
-                    <NavigateBefore/>
-                </IconButton>
-                <IconButton
-                    data-action-name={ACTION_NAME.NEXT_PAGE}
-                    onClick={handleButtonClick}
-                >
-                    <NavigateNext/>
-                </IconButton>
-                <IconButton
-                    data-action-name={ACTION_NAME.LAST_PAGE}
-                    onClick={handleButtonClick}
-                >
-                    <SkipNext/>
-                </IconButton>
-                <IconButton>
-                    <Settings/>
-                </IconButton>
-                <IconButton>
-                    <TipsAndUpdates/>
-                </IconButton>
+            <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
+                <div style={{display: "flex", flexDirection: "row"}}>
+                    <IconButton>
+                        <Description/>
+                    </IconButton>
+                    <IconButton
+                        data-action-name={ACTION_NAME.FIRST_PAGE}
+                        onClick={handleButtonClick}
+                    >
+                        <SkipPrevious/>
+                    </IconButton>
+                    <IconButton
+                        data-action-name={ACTION_NAME.PREV_PAGE}
+                        onClick={handleButtonClick}
+                    >
+                        <NavigateBefore/>
+                    </IconButton>
+                    <IconButton
+                        data-action-name={ACTION_NAME.NEXT_PAGE}
+                        onClick={handleButtonClick}
+                    >
+                        <NavigateNext/>
+                    </IconButton>
+                    <IconButton
+                        data-action-name={ACTION_NAME.LAST_PAGE}
+                        onClick={handleButtonClick}
+                    >
+                        <SkipNext/>
+                    </IconButton>
+                    <IconButton
+                        onClick={() => {
+                            setOpen(true);
+                        }}
+                    >
+                        <Settings/>
+                    </IconButton>
+                    <IconButton>
+                        <TipsAndUpdates/>
+                    </IconButton>
 
-            </div>
-            <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
-                <h3>
-                    LogEventNum -
-                    {" "}
-                    <Input
-                        slotProps={{
-                            input: {
-                                type: "number",
-                                value: null === logEventNum ?
-                                    1 :
-                                    logEventNum,
-                                onChange: handleLogEventNumInputChange,
-                            },
-                        }}/>
-                    {" "}
-                    |
-                    PageNum -
-                    {" "}
-                    {pageNum}
-                </h3>
+                    <Modal
+                        aria-describedby={"modal-desc"}
+                        aria-labelledby={"modal-title"}
+                        open={open}
+                        sx={{display: "flex", justifyContent: "center", alignItems: "center"}}
+                        onClose={() => {
+                            setOpen(false);
+                        }}
+                    >
+                        <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
+                            <h3>
+                                LogEventNum -
+                                {" "}
+                                <Input
+                                    slotProps={{
+                                        input: {
+                                            type: "number",
+                                            value: null === logEventNum ?
+                                                1 :
+                                                logEventNum,
+                                            onChange: handleLogEventNumInputChange,
+                                        },
+                                    }}/>
+                                {" "}
+                                |
+                                PageNum -
+                                {" "}
+                                {pageNum}
+                            </h3>
 
-                <Button
-                    color={"success"}
-                    onClick={handleCopyLinkButtonClick}
-                >
-                    Copy link to last log
-                </Button>
+                            <Button
+                                color={"success"}
+                                onClick={handleCopyLinkButtonClick}
+                            >
+                                Copy link to last log
+                            </Button>
+                            <ConfigForm/>
+                        </div>
+                    </Modal>
 
-                <ConfigForm/>
-                <div style={{flexDirection: "column", flexGrow: 1}}>
+                </div>
+                <div style={{flex: 1, display: "flex", flexDirection: "column"}}>
                     <Editor onCustomAction={handleEditorCustomAction}/>
                 </div>
             </div>
