@@ -117,9 +117,16 @@ class JsonlDecoder implements Decoder {
     }
 
     setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
+        // If options changed then parse log events again.
+        if (this.#logLevelKey != options.logLevelKey) {
+            // Note this will not run if there are no events, for example on decoder initialization
+            for (let logEvent of this.#logEvents) {
+                let level: LOG_LEVEL = this.#parseLogLevel(logEvent.jsonLog as JsonObject)
+                logEvent.level = level
+            }
+        }
         this.#formatter = new LogbackFormatter(options);
         this.#logLevelKey = options.logLevelKey;
-
         return true;
     }
 
