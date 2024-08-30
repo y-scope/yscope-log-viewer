@@ -12,6 +12,8 @@ import {
     IconButton,
     Input,
     Modal,
+    Sheet,
+    Typography,
 } from "@mui/joy";
 
 import {
@@ -290,8 +292,8 @@ const Layout = () => {
 
     return (
         <>
-            <div style={{display: "flex", flexDirection: "column", height: "100vh"}}>
-                <div style={{display: "flex", flexDirection: "row"}}>
+            <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
+                <Sheet style={{display: "flex", flexDirection: "row"}}>
                     <IconButton>
                         <Description/>
                     </IconButton>
@@ -370,10 +372,29 @@ const Layout = () => {
                         </div>
                     </Modal>
 
-                </div>
-                <div style={{flex: 1, display: "flex", flexDirection: "column"}}>
+                </Sheet>
+                <div style={{flexDirection: "column", flexGrow: 1}}>
                     <Editor onCustomAction={handleEditorCustomAction}/>
                 </div>
+                {/* <Sheet sx={{display: "flex", flexDirection: "row", paddingLeft: "12px"}}> */}
+                <Sheet sx={{height: "30px", display: "flex", alignItems: "center"}}>
+                    <Typography
+                        level={"body-md"}
+                        sx={{flexGrow: 1}}
+                    >
+                        Status message
+                    </Typography>
+                    <Button onClick={() => { navigator.clipboard.writeText(window.location.href); }}>
+                        Log Event
+                        {" "}
+                        {logEventNum}
+                        {" "}
+                        of
+                        {" "}
+                        {numEvents}
+                    </Button>
+
+                </Sheet>
             </div>
         </>
     );

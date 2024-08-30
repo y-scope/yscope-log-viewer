@@ -93,7 +93,6 @@ const monacoTheme = extendTheme({
 const App = () => {
     return (
         <CssVarsProvider
-            defaultMode={"light"}
             theme={monacoTheme}
         >
             <UrlContextProvider>
