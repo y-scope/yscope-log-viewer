@@ -180,8 +180,6 @@ class JsonlDecoder implements Decoder {
 
         const parsedLogLevel = logEvent[this.#logLevelKey];
         if ("undefined" === typeof parsedLogLevel) {
-            console.error(`${this.#logLevelKey} doesn't exist in log event.`);
-
             return logLevel;
         }
 
