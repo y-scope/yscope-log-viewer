@@ -34,7 +34,7 @@ interface JsonLogEvent {
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
-    #dataArray: Uint8Array;
+    #dataArray: Nullable<Uint8Array>;
 
     #logLevelKey: string = "level";
 
@@ -71,7 +71,7 @@ class JsonlDecoder implements Decoder {
         }
         let numInvalidEvents: number = 0
 
-        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
+        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray as Uint8Array);
 
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
@@ -88,7 +88,7 @@ class JsonlDecoder implements Decoder {
                 if ("object" !== typeof jsonLog) {
                     throw new Error("Unexpected non-object.");
                 }
-                let level: LOG_LEVEL = this.#parseLogLevel(jsonLog as JsonObject)
+                const level: LOG_LEVEL = this.#parseLogLevel(jsonLog as JsonObject)
                 const logEvent : JsonLogEvent = {
                     level: level,
                     jsonLog: jsonLog as JsonObject
@@ -111,6 +111,8 @@ class JsonlDecoder implements Decoder {
             }
         }
 
+        this.#dataArray = null;
+
         return {
             numValidEvents: endIdx - beginIdx - numInvalidEvents,
             numInvalidEvents: numInvalidEvents,
@@ -121,8 +123,8 @@ class JsonlDecoder implements Decoder {
         // If options changed then parse log events again.
         if (this.#logLevelKey != options.logLevelKey) {
             // Note this will not run if there are no events, for example on decoder initialization
-            for (let logEvent of this.#logEvents) {
-                let level: LOG_LEVEL = this.#parseLogLevel(logEvent.jsonLog as JsonObject)
+            for (const logEvent of this.#logEvents) {
+                const level: LOG_LEVEL = this.#parseLogLevel(logEvent.jsonLog as JsonObject)
                 logEvent.level = level
             }
         }
@@ -152,7 +154,7 @@ class JsonlDecoder implements Decoder {
                 // but it shouldn't be since we performed a bounds check at the beginning of the
                 // method.
                 const logEvent: JsonLogEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
-                let jsonLog: JsonObject = logEvent.jsonLog;
+                const jsonLog: JsonObject = logEvent.jsonLog;
                 (
                     {timestamp, message} = this.#formatter.formatLogEvent(jsonLog)
                 );

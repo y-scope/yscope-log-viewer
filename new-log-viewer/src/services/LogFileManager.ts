@@ -176,9 +176,9 @@ class LogFileManager {
             } due to a limitation in Chromium-based browsers.`);
         }
 
-        const result = decoder.buildIdx(0, FULL_RANGE_END_IDX)
-        if (null !== result && 0 < result.numInvalidEvents) {
-            console.error(`${result.numInvalidEvents} were invalid.`);
+        const buildIdxResult = decoder.buildIdx(0, FULL_RANGE_END_IDX)
+        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
+            console.error(`Invalid events found during deserialization ${buildIdxResult}`);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
