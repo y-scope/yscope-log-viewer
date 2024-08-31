@@ -8,6 +8,8 @@ import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import Layout from "./components/Layout";
 import StateContextProvider from "./contexts/StateContextProvider";
 import UrlContextProvider from "./contexts/UrlContextProvider";
+import {CONFIG_KEY} from "./typings/config";
+import {CONFIG_DEFAULT} from "./utils/config";
 
 
 const monacoTheme = extendTheme({
@@ -93,6 +95,8 @@ const monacoTheme = extendTheme({
 const App = () => {
     return (
         <CssVarsProvider
+            defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
+            modeStorageKey={CONFIG_KEY.THEME}
             theme={monacoTheme}
         >
             <UrlContextProvider>

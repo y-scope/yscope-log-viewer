@@ -40,11 +40,6 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 result = "Decoder options cannot be empty.";
             }
             break;
-        case CONFIG_KEY.THEME:
-            if (false === (Object.values(THEME_NAME)).includes(value)) {
-                result = "Invalid theme name.";
-            }
-            break;
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
@@ -88,9 +83,6 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 value.timestampKey
             );
             break;
-        case CONFIG_KEY.THEME:
-            window.localStorage.setItem(LOCAL_STORAGE_KEY.THEME, value);
-            break;
         case CONFIG_KEY.PAGE_SIZE:
             window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
             break;
@@ -124,10 +116,6 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 ),
             } as DecoderOptionsType;
             break;
-        case CONFIG_KEY.THEME: {
-            value = window.localStorage.getItem(LOCAL_STORAGE_KEY.THEME);
-            break;
-        }
         case CONFIG_KEY.PAGE_SIZE:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
             break;

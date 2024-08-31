@@ -3,6 +3,7 @@ import React, {
     useContext,
     useEffect,
     useRef,
+    useState,
 } from "react";
 
 import * as monaco from "monaco-editor";
@@ -13,15 +14,19 @@ import {
     Input,
     Modal,
     Sheet,
+    ToggleButtonGroup,
     Typography,
+    useColorScheme,
 } from "@mui/joy";
 
 import {
+    DarkMode,
     Description,
+    HdrAuto,
+    LightMode,
     NavigateBefore,
     NavigateNext,
     Settings,
-    SettingsAccessibilityOutlined,
     SkipNext,
     SkipPrevious,
     TipsAndUpdates,
@@ -197,6 +202,7 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
  * @return
  */
 const Layout = () => {
+    const {setMode, mode} = useColorScheme();
     const {
         pageNum,
         numEvents,
@@ -205,6 +211,8 @@ const Layout = () => {
 
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
     const numEventsRef = useRef<Nullable<number>>(numEvents);
+
+    const [theme, setTheme] = useState<THEME_NAME>(getConfig(CONFIG_KEY.THEME));
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
@@ -331,6 +339,25 @@ const Layout = () => {
                     <IconButton>
                         <TipsAndUpdates/>
                     </IconButton>
+                    <ToggleButtonGroup
+                        exclusive={true}
+                    >
+                        <IconButton
+                            onClick={() => { setMode("light"); }}
+                        >
+                            <LightMode/>
+                        </IconButton>
+                        <IconButton
+                            onClick={() => { setMode("dark"); }}
+                        >
+                            <DarkMode/>
+                        </IconButton>
+                        <IconButton
+                            onClick={() => { setMode("system"); }}
+                        >
+                            <HdrAuto/>
+                        </IconButton>
+                    </ToggleButtonGroup>
 
                     <Modal
                         aria-describedby={"modal-desc"}
