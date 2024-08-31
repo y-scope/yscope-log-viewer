@@ -148,6 +148,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setNumEvents(args.numEvents);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
+                // eslint-disable-next-line no-warning-comments
                 // TODO: notifications should be shown in the UI when the NotificationProvider
                 //  is added
                 console.error(args.logLevel, args.message);
