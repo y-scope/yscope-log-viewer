@@ -42,7 +42,6 @@ import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
-    THEME_NAME,
 } from "../typings/config";
 import {ACTION_NAME} from "../utils/actions";
 import {
@@ -77,12 +76,6 @@ const formFields = [
         type: "text",
     },
     {
-        initialValue: getConfig(CONFIG_KEY.THEME),
-        label: LOCAL_STORAGE_KEY.THEME,
-        name: LOCAL_STORAGE_KEY.THEME,
-        type: "text",
-    },
-    {
         initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
         label: LOCAL_STORAGE_KEY.PAGE_SIZE,
         name: LOCAL_STORAGE_KEY.PAGE_SIZE,
@@ -109,7 +102,6 @@ const ConfigForm = () => {
         const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
         const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
         const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-        const theme = formData.get(LOCAL_STORAGE_KEY.THEME);
         const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
         let error = null;
         if (
@@ -120,12 +112,6 @@ const ConfigForm = () => {
             error ||= setConfig({
                 key: CONFIG_KEY.DECODER_OPTIONS,
                 value: {formatString, logLevelKey, timestampKey},
-            });
-        }
-        if ("string" === typeof theme) {
-            error ||= setConfig({
-                key: CONFIG_KEY.THEME,
-                value: theme as THEME_NAME,
             });
         }
         if ("string" === typeof pageSize) {
@@ -211,8 +197,6 @@ const Layout = () => {
 
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
     const numEventsRef = useRef<Nullable<number>>(numEvents);
-
-    const [theme, setTheme] = useState<THEME_NAME>(getConfig(CONFIG_KEY.THEME));
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
