@@ -2,9 +2,9 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
+    FULL_RANGE_END_IDX,
     JsonlDecoderOptionsType,
     LogEventCount,
-    FULL_RANGE_END_IDX,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
 import {
@@ -16,6 +16,7 @@ import {
     LOG_LEVEL,
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
+
 
 /**
  * Parsed JSONL.

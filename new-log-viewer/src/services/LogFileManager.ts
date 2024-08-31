@@ -1,7 +1,7 @@
 import {
     Decoder,
     DecoderOptionsType,
-    FULL_RANGE_END_IDX
+    FULL_RANGE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -177,7 +177,7 @@ class LogFileManager {
         }
 
         const result = decoder.buildIdx(0, FULL_RANGE_END_IDX)
-        if (result != null && result.numInvalidEvents > 0) {
+        if (null !== result && 0 < result.numInvalidEvents) {
             console.error(`${result.numInvalidEvents} were invalid.`);
         }
 
