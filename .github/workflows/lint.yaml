@@ -25,9 +25,10 @@ jobs:
         with:
           node-version: 22
       - run: "npm --prefix new-log-viewer/ clean-install"
-      - uses: "CatChen/eslint-suggestion-action@v4"
+      - run: "npm --prefix new-log-viewer/ run lint:ci"
+      - uses: "ataylorme/eslint-annotate-action@v3"
         with:
-          config-path: "./package.json"
-          directory: "./new-log-viewer"
-          fail-check: true
-          targets: "./src/**/*.{js,jsx,ts,tsx}"
+          fail-on-error: true
+          fail-on-warning: true
+          only-pr-files: true
+          report-json: "./new-log-viewer/eslint_report.json"
