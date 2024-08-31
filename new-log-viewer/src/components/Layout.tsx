@@ -411,7 +411,7 @@ const Layout = () => {
                     >
                         Status message
                     </Typography>
-                    <Button onClick={() => { navigator.clipboard.writeText(window.location.href); }}>
+                    <Button onClick={() => { copyPermalinkToClipboard({}, {}); }}>
                         Log Event
                         {" "}
                         {logEventNum}
