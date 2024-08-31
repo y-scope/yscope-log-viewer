@@ -12,7 +12,9 @@ on:
 permissions:
   # So the workflow can cancel in-progress jobs
   actions: "write"
-  # So `eslint-annotate-action` can compare commits
+  # So `eslint-annotate-action` can create / update status checks
+  checks: "write"
+  # So `eslint-annotate-action` can get pull request files
   contents: "read"
 
 concurrency:
