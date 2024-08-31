@@ -9,6 +9,14 @@ on:
     - cron: "15 0 * * *"
   workflow_dispatch:
 
+permissions:
+  # So the workflow can cancel in-progress jobs
+  actions: "write"
+  # So `eslint-suggestion-action` can compare commits
+  contents: "read"
+  # So `eslint-suggestion-action` can post a review
+  pull-requests: "write"
+
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
   # Cancel in-progress jobs for efficiency
