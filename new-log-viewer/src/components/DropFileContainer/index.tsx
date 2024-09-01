@@ -60,7 +60,7 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
         const [file] = ev.dataTransfer.files;
         if ("undefined" === typeof file) {
-            console.warn("No file is getting dropped");
+            console.warn("No file dropped.");
 
             return;
         }
@@ -91,7 +91,7 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                             className={"hover-message"}
                             onDrop={handleDrop}
                         >
-                            Drop File to View
+                            Drop file to view
                         </div>
                     </div>
                 )}

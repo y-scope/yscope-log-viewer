@@ -13,7 +13,7 @@ const openFile = (onOpen: OnFileOpenCallback) => {
         const target = ev.target as HTMLInputElement;
         const [file] = target.files as FileList;
         if ("undefined" === typeof file) {
-            console.error("No file is selected");
+            console.error("No file selected");
 
             return;
         }
