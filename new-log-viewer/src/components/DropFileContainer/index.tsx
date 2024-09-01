@@ -24,11 +24,6 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
     const {loadFile} = useContext(StateContext);
     const [isFileHovering, setIsFileHovering] = useState(false);
 
-    /**
-     * Handler for a drag event.
-     *
-     * @param ev
-     */
     const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -46,12 +41,6 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         }
     };
 
-    /**
-     * Handler for a drop event. handleFileDrop callback is used
-     * to load the dropped file into the viewer.
-     *
-     * @param ev
-     */
     const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
