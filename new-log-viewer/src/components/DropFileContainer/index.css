@@ -24,7 +24,7 @@
 .hover-message {
     padding: 8px;
     color: #616161;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-family: Roboto, sans-serif;
     background-color: #f3f3f3;
     z-index: var(--drop-file-container-hover-message-z-index);
