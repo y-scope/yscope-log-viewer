@@ -5,7 +5,10 @@ html, body, #root {
 }
 
 :root {
-    /* z-index values */
+    /* font-family globals */
+    --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, Ubuntu, "Droid Sans", Roboto;
+
+    /* z-index globals */
     /* .monaco-editor .minimap { z-index: 5; } */
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;
