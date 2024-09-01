@@ -45,7 +45,7 @@ interface Decoder {
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
      *
      * @param beginIdx
-     * @param endIdx
+     * @param endIdx End index. To deserialize to the end of the file, use `LOG_EVENT_FILE_END_IDX`.
      * @return Count of the successfully deserialized ("valid") log events and count of any
      * un-deserializable ("invalid") log events within the range; or null if any log event in the
      * range doesn't exist (e.g., the range exceeds the number of log events in the file).
