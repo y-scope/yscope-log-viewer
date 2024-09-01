@@ -13,8 +13,13 @@ html {
     --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, Ubuntu, "Droid Sans",
     Roboto;
 
-    /* z-index globals */
-    /* .monaco-editor .minimap { z-index: 5; } */
+    /* z-index globals
+     *
+     * Other z-index values in the project for reference:
+     * ```
+     * .monaco-editor .minimap { z-index: 5; }
+     * ```
+     */
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;
 }
