@@ -9,6 +9,7 @@ import React, {
 
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -26,6 +27,7 @@ import {
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
+    updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
@@ -153,6 +155,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
