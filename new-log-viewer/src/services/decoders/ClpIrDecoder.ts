@@ -1,4 +1,5 @@
-import clpFfijsModuleInit, {ClpIrStreamReader} from "clp-ffi-js";
+import clpFfiJsModuleInit, {ClpIrStreamReader} from "clp-ffi-js";
+
 import {Nullable} from "../../typings/common";
 import {
     Decoder,
@@ -14,8 +15,14 @@ class ClpIrDecoder implements Decoder {
         this.#streamReader = streamReader;
     }
 
+    /**
+     * Creates a new ClpIrDecoder instance.
+     *
+     * @param dataArray The input data array to be passed to the decoder.
+     * @return The created ClpIrDecoder instance.
+     */
     static async create (dataArray: Uint8Array): Promise<ClpIrDecoder> {
-        const module = await clpFfijsModuleInit();
+        const module = await clpFfiJsModuleInit();
         const streamReader = new module.ClpIrStreamReader(dataArray);
         return new ClpIrDecoder(streamReader);
     }
@@ -26,12 +33,11 @@ class ClpIrDecoder implements Decoder {
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
         return {
-            numValidEvents: this.#streamReader.deserializeRange(beginIdx, endIdx),
             numInvalidEvents: 0,
+            numValidEvents: this.#streamReader.deserializeRange(beginIdx, endIdx),
         };
     }
 
-    // TODO: add prettify option
     // eslint-disable-next-line class-methods-use-this
     setDecoderOptions (): boolean {
         return true;
