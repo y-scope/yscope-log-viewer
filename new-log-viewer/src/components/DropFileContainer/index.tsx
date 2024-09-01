@@ -31,6 +31,10 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         if ("dragenter" === ev.type) {
             setIsFileHovering(true);
         } else if ("dragleave" === ev.type) {
+            // "dragleave" could get fired when the wrapped `children` receives focus.
+            // Setting `pointer-events: none` on the children is viable but could cause the
+            // children to be non-responsive. Instead, check if the pointer is still within the
+            // range of the DropFileContainer; if so, deem the file is still hovering.
             const {bottom, left, right, top} = ev.currentTarget.getBoundingClientRect();
             if (ev.clientX >= left && ev.clientX <= right &&
                 ev.clientY >= top && ev.clientY <= bottom) {
