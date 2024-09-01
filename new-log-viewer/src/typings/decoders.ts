@@ -71,7 +71,12 @@ interface Decoder {
     decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 }
 
+/**
+ * The end index for specifying full range when the exact number of log events is unknown.
+ */
+const FULL_RANGE_END_IDX: number = 0;
 
+export {FULL_RANGE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,
