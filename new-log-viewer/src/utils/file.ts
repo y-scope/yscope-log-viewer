@@ -2,7 +2,7 @@ import type {OnFileOpenCallback} from "../typings/file";
 
 
 /**
- * Open a file and invokes the provided callback on the file.
+ * Opens a file and invokes the provided callback on the file.
  *
  * @param onOpen
  */
