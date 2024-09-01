@@ -3,3 +3,10 @@ html, body, #root {
     height: 100%;
     width: 100%;
 }
+
+:root {
+    /* z-index values */
+    /* .monaco-editor .minimap { z-index: 5; } */
+    --drop-file-container-hover-mask-z-index: 10;
+    --drop-file-container-hover-message-z-index: 11;
+}
