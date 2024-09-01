@@ -75,9 +75,9 @@ interface Decoder {
  * Index for specifying the end of the file when the exact number of log events it contains is
  *  unknown.
  */
-const FULL_RANGE_END_IDX: number = 0;
+const LOG_EVENT_FILE_END_IDX: number = 0;
 
-export {FULL_RANGE_END_IDX};
+export {LOG_EVENT_FILE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,

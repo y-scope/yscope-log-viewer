@@ -1,7 +1,7 @@
 import {
     Decoder,
     DecoderOptionsType,
-    FULL_RANGE_END_IDX,
+    LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -74,7 +74,7 @@ class LogFileManager {
         this.#decoder = decoder;
 
         // Build index for the entire file
-        const buildIdxResult = decoder.buildIdx(0, FULL_RANGE_END_IDX);
+        const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
         if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
             console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
         }
