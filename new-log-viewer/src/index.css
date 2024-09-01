@@ -4,6 +4,10 @@ html, body, #root {
     width: 100%;
 }
 
+html {
+    font-size: 16px;
+}
+
 :root {
     /* font-family globals */
     --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, Ubuntu, "Droid Sans", Roboto;
