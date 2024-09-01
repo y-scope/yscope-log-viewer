@@ -1,6 +1,7 @@
 import {
     Decoder,
     DecoderOptionsType,
+    LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -13,6 +14,7 @@ import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
+import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
@@ -48,8 +50,6 @@ const loadFile = async (fileSrc: FileSrcType)
 class LogFileManager {
     readonly #pageSize: number;
 
-    readonly #fileData: Uint8Array;
-
     readonly #fileName: string;
 
     #decoder: Decoder;
@@ -60,21 +60,27 @@ class LogFileManager {
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
      *
+     * @param decoder
      * @param fileName
-     * @param fileData
      * @param pageSize Page size for setting up pagination.
-     * @param decoderOptions Initial decoder options.
      */
     constructor (
+        decoder: Decoder,
         fileName: string,
-        fileData: Uint8Array,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
     ) {
         this.#fileName = fileName;
-        this.#fileData = fileData;
         this.#pageSize = pageSize;
-        this.#decoder = this.#initDecoder(decoderOptions);
+        this.#decoder = decoder;
+
+        // Build index for the entire file
+        const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
+        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
+            console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
+        }
+
+        this.#numEvents = decoder.getEstimatedNumEvents();
+        console.log(`Found ${this.#numEvents} log events.`);
     }
 
     get numEvents () {
@@ -96,7 +102,41 @@ class LogFileManager {
         decoderOptions: DecoderOptionsType
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        return new LogFileManager(fileName, fileData, pageSize, decoderOptions);
+        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
+
+        return new LogFileManager(decoder, fileName, pageSize);
+    }
+
+    /**
+     * Constructs a decoder instance based on the file extension.
+     *
+     * @param fileName
+     * @param fileData
+     * @param decoderOptions Initial decoder options.
+     * @return The constructed decoder.
+     * @throws {Error} if no decoder supports a file with the given extension.
+     */
+    static async #initDecoder (
+        fileName: string,
+        fileData: Uint8Array,
+        decoderOptions: DecoderOptionsType
+    ): Promise<Decoder> {
+        let decoder: Decoder;
+        if (fileName.endsWith(".jsonl")) {
+            decoder = new JsonlDecoder(fileData, decoderOptions);
+        } else if (fileName.endsWith(".clp.zst")) {
+            decoder = await ClpIrDecoder.create(fileData);
+        } else {
+            throw new Error(`No decoder supports ${fileName}`);
+        }
+
+        if (fileData.length > MAX_V8_STRING_LENGTH) {
+            throw new Error(`Cannot handle files larger than ${
+                formatSizeInBytes(MAX_V8_STRING_LENGTH)
+            } due to a limitation in Chromium-based browsers.`);
+        }
+
+        return decoder;
     }
 
     /**
@@ -153,33 +193,6 @@ class LogFileManager {
             cursorLineNum: 1,
         };
     }
-
-    /**
-     * Constructs a decoder instance based on the file extension.
-     *
-     * @param decoderOptions Initial decoder options.
-     * @return The constructed decoder.
-     * @throws {Error} if a decoder cannot be found.
-     */
-    #initDecoder = (decoderOptions: DecoderOptionsType): Decoder => {
-        let decoder: Decoder;
-        if (this.#fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(this.#fileData, decoderOptions);
-        } else {
-            throw new Error(`No decoder supports ${this.#fileName}`);
-        }
-
-        if (this.#fileData.length > MAX_V8_STRING_LENGTH) {
-            throw new Error(`Cannot handle files larger than ${
-                formatSizeInBytes(MAX_V8_STRING_LENGTH)
-            } due to a limitation in Chromium-based browsers.`);
-        }
-
-        this.#numEvents = decoder.getEstimatedNumEvents();
-        console.log(`Found ${this.#numEvents} log events.`);
-
-        return decoder;
-    };
 
     /**
      * Gets the range of log event numbers for the page containing the given cursor.
