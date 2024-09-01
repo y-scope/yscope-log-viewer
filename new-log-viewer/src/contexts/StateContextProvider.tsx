@@ -9,6 +9,7 @@ import React, {
 
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -26,6 +27,7 @@ import {
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
+    updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
@@ -113,6 +115,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const filePathRef = useRef<Nullable<string>>(filePath);
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
@@ -133,6 +136,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
+                updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: filePathRef.current});
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -153,6 +157,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        // Backup and unset `filePath` in the URL, which can be restored after successful loading
+        // (when `WORKER_RESP_CODE.LOG_FILE_INFO` is received) if `fileSrc` is a URL.
+        filePathRef.current = "string" === typeof fileSrc ?
+            fileSrc :
+            null;
+        updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
