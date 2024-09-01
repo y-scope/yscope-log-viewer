@@ -7,6 +7,6 @@ html, body, #root {
 :root {
     /* z-index values */
     /* .monaco-editor .minimap { z-index: 5; } */
-    --drop-file-container-hover-mask-z-index: 10;
-    --drop-file-container-hover-message-z-index: 11;
+    --ylv-drop-file-container-hover-mask-z-index: 10;
+    --ylv-drop-file-container-hover-message-z-index: 11;
 }

@@ -18,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: var(--drop-file-container-hover-mask-z-index);
+    z-index: var(--ylv-drop-file-container-hover-mask-z-index);
 }
 
 .hover-message {
@@ -27,5 +27,5 @@
     font-size: 0.875rem;
     font-family: Roboto, sans-serif;
     background-color: #f3f3f3;
-    z-index: var(--drop-file-container-hover-message-z-index);
+    z-index: var(--ylv-drop-file-container-hover-message-z-index);
 }
