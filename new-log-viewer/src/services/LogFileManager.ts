@@ -73,7 +73,7 @@ class LogFileManager {
         this.#pageSize = pageSize;
         this.#decoder = decoder;
 
-        // Build indices for full range
+        // Build index for the entire file
         const buildIdxResult = decoder.buildIdx(0, FULL_RANGE_END_IDX);
         if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
             console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
@@ -114,7 +114,7 @@ class LogFileManager {
      * @param fileData
      * @param decoderOptions Initial decoder options.
      * @return The constructed decoder.
-     * @throws {Error} if a decoder cannot be found.
+     * @throws {Error} if no decoder supports a file with the given extension.
      */
     static async #initDecoder (
         fileName: string,

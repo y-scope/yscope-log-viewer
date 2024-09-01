@@ -72,7 +72,8 @@ interface Decoder {
 }
 
 /**
- * The end index for specifying full range when the exact number of log events is unknown.
+ * Index for specifying the end of the file when the exact number of log events it contains is
+ *  unknown.
  */
 const FULL_RANGE_END_IDX: number = 0;
 
