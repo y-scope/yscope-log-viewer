@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-warning-comments
+// TODO: move handlers out from StateContextProvider.
+/* eslint-disable max-lines, max-lines-per-function */
 import React, {
     createContext,
     useCallback,
@@ -40,8 +43,8 @@ interface StateContextType {
     fileName: string,
     logData: string,
     logLevelFilter: LogLevelFilter,
-    numFilteredEvents: number,
     numEvents: number,
+    numFilteredEvents: number,
     numPages: number,
     pageNum: Nullable<number>,
 
@@ -58,8 +61,8 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     fileName: "",
     logData: "Loading...",
     logLevelFilter: null,
-    numFilteredEvents: 0,
     numEvents: 0,
+    numFilteredEvents: 0,
     numPages: 0,
     pageNum: 0,
 
@@ -139,7 +142,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [numFilteredEvents, setNumFilteredEvents] = useState<number>(STATE_DEFAULT.numFilteredEvents);
+    const [numFilteredEvents, setNumFilteredEvents] =
+        useState<number>(STATE_DEFAULT.numFilteredEvents);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
@@ -296,8 +300,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 fileName: fileName,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
-                numFilteredEvents: numFilteredEvents,
                 numEvents: numEvents,
+                numFilteredEvents: numFilteredEvents,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
 

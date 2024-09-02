@@ -177,6 +177,9 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
  *
  * @return
  */
+// eslint-disable-next-line no-warning-comments
+// TODO: replace elements in this component once we integrate with a UI framework
+// eslint-disable-next-line max-lines-per-function
 const Layout = () => {
     const {
         fileName,
