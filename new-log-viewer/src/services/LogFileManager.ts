@@ -23,7 +23,7 @@ import JsonlDecoder from "./decoders/JsonlDecoder";
  *
  * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
  * object.
- * @return A promise that resolves with the number of log events found in the file.
+ * @return A promise that resolves with an object containing the file name and file data.
  * @throws {Error} If the file source type is not supported.
  */
 const loadFile = async (fileSrc: FileSrcType)
@@ -34,8 +34,8 @@ const loadFile = async (fileSrc: FileSrcType)
         fileName = getBasenameFromUrlOrDefault(fileSrc);
         fileData = await getUint8ArrayFrom(fileSrc, () => null);
     } else {
-        // TODO: support file loading via Open / Drag-n-drop
-        throw new Error("Read from file not yet supported");
+        fileName = fileSrc.name;
+        fileData = new Uint8Array(await fileSrc.arrayBuffer());
     }
 
     return {
@@ -81,6 +81,10 @@ class LogFileManager {
 
         this.#numEvents = decoder.getEstimatedNumEvents();
         console.log(`Found ${this.#numEvents} log events.`);
+    }
+
+    get fileName () {
+        return this.#fileName;
     }
 
     get numEvents () {
