@@ -40,4 +40,4 @@ jobs:
           fail-on-error: true
           fail-on-warning: true
           only-pr-files: true
-          report-json: "./new-log-viewer/eslint_report.json"
+          report-json: "./new-log-viewer/eslint-report.json"
