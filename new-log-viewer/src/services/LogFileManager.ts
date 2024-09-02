@@ -1,6 +1,6 @@
 import {
     Decoder,
-    DecoderOptionsType,
+    DecoderOptions,
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
@@ -103,7 +103,7 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
@@ -123,7 +123,7 @@ class LogFileManager {
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
@@ -148,7 +148,7 @@ class LogFileManager {
      *
      * @param options
      */
-    setDecoderOptions (options: DecoderOptionsType) {
+    setDecoderOptions (options: DecoderOptions) {
         this.#decoder.setDecoderOptions(options);
     }
 

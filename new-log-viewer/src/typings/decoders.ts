@@ -10,6 +10,10 @@ interface LogEventCount {
     numInvalidEvents: number,
 }
 
+interface GenericDecoderOptions {
+    logLevelFilter: Nullable<LOG_LEVEL[]>,
+}
+
 /**
  * Options for the JSONL decoder.
  *
@@ -17,13 +21,13 @@ interface LogEventCount {
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptionsType {
+interface JsonlDecoderOptions extends GenericDecoderOptions {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
 }
 
-type DecoderOptionsType = JsonlDecoderOptionsType;
+type DecoderOptions = JsonlDecoderOptions;
 
 /**
  * A log event parsed from a JSON log.
@@ -71,7 +75,7 @@ interface Decoder {
      * @param options
      * @return Whether the options were successfully set.
      */
-    setDecoderOptions(options: DecoderOptionsType): boolean;
+    setDecoderOptions(options: DecoderOptions): boolean;
 
     /**
      * Decodes the log events in the range `[beginIdx, endIdx)`.
@@ -94,8 +98,8 @@ export {LOG_EVENT_FILE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,
-    DecoderOptionsType,
-    JsonlDecoderOptionsType,
+    DecoderOptions,
+    JsonlDecoderOptions,
     JsonLogEvent,
     LogEventCount,
 };

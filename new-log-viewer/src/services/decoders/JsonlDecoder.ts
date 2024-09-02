@@ -4,7 +4,7 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
-    JsonlDecoderOptionsType,
+    JsonlDecoderOptions,
     JsonLogEvent,
     LOG_EVENT_FILE_END_IDX,
     LogEventCount,
@@ -30,11 +30,13 @@ class JsonlDecoder implements Decoder {
 
     #dataArray: Nullable<Uint8Array>;
 
-    #logLevelKey: string = "level";
+    readonly #logLevelKey: string;
 
-    #timestampKey: string = "@timestamp";
+    readonly #timestampKey: string;
 
     #logEvents: JsonLogEvent[] = [];
+
+    #filteredLogIndices: number[];
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
@@ -46,7 +48,12 @@ class JsonlDecoder implements Decoder {
      * @param decoderOptions
      * @throws {Error} if the initial decoder options are erroneous.
      */
-    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
+    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptions) {
+        this.#filteredLogIndices = [];
+
+        this.#logLevelKey = decoderOptions.logLevelKey;
+        this.#timestampKey = decoderOptions.timestampKey;
+
         const isOptionSet = this.setDecoderOptions(decoderOptions);
         if (false === isOptionSet) {
             throw new Error(
@@ -57,7 +64,7 @@ class JsonlDecoder implements Decoder {
     }
 
     getEstimatedNumEvents (): number {
-        return this.#logEvents.length;
+        return this.#filteredLogIndices.length;
     }
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
@@ -66,6 +73,7 @@ class JsonlDecoder implements Decoder {
         }
 
         this.#deserialize();
+        this.#filterLogs(null);
         const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
             .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
             .length;
@@ -76,17 +84,16 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
-        // FIXME: If options changed then parse log events again.
+    setDecoderOptions (options: JsonlDecoderOptions): boolean {
+        // Note `options.timestampKey` and `options.logLevelKey` are not set by this method.
         this.#formatter = new LogbackFormatter(options);
-        this.#logLevelKey = options.logLevelKey;
-        this.#timestampKey = options.timestampKey;
+        this.#filterLogs(options.logLevelFilter);
 
         return true;
     }
 
     decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        if (0 > beginIdx || this.#logEvents.length < endIdx) {
+        if (0 > beginIdx || this.#filteredLogIndices.length < endIdx) {
             return null;
         }
 
@@ -94,7 +101,13 @@ class JsonlDecoder implements Decoder {
         // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
         // every iteration.
         const results: DecodeResultType[] = [];
-        for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
+        for (let filteredLogEventIdx = beginIdx;
+            filteredLogEventIdx < endIdx;
+            filteredLogEventIdx++) {
+            // Explicit cast since typescript thinks `#filteredLogIndices[filteredLogEventIdx]` can
+            // be undefined, but it shouldn't be since we performed a bounds check at the beginning
+            // of the method.
+            const logEventIdx = this.#filteredLogIndices[filteredLogEventIdx] as number;
             let logLevel: LOG_LEVEL;
             let message: string;
             let timestamp: number;
@@ -104,8 +117,7 @@ class JsonlDecoder implements Decoder {
                 timestamp = INVALID_TIMESTAMP_VALUE;
             } else {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
-                // but it shouldn't be since we performed a bounds check at the beginning of the
-                // method.
+                // but it shouldn't be since the index comes from a class-internal filter.
                 const logEvent: JsonLogEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
                 logLevel = logEvent.level;
                 message = this.#formatter.formatLogEvent(logEvent);
@@ -172,6 +184,22 @@ class JsonlDecoder implements Decoder {
         this.#dataArray = null;
     }
 
+    #filterLogs (logLevelFilter: Nullable<LOG_LEVEL[]>) {
+        this.#filteredLogIndices.length = 0;
+        if (null === logLevelFilter) {
+            this.#filteredLogIndices = Array.from(
+                {length: this.#logEvents.length},
+                (_, index) => index
+            );
+
+            return;
+        }
+        this.#logEvents.forEach((logEvent, index) => {
+            if (logEvent.level in logLevelFilter) {
+                this.#filteredLogIndices.push(index);
+            }
+        });
+    }
 
     /**
      * Parses the log level from the given log event.
