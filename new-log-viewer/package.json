@@ -5,6 +5,10 @@
   "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
+    "lint": "npm run lint:check",
+    "lint:ci": "npm run lint:check -- --output-file eslint-report.json --format json",
+    "lint:check": "eslint src webpack.*.js",
+    "lint:fix": "npm run lint:check -- --fix",
     "start": "webpack serve --open --config webpack.dev.js"
   },
   "repository": {

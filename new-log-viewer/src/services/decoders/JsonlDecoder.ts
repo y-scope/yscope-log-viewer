@@ -82,6 +82,7 @@ class JsonlDecoder implements Decoder {
             return null;
         }
 
+        // eslint-disable-next-line no-warning-comments
         // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
         // every iteration.
         const results: DecodeResultType[] = [];

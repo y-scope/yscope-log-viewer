@@ -41,6 +41,7 @@ const createMonacoEditor = (
     const editor = monaco.editor.create(
         editorContainer,
         {
+            // eslint-disable-next-line no-warning-comments
             // TODO: Add custom observer to debounce automatic layout
             automaticLayout: true,
             maxTokenizationLineLength: 30_000,
