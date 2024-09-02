@@ -23,6 +23,7 @@
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
     "axios": "^1.7.2",
+    "clp-ffi-js": "^0.1.0",
     "dayjs": "^1.11.11",
     "monaco-editor": "^0.50.0",
     "react": "^18.3.1",

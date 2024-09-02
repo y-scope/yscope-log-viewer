@@ -19,15 +19,18 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
+import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
 import {
     getConfig,
     setConfig,
 } from "../utils/config";
+import {openFile} from "../utils/file";
 import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
+import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
@@ -164,8 +167,10 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
  */
 const Layout = () => {
     const {
-        pageNum,
+        fileName,
+        loadFile,
         numEvents,
+        pageNum,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -174,6 +179,12 @@ const Layout = () => {
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
+    };
+
+    const handleOpenFileButtonClick = () => {
+        openFile((file) => {
+            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+        });
     };
 
     /**
@@ -251,15 +262,25 @@ const Layout = () => {
                     PageNum -
                     {" "}
                     {pageNum}
+                    {" "}
+                    | FileName -
+                    {" "}
+                    {fileName}
                 </h3>
 
                 <button onClick={handleCopyLinkButtonClick}>
                     Copy link to last log
                 </button>
 
+                <button onClick={handleOpenFileButtonClick}>
+                    Open File
+                </button>
+
                 <ConfigForm/>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
-                    <Editor onCustomAction={handleCustomAction}/>
+                    <DropFileContainer>
+                        <Editor onCustomAction={handleCustomAction}/>
+                    </DropFileContainer>
                 </div>
             </div>
         </>

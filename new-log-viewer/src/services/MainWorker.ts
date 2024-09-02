@@ -48,10 +48,10 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     args.decoderOptions
                 );
 
-                postResp(
-                    WORKER_RESP_CODE.NUM_EVENTS,
-                    {numEvents: LOG_FILE_MANAGER.numEvents}
-                );
+                postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
+                    fileName: LOG_FILE_MANAGER.fileName,
+                    numEvents: LOG_FILE_MANAGER.numEvents,
+                });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)

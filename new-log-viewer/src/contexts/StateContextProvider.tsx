@@ -9,6 +9,7 @@ import React, {
 
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -26,6 +27,7 @@ import {
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
+    updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
@@ -34,6 +36,7 @@ import {
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+    fileName: string,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     logData: string,
     numEvents: number,
@@ -45,8 +48,9 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 /**
  * Default values of the state object.
  */
-const STATE_DEFAULT = Object.freeze({
+const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
+    fileName: "",
     loadFile: () => null,
     logData: "Loading...",
     numEvents: 0,
@@ -123,6 +127,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
+    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const beginLineNumToLogEventNumRef =
@@ -137,6 +142,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
+            case WORKER_RESP_CODE.LOG_FILE_INFO:
+                setFileName(args.fileName);
+                setNumEvents(args.numEvents);
+                break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
@@ -144,9 +153,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.NUM_EVENTS:
-                setNumEvents(args.numEvents);
-                break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
                 // TODO: notifications should be shown in the UI when the NotificationProvider
@@ -160,6 +166,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
@@ -253,6 +262,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
+                fileName: fileName,
                 loadFile: loadFile,
                 logData: logData,
                 numEvents: numEvents,
