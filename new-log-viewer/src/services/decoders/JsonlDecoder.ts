@@ -85,7 +85,7 @@ class JsonlDecoder implements Decoder {
     }
 
     setDecoderOptions (options: JsonlDecoderOptions): boolean {
-        // Note `options.timestampKey` and `options.logLevelKey` are not set by this method.
+        // Note `options.timestampKey` and `options.logLevelKey` are ignored by this method.
         this.#formatter = new LogbackFormatter(options);
         this.#filterLogs(options.logLevelFilter);
 
