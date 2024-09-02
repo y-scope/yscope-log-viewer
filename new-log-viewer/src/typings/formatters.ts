@@ -1,4 +1,4 @@
-import {JsonObject} from "./js";
+import {JsonLogEvent} from "./decoders";
 
 
 /**
@@ -31,18 +31,12 @@ interface LogbackFormatterOptionsType {
 
 type FormatterOptionsType = LogbackFormatterOptionsType;
 
-interface TimestampAndMessageType {
-    timestamp: number,
-    message: string,
-}
-
 interface Formatter {
-    formatLogEvent: (jsonObject: JsonObject) => TimestampAndMessageType
+    formatLogEvent: (logEvent: JsonLogEvent) => string,
 }
 
 export type {
     Formatter,
     FormatterOptionsType,
     LogbackFormatterOptionsType,
-    TimestampAndMessageType,
 };

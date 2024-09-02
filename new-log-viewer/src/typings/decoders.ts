@@ -1,4 +1,8 @@
+import {Dayjs} from "dayjs";
+
 import {Nullable} from "./common";
+import {JsonObject} from "./js";
+import {LOG_LEVEL} from "./logs";
 
 
 interface LogEventCount {
@@ -20,6 +24,15 @@ interface JsonlDecoderOptionsType {
 }
 
 type DecoderOptionsType = JsonlDecoderOptionsType;
+
+/**
+ * A log event parsed from a JSON log.
+ */
+interface JsonLogEvent {
+    timestamp: Dayjs,
+    level: LOG_LEVEL,
+    fields: JsonObject
+}
 
 /**
  * Type of the decoded log event. We use an array rather than object so that it's easier to return
@@ -83,5 +96,6 @@ export type {
     DecodeResultType,
     DecoderOptionsType,
     JsonlDecoderOptionsType,
+    JsonLogEvent,
     LogEventCount,
 };
