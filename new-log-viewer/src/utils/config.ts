@@ -17,6 +17,7 @@ const MAX_PAGE_SIZE = 1_000_000;
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.DECODER_OPTIONS]: {
         formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n",
+        logLevelFilter: null,
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },
