@@ -40,6 +40,7 @@ interface StateContextType {
     fileName: string,
     logData: string,
     logLevelFilter: LogLevelFilter,
+    numFilteredEvents: number,
     numEvents: number,
     numPages: number,
     pageNum: Nullable<number>,
@@ -57,6 +58,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     fileName: "",
     logData: "Loading...",
     logLevelFilter: null,
+    numFilteredEvents: 0,
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
@@ -137,6 +139,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [numFilteredEvents, setNumFilteredEvents] = useState<number>(STATE_DEFAULT.numFilteredEvents);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
@@ -154,6 +157,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // eslint-disable-next-line no-warning-comments
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
+                break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
@@ -161,11 +170,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
+            case WORKER_RESP_CODE.VIEW_INFO:
+                setNumFilteredEvents(args.numFilteredEvents);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -215,12 +221,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
-        if (STATE_DEFAULT.numEvents === numEvents) {
+        if (STATE_DEFAULT.numFilteredEvents === numFilteredEvents) {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
-    }, [numEvents]);
+        numPagesRef.current = getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
+    }, [numFilteredEvents]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -238,7 +244,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
             if (newPageNum === pageNumRef.current) {
                 // Don't need to switch pages so just update `logEventNum` in the URL.
-                updateLogEventNumInUrl(numEvents, logEventNumRef.current);
+                updateLogEventNumInUrl(numFilteredEvents, logEventNumRef.current);
             } else {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
@@ -255,7 +261,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         pageNumRef.current = newPageNum;
     }, [
-        numEvents,
+        numFilteredEvents,
         logEventNum,
     ]);
 
@@ -290,6 +296,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 fileName: fileName,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
+                numFilteredEvents: numFilteredEvents,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,

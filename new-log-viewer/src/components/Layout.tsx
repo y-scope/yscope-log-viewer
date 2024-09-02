@@ -181,6 +181,7 @@ const Layout = () => {
     const {
         fileName,
         numEvents,
+        numFilteredEvents,
         pageNum,
 
         changeLogLevelFilter,
@@ -191,7 +192,7 @@ const Layout = () => {
     const [selectedLogLevels, setSelectedLogLevels] =
         useState<number[]>(LOG_LEVEL_NAMES_LIST as number[]);
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
-    const numEventsRef = useRef<Nullable<number>>(numEvents);
+    const numFilteredEventsRef = useRef<Nullable<number>>(numFilteredEvents);
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
@@ -243,7 +244,7 @@ const Layout = () => {
                 }
                 break;
             case ACTION_NAME.LAST_PAGE:
-                updateWindowUrlHashParams({logEventNum: numEventsRef.current});
+                updateWindowUrlHashParams({logEventNum: numFilteredEventsRef.current});
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
@@ -265,10 +266,10 @@ const Layout = () => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `numEventsRef` with `numEvents`.
+    // Synchronize `numFilteredEventsRef` with `numFilteredEvents`.
     useEffect(() => {
-        numEventsRef.current = numEvents;
-    }, [numEvents]);
+        numFilteredEventsRef.current = numFilteredEvents;
+    }, [numFilteredEvents]);
 
     return (
         <>
@@ -282,8 +283,9 @@ const Layout = () => {
                             1 :
                             logEventNum}
                         onChange={handleLogEventNumInputChange}/>
-                    {" "}
-                    |
+                    {" / "}
+                    {numFilteredEvents}
+                    {"  | "}
                     PageNum -
                     {" "}
                     {pageNum}

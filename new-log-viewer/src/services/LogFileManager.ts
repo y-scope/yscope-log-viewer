@@ -97,6 +97,10 @@ class LogFileManager {
         return this.#numEvents;
     }
 
+    get numFilteredEvents () {
+        return this.#numFilteredEvents;
+    }
+
     /**
      * Creates a new LogFileManager.
      *
