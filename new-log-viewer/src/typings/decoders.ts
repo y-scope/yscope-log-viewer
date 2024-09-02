@@ -45,7 +45,7 @@ interface Decoder {
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
      *
      * @param beginIdx
-     * @param endIdx
+     * @param endIdx End index. To deserialize to the end of the file, use `LOG_EVENT_FILE_END_IDX`.
      * @return Count of the successfully deserialized ("valid") log events and count of any
      * un-deserializable ("invalid") log events within the range; or null if any log event in the
      * range doesn't exist (e.g., the range exceeds the number of log events in the file).
@@ -70,12 +70,14 @@ interface Decoder {
      */
     decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 }
-/**
- * Magic number to be passed as arg endIdx into buildIdx() to deserialize the entire range of log
- * events.
- */
-const FULL_RANGE_END_IDX: number = 0
 
+/**
+ * Index for specifying the end of the file when the exact number of log events it contains is
+ *  unknown.
+ */
+const LOG_EVENT_FILE_END_IDX: number = 0;
+
+export {LOG_EVENT_FILE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,
@@ -83,4 +85,3 @@ export type {
     JsonlDecoderOptionsType,
     LogEventCount,
 };
-export {FULL_RANGE_END_IDX};
