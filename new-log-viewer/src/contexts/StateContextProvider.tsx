@@ -9,6 +9,7 @@ import React, {
 
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {LogLevelFilter} from "../typings/logs";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -37,11 +38,14 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     logData: string,
+    logLevelFilter: LogLevelFilter,
     numEvents: number,
     numPages: number,
-    pageNum: Nullable<number>
+    pageNum: Nullable<number>,
+
+    changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -51,11 +55,14 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "",
-    loadFile: () => null,
     logData: "Loading...",
+    logLevelFilter: null,
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
+
+    changeLogLevelFilter: () => null,
+    loadFile: () => null,
 });
 
 interface StateContextProviderProps {
@@ -133,6 +140,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
+    const logLevelFilterRef = useRef<LogLevelFilter>(STATE_DEFAULT.logLevelFilter);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
 
@@ -186,6 +194,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
+    const changeLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+        if (null === mainWorkerRef.current) {
+            return;
+        }
+        logLevelFilterRef.current = newLogLevelFilter;
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
+            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
+            decoderOptions: {
+                ...getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                logLevelFilter: newLogLevelFilter,
+            },
+        });
+    };
+
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
@@ -223,7 +245,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
                 workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
                     cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                    decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                    decoderOptions: {
+                        ...getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                        logLevelFilter: logLevelFilterRef.current,
+                    },
                 });
             }
         }
@@ -263,11 +288,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
-                loadFile: loadFile,
                 logData: logData,
+                logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
+
+                changeLogLevelFilter: changeLogLevelFilter,
+                loadFile: loadFile,
             }}
         >
             {children}

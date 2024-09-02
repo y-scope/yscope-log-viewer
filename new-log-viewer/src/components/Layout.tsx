@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import React, {
     useCallback,
     useContext,
     useEffect,
     useRef,
+    useState,
 } from "react";
 
 import * as monaco from "monaco-editor";
@@ -19,6 +21,11 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
+import {
+    LOG_LEVEL,
+    LOG_LEVEL_NAMES_LIST,
+    LogLevelFilter,
+} from "../typings/logs";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
 import {
@@ -97,7 +104,12 @@ const ConfigForm = () => {
         ) {
             error ||= setConfig({
                 key: CONFIG_KEY.DECODER_OPTIONS,
-                value: {formatString, logLevelKey, timestampKey},
+                value: {
+                    formatString: formatString,
+                    logLevelFilter: null,
+                    logLevelKey: logLevelKey,
+                    timestampKey: timestampKey,
+                },
             });
         }
         if ("string" === typeof theme) {
@@ -168,12 +180,16 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
 const Layout = () => {
     const {
         fileName,
-        loadFile,
         numEvents,
         pageNum,
+
+        changeLogLevelFilter,
+        loadFile,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
+    const [selectedLogLevels, setSelectedLogLevels] =
+        useState<number[]>(LOG_LEVEL_NAMES_LIST as number[]);
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
     const numEventsRef = useRef<Nullable<number>>(numEvents);
 
@@ -185,6 +201,15 @@ const Layout = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
+    };
+
+    const handleLogLevelSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+        const selected = Array.from(ev.target.options)
+            .map((option) => option.selected && Number(option.value))
+            .filter((value) => "number" === typeof value);
+
+        setSelectedLogLevels(selected as number[]);
+        changeLogLevelFilter(selected as unknown as LogLevelFilter);
     };
 
     /**
@@ -277,6 +302,24 @@ const Layout = () => {
                 </button>
 
                 <ConfigForm/>
+
+                <select
+                    multiple={true}
+                    name={"log-level"}
+                    style={{display: "table-row", height: "2rcap"}}
+                    value={selectedLogLevels as unknown as string[]}
+                    onChange={handleLogLevelSelectChange}
+                >
+                    {LOG_LEVEL_NAMES_LIST.map((logLevelName) => (
+                        <option
+                            key={logLevelName}
+                            style={{display: "table-cell", width: "8rch", borderStyle: "solid"}}
+                            value={LOG_LEVEL[logLevelName as LOG_LEVEL]}
+                        >
+                            {logLevelName}
+                        </option>
+                    ))}
+                </select>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
                     <DropFileContainer>
                         <Editor onCustomAction={handleCustomAction}/>

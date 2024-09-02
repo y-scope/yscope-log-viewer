@@ -56,6 +56,8 @@ class LogFileManager {
 
     #numEvents: number = 0;
 
+    #numFilteredEvents: number = 0;
+
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
@@ -80,7 +82,11 @@ class LogFileManager {
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
-        console.log(`Found ${this.#numEvents} log events.`);
+        this.#numFilteredEvents = decoder.getNumFilteredEvents();
+        console.log(
+            `Found ${this.#numEvents} log events.`,
+            `${this.#numFilteredEvents} matches current filter.`
+        );
     }
 
     get fileName () {
@@ -150,6 +156,7 @@ class LogFileManager {
      */
     setDecoderOptions (options: DecoderOptions) {
         this.#decoder.setDecoderOptions(options);
+        this.#numFilteredEvents = this.#decoder.getNumFilteredEvents();
     }
 
     /**
@@ -218,14 +225,19 @@ class LogFileManager {
         if (CURSOR_CODE.PAGE_NUM === code) {
             beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
         }
-        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
+        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numFilteredEvents) {
             // Set to the first event of the last page
-            beginLogEventIdx = (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
+            beginLogEventIdx =
+                (getChunkNum(this.#numFilteredEvents, this.#pageSize) - 1) * this.#pageSize;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
             throw new Error(`Unsupported cursor type: ${code}`);
         }
         const beginLogEventNum = beginLogEventIdx + 1;
-        const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
+        const endLogEventNum = Math.min(
+            this.#numFilteredEvents,
+            beginLogEventNum + this.#pageSize - 1
+        );
+
         return {beginLogEventNum, endLogEventNum};
     }
 }

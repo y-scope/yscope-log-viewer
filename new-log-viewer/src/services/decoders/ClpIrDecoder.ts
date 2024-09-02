@@ -31,6 +31,11 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
+    getNumFilteredEvents (): number {
+        // TODO: fix this after log level filtering is implemented in clp-ffi-js
+        return this.#streamReader.getNumEventsBuffered();
+    }
+
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
         return {
             numInvalidEvents: 0,

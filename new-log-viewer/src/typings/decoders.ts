@@ -2,7 +2,10 @@ import {Dayjs} from "dayjs";
 
 import {Nullable} from "./common";
 import {JsonObject} from "./js";
-import {LOG_LEVEL} from "./logs";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "./logs";
 
 
 interface LogEventCount {
@@ -11,7 +14,7 @@ interface LogEventCount {
 }
 
 interface GenericDecoderOptions {
-    logLevelFilter: Nullable<LOG_LEVEL[]>,
+    logLevelFilter: LogLevelFilter,
 }
 
 /**
@@ -57,6 +60,13 @@ interface Decoder {
      * @return The estimated number of events.
      */
     getEstimatedNumEvents(): number;
+
+    /**
+     * Retrieves a number of filtered log events usually based on log level.
+     *
+     * @return The number of filtered events.
+     */
+    getNumFilteredEvents(): number;
 
     /**
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.

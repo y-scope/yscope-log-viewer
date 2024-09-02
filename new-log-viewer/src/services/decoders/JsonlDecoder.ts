@@ -17,6 +17,7 @@ import {
 import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
+    LogLevelFilter,
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
@@ -64,6 +65,10 @@ class JsonlDecoder implements Decoder {
     }
 
     getEstimatedNumEvents (): number {
+        return this.#logEvents.length;
+    }
+
+    getNumFilteredEvents () : number {
         return this.#filteredLogIndices.length;
     }
 
@@ -184,7 +189,7 @@ class JsonlDecoder implements Decoder {
         this.#dataArray = null;
     }
 
-    #filterLogs (logLevelFilter: Nullable<LOG_LEVEL[]>) {
+    #filterLogs (logLevelFilter: LogLevelFilter) {
         this.#filteredLogIndices.length = 0;
         if (null === logLevelFilter) {
             this.#filteredLogIndices = Array.from(
@@ -195,7 +200,7 @@ class JsonlDecoder implements Decoder {
             return;
         }
         this.#logEvents.forEach((logEvent, index) => {
-            if (logEvent.level in logLevelFilter) {
+            if (logLevelFilter.includes(logEvent.level)) {
                 this.#filteredLogIndices.push(index);
             }
         });
