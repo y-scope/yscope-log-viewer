@@ -254,14 +254,17 @@ const Layout = () => {
                     );
 
                     updateWindowUrlHashParams({
-                        logEventNum: firstLogEventNumOnNextPage || logEventNumRef.current < lastFilteredLogEventNum ?
+                        logEventNum: firstLogEventNumOnNextPage ||
+                        logEventNumRef.current < lastFilteredLogEventNum ?
                             lastFilteredLogEventNum :
                             numEventsRef.current,
                     });
                 }
                 break;
             case ACTION_NAME.LAST_PAGE:
-                updateWindowUrlHashParams({logEventNum: lastFilteredLogEventNum || numEventsRef.current});
+                updateWindowUrlHashParams({
+                    logEventNum: lastFilteredLogEventNum || numEventsRef.current,
+                });
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});

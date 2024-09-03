@@ -35,6 +35,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+// eslint-disable-next-line max-lines-per-function
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);

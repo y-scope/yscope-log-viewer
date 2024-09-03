@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-warning-comments
 // TODO: move handlers out from StateContextProvider.
-/* eslint-disable max-lines, max-lines-per-function */
+/* eslint-disable max-lines, max-lines-per-function, max-statements */
 import React, {
     createContext,
     useCallback,
@@ -285,6 +285,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         pageNumRef.current = newPageNum;
     }, [
         firstLogEventNumPerPage,
+        numEvents,
         numFilteredEvents,
         logEventNum,
     ]);
