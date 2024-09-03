@@ -43,15 +43,18 @@ import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
 } from "../typings/config";
+import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
 import {
     getConfig,
     setConfig,
 } from "../utils/config";
+import {openFile} from "../utils/file";
 import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
+import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
@@ -190,8 +193,10 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
 const Layout = () => {
     const {setMode, mode} = useColorScheme();
     const {
-        pageNum,
+        fileName,
+        loadFile,
         numEvents,
+        pageNum,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -202,6 +207,11 @@ const Layout = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
     };
 
+    const handleOpenFileButtonClick = () => {
+        openFile((file) => {
+            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+        });
+    };
 
     const handleAction = (actionName: ACTION_NAME) => {
         const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
@@ -385,8 +395,12 @@ const Layout = () => {
 
                 </Sheet>
                 <div style={{flexDirection: "column", flexGrow: 1}}>
+                                        <DropFileContainer>
+
                     <Editor onCustomAction={handleEditorCustomAction}/>
-                </div>
+                    </DropFileContainer>
+
+                    </div>
                 {/* <Sheet sx={{display: "flex", flexDirection: "row", paddingLeft: "12px"}}> */}
                 <Sheet sx={{height: "30px", display: "flex", alignItems: "center"}}>
                     <Typography

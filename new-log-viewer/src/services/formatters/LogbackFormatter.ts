@@ -154,6 +154,7 @@ class LogbackFormatter implements Formatter {
      * @return The formatted string.
      */
     #formatVariables (formatString: string, logEvent: JsonObject): string {
+        // eslint-disable-next-line no-warning-comments
         // TODO These don't handle the case where a variable value may contain a '%' itself
         for (const key of this.#keys) {
             if (false === (key in logEvent)) {
