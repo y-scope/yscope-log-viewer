@@ -10,19 +10,22 @@ import * as monaco from "monaco-editor";
 
 import {
     Button,
+    DialogContent,
+    DialogTitle,
     IconButton,
     Input,
     Modal,
+    ModalDialog,
     Sheet,
     ToggleButtonGroup,
     Typography,
     useColorScheme,
 } from "@mui/joy";
+import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
 import {
     DarkMode,
     Description,
-    HdrAuto,
     LightMode,
     NavigateBefore,
     NavigateNext,
@@ -31,6 +34,8 @@ import {
     SkipPrevious,
     TipsAndUpdates,
 } from "@mui/icons-material";
+import FileOpenIcon from "@mui/icons-material/FileOpen";
+import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
@@ -42,6 +47,7 @@ import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
+    THEME_NAME,
 } from "../typings/config";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
@@ -176,35 +182,56 @@ const ConfigForm = () => {
     );
 };
 
+
 /**
- * Handles `logEventNum` input value change for debugging.
  *
- * @param ev
+ * @param actionName
+ * @param logEventNum
+ * @param numEvents
  */
-const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    updateWindowUrlHashParams({logEventNum: Number(ev.target.value)});
+const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEvents: number) => {
+    const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+    switch (actionName) {
+        case ACTION_NAME.FIRST_PAGE:
+            updateWindowUrlHashParams({logEventNum: 1});
+            break;
+        case ACTION_NAME.PREV_PAGE:
+            updateWindowUrlHashParams({
+                logEventNum: getLastItemNumInPrevChunk(logEventNum, pageSize),
+            });
+            break;
+        case ACTION_NAME.NEXT_PAGE:
+            updateWindowUrlHashParams({
+                logEventNum: getFirstItemNumInNextChunk(logEventNum, pageSize),
+            });
+            break;
+        case ACTION_NAME.LAST_PAGE:
+            updateWindowUrlHashParams({logEventNum: numEvents});
+            break;
+        default:
+            break;
+    }
 };
 
 /**
- * Renders the major layout of the log viewer.
  *
- * @return
  */
-const Layout = () => {
+const MenuBar = () => {
     const {setMode, mode} = useColorScheme();
-    const {
-        fileName,
-        loadFile,
-        numEvents,
-        pageNum,
-    } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
+    const {fileName, loadFile, numEvents} = useContext(StateContext);
 
-    const logEventNumRef = useRef<Nullable<number>>(logEventNum);
-    const numEventsRef = useRef<Nullable<number>>(numEvents);
 
-    const handleCopyLinkButtonClick = () => {
-        copyPermalinkToClipboard({}, {logEventNum: numEvents});
+    const [settingsModelOpen, setSettingsModelOpen] = useState<boolean>(true);
+
+    const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (null === logEventNum) {
+            return;
+        }
+        const {actionName} = event.currentTarget.dataset as {actionName: ACTION_NAME};
+        if (Object.values(ACTION_NAME).includes(actionName)) {
+            handleAction(actionName, logEventNum, numEvents);
+        }
     };
 
     const handleOpenFileButtonClick = () => {
@@ -213,31 +240,139 @@ const Layout = () => {
         });
     };
 
-    const handleAction = (actionName: ACTION_NAME) => {
-        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
-        switch (actionName) {
-            case ACTION_NAME.FIRST_PAGE:
-                updateWindowUrlHashParams({logEventNum: 1});
-                break;
-            case ACTION_NAME.PREV_PAGE:
-                if (null !== logEventNumRef.current) {
-                    updateWindowUrlHashParams({
-                        logEventNum: getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
-                    });
-                }
-                break;
-            case ACTION_NAME.NEXT_PAGE:
-                if (null !== logEventNumRef.current) {
-                    updateWindowUrlHashParams({
-                        logEventNum: getFirstItemNumInNextChunk(logEventNumRef.current, pageSize),
-                    });
-                }
-                break;
-            case ACTION_NAME.LAST_PAGE:
-                updateWindowUrlHashParams({logEventNum: numEventsRef.current});
-                break;
-            default: break;
-        }
+    const iconCommonProps: { size: "sm" | "md" | "lg" } = {size: "sm"};
+
+    return (
+        <Sheet
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                height: "32px",
+                alignItems: "center",
+            }}
+        >
+            <Typography
+                alignItems={"center"}
+                display={"flex"}
+                flexGrow={1}
+                gap={"2px"}
+                level={"title-sm"}
+            >
+                <Description/>
+                {fileName}
+            </Typography>
+
+            <IconButton
+                {...iconCommonProps}
+                data-action-name={ACTION_NAME.FIRST_PAGE}
+                onClick={handleNavButtonClick}
+            >
+                <SkipPrevious/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+                data-action-name={ACTION_NAME.PREV_PAGE}
+                onClick={handleNavButtonClick}
+            >
+                <NavigateBefore/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+                data-action-name={ACTION_NAME.NEXT_PAGE}
+                onClick={handleNavButtonClick}
+            >
+                <NavigateNext/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+                data-action-name={ACTION_NAME.LAST_PAGE}
+                onClick={handleNavButtonClick}
+            >
+                <SkipNext/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+                onClick={handleOpenFileButtonClick}
+            >
+                <FileOpenIcon/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+                onClick={() => {
+                    setSettingsModelOpen(true);
+                }}
+            >
+                <Settings/>
+            </IconButton>
+            <IconButton
+                {...iconCommonProps}
+            >
+                <TipsAndUpdates/>
+            </IconButton>
+            <Modal
+                open={settingsModelOpen}
+                sx={{display: "flex", justifyContent: "center", alignItems: "center"}}
+                onClose={() => {
+                    setSettingsModelOpen(false);
+                }}
+            >
+                <ModalDialog>
+                    <DialogTitle>
+                        <span style={{flexGrow: 1}}>
+                            Settings
+                        </span>
+                        <ToggleButtonGroup
+                            onChange={(_, newValue) => {
+                                setMode(newValue as Mode);
+                            }}
+                            {...iconCommonProps}
+                            value={mode as string}
+                        >
+                            <Button
+                                startDecorator={<LightMode/>}
+                                value={THEME_NAME.LIGHT}
+                            >
+                                Light
+                            </Button>
+                            <Button
+                                startDecorator={<SettingsBrightnessIcon/>}
+                                value={THEME_NAME.SYSTEM}
+                            >
+                                System
+                            </Button>
+                            <Button
+                                startDecorator={<DarkMode/>}
+                                value={THEME_NAME.DARK}
+                            >
+                                Dark
+                            </Button>
+                        </ToggleButtonGroup>
+                    </DialogTitle>
+                    <DialogContent>
+                        <ConfigForm/>
+                    </DialogContent>
+                </ModalDialog>
+            </Modal>
+        </Sheet>
+    );
+};
+
+/**
+ * Renders the major layout of the log viewer.
+ *
+ * @return
+ */
+const Layout = () => {
+    const {
+        numEvents,
+    } = useContext(StateContext);
+    const {logEventNum} = useContext(UrlContext);
+
+    const logEventNumRef = useRef<Nullable<number>>(logEventNum);
+    const numEventsRef = useRef<Nullable<number>>(numEvents);
+
+    const handleCopyLinkButtonClick = () => {
+        copyPermalinkToClipboard({}, {});
     };
 
     /**
@@ -250,14 +385,15 @@ const Layout = () => {
         editor: monaco.editor.IStandaloneCodeEditor,
         actionName: ACTION_NAME
     ) => {
-        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
-
+        if (null === logEventNumRef.current || null === numEventsRef.current) {
+            return;
+        }
         switch (actionName) {
             case ACTION_NAME.FIRST_PAGE:
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:
             case ACTION_NAME.LAST_PAGE:
-                handleAction(actionName);
+                handleAction(actionName, logEventNumRef.current, numEventsRef.current);
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
@@ -270,16 +406,10 @@ const Layout = () => {
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 break;
             }
-            default: break;
+            default:
+                break;
         }
     }, []);
-    const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const actionName = event.currentTarget.getAttribute("data-action-name") as ACTION_NAME;
-        if (Object.values(ACTION_NAME).includes(actionName)) {
-            handleAction(actionName);
-        }
-    };
-    const [open, setOpen] = React.useState<boolean>(false);
 
 
     // Synchronize `logEventNumRef` with `logEventNum`.
@@ -294,122 +424,34 @@ const Layout = () => {
 
     return (
         <>
-            <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
-                <Sheet style={{display: "flex", flexDirection: "row"}}>
-                    <IconButton>
-                        <Description/>
-                    </IconButton>
-                    <IconButton
-                        data-action-name={ACTION_NAME.FIRST_PAGE}
-                        onClick={handleButtonClick}
-                    >
-                        <SkipPrevious/>
-                    </IconButton>
-                    <IconButton
-                        data-action-name={ACTION_NAME.PREV_PAGE}
-                        onClick={handleButtonClick}
-                    >
-                        <NavigateBefore/>
-                    </IconButton>
-                    <IconButton
-                        data-action-name={ACTION_NAME.NEXT_PAGE}
-                        onClick={handleButtonClick}
-                    >
-                        <NavigateNext/>
-                    </IconButton>
-                    <IconButton
-                        data-action-name={ACTION_NAME.LAST_PAGE}
-                        onClick={handleButtonClick}
-                    >
-                        <SkipNext/>
-                    </IconButton>
-                    <IconButton
-                        onClick={() => {
-                            setOpen(true);
-                        }}
-                    >
-                        <Settings/>
-                    </IconButton>
-                    <IconButton>
-                        <TipsAndUpdates/>
-                    </IconButton>
-                    <ToggleButtonGroup
-                        exclusive={true}
-                    >
-                        <IconButton
-                            onClick={() => { setMode("light"); }}
-                        >
-                            <LightMode/>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => { setMode("dark"); }}
-                        >
-                            <DarkMode/>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => { setMode("system"); }}
-                        >
-                            <HdrAuto/>
-                        </IconButton>
-                    </ToggleButtonGroup>
-
-                    <Modal
-                        aria-describedby={"modal-desc"}
-                        aria-labelledby={"modal-title"}
-                        open={open}
-                        sx={{display: "flex", justifyContent: "center", alignItems: "center"}}
-                        onClose={() => {
-                            setOpen(false);
-                        }}
-                    >
-                        <div style={{display: "flex", flexDirection: "column", height: "100%"}}>
-                            <h3>
-                                LogEventNum -
-                                {" "}
-                                <Input
-                                    slotProps={{
-                                        input: {
-                                            type: "number",
-                                            value: null === logEventNum ?
-                                                1 :
-                                                logEventNum,
-                                            onChange: handleLogEventNumInputChange,
-                                        },
-                                    }}/>
-                                {" "}
-                                |
-                                PageNum -
-                                {" "}
-                                {pageNum}
-                            </h3>
-
-                            <Button
-                                color={"success"}
-                                onClick={handleCopyLinkButtonClick}
-                            >
-                                Copy link to last log
-                            </Button>
-                            <ConfigForm/>
-                        </div>
-                    </Modal>
-
-                </Sheet>
-                <div style={{flexDirection: "column", flexGrow: 1}}>
-                                        <DropFileContainer>
-
-                    <Editor onCustomAction={handleEditorCustomAction}/>
+            <div style={{height: "100vh"}}>
+                <MenuBar/>
+                <div style={{height: "calc(100vh - 32px - 32px)"}}>
+                    <DropFileContainer>
+                        <Editor onCustomAction={handleEditorCustomAction}/>
                     </DropFileContainer>
-
-                    </div>
-                {/* <Sheet sx={{display: "flex", flexDirection: "row", paddingLeft: "12px"}}> */}
-                <Sheet sx={{height: "30px", display: "flex", alignItems: "center"}}>
+                </div>
+                <Sheet
+                    sx={{
+                        alignItems: "center",
+                        bottom: 0,
+                        display: "flex",
+                        height: "30px",
+                        position: "absolute",
+                        width: "100%",
+                    }}
+                >
                     <Typography
-                        level={"body-md"}
+                        level={"body-sm"}
                         sx={{flexGrow: 1}}
                     >
                         Status message
                     </Typography>
-                    <Button onClick={() => { copyPermalinkToClipboard({}, {}); }}>
+                    <Button
+                        size={"sm"}
+                        sx={{minHeight: 0}}
+                        onClick={handleCopyLinkButtonClick}
+                    >
                         Log Event
                         {" "}
                         {logEventNum}
@@ -418,7 +460,6 @@ const Layout = () => {
                         {" "}
                         {numEvents}
                     </Button>
-
                 </Sheet>
             </div>
         </>

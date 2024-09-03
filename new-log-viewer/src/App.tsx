@@ -60,7 +60,6 @@ const monacoTheme = extendTheme({
                     borderRadius: "2px",
                     ...("md" === ownerState.size && {
                         "fontWeight": 600,
-                        "minHeight": "32px",
                         "fontSize": "14px",
                         "--Button-paddingInline": "1rem",
                     }),
