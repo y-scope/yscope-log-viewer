@@ -31,10 +31,10 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
-    getNumFilteredEvents (): number {
+    getFilteredLogEvents (): number[] {
         // eslint-disable-next-line no-warning-comments
         // TODO: fix this after log level filtering is implemented in clp-ffi-js
-        return this.#streamReader.getNumEventsBuffered();
+        return Array.from({length: this.#streamReader.getNumEventsBuffered()}, (_, index) => index);
     }
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {

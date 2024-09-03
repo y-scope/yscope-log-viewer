@@ -68,8 +68,8 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
-    getNumFilteredEvents () : number {
-        return this.#filteredLogIndices.length;
+    getFilteredLogEvents () : number[] {
+        return this.#filteredLogIndices;
     }
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {

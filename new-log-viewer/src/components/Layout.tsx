@@ -33,10 +33,6 @@ import {
     setConfig,
 } from "../utils/config";
 import {openFile} from "../utils/file";
-import {
-    getFirstItemNumInNextChunk,
-    getLastItemNumInPrevChunk,
-} from "../utils/math";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
@@ -183,6 +179,8 @@ const handleLogEventNumInputChange = (ev: React.ChangeEvent<HTMLInputElement>) =
 const Layout = () => {
     const {
         fileName,
+        firstLogEventNumPerPage,
+        lastLogEventNumPerPage,
         numEvents,
         numFilteredEvents,
         pageNum,
@@ -194,8 +192,10 @@ const Layout = () => {
 
     const [selectedLogLevels, setSelectedLogLevels] =
         useState<number[]>(LOG_LEVEL_NAMES_LIST as number[]);
+    const firstLogEventNumPerPageRef = useRef<number[]>(firstLogEventNumPerPage);
+    const lastLogEventNumPerPageRef = useRef<number[]>(lastLogEventNumPerPage);
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
-    const numFilteredEventsRef = useRef<Nullable<number>>(numFilteredEvents);
+    const numEventsRef = useRef<Nullable<number>>(numEvents);
 
     const handleCopyLinkButtonClick = () => {
         copyPermalinkToClipboard({}, {logEventNum: numEvents});
@@ -226,28 +226,42 @@ const Layout = () => {
         editor: monaco.editor.IStandaloneCodeEditor,
         actionName: ACTION_NAME
     ) => {
-        const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+        const [firstFilteredLogEventNum] = firstLogEventNumPerPageRef.current;
+        const lastFilteredLogEventNum = firstLogEventNumPerPageRef.current.at(-1);
 
         switch (actionName) {
             case ACTION_NAME.FIRST_PAGE:
-                updateWindowUrlHashParams({logEventNum: 1});
+                updateWindowUrlHashParams({logEventNum: firstFilteredLogEventNum || 1});
                 break;
             case ACTION_NAME.PREV_PAGE:
                 if (null !== logEventNumRef.current) {
+                    const lastLogEventNumOnPrevPage = lastLogEventNumPerPageRef.current.findLast(
+                        (value: number) => (logEventNumRef.current as number > value)
+                    ) || firstFilteredLogEventNum;
+
                     updateWindowUrlHashParams({
-                        logEventNum: getLastItemNumInPrevChunk(logEventNumRef.current, pageSize),
+                        logEventNum: lastLogEventNumOnPrevPage || firstFilteredLogEventNum || 1,
                     });
                 }
                 break;
             case ACTION_NAME.NEXT_PAGE:
                 if (null !== logEventNumRef.current) {
+                    if ("undefined" === typeof lastFilteredLogEventNum) {
+                        return;
+                    }
+                    const firstLogEventNumOnNextPage = firstLogEventNumPerPageRef.current.find(
+                        (value: number) => (logEventNumRef.current as number < value)
+                    );
+
                     updateWindowUrlHashParams({
-                        logEventNum: getFirstItemNumInNextChunk(logEventNumRef.current, pageSize),
+                        logEventNum: firstLogEventNumOnNextPage || logEventNumRef.current < lastFilteredLogEventNum ?
+                            lastFilteredLogEventNum :
+                            numEventsRef.current,
                     });
                 }
                 break;
             case ACTION_NAME.LAST_PAGE:
-                updateWindowUrlHashParams({logEventNum: numFilteredEventsRef.current});
+                updateWindowUrlHashParams({logEventNum: lastFilteredLogEventNum || numEventsRef.current});
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
@@ -260,19 +274,30 @@ const Layout = () => {
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 break;
             }
-            default: break;
+            default:
+                break;
         }
     }, []);
+
+    // Synchronize `firstLogEventNumPerPageRef` with `firstLogEventNumPerPage`.
+    useEffect(() => {
+        firstLogEventNumPerPageRef.current = firstLogEventNumPerPage;
+    }, [firstLogEventNumPerPage]);
+
+    // Synchronize `lastLogEventNumPerPageRef` with `lastLogEventNumPerPage`.
+    useEffect(() => {
+        lastLogEventNumPerPageRef.current = lastLogEventNumPerPage;
+    }, [lastLogEventNumPerPage]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `numFilteredEventsRef` with `numFilteredEvents`.
+    // Synchronize `numEventsRef` with `numEvents`.
     useEffect(() => {
-        numFilteredEventsRef.current = numFilteredEvents;
-    }, [numFilteredEvents]);
+        numEventsRef.current = numEvents;
+    }, [numEvents]);
 
     return (
         <>
@@ -287,8 +312,8 @@ const Layout = () => {
                             logEventNum}
                         onChange={handleLogEventNumInputChange}/>
                     {" / "}
-                    {numFilteredEvents}
-                    {"  | "}
+                    {numEvents}
+                    {` (NumFilteredEvents - ${numFilteredEvents}) | `}
                     PageNum -
                     {" "}
                     {pageNum}

@@ -62,11 +62,11 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * Retrieves a number of filtered log events usually based on log level.
+     * Retrieves the filtered log events indices, which is usually based on log level.
      *
-     * @return The number of filtered events.
+     * @return Indices of the filtered events.
      */
-    getNumFilteredEvents(): number;
+    getFilteredLogEvents(): number[];
 
     /**
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.

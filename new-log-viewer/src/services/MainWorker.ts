@@ -54,6 +54,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 });
                 postResp(WORKER_RESP_CODE.VIEW_INFO, {
                     numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
+                    firstLogEventNumPerPage: LOG_FILE_MANAGER.firstLogEventNumPerPage,
+                    lastLogEventNumPerPage: LOG_FILE_MANAGER.lastLogEventNumPerPage,
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
@@ -69,6 +71,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     LOG_FILE_MANAGER.setDecoderOptions(args.decoderOptions);
                     postResp(WORKER_RESP_CODE.VIEW_INFO, {
                         numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
+                        firstLogEventNumPerPage: LOG_FILE_MANAGER.firstLogEventNumPerPage,
+                        lastLogEventNumPerPage: LOG_FILE_MANAGER.lastLogEventNumPerPage,
                     });
                 }
                 postResp(

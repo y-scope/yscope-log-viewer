@@ -41,6 +41,8 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
+    firstLogEventNumPerPage: number[],
+    lastLogEventNumPerPage: number[],
     logData: string,
     logLevelFilter: LogLevelFilter,
     numEvents: number,
@@ -59,6 +61,8 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "",
+    firstLogEventNumPerPage: [],
+    lastLogEventNumPerPage: [],
     logData: "Loading...",
     logLevelFilter: null,
     numEvents: 0,
@@ -140,6 +144,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] = useState<number[]>([]);
+    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] = useState<number[]>([]);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numFilteredEvents, setNumFilteredEvents] =
@@ -171,11 +177,19 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
-                updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
+                updateLogEventNumInUrl(
+                    lastLogEventNum,
+                    Array.from(args.beginLineNumToLogEventNum.values())
+                        .includes(logEventNumRef.current as number) ?
+                        logEventNumRef.current :
+                        lastLogEventNum
+                );
                 break;
             }
             case WORKER_RESP_CODE.VIEW_INFO:
                 setNumFilteredEvents(args.numFilteredEvents);
+                setFirstLogEventNumPerPage(args.firstLogEventNumPerPage);
+                setLastLogEventNumPerPage(args.lastLogEventNumPerPage);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -234,21 +248,26 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+        if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
+            0 === firstLogEventNumPerPage.length) {
             return;
         }
 
-        const newPageNum = clamp(
-            getChunkNum(logEventNum, getConfig(CONFIG_KEY.PAGE_SIZE)),
-            1,
-            numPagesRef.current
-        );
+        const newPageNum = 1 +
+            firstLogEventNumPerPage.findLastIndex((value: number) => value <= logEventNum);
+
+        if (0 === newPageNum) {
+            return;
+        }
 
         // Request a page switch only if it's not the initial page load.
         if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
             if (newPageNum === pageNumRef.current) {
                 // Don't need to switch pages so just update `logEventNum` in the URL.
-                updateLogEventNumInUrl(numFilteredEvents, logEventNumRef.current);
+                updateLogEventNumInUrl(
+                    numEvents,
+                    logEventNumRef.current
+                );
             } else {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
@@ -265,6 +284,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         pageNumRef.current = newPageNum;
     }, [
+        firstLogEventNumPerPage,
         numFilteredEvents,
         logEventNum,
     ]);
@@ -298,6 +318,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
+                firstLogEventNumPerPage: firstLogEventNumPerPage,
+                lastLogEventNumPerPage: lastLogEventNumPerPage,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,

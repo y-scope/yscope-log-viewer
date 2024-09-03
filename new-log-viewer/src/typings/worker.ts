@@ -54,11 +54,11 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        decoderOptions: DecoderOptions
+        decoderOptions: DecoderOptions,
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        decoderOptions?: DecoderOptions
+        decoderOptions?: DecoderOptions,
     },
 };
 
@@ -77,7 +77,9 @@ type WorkerRespMap = {
         cursorLineNum: number,
     },
     [WORKER_RESP_CODE.VIEW_INFO]: {
+        firstLogEventNumPerPage: number[],
         numFilteredEvents: number,
+        lastLogEventNumPerPage: number[],
     }
 };
 

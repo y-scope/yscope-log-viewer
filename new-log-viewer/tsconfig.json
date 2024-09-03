@@ -21,9 +21,9 @@
     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     "lib": [
-      "ES2022",
       "DOM",
       "DOM.Iterable",
+      "ES2023",
       "WebWorker",
     ],
     "jsx": "react-jsx",

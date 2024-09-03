@@ -54,9 +54,13 @@ class LogFileManager {
 
     #decoder: Decoder;
 
-    #numEvents: number = 0;
+    readonly #numEvents: number = 0;
 
     #numFilteredEvents: number = 0;
+
+    #firstLogEventNumPerPage: number[] = [];
+
+    #lastLogEventNumPerPage: number[] = [];
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -82,7 +86,7 @@ class LogFileManager {
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
-        this.#numFilteredEvents = decoder.getNumFilteredEvents();
+        this.#computerPageBoundaries();
         console.log(
             `Found ${this.#numEvents} log events.`,
             `${this.#numFilteredEvents} matches current filter.`
@@ -99,6 +103,14 @@ class LogFileManager {
 
     get numFilteredEvents () {
         return this.#numFilteredEvents;
+    }
+
+    get firstLogEventNumPerPage () {
+        return this.#firstLogEventNumPerPage;
+    }
+
+    get lastLogEventNumPerPage () {
+        return this.#lastLogEventNumPerPage;
     }
 
     /**
@@ -160,7 +172,7 @@ class LogFileManager {
      */
     setDecoderOptions (options: DecoderOptions) {
         this.#decoder.setDecoderOptions(options);
-        this.#numFilteredEvents = this.#decoder.getNumFilteredEvents();
+        this.#computerPageBoundaries();
     }
 
     /**
@@ -207,6 +219,18 @@ class LogFileManager {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
         };
+    }
+
+    #computerPageBoundaries () {
+        this.#firstLogEventNumPerPage.length = 0;
+        this.#lastLogEventNumPerPage.length = 0;
+        const filteredLogEvents = this.#decoder.getFilteredLogEvents();
+        this.#numFilteredEvents = filteredLogEvents.length;
+        for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
+            this.#firstLogEventNumPerPage.push(1 + (filteredLogEvents[i] as number));
+            this.#lastLogEventNumPerPage.push(1 +
+                (filteredLogEvents[i + this.#pageSize - 1] as number));
+        }
     }
 
     /**
