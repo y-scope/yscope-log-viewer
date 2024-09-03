@@ -222,7 +222,7 @@ const MenuBar = () => {
     const {fileName, loadFile, numEvents} = useContext(StateContext);
 
 
-    const [settingsModelOpen, setSettingsModelOpen] = useState<boolean>(true);
+    const [settingsModelOpen, setSettingsModelOpen] = useState<boolean>(false);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (null === logEventNum) {
