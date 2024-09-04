@@ -208,12 +208,12 @@ const Layout = () => {
     };
 
     const handleLogLevelSelectChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-        const selected = Array.from(ev.target.options)
+        const selected: LOG_LEVEL[] = Array.from(ev.target.options)
             .map((option) => option.selected && Number(option.value))
             .filter((value) => "number" === typeof value);
 
-        setSelectedLogLevels(selected as number[]);
-        changeLogLevelFilter(selected as unknown as LogLevelFilter);
+        setSelectedLogLevels(selected);
+        changeLogLevelFilter(selected);
     };
 
     /**
