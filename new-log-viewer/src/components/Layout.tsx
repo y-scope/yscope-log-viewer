@@ -13,7 +13,6 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    Input,
     Modal,
     ModalDialog,
     Sheet,
@@ -32,6 +31,7 @@ import {
     Settings,
     SkipNext,
     SkipPrevious,
+    SvgIconComponent,
     TipsAndUpdates,
 } from "@mui/icons-material";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
@@ -46,141 +46,20 @@ import {
 import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
-    LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
-import {
-    getConfig,
-    setConfig,
-} from "../utils/config";
+import {getConfig} from "../utils/config";
 import {openFile} from "../utils/file";
 import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
+import ConfigForm from "./ConfigForm";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
-
-
-const formFields = [
-    {
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
-        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
-        type: "text",
-    },
-    {
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
-        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
-        type: "text",
-    },
-    {
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
-        label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
-        type: "text",
-    },
-    {
-        initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
-        label: LOCAL_STORAGE_KEY.PAGE_SIZE,
-        name: LOCAL_STORAGE_KEY.PAGE_SIZE,
-        type: "number",
-    },
-];
-
-/**
- * Renders a form for testing config utilities.
- *
- * @return
- */
-const ConfigForm = () => {
-    const handleConfigFormReset = (ev: React.FormEvent) => {
-        ev.preventDefault();
-        window.localStorage.clear();
-        window.location.reload();
-    };
-
-    const handleConfigFormSubmit = (ev: React.FormEvent) => {
-        ev.preventDefault();
-        const formData = new FormData(ev.target as HTMLFormElement);
-
-        const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-        const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-        const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-        const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
-        let error = null;
-        if (
-            "string" === typeof formatString &&
-            "string" === typeof logLevelKey &&
-            "string" === typeof timestampKey
-        ) {
-            error ||= setConfig({
-                key: CONFIG_KEY.DECODER_OPTIONS,
-                value: {formatString, logLevelKey, timestampKey},
-            });
-        }
-        if ("string" === typeof pageSize) {
-            error ||= setConfig({
-                key: CONFIG_KEY.PAGE_SIZE,
-                value: Number(pageSize),
-            });
-        }
-        if (null !== error) {
-            // eslint-disable-next-line no-alert
-            window.alert(error);
-        } else {
-            window.location.reload();
-        }
-    };
-
-    return (
-        <form
-            onReset={handleConfigFormReset}
-            onSubmit={handleConfigFormSubmit}
-        >
-            <table>
-                <tbody>
-                    {formFields.map((field, index) => (
-                        <tr key={index}>
-                            <td>
-                                {field.label}
-                            </td>
-                            <td>
-                                <Input
-                                    slotProps={{
-                                        input: {
-                                            defaultValue: field.initialValue,
-                                            name: field.name,
-                                            size: 100,
-                                            type: field.type,
-                                        },
-                                    }}/>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div>
-                <Button
-                    color={"success"}
-                    type={"submit"}
-                >
-                    Apply
-                </Button>
-                <Button
-                    color={"neutral"}
-                    type={"reset"}
-                >
-                    Clear localStorage
-                </Button>
-            </div>
-        </form>
-    );
-};
 
 
 /**
@@ -240,7 +119,29 @@ const MenuBar = () => {
         });
     };
 
-    const iconCommonProps: { size: "sm" | "md" | "lg" } = {size: "sm"};
+    const SmallNavIconButton = ({actionName, Icon}: {
+        actionName: string,
+        Icon: SvgIconComponent,
+    }) => (
+        <IconButton
+            data-action-name={actionName}
+            size={"sm"}
+            onClick={handleNavButtonClick}
+        >
+            <Icon/>
+        </IconButton>
+    );
+    const SmallIconButton = ({onClick, Icon}: {
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
+        Icon: SvgIconComponent,
+    }) => (
+        <IconButton
+            size={"sm"}
+            onClick={onClick}
+        >
+            <Icon/>
+        </IconButton>
+    );
 
     return (
         <Sheet
@@ -262,50 +163,28 @@ const MenuBar = () => {
                 {fileName}
             </Typography>
 
-            <IconButton
-                {...iconCommonProps}
-                data-action-name={ACTION_NAME.FIRST_PAGE}
-                onClick={handleNavButtonClick}
-            >
-                <SkipPrevious/>
-            </IconButton>
-            <IconButton
-                {...iconCommonProps}
-                data-action-name={ACTION_NAME.PREV_PAGE}
-                onClick={handleNavButtonClick}
-            >
-                <NavigateBefore/>
-            </IconButton>
-            <IconButton
-                {...iconCommonProps}
-                data-action-name={ACTION_NAME.NEXT_PAGE}
-                onClick={handleNavButtonClick}
-            >
-                <NavigateNext/>
-            </IconButton>
-            <IconButton
-                {...iconCommonProps}
-                data-action-name={ACTION_NAME.LAST_PAGE}
-                onClick={handleNavButtonClick}
-            >
-                <SkipNext/>
-            </IconButton>
-            <IconButton
-                {...iconCommonProps}
-                onClick={handleOpenFileButtonClick}
-            >
-                <FileOpenIcon/>
-            </IconButton>
-            <IconButton
-                {...iconCommonProps}
+            <SmallNavIconButton
+                actionName={ACTION_NAME.FIRST_PAGE}
+                Icon={SkipPrevious}/>
+            <SmallNavIconButton
+                actionName={ACTION_NAME.PREV_PAGE}
+                Icon={NavigateBefore}/>
+            <SmallNavIconButton
+                actionName={ACTION_NAME.NEXT_PAGE}
+                Icon={NavigateNext}/>
+            <SmallNavIconButton
+                actionName={ACTION_NAME.LAST_PAGE}
+                Icon={SkipNext}/>
+            <SmallIconButton
+                Icon={FileOpenIcon}
+                onClick={handleOpenFileButtonClick}/>
+            <SmallIconButton
+                Icon={Settings}
                 onClick={() => {
                     setSettingsModelOpen(true);
-                }}
-            >
-                <Settings/>
-            </IconButton>
+                }}/>
             <IconButton
-                {...iconCommonProps}
+                size={"sm"}
             >
                 <TipsAndUpdates/>
             </IconButton>
@@ -322,11 +201,11 @@ const MenuBar = () => {
                             Settings
                         </span>
                         <ToggleButtonGroup
+                            size={"sm"}
+                            value={mode as string}
                             onChange={(_, newValue) => {
                                 setMode(newValue as Mode);
                             }}
-                            {...iconCommonProps}
-                            value={mode as string}
                         >
                             <Button
                                 startDecorator={<LightMode/>}
