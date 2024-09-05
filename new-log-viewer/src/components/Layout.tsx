@@ -59,6 +59,8 @@ import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 
+import "./Layout.css";
+
 
 /**
  *
@@ -239,9 +241,7 @@ const MenuBar = () => {
  * @return
  */
 const Layout = () => {
-    const {
-        numEvents,
-    } = useContext(StateContext);
+    const {numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
@@ -251,12 +251,6 @@ const Layout = () => {
         copyPermalinkToClipboard({}, {});
     };
 
-    /**
-     * Handles custom actions in the editor.
-     *
-     * @param editor
-     * @param actionName
-     */
     const handleEditorCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
         actionName: ACTION_NAME
@@ -287,57 +281,44 @@ const Layout = () => {
         }
     }, []);
 
-    // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `numEventsRef` with `numEvents`.
     useEffect(() => {
         numEventsRef.current = numEvents;
     }, [numEvents]);
 
     return (
-        <>
-            <div style={{height: "100vh"}}>
-                <MenuBar/>
-                <div style={{height: "calc(100vh - 32px - 32px)"}}>
-                    <DropFileContainer>
-                        <Editor onCustomAction={handleEditorCustomAction}/>
-                    </DropFileContainer>
-                </div>
-                <Sheet
-                    sx={{
-                        alignItems: "center",
-                        bottom: 0,
-                        display: "flex",
-                        height: "30px",
-                        position: "absolute",
-                        width: "100%",
-                    }}
-                >
-                    <Typography
-                        level={"body-sm"}
-                        sx={{flexGrow: 1}}
-                    >
-                        Status message
-                    </Typography>
-                    <Button
-                        size={"sm"}
-                        sx={{minHeight: 0}}
-                        onClick={handleCopyLinkButtonClick}
-                    >
-                        Log Event
-                        {" "}
-                        {logEventNum}
-                        {" "}
-                        of
-                        {" "}
-                        {numEvents}
-                    </Button>
-                </Sheet>
+        <div className={"container"}>
+            <MenuBar/>
+            <div className={"editor-container"}>
+                <DropFileContainer>
+                    <Editor onCustomAction={handleEditorCustomAction}/>
+                </DropFileContainer>
             </div>
-        </>
+            <Sheet className={"status-bar"}>
+                <Typography
+                    className={"status-message"}
+                    level={"body-sm"}
+                >
+                    Status message
+                </Typography>
+                <Button
+                    className={"status-button"}
+                    size={"sm"}
+                    onClick={handleCopyLinkButtonClick}
+                >
+                    Log Event
+                    {" "}
+                    {logEventNum}
+                    {" "}
+                    of
+                    {" "}
+                    {numEvents}
+                </Button>
+            </Sheet>
+        </div>
     );
 };
 

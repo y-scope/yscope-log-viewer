@@ -1,0 +1,32 @@
+/* Layout.css */
+.container {
+    height: 100vh;
+}
+
+.menu-bar {
+    display: flex;
+    flex-direction: row;
+    height: 32px;
+    align-items: center;
+}
+
+.editor-container {
+    height: calc(100vh - 32px - 32px);
+}
+
+.status-bar {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    height: 30px;
+    position: absolute;
+    width: 100%;
+}
+
+.status-message {
+    flex-grow: 1;
+}
+
+.status-button {
+    min-height: 0;
+}
