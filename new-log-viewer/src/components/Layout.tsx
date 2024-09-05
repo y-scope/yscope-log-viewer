@@ -288,7 +288,6 @@ const Layout = () => {
         }
     }, []);
 
-
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
