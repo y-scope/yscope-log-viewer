@@ -22,20 +22,18 @@ import {
 } from "@mui/joy";
 import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
-import {
-    DarkMode,
-    Description,
-    LightMode,
-    NavigateBefore,
-    NavigateNext,
-    Settings,
-    SkipNext,
-    SkipPrevious,
-    SvgIconComponent,
-    TipsAndUpdates,
-} from "@mui/icons-material";
+import {SvgIconComponent} from "@mui/icons-material";
+import DarkMode from "@mui/icons-material/DarkMode";
+import Description from "@mui/icons-material/Description";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
+import LightMode from "@mui/icons-material/LightMode";
+import NavigateBefore from "@mui/icons-material/NavigateBefore";
+import NavigateNext from "@mui/icons-material/NavigateNext";
+import Settings from "@mui/icons-material/Settings";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
+import SkipNext from "@mui/icons-material/SkipNext";
+import SkipPrevious from "@mui/icons-material/SkipPrevious";
+import TipsAndUpdates from "@mui/icons-material/TipsAndUpdates";
 
 import {StateContext} from "../contexts/StateContextProvider";
 import {
