@@ -69,6 +69,7 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     }
 
     switch (key) {
+        // We are not dealing with the theme here, as it is handled by `CssVarsProvider`.
         case CONFIG_KEY.DECODER_OPTIONS:
             window.localStorage.setItem(
                 LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
@@ -103,6 +104,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
 
     // Read values from `localStorage`.
     switch (key) {
+        // We are not dealing with the theme here, as it is handled by `CssVarsProvider`.
         case CONFIG_KEY.DECODER_OPTIONS:
             value = {
                 formatString: window.localStorage.getItem(
