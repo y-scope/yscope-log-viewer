@@ -23,10 +23,11 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
 /**
+ * // eslint-disable-line jsdoc/informative-docs
  * Set the default log level filter (i.e. all levels are selected, so the array should include all
  * log indices).
  *
- * @param length The length of the array
+ * @param length
  * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
  */
 const createIndicesArray = (length: number): number[] => {
@@ -36,7 +37,7 @@ const createIndicesArray = (length: number): number[] => {
     );
 
     return filteredLogIndices;
-}
+};
 
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for

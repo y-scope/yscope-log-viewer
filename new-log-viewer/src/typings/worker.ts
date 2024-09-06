@@ -1,7 +1,7 @@
 import {DecoderOptions} from "./decoders";
 import {
     LOG_LEVEL,
-    LogLevelFilter
+    LogLevelFilter,
 } from "./logs";
 
 
