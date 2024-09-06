@@ -42,7 +42,7 @@ const monacoTheme = extendTheme({
         },
     },
     fontFamily: {
-        body: "-apple-system, BlinkMacSystemFont, system-ui, Ubuntu, 'Droid Sans', Roboto",
+        body: "var(--ylv-ui-font-family)",
     },
     components: {
         JoyButton: {

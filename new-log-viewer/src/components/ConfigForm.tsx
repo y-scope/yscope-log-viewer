@@ -43,7 +43,7 @@ const formFields = [
 ];
 
 /**
- * Renders a form for testing config utilities.
+ * Renders a configuration settings form.
  *
  * @return
  */
@@ -80,6 +80,8 @@ const ConfigForm = () => {
             });
         }
         if (null !== error) {
+            // eslint-disable-next-line no-warning-comments
+            // TODO: Show an error pop-up once NotificationProvider is implemented.
             // eslint-disable-next-line no-alert
             window.alert(error);
         } else {
@@ -118,7 +120,7 @@ const ConfigForm = () => {
                 <Button
                     type={"submit"}
                 >
-                    Apply
+                    Apply & Reload
                 </Button>
                 <Button
                     color={"neutral"}
