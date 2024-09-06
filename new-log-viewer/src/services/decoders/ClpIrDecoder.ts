@@ -44,8 +44,9 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this, no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        // eslint-disable-next-line no-warning-comments
         // TODO fix this after log level filtering is implemented in clp-ffi-js
         return true;
     }
