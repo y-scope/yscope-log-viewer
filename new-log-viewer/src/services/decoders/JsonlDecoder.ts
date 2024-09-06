@@ -23,13 +23,13 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
 /**
- * Creates an array containing indices as values. Method is used to set the default log level
+ * Generates an array containing indices for its values. Method is used to set the default log level
  * filter (i.e. all levels are selected, so the array should include all log indices).
  *
  * @param length The length of the array
  * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
  */
-function createIndicesArray (length: number): number[] {
+const createIndicesArray = (length: number): number[] => {
     const filteredLogIndices: number[] = Array.from(
         {length: length},
         (_, index) => index

@@ -1,11 +1,11 @@
 import clpFfiJsModuleInit, {ClpIrStreamReader} from "clp-ffi-js";
 import {Nullable} from "../../typings/common";
+import {LogLevelFilter} from "../../typings/logs";
 import {
     Decoder,
     DecodeResultType,
     LogEventCount,
 } from "../../typings/decoders";
-import {LogLevelFilter} from "../../typings/logs";
 
 
 class ClpIrDecoder implements Decoder {
@@ -44,11 +44,10 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line class-methods-use-this, no-unused-vars
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        // TODO: fix this after log level filtering is implemented in clp-ffi-js
-        return true
+        // TODO fix this after log level filtering is implemented in clp-ffi-js
+        return true;
     }
 
     decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
