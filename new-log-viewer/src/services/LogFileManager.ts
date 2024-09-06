@@ -18,6 +18,7 @@ import {getBasenameFromUrlOrDefault} from "../utils/url";
 import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
+
 /**
  * Loads a file from a given source.
  *
@@ -241,18 +242,18 @@ class LogFileManager {
         this.#numFilteredEvents = filteredLogEventsIndices.length;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
-            const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number
+            const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
             this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
 
-            //Need to minus one from page size to get correct index into filtered log events.
+            // Need to minus one from page size to get correct index into filtered log events.
             let lastPageIdx: number = i + this.#pageSize - 1
 
-            //Guard to prevent indexing out of array on last page.
+            // Guard to prevent indexing out of array on last page.
             if (lastPageIdx >= this.#numFilteredEvents) {
-                lastPageIdx = this.#numFilteredEvents - 1
+                lastPageIdx = this.#numFilteredEvents - 1;
             }
 
-            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number
+            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number;
             this.#lastLogEventNumPerPage.push(1 + lastLogEventOnPageIdx);
         }
     }

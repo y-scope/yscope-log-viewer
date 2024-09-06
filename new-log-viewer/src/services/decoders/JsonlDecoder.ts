@@ -71,7 +71,7 @@ class JsonlDecoder implements Decoder {
         }
 
         this.#deserialize();
-        this.#filteredLogIndices = this.#createIndicesArray(this.#logEvents.length)
+        this.#filteredLogIndices = createIndicesArray(this.#logEvents.length);
 
         const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
             .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
@@ -85,6 +85,7 @@ class JsonlDecoder implements Decoder {
 
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         this.#filterLogs(logLevelFilter);
+
         return true;
     }
 
@@ -190,7 +191,7 @@ class JsonlDecoder implements Decoder {
         this.#filteredLogIndices.length = 0;
 
         if (!logLevelFilter) {
-            return
+            return;
         }
 
         this.#logEvents.forEach((logEvent, index) => {
@@ -198,21 +199,6 @@ class JsonlDecoder implements Decoder {
                 this.#filteredLogIndices.push(index);
             }
         });
-    }
-
-    /**
-     * Creates an array containing indices as values. Method is used to set the default log level
-     * filter (i.e. all levels are selected, so the array should include all log indices).
-     *
-     * @param length The length of the array
-     * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
-     */
-    #createIndicesArray (length: number): number[] {
-        const filteredLogIndices: number[]  = Array.from(
-            {length: length},
-            (_, index) => index
-        );
-        return filteredLogIndices;
     }
 
     /**
@@ -258,6 +244,21 @@ class JsonlDecoder implements Decoder {
 
         return dayjs.utc(timestamp);
     }
+}
+
+/**
+ * Creates an array containing indices as values. Method is used to set the default log level
+ * filter (i.e. all levels are selected, so the array should include all log indices).
+ *
+ * @param length The length of the array
+ * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
+ */
+function createIndicesArray (length: number): number[] {
+    const filteredLogIndices: number[]  = Array.from(
+        {length: length},
+        (_, index) => index
+    );
+    return filteredLogIndices;
 }
 
 export default JsonlDecoder;

@@ -337,10 +337,10 @@ const Layout = () => {
                     multiple={true}
                     name={"log-level"}
                     style={{display: "table-row", height: "2rcap"}}
-                    value={selectedLogLevels.map(index => index.toString())}
+                    value={selectedLogLevels.map((index) => index.toString())}
                     onChange={handleLogLevelSelectChange}
                 >
-                    {LOG_LEVEL_NAMES_LIST.map((logLevelName,index) => (
+                    {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
                         <option
                             key={logLevelName}
                             style={{display: "table-cell", width: "8rch", borderStyle: "solid"}}

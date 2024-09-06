@@ -144,8 +144,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] = useState<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
-    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] = useState<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
+    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] =
+        useState<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
+    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] =
+        useState<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numFilteredEvents, setNumFilteredEvents] =

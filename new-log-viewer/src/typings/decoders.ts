@@ -7,6 +7,7 @@ import {
     LogLevelFilter,
 } from "./logs";
 
+
 interface LogEventCount {
     numValidEvents: number,
     numInvalidEvents: number,
