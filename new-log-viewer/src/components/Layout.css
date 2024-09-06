@@ -5,7 +5,6 @@
 .menu-bar {
     display: flex;
     flex-direction: row;
-    height: 32px;
     align-items: center;
 }
 
@@ -17,7 +16,6 @@
     align-items: center;
     bottom: 0;
     display: flex;
-    height: 30px;
     position: absolute;
     width: 100%;
 }
@@ -28,4 +26,9 @@
 
 .status-button {
     min-height: 0;
+}
+
+:root {
+    --status-bar-height: 32px;
+    --menu-bar-height: 32px;
 }
