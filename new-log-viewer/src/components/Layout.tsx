@@ -20,6 +20,7 @@ import {
     Typography,
     useColorScheme,
 } from "@mui/joy";
+import {CssVarsProvider} from "@mui/joy/styles";
 import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
 import {SvgIconComponent} from "@mui/icons-material";
@@ -48,12 +49,16 @@ import {
 } from "../typings/config";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
-import {getConfig} from "../utils/config";
+import {
+    CONFIG_DEFAULT,
+    getConfig,
+} from "../utils/config";
 import {openFile} from "../utils/file";
 import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
+import monacoTheme from "../utils/theme";
 import ConfigForm from "./ConfigForm";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
@@ -290,35 +295,41 @@ const Layout = () => {
     }, [numEvents]);
 
     return (
-        <div className={"container"}>
-            <MenuBar/>
-            <div className={"editor-container"}>
-                <DropFileContainer>
-                    <Editor onCustomAction={handleEditorCustomAction}/>
-                </DropFileContainer>
+        <CssVarsProvider
+            defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
+            modeStorageKey={CONFIG_KEY.THEME}
+            theme={monacoTheme}
+        >
+            <div className={"container"}>
+                <MenuBar/>
+                <div className={"editor-container"}>
+                    <DropFileContainer>
+                        <Editor onCustomAction={handleEditorCustomAction}/>
+                    </DropFileContainer>
+                </div>
+                <Sheet className={"status-bar"}>
+                    <Typography
+                        className={"status-message"}
+                        level={"body-sm"}
+                    >
+                        Status message
+                    </Typography>
+                    <Button
+                        className={"status-button"}
+                        size={"sm"}
+                        onClick={handleCopyLinkButtonClick}
+                    >
+                        Log Event
+                        {" "}
+                        {logEventNum}
+                        {" "}
+                        of
+                        {" "}
+                        {numEvents}
+                    </Button>
+                </Sheet>
             </div>
-            <Sheet className={"status-bar"}>
-                <Typography
-                    className={"status-message"}
-                    level={"body-sm"}
-                >
-                    Status message
-                </Typography>
-                <Button
-                    className={"status-button"}
-                    size={"sm"}
-                    onClick={handleCopyLinkButtonClick}
-                >
-                    Log Event
-                    {" "}
-                    {logEventNum}
-                    {" "}
-                    of
-                    {" "}
-                    {numEvents}
-                </Button>
-            </Sheet>
-        </div>
+        </CssVarsProvider>
     );
 };
 

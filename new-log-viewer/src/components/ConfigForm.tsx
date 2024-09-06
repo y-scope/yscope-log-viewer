@@ -1,9 +1,9 @@
 import React from "react";
 
-import {
-    Button,
-    Input,
-} from "@mui/joy";
+import Button from "@mui/joy/Button";
+import FormControl from "@mui/joy/FormControl/FormControl";
+import FormLabel from "@mui/joy/FormLabel/FormLabel";
+import Input from "@mui/joy/Input";
 
 import {
     CONFIG_KEY,
@@ -16,6 +16,7 @@ import {
 
 
 const formFields = [
+    // FIXME: add helper text for each field.
     {
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
@@ -94,30 +95,39 @@ const ConfigForm = () => {
             onReset={handleConfigFormReset}
             onSubmit={handleConfigFormSubmit}
         >
-            <table>
-                <tbody>
-                    {formFields.map((field, index) => (
-                        <tr key={index}>
-                            <td>
-                                {field.label}
-                            </td>
-                            <td>
-                                <Input
-                                    slotProps={{
-                                        input: {
-                                            defaultValue: field.initialValue,
-                                            name: field.name,
-                                            size: 100,
-                                            type: field.type,
-                                        },
-                                    }}/>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {formFields.map((field, index) => (
+
+                // FIXME: Styling needs to be extracted to a CSS file.
+                <FormControl
+                    key={index}
+                    orientation={"horizontal"}
+                    style={{
+                        display: "flex",
+                        flexGrow: 1,
+                        marginBottom: "16px",
+                        width: "100%",
+                    }}
+                >
+                    <FormLabel>
+                        {field.label}
+                    </FormLabel>
+                    <Input
+
+                        // FIXME:pageSize doesn't extend to the right edge, even with flexGrow: 1.
+                        slotProps={{
+                            input: {
+                                defaultValue: field.initialValue,
+                                name: field.name,
+                                size: 100,
+                                type: field.type,
+                            },
+                        }}/>
+
+                </FormControl>
+            ))}
             <div>
                 <Button
+                    color={"primary"}
                     type={"submit"}
                 >
                     Apply & Reload
