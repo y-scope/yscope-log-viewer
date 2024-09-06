@@ -7,6 +7,7 @@ import {
 } from "../../typings/decoders";
 import {LogLevelFilter} from "../../typings/logs";
 
+
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpIrStreamReader;
 
@@ -43,9 +44,10 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this no-unused-vars
+    // eslint-disable-next-line class-methods-use-this
+    // eslint-disable-next-line no-unused-vars
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-         // TODO: fix this after log level filtering is implemented in clp-ffi-js
+        // TODO: fix this after log level filtering is implemented in clp-ffi-js
         return true
     }
 

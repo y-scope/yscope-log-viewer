@@ -246,7 +246,7 @@ class LogFileManager {
             this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
 
             // Need to minus one from page size to get correct index into filtered log events.
-            let lastPageIdx: number = i + this.#pageSize - 1
+            let lastPageIdx: number = i + this.#pageSize - 1;
 
             // Guard to prevent indexing out of array on last page.
             if (lastPageIdx >= this.#numFilteredEvents) {

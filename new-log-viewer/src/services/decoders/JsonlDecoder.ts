@@ -23,6 +23,22 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
 /**
+ * Creates an array containing indices as values. Method is used to set the default log level
+ * filter (i.e. all levels are selected, so the array should include all log indices).
+ *
+ * @param length The length of the array
+ * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
+ */
+function createIndicesArray (length: number): number[] {
+    const filteredLogIndices: number[] = Array.from(
+        {length: length},
+        (_, index) => index
+    );
+
+    return filteredLogIndices;
+}
+
+/**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for
  * properties that are specific to log events (compared to generic JSON records).
  */
@@ -244,21 +260,6 @@ class JsonlDecoder implements Decoder {
 
         return dayjs.utc(timestamp);
     }
-}
-
-/**
- * Creates an array containing indices as values. Method is used to set the default log level
- * filter (i.e. all levels are selected, so the array should include all log indices).
- *
- * @param length The length of the array
- * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
- */
-function createIndicesArray (length: number): number[] {
-    const filteredLogIndices: number[]  = Array.from(
-        {length: length},
-        (_, index) => index
-    );
-    return filteredLogIndices;
 }
 
 export default JsonlDecoder;
