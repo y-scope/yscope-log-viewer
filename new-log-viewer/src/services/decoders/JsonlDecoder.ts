@@ -23,8 +23,7 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
 /**
- * Generates array where each value is a consecutive index starting from 0.  Method is used to
- * set the default log level filter (i.e. all levels are selected, so the array should include all
+ * Set the default log level filter (i.e. all levels are selected, so the array should include all
  * log indices).
  *
  * @param length The length of the array

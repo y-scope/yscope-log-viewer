@@ -188,7 +188,8 @@ const Layout = () => {
         loadFile,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
-    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([...LOG_LEVEL_VALUES_LIST]);
+    const [selectedLogLevels, setSelectedLogLevels] =
+        useState<LOG_LEVEL[]>([...LOG_LEVEL_VALUES_LIST]);
     const firstLogEventNumPerPageRef = useRef<number[]>(firstLogEventNumPerPage);
     const lastLogEventNumPerPageRef = useRef<number[]>(lastLogEventNumPerPage);
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
