@@ -279,9 +279,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         pageNumRef.current = newPageNum;
     }, [
-        firstLogEventNumPerPage,
         numEvents,
-        numFilteredEvents,
         logEventNum,
     ]);
 
