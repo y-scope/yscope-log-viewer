@@ -102,7 +102,6 @@ const ConfigForm = () => {
                 key: CONFIG_KEY.DECODER_OPTIONS,
                 value: {
                     formatString: formatString,
-                    logLevelFilter: null,
                     logLevelKey: logLevelKey,
                     timestampKey: timestampKey,
                 },

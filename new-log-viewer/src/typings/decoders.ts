@@ -7,14 +7,9 @@ import {
     LogLevelFilter,
 } from "./logs";
 
-
 interface LogEventCount {
     numValidEvents: number,
     numInvalidEvents: number,
-}
-
-interface GenericDecoderOptions {
-    logLevelFilter: LogLevelFilter,
 }
 
 /**
@@ -24,7 +19,7 @@ interface GenericDecoderOptions {
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptions extends GenericDecoderOptions {
+interface JsonlDecoderOptions {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
