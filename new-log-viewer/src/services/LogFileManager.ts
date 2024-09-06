@@ -4,6 +4,7 @@ import {
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
+import {LogLevelFilter} from "../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -16,7 +17,6 @@ import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
-
 
 /**
  * Loads a file from a given source.
@@ -81,15 +81,16 @@ class LogFileManager {
 
         // Build index for the entire file
         const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
-        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
+        if (null === buildIdxResult) {
+            console.error("null result from decoder.buildIdx()");
+        } else if (0 < buildIdxResult.numInvalidEvents) {
             console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
-        this.#computerPageBoundaries();
+        this.#computePageBoundaries();
         console.log(
             `Found ${this.#numEvents} log events.`,
-            `${this.#numFilteredEvents} matches current filter.`
         );
     }
 
@@ -166,16 +167,6 @@ class LogFileManager {
     }
 
     /**
-     * Sets options for the decoder.
-     *
-     * @param options
-     */
-    setDecoderOptions (options: DecoderOptions) {
-        this.#decoder.setDecoderOptions(options);
-        this.#computerPageBoundaries();
-    }
-
-    /**
      * Loads a page of log events based on the provided cursor.
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
@@ -221,15 +212,48 @@ class LogFileManager {
         };
     }
 
-    #computerPageBoundaries () {
+    /**
+     * Changes the current log level filter and updates the page boundaries.
+     *
+     * @param logLevelFilter Array of selected log levels
+     * @throws {Error} If changing the log level filter is not successful
+     */
+    changeLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result: boolean = this.#decoder.changeLogLevelFilter(logLevelFilter);
+
+        if (false === result) {
+            throw new Error("Error changing log level filter");
+        }
+
+        this.#computePageBoundaries();
+    }
+
+    /**
+     * Computes logEventNum page boundaries based on current filter. Sets two arrays of page
+     * boundaries. The first array contains the number of first log event on each page. The
+     * second array contains the number last log event on each page.
+     */
+    #computePageBoundaries () {
         this.#firstLogEventNumPerPage.length = 0;
         this.#lastLogEventNumPerPage.length = 0;
-        const filteredLogEvents = this.#decoder.getFilteredLogEvents();
-        this.#numFilteredEvents = filteredLogEvents.length;
+
+        const filteredLogEventsIndices: number[] = this.#decoder.getFilteredLogEvents();
+        this.#numFilteredEvents = filteredLogEventsIndices.length;
+
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
-            this.#firstLogEventNumPerPage.push(1 + (filteredLogEvents[i] as number));
-            this.#lastLogEventNumPerPage.push(1 +
-                (filteredLogEvents[i + this.#pageSize - 1] as number));
+            let firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number
+            this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
+
+            //Need to minus one from page size to get correct index into filtered log events.
+            let lastPageIdx: number = i + this.#pageSize - 1
+
+            //Guard to prevent indexing out of array on last page.
+            if (lastPageIdx >= this.#numFilteredEvents) {
+                lastPageIdx = this.#numFilteredEvents - 1
+            }
+
+            let lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number
+            this.#lastLogEventNumPerPage.push(1 + lastLogEventOnPageIdx);
         }
     }
 

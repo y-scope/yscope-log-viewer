@@ -41,7 +41,6 @@ class JsonlDecoder implements Decoder {
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
-    // @ts-expect-error #formatter is set in the constructor by `setDecoderOptions()`
     #formatter: Formatter;
 
     /**
@@ -54,13 +53,7 @@ class JsonlDecoder implements Decoder {
 
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
-
-        const isOptionSet = this.setDecoderOptions(decoderOptions);
-        if (false === isOptionSet) {
-            throw new Error(
-                `Initial decoder options are erroneous: ${JSON.stringify(decoderOptions)}`
-            );
-        }
+        this.#formatter = new LogbackFormatter(decoderOptions);
         this.#dataArray = dataArray;
     }
 
@@ -78,7 +71,8 @@ class JsonlDecoder implements Decoder {
         }
 
         this.#deserialize();
-        this.#filterLogs(null);
+        this.#filteredLogIndices = this.#createIndicesArray(this.#logEvents.length)
+
         const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
             .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
             .length;
@@ -89,11 +83,8 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    setDecoderOptions (options: JsonlDecoderOptions): boolean {
-        // Note `options.timestampKey` and `options.logLevelKey` are ignored by this method.
-        this.#formatter = new LogbackFormatter(options);
-        this.#filterLogs(options.logLevelFilter);
-
+    changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        this.#filterLogs(logLevelFilter);
         return true;
     }
 
@@ -181,7 +172,7 @@ class JsonlDecoder implements Decoder {
                 this.#logEvents.push({
                     fields: {},
                     level: LOG_LEVEL.NONE,
-                    timestamp: dayjs.utc(0),
+                    timestamp: dayjs.utc(INVALID_TIMESTAMP_VALUE),
                 });
             }
         }
@@ -189,21 +180,39 @@ class JsonlDecoder implements Decoder {
         this.#dataArray = null;
     }
 
+    /**
+     * Creates an array containing indexes of logs which match the user selected levels. The
+     * previous array is removed and a new one is created on each call.
+     *
+     * @param logLevelFilter Array of selected log levels
+     */
     #filterLogs (logLevelFilter: LogLevelFilter) {
         this.#filteredLogIndices.length = 0;
-        if (null === logLevelFilter) {
-            this.#filteredLogIndices = Array.from(
-                {length: this.#logEvents.length},
-                (_, index) => index
-            );
 
-            return;
+        if (!logLevelFilter) {
+            return
         }
+
         this.#logEvents.forEach((logEvent, index) => {
             if (logLevelFilter.includes(logEvent.level)) {
                 this.#filteredLogIndices.push(index);
             }
         });
+    }
+
+    /**
+     * Creates an array containing indices as values. Method is used to set the default log level
+     * filter (i.e. all levels are selected, so the array should include all log indices).
+     *
+     * @param length The length of the array
+     * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
+     */
+    #createIndicesArray (length: number): number[] {
+        let filteredLogIndices: number[]  = Array.from(
+            {length: length},
+            (_, index) => index
+        );
+        return filteredLogIndices;
     }
 
     /**

@@ -144,8 +144,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] = useState<number[]>([]);
-    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] = useState<number[]>([]);
+    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] = useState<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
+    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] = useState<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numFilteredEvents, setNumFilteredEvents] =
@@ -223,12 +223,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
         logLevelFilterRef.current = newLogLevelFilter;
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.CHANGE_FILTER, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
-            decoderOptions: {
-                ...getConfig(CONFIG_KEY.DECODER_OPTIONS),
-                logLevelFilter: newLogLevelFilter,
-            },
+            logLevelFilter: newLogLevelFilter,
         });
     };
 
@@ -274,10 +271,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
                 workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
                     cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                    decoderOptions: {
-                        ...getConfig(CONFIG_KEY.DECODER_OPTIONS),
-                        logLevelFilter: logLevelFilterRef.current,
-                    },
                 });
             }
         }

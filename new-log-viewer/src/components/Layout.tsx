@@ -24,7 +24,7 @@ import {
 import {
     LOG_LEVEL,
     LOG_LEVEL_NAMES_LIST,
-    LogLevelFilter,
+    LOG_LEVEL_VALUES_LIST,
 } from "../typings/logs";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
@@ -189,9 +189,7 @@ const Layout = () => {
         loadFile,
     } = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
-
-    const [selectedLogLevels, setSelectedLogLevels] =
-        useState<number[]>(LOG_LEVEL_NAMES_LIST as number[]);
+    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([...LOG_LEVEL_VALUES_LIST]);
     const firstLogEventNumPerPageRef = useRef<number[]>(firstLogEventNumPerPage);
     const lastLogEventNumPerPageRef = useRef<number[]>(lastLogEventNumPerPage);
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
@@ -340,14 +338,14 @@ const Layout = () => {
                     multiple={true}
                     name={"log-level"}
                     style={{display: "table-row", height: "2rcap"}}
-                    value={selectedLogLevels as unknown as string[]}
+                    value={selectedLogLevels.map(index => index.toString())}
                     onChange={handleLogLevelSelectChange}
                 >
-                    {LOG_LEVEL_NAMES_LIST.map((logLevelName) => (
+                    {LOG_LEVEL_NAMES_LIST.map((logLevelName,index) => (
                         <option
                             key={logLevelName}
                             style={{display: "table-cell", width: "8rch", borderStyle: "solid"}}
-                            value={LOG_LEVEL[logLevelName as LOG_LEVEL]}
+                            value={index.toString()}
                         >
                             {logLevelName}
                         </option>

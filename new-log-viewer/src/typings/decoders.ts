@@ -69,6 +69,14 @@ interface Decoder {
     getFilteredLogEvents(): number[];
 
     /**
+     * Sets the log level filter for the decoder.
+     *
+     * @param logLevelFilter
+     * @return Whether the filter was successfully set.
+     */
+    changeLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
+
+    /**
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
      *
      * @param beginIdx
@@ -78,14 +86,6 @@ interface Decoder {
      * range doesn't exist (e.g., the range exceeds the number of log events in the file).
      */
     buildIdx(beginIdx: number, endIdx: number): Nullable<LogEventCount>;
-
-    /**
-     * Sets options for the decoder.
-     *
-     * @param options
-     * @return Whether the options were successfully set.
-     */
-    setDecoderOptions(options: DecoderOptions): boolean;
 
     /**
      * Decodes the log events in the range `[beginIdx, endIdx)`.

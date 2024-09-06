@@ -1,5 +1,8 @@
 import {DecoderOptions} from "./decoders";
-import {LOG_LEVEL} from "./logs";
+import {
+    LOG_LEVEL,
+    LogLevelFilter
+} from "./logs";
 
 
 /**
@@ -40,6 +43,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
+    CHANGE_FILTER = "changeFilter",
 }
 
 enum WORKER_RESP_CODE {
@@ -58,7 +62,10 @@ type WorkerReqMap = {
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        decoderOptions?: DecoderOptions,
+    },
+    [WORKER_REQ_CODE.CHANGE_FILTER]: {
+        cursor: CursorType,
+        logLevelFilter: LogLevelFilter
     },
 };
 
