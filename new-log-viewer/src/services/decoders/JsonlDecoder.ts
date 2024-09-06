@@ -208,7 +208,7 @@ class JsonlDecoder implements Decoder {
      * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
      */
     #createIndicesArray (length: number): number[] {
-        let filteredLogIndices: number[]  = Array.from(
+        const filteredLogIndices: number[]  = Array.from(
             {length: length},
             (_, index) => index
         );

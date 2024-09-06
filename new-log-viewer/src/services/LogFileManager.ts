@@ -241,7 +241,7 @@ class LogFileManager {
         this.#numFilteredEvents = filteredLogEventsIndices.length;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
-            let firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number
+            const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number
             this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
 
             //Need to minus one from page size to get correct index into filtered log events.
@@ -252,7 +252,7 @@ class LogFileManager {
                 lastPageIdx = this.#numFilteredEvents - 1
             }
 
-            let lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number
+            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number
             this.#lastLogEventNumPerPage.push(1 + lastLogEventOnPageIdx);
         }
     }
