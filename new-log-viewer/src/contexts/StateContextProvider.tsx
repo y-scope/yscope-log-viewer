@@ -162,8 +162,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numFilteredEvents =
         useRef<number>(STATE_DEFAULT.numFilteredEvents);
 
-
-
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -195,9 +193,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.VIEW_INFO:
-                numFilteredEvents.current = args.numFilteredEvents
-                firstLogEventNumPerPage.current = args.firstLogEventNumPerPage
-                lastLogEventNumPerPage.current = args.lastLogEventNumPerPage
+                numFilteredEvents.current = args.numFilteredEvents;
+                firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
+                lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -248,7 +246,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
+        numPagesRef.current =
+            getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
     }, [numFilteredEvents]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
