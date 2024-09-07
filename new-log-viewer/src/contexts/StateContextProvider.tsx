@@ -144,20 +144,25 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [firstLogEventNumPerPage, setFirstLogEventNumPerPage] =
-        useState<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
-    const [lastLogEventNumPerPage, setLastLogEventNumPerPage] =
-        useState<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
+
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [numFilteredEvents, setNumFilteredEvents] =
-        useState<number>(STATE_DEFAULT.numFilteredEvents);
+
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
     const logLevelFilterRef = useRef<LogLevelFilter>(STATE_DEFAULT.logLevelFilter);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
+
+    const firstLogEventNumPerPage =
+        useRef<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
+    const lastLogEventNumPerPage =
+        useRef<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
+    const numFilteredEvents =
+        useRef<number>(STATE_DEFAULT.numFilteredEvents);
+
+
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -179,6 +184,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
+
                 updateLogEventNumInUrl(
                     lastLogEventNum,
                     Array.from(args.beginLineNumToLogEventNum.values())
@@ -189,9 +195,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.VIEW_INFO:
-                setNumFilteredEvents(args.numFilteredEvents);
-                setFirstLogEventNumPerPage(args.firstLogEventNumPerPage);
-                setLastLogEventNumPerPage(args.lastLogEventNumPerPage);
+                numFilteredEvents.current = args.numFilteredEvents
+                firstLogEventNumPerPage.current = args.firstLogEventNumPerPage
+                lastLogEventNumPerPage.current = args.lastLogEventNumPerPage
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -238,22 +244,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
-        if (STATE_DEFAULT.numFilteredEvents === numFilteredEvents) {
+        if (STATE_DEFAULT.numFilteredEvents === numFilteredEvents.current) {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
+        numPagesRef.current = getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
     }, [numFilteredEvents]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
-            0 === firstLogEventNumPerPage.length) {
+            0 === firstLogEventNumPerPage.current.length) {
             return;
         }
 
         const newPageNum = 1 +
-            firstLogEventNumPerPage.findLastIndex((value: number) => value <= logEventNum);
+            firstLogEventNumPerPage.current.findLastIndex((value: number) => value <= logEventNum);
 
         if (0 === newPageNum) {
             return;
@@ -312,12 +318,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
-                firstLogEventNumPerPage: firstLogEventNumPerPage,
-                lastLogEventNumPerPage: lastLogEventNumPerPage,
+                firstLogEventNumPerPage: firstLogEventNumPerPage.current,
+                lastLogEventNumPerPage: lastLogEventNumPerPage.current,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,
-                numFilteredEvents: numFilteredEvents,
+                numFilteredEvents: numFilteredEvents.current,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
 
