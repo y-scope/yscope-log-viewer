@@ -58,11 +58,12 @@ const ConfigForm = () => {
     const handleConfigFormSubmit = (ev: React.FormEvent) => {
         ev.preventDefault();
         const formData = new FormData(ev.target as HTMLFormElement);
+        const getFormDataValue = (key: string) => formData.get(key) as string;
 
-        const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-        const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-        const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-        const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
+        const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+        const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
         let error = null;
         if (
             "string" === typeof formatString &&

@@ -168,7 +168,7 @@ export const MenuBar = () => {
                     setSettingsModelOpen(false);
                 }}
             >
-                <ModalDialog>
+                <ModalDialog layout={"fullscreen"}>
                     <DialogTitle className={"menu-bar-modal"}>
                         <span style={{flexGrow: 1}}>
                             Settings
