@@ -8,31 +8,32 @@ const monacoTheme = extendTheme({
         light: {
             palette: {
                 primary: {
-                    solidBg: "#007acc",
-                    solidHoverBg: "#0062a3",
-                    solidActiveBg: "#0062a3",
+                    solidBg: "#005fb8",
+                    solidHoverBg: "#0258a8",
+                    solidActiveBg: "#005fb8",
                 },
                 neutral: {
-                    solidBg: "#5f6a79",
-                    solidHoverBg: "#4c5561",
-                    solidActiveBg: "#4c5561",
+                    solidBg: "#e5e5e5",
+                    solidHoverBg: "#cccccc",
+                    solidActiveBg: "#e5e5e5",
+                    solidColor: "#3b3b3b",
                 },
-                focusVisible: "#0090f1",
+                focusVisible: "#005fb8",
             },
         },
         dark: {
             palette: {
                 primary: {
-                    solidBg: "#0e639c",
-                    solidHoverBg: "#1177bb",
-                    solidActiveBg: "#1177bb",
+                    solidBg: "#0078d4",
+                    solidHoverBg: "#026ec1",
+                    solidActiveBg: "#0078d4",
                 },
                 neutral: {
-                    solidBg: "#313131",
-                    solidHoverBg: "#45494e",
-                    solidActiveBg: "#45494e",
+                    solidBg: "#181818",
+                    solidHoverBg: "#323232",
+                    solidActiveBg: "#181818",
                 },
-                focusVisible: "#007fd4",
+                focusVisible: "#0078d4",
             },
         },
     },
@@ -67,6 +68,18 @@ const monacoTheme = extendTheme({
                 root: {
                     borderRadius: "2px",
                 },
+            },
+        },
+        JoyFormControl: {
+            styleOverrides: {
+                root: ({theme}) => ({
+                    [theme.getColorSchemeSelector("dark")]: {
+                        ":hover": {backgroundColor: "#232424"},
+                    },
+                    [theme.getColorSchemeSelector("light")]: {
+                        ":hover": {backgroundColor: "#f8f8f8"},
+                    },
+                }),
             },
         },
     },

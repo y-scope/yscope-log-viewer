@@ -1,7 +1,4 @@
-:root {
-    --status-bar-height: 32px;
-    --menu-bar-height: 32px;
-}
+
 
 .layout {
     height: 100vh;
@@ -12,7 +9,7 @@
 .menu-bar {
     display: flex;
     flexDirection: "row";
-    height: var(--status-bar-height);
+    height: var(--ylv-status-bar-height);
     alignItems: "center";
 }
 
@@ -23,14 +20,15 @@
     gap: 2px;
 }
 
-.menu-bar-modal {
+.settings-modal {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .editor {
-    height: calc(100vh - var(--menu-bar-height) - var(--status-bar-height));
+    height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height));
 }
 
 .status-bar {
@@ -42,11 +40,7 @@
 }
 
 .config-form-control {
-    display: flex;
-    justify-content: space-between;
-    flex-grow: 1;
-    margin-bottom: 16px;
-    width: 100%;
+    margin-top: 16px;
 }
 
 .status-message {

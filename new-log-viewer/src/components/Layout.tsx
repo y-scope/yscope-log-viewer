@@ -18,7 +18,6 @@ import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {ACTION_NAME} from "../utils/actions";
 import {CONFIG_DEFAULT} from "../utils/config";
-import monacoTheme from "../utils/theme";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
@@ -27,6 +26,7 @@ import {
     MenuBar,
 } from "./MenuBar";
 import {StatusBar} from "./StatusBar";
+import monacoTheme from "./theme";
 
 import "./Layout.css";
 

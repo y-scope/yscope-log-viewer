@@ -13,6 +13,10 @@ html {
     --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, Ubuntu, "Droid Sans",
     Roboto;
 
+    /* size globals */
+    --ylv-status-bar-height: 32px;
+    --ylv-menu-bar-height: 32px;
+
     /* z-index globals
      *
      * Other z-index values in the project for reference:
