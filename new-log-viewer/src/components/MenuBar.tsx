@@ -5,6 +5,7 @@ import React, {
 
 import {
     Button,
+    DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
@@ -37,17 +38,21 @@ import {
 } from "../contexts/UrlContextProvider";
 import {
     CONFIG_KEY,
+    LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
 import {CURSOR_CODE} from "../typings/worker";
 import {ACTION_NAME} from "../utils/actions";
-import {getConfig} from "../utils/config";
+import {
+    getConfig,
+    setConfig,
+} from "../utils/config";
 import {openFile} from "../utils/file";
 import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
-import ConfigForm from "./ConfigForm";
+import ConfigDialog from "./ConfigDialog";
 
 
 /**
@@ -77,6 +82,59 @@ export const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEv
             break;
         default:
             break;
+    }
+};
+
+/**
+ * Handles the reset event for the configuration form.
+ *
+ * @param ev The form event triggered by the reset action.
+ * @return
+ */
+const handleConfigFormReset = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    window.localStorage.clear();
+    window.location.reload();
+};
+
+/**
+ * Handles the submit event for the configuration form.
+ *
+ * @param ev The form event triggered by the submit action.
+ * @return
+ */
+const handleConfigFormSubmit = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    const formData = new FormData(ev.target as HTMLFormElement);
+
+    const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+    const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+    const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+    const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
+    let error = null;
+    if (
+        "string" === typeof formatString &&
+        "string" === typeof logLevelKey &&
+        "string" === typeof timestampKey
+    ) {
+        error ||= setConfig({
+            key: CONFIG_KEY.DECODER_OPTIONS,
+            value: {formatString, logLevelKey, timestampKey},
+        });
+    }
+    if ("string" === typeof pageSize) {
+        error ||= setConfig({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: Number(pageSize),
+        });
+    }
+    if (null !== error) {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Show an error pop-up once NotificationProvider is implemented.
+        // eslint-disable-next-line no-alert
+        window.alert(error);
+    } else {
+        window.location.reload();
     }
 };
 
@@ -168,42 +226,61 @@ export const MenuBar = () => {
                     setSettingsModelOpen(false);
                 }}
             >
-                <ModalDialog layout={"fullscreen"}>
-                    <DialogTitle className={"menu-bar-modal"}>
-                        <span style={{flexGrow: 1}}>
-                            Settings
-                        </span>
-                        <ToggleButtonGroup
-                            size={"sm"}
-                            value={mode as string}
-                            onChange={(_, newValue) => {
-                                setMode(newValue as Mode);
-                            }}
-                        >
-                            <Button
-                                startDecorator={<LightMode/>}
-                                value={THEME_NAME.LIGHT}
+                <form
+                    onReset={handleConfigFormReset}
+                    onSubmit={handleConfigFormSubmit}
+                >
+                    <ModalDialog layout={"fullscreen"}>
+                        <DialogTitle className={"menu-bar-modal"}>
+                            <span style={{flexGrow: 1}}>
+                                Settings
+                            </span>
+                            <ToggleButtonGroup
+                                size={"sm"}
+                                value={mode as string}
+                                onChange={(_, newValue) => {
+                                    setMode(newValue as Mode);
+                                }}
                             >
-                                Light
+                                <Button
+                                    startDecorator={<LightMode/>}
+                                    value={THEME_NAME.LIGHT}
+                                >
+                                    Light
+                                </Button>
+                                <Button
+                                    startDecorator={<SettingsBrightnessIcon/>}
+                                    value={THEME_NAME.SYSTEM}
+                                >
+                                    System
+                                </Button>
+                                <Button
+                                    startDecorator={<DarkMode/>}
+                                    value={THEME_NAME.DARK}
+                                >
+                                    Dark
+                                </Button>
+                            </ToggleButtonGroup>
+                        </DialogTitle>
+                        <DialogContent>
+                            <ConfigDialog/>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button
+                                color={"primary"}
+                                type={"submit"}
+                            >
+                                Apply & Reload
                             </Button>
                             <Button
-                                startDecorator={<SettingsBrightnessIcon/>}
-                                value={THEME_NAME.SYSTEM}
+                                color={"neutral"}
+                                type={"reset"}
                             >
-                                System
+                                Reset Default
                             </Button>
-                            <Button
-                                startDecorator={<DarkMode/>}
-                                value={THEME_NAME.DARK}
-                            >
-                                Dark
-                            </Button>
-                        </ToggleButtonGroup>
-                    </DialogTitle>
-                    <DialogContent>
-                        <ConfigForm/>
-                    </DialogContent>
-                </ModalDialog>
+                        </DialogActions>
+                    </ModalDialog>
+                </form>
             </Modal>
         </Sheet>
     );
