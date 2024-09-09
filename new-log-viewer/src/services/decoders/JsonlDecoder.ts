@@ -23,7 +23,6 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
 
 
 /**
- * // eslint-disable-line jsdoc/informative-docs
  * Set the default log level filter (i.e. all levels are selected, so the array should include all
  * log indices).
  *
@@ -90,12 +89,10 @@ class JsonlDecoder implements Decoder {
         this.#deserialize();
         this.#filteredLogIndices = createIndicesArray(this.#logEvents.length);
 
-        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
-            .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
-            .length;
+        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
 
         return {
-            numValidEvents: endIdx - beginIdx - numInvalidEvents,
+            numValidEvents: this.#logEvents.length - numInvalidEvents,
             numInvalidEvents: numInvalidEvents,
         };
     }
