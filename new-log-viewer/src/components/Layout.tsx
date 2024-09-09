@@ -86,22 +86,22 @@ const Layout = () => {
     }, [numEvents]);
 
     return (
-
-        // FIXME: these components doesn't apply Layout.css properties
-        <CssVarsProvider
-            defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
-            modeStorageKey={CONFIG_KEY.THEME}
-            theme={monacoTheme}
-        >
-            <MenuBar/>
-            <DropFileContainer>
-                <Editor onCustomAction={handleEditorCustomAction}/>
-            </DropFileContainer>
-            <StatusBar
-                handleCopyLinkButtonClick={handleCopyLinkButtonClick}
-                logEventNum={logEventNum}
-                numEvents={numEvents}/>
-        </CssVarsProvider>
+        <div className={"layout"}>
+            <CssVarsProvider
+                defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
+                modeStorageKey={CONFIG_KEY.THEME}
+                theme={monacoTheme}
+            >
+                <MenuBar/>
+                <DropFileContainer>
+                    <Editor onCustomAction={handleEditorCustomAction}/>
+                </DropFileContainer>
+                <StatusBar
+                    handleCopyLinkButtonClick={handleCopyLinkButtonClick}
+                    logEventNum={logEventNum}
+                    numEvents={numEvents}/>
+            </CssVarsProvider>
+        </div>
     );
 };
 

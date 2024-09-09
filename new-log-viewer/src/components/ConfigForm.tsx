@@ -96,24 +96,15 @@ const ConfigForm = () => {
             onSubmit={handleConfigFormSubmit}
         >
             {formFields.map((field, index) => (
-
-                // FIXME: Styling needs to be extracted to a CSS file.
                 <FormControl
+                    className={"config-form-control"}
                     key={index}
                     orientation={"horizontal"}
-                    style={{
-                        display: "flex",
-                        flexGrow: 1,
-                        marginBottom: "16px",
-                        width: "100%",
-                    }}
                 >
                     <FormLabel>
                         {field.label}
                     </FormLabel>
                     <Input
-
-                        // FIXME:pageSize doesn't extend to the right edge, even with flexGrow: 1.
                         slotProps={{
                             input: {
                                 defaultValue: field.initialValue,

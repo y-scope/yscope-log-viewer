@@ -1,15 +1,36 @@
-.container {
+:root {
+    --status-bar-height: 32px;
+    --menu-bar-height: 32px;
+}
+
+.layout {
     height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-bar {
     display: flex;
-    flex-direction: row;
+    flexDirection: "row";
+    height: var(--status-bar-height);
+    alignItems: "center";
+}
+
+.menu-bar-typography {
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+    gap: 2px;
+}
+
+.menu-bar-modal {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
 }
 
-.editor-container {
-    height: calc(100vh - 32px - 32px);
+.editor {
+    height: calc(100vh - var(--menu-bar-height) - var(--status-bar-height));
 }
 
 .status-bar {
@@ -20,15 +41,18 @@
     width: 100%;
 }
 
+.config-form-control {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
 .status-message {
     flex-grow: 1;
 }
 
 .status-button {
     min-height: 0;
-}
-
-:root {
-    --status-bar-height: 32px;
-    --menu-bar-height: 32px;
 }

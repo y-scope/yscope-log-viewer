@@ -144,15 +144,17 @@ const Editor = ({onCustomAction}: EditorProps) => {
     ]);
 
     return (
-        <MonacoInstance
-            actions={EDITOR_ACTIONS}
-            beforeTextUpdate={resetCachedPageSize}
-            lineNum={lineNum}
-            text={logData}
-            onCursorExplicitPosChange={handleCursorExplicitPosChange}
-            onCustomAction={onCustomAction}
-            onMount={handleMount}
-            onTextUpdate={restoreCachedPageSize}/>
+        <div className={"editor"}>
+            <MonacoInstance
+                actions={EDITOR_ACTIONS}
+                beforeTextUpdate={resetCachedPageSize}
+                lineNum={lineNum}
+                text={logData}
+                onCursorExplicitPosChange={handleCursorExplicitPosChange}
+                onCustomAction={onCustomAction}
+                onMount={handleMount}
+                onTextUpdate={restoreCachedPageSize}/>
+        </div>
     );
 };
 

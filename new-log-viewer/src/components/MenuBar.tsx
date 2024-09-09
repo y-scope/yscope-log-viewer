@@ -131,21 +131,8 @@ export const MenuBar = () => {
     );
 
     return (
-        <Sheet
-            style={{
-                display: "flex",
-                flexDirection: "row",
-                height: "32px",
-                alignItems: "center",
-            }}
-        >
-            <Typography
-                alignItems={"center"}
-                display={"flex"}
-                flexGrow={1}
-                gap={"2px"}
-                level={"title-sm"}
-            >
+        <Sheet className={"menu-bar"}>
+            <Typography className={"menu-bar-typography"}>
                 <Description/>
                 {fileName}
             </Typography>
@@ -177,13 +164,12 @@ export const MenuBar = () => {
             </IconButton>
             <Modal
                 open={settingsModelOpen}
-                sx={{display: "flex", justifyContent: "center", alignItems: "center"}}
                 onClose={() => {
                     setSettingsModelOpen(false);
                 }}
             >
                 <ModalDialog>
-                    <DialogTitle>
+                    <DialogTitle className={"menu-bar-modal"}>
                         <span style={{flexGrow: 1}}>
                             Settings
                         </span>
