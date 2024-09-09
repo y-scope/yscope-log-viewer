@@ -40,6 +40,9 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 result = "Decoder options cannot be empty.";
             }
             break;
+        case CONFIG_KEY.THEME:
+            result = "Theming should be handled by JoyUI instead.";
+            break;
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
@@ -84,6 +87,9 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 value.timestampKey
             );
             break;
+        case CONFIG_KEY.THEME:
+            // Handled by JoyUI instead.
+            break;
         case CONFIG_KEY.PAGE_SIZE:
             window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
             break;
@@ -117,6 +123,9 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
             } as DecoderOptionsType;
+            break;
+        case CONFIG_KEY.THEME:
+            // Handled by JoyUI instead.
             break;
         case CONFIG_KEY.PAGE_SIZE:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);

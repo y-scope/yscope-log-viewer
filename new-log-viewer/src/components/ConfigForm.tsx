@@ -44,53 +44,64 @@ const formFields = [
 ];
 
 /**
+ * Handles the reset event for the configuration form.
+ *
+ * @param ev The form event triggered by the reset action.
+ * @return
+ */
+const handleConfigFormReset = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    window.localStorage.clear();
+    window.location.reload();
+};
+
+/**
+ * Handles the submit event for the configuration form.
+ *
+ * @param ev The form event triggered by the submit action.
+ * @return
+ */
+const handleConfigFormSubmit = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    const formData = new FormData(ev.target as HTMLFormElement);
+
+    const formatString = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+    const logLevelKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+    const timestampKey = formData.get(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+    const pageSize = formData.get(LOCAL_STORAGE_KEY.PAGE_SIZE);
+    let error = null;
+    if (
+        "string" === typeof formatString &&
+        "string" === typeof logLevelKey &&
+        "string" === typeof timestampKey
+    ) {
+        error ||= setConfig({
+            key: CONFIG_KEY.DECODER_OPTIONS,
+            value: {formatString, logLevelKey, timestampKey},
+        });
+    }
+    if ("string" === typeof pageSize) {
+        error ||= setConfig({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: Number(pageSize),
+        });
+    }
+    if (null !== error) {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Show an error pop-up once NotificationProvider is implemented.
+        // eslint-disable-next-line no-alert
+        window.alert(error);
+    } else {
+        window.location.reload();
+    }
+};
+
+/**
  * Renders a configuration settings form.
  *
  * @return
  */
 const ConfigForm = () => {
-    const handleConfigFormReset = (ev: React.FormEvent) => {
-        ev.preventDefault();
-        window.localStorage.clear();
-        window.location.reload();
-    };
-
-    const handleConfigFormSubmit = (ev: React.FormEvent) => {
-        ev.preventDefault();
-        const formData = new FormData(ev.target as HTMLFormElement);
-        const getFormDataValue = (key: string) => formData.get(key) as string;
-
-        const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-        const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-        const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
-        let error = null;
-        if (
-            "string" === typeof formatString &&
-            "string" === typeof logLevelKey &&
-            "string" === typeof timestampKey
-        ) {
-            error ||= setConfig({
-                key: CONFIG_KEY.DECODER_OPTIONS,
-                value: {formatString, logLevelKey, timestampKey},
-            });
-        }
-        if ("string" === typeof pageSize) {
-            error ||= setConfig({
-                key: CONFIG_KEY.PAGE_SIZE,
-                value: Number(pageSize),
-            });
-        }
-        if (null !== error) {
-            // eslint-disable-next-line no-warning-comments
-            // TODO: Show an error pop-up once NotificationProvider is implemented.
-            // eslint-disable-next-line no-alert
-            window.alert(error);
-        } else {
-            window.location.reload();
-        }
-    };
-
     return (
         <form
             onReset={handleConfigFormReset}
