@@ -36,9 +36,9 @@ jobs:
       - run: "npm --prefix new-log-viewer/ clean-install"
 
       - name: Register Stylelint problem matcher
-        working-directory: "./new-log-viewer/"
         run: "echo '::add-matcher::../.github/problem-matchers/stylelint.json'"
-      - run: "npm --prefix new-log-viewer/ run lint:css-check"
+      - run: "npm run lint:css-check"
+        working-directory: "./new-log-viewer/"
       - name: Remove Stylelint problem matcher
         if: "always()"
         run: "echo '::remove-matcher owner=stylelint::'"
