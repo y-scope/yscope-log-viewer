@@ -42,7 +42,7 @@ jobs:
         continue-on-error: true
 
       - name: Remove Stylelint problem matcher
-        run: echo "::remove-matcher::./.github/problem-matchers/stylelint.json owner=stylelint::"
+        run: echo "::remove-matcher::../.github/problem-matchers/stylelint.json owner=stylelint::"
 
       - uses: "ataylorme/eslint-annotate-action@v3"
         with:
