@@ -34,8 +34,16 @@ jobs:
         with:
           node-version: 22
       - run: "npm --prefix new-log-viewer/ clean-install"
+
+      - name: Register Stylelint problem matcher
+        run: echo "::add-matcher::./.github/problem-matchers/stylelint.json"
+
       - run: "npm --prefix new-log-viewer/ run lint:ci"
         continue-on-error: true
+
+      - name: Remove Stylelint problem matcher
+        run: echo "::remove-matcher::./.github/problem-matchers/stylelint.json owner=stylelint::"
+
       - uses: "ataylorme/eslint-annotate-action@v3"
         with:
           fail-on-error: true
