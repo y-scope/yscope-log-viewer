@@ -66,7 +66,6 @@ export const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEv
     }
 };
 
-
 /**
  *
  */

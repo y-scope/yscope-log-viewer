@@ -11,7 +11,7 @@ interface StatusBarProps {
     numEvents: number | null;
 }
 
-export const StatusBar: React.FC<StatusBarProps> = ({handleCopyLinkButtonClick, logEventNum, numEvents}) => {
+const StatusBar = ({handleCopyLinkButtonClick, logEventNum, numEvents}: StatusBarProps) => {
     return (
         <Sheet className={"status-bar"}>
             <Typography
