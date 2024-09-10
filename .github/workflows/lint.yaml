@@ -39,6 +39,7 @@ jobs:
       - name: Register Stylelint problem matcher
         run: echo "::add-matcher::./.github/problem-matchers/stylelint.json"
       - run: "npm --prefix new-log-viewer/ run lint:css-check"
+        continue-on-error: false
       - name: Remove Stylelint problem matcher
         run: echo "::remove-matcher owner=stylelint::"
 
