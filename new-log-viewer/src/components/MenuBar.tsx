@@ -5,7 +5,6 @@ import React, {
 
 import {
     IconButton,
-    Modal,
     Sheet,
     Typography,
 } from "@mui/joy";
@@ -34,7 +33,7 @@ import {
     getFirstItemNumInNextChunk,
     getLastItemNumInPrevChunk,
 } from "../utils/math";
-import ConfigDialog from "./modals/SettingsModal/ConfigDialog";
+import ConfigModal from "./modals/SettingsModal";
 
 
 /**
@@ -149,14 +148,11 @@ export const MenuBar = () => {
             >
                 <TipsAndUpdates/>
             </IconButton>
-            <Modal
-                open={settingsModelOpen}
+            <ConfigModal
+                isOpen={settingsModelOpen}
                 onClose={() => {
                     setSettingsModelOpen(false);
-                }}
-            >
-                <ConfigDialog/>
-            </Modal>
+                }}/>
         </Sheet>
     );
 };
