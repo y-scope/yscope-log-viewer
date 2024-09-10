@@ -39,7 +39,7 @@ jobs:
         run: "echo '::add-matcher::./.github/problem-matchers/stylelint.json'"
       # TODO: remove below `sed` hack once the new-log-viewer sources are moved to the project's root.
       - run: |
-          npm --prefix new-log-viewer/ run lint:css-check 2>&1 | sed 's#src/#new-log-viewer/src/#g'
+          npm --prefix new-log-viewer/ run lint:css-ci 2>&1 | sed 's#src/#new-log-viewer/src/#g'
           exit ${PIPESTATUS[0]}
       - name: "Remove Stylelint problem matcher"
         if: "always()"
