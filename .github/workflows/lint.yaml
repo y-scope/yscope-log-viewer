@@ -21,7 +21,6 @@ concurrency:
 jobs:
   lint-check:
     runs-on: "ubuntu-latest"
-    continue-on-error: true
     permissions:
       # So `eslint-annotate-action` can create / update status checks
       checks: "write"
@@ -39,12 +38,14 @@ jobs:
       - name: Register Stylelint problem matcher
         run: echo "::add-matcher::./.github/problem-matchers/stylelint.json"
       - run: "npm --prefix new-log-viewer/ run lint:css-check"
-        continue-on-error: true
       - name: Remove Stylelint problem matcher
+        if: "always()"
         run: echo "::remove-matcher owner=stylelint::"
 
       - run: "npm --prefix new-log-viewer/ run lint:js-ci"
+        if: "always()"
       - uses: "ataylorme/eslint-annotate-action@v3"
+        if: "failure()"
         with:
           fail-on-error: true
           fail-on-warning: true
