@@ -45,7 +45,7 @@ jobs:
       - run: "npm --prefix new-log-viewer/ run lint:js-ci"
         if: "always()"
       - uses: "ataylorme/eslint-annotate-action@v3"
-        if: "failure()"
+        if: "always()"
         with:
           fail-on-error: true
           fail-on-warning: true
