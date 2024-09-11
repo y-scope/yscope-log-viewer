@@ -6,6 +6,7 @@ import React, {
 import {
     IconButton,
     Sheet,
+    Stack,
     Typography,
 } from "@mui/joy";
 
@@ -88,10 +89,18 @@ const MenuBar = () => {
 
     return (
         <Sheet className={"menu-bar"}>
-            <Typography className={"menu-bar-typography"}>
+            <Stack
+                alignItems={"center"}
+                className={"menu-bar-filename"}
+                direction={"row"}
+                flexGrow={1}
+                gap={0.5}
+            >
                 <Description/>
-                {fileName}
-            </Typography>
+                <Typography level={"body-md"}>
+                    {fileName}
+                </Typography>
+            </Stack>
 
             <SmallNavIconButton
                 actionName={ACTION_NAME.FIRST_PAGE}

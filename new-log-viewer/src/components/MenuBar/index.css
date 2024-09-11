@@ -4,10 +4,3 @@
     height: var(--ylv-status-bar-height);
     align-items: center;
 }
-
-.menu-bar-typography {
-    align-items: center;
-    display: flex !important;
-    flex-grow: 1;
-    gap: 2px;
-}
