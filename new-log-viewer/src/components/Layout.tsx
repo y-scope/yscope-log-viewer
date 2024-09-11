@@ -80,12 +80,12 @@ const Layout = () => {
     }, [numEvents]);
 
     return (
-        <div className={"layout"}>
-            <CssVarsProvider
-                defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
-                modeStorageKey={CONFIG_KEY.THEME}
-                theme={monacoTheme}
-            >
+        <CssVarsProvider
+            defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
+            modeStorageKey={CONFIG_KEY.THEME}
+            theme={monacoTheme}
+        >
+            <div className={"layout"}>
                 <MenuBar/>
                 <DropFileContainer>
                     <Editor onCustomAction={handleEditorCustomAction}/>
@@ -93,8 +93,8 @@ const Layout = () => {
                 <StatusBar
                     logEventNum={logEventNum}
                     numEvents={numEvents}/>
-            </CssVarsProvider>
-        </div>
+            </div>
+        </CssVarsProvider>
     );
 };
 
