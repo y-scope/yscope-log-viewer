@@ -33,6 +33,8 @@ import {
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
+import "./index.css";
+
 
 /**
  * Renders a read-only editor for viewing logs.
