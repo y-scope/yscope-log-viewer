@@ -13,5 +13,4 @@ const SmallIconButton = (props: React.ComponentProps<typeof IconButton>) => (
         {...props}/>
 );
 
-
 export default SmallIconButton;
