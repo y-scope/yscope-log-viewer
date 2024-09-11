@@ -22,7 +22,7 @@ import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
 import MenuBar from "./MenuBar";
-import StatusBar from "./StatusBar/StatusBar";
+import StatusBar from "./StatusBar";
 import monacoTheme from "./theme";
 
 import "./Layout.css";

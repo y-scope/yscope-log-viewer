@@ -6,11 +6,12 @@ import "./index.css";
 
 
 /**
+ * ConfigModal component.
  *
- * @param isOpen.isOpen
- * @param isOpen
- * @param onClose
- * @param isOpen.onClose
+ * @param props The component props.
+ * @param props.isOpen Determines if the modal is open.
+ * @param props.onClose Function to call when the modal is closed.
+ * @return The rendered ConfigModal component.
  */
 const ConfigModal = ({isOpen, onClose}: { isOpen: boolean, onClose: () => void }) => {
     return (

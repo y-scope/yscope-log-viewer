@@ -13,7 +13,8 @@ interface StatusBarProps {
 }
 
 /**
- *
+ * Handles the click event for the "Copy Link" button.
+ * Copies the permalink to the clipboard.
  */
 const handleCopyLinkButtonClick = () => {
     copyPermalinkToClipboard({}, {});
