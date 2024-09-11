@@ -81,8 +81,11 @@ const PageNumInput = () => {
                 slotProps={{input: {ref: inputRef}}}
                 type={"number"}
                 endDecorator={
-                    <Typography>
-                        /
+                    <Typography
+                        className={"page-num-input-num-pages-text"}
+                        level={"body-md"}
+                    >
+                        {"/ "}
                         {numPages}
                     </Typography>
                 }
