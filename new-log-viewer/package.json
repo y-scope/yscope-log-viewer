@@ -7,7 +7,8 @@
     "build": "webpack --config webpack.prod.js",
     "start": "webpack serve --open --config webpack.dev.js",
 
-    "lint": "npm-run-all --sequential --continue-on-error lint:css-check lint:js-check",
+    "lint": "npm run lint:check",
+    "lint:check": "npm-run-all --sequential --continue-on-error lint:css-check lint:js-check",
     "lint:fix": "npm-run-all --sequential --continue-on-error lint:css-fix lint:js-fix",
 
     "lint:css-check": "stylelint src/**/*.css",
