@@ -70,6 +70,7 @@ const EDITOR_ACTIONS : ActionType[] = [
 /* eslint-enable sort-keys */
 
 /**
+ * Handles an action based on the given action name, log event number, and total number of events.
  *
  * @param actionName
  * @param logEventNum
@@ -98,6 +99,7 @@ const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEvents: n
             break;
     }
 };
+
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
