@@ -8,8 +8,6 @@ import MenuBar from "./MenuBar";
 import StatusBar from "./StatusBar";
 import monacoTheme from "./theme";
 
-import "./Layout.css";
-
 
 /**
  * Renders the major layout of the log viewer.
