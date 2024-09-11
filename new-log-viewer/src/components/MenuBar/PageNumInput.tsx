@@ -10,9 +10,13 @@ import Input from "@mui/joy/Input";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 
+import "./PageNumInput.css";
+
 
 /**
+ * Renders a component for inputting page number.
  *
+ * @return
  */
 const PageNumInput = () => {
     const {loadPage, numPages, pageNum} = useContext(StateContext);
@@ -69,6 +73,7 @@ const PageNumInput = () => {
             onSubmit={handleSubmit}
         >
             <Input
+                className={"page-num-input"}
                 size={"sm"}
                 slotProps={{input: {ref: inputRef}}}
                 type={"number"}
@@ -78,12 +83,6 @@ const PageNumInput = () => {
                         {numPages}
                     </Typography>
                 }
-                sx={{
-                    "input::-webkit-outer-spin-button, input::-webkit-inner-spin-button": {
-                        "-webkit-appearance": "none",
-                        "margin": 0,
-                    },
-                }}
                 onBlur={handleBlur}
                 onChange={handleInputChange}
                 onClick={handleInputClick}/>
