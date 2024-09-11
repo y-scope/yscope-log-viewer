@@ -13,6 +13,9 @@ import {StateContext} from "../../contexts/StateContextProvider";
 import "./PageNumInput.css";
 
 
+const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
+
+
 /**
  * Renders a component for inputting page number.
  *
@@ -52,7 +55,7 @@ const PageNumInput = () => {
             return;
         }
         inputRef.current.style.width = "0";
-        inputRef.current.style.width = `${inputRef.current.scrollWidth + 4}px`;
+        inputRef.current.style.width = `${inputRef.current.scrollWidth + PAGE_NUM_INPUT_FIT_EXTRA_WIDTH}px`;
     };
 
     const handleInputChange = () => {
