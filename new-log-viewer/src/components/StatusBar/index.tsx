@@ -1,16 +1,17 @@
+import {useContext} from "react";
+
 import Button from "@mui/joy/Button";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 
-import {copyPermalinkToClipboard} from "../../contexts/UrlContextProvider";
+import {StateContext} from "../../contexts/StateContextProvider";
+import {
+    copyPermalinkToClipboard,
+    UrlContext,
+} from "../../contexts/UrlContextProvider";
 
 import "./index.css";
 
-
-interface StatusBarProps {
-    logEventNum: number | null;
-    numEvents: number | null;
-}
 
 /**
  * Handles the click event for the "Copy Link" button.
@@ -23,12 +24,12 @@ const handleCopyLinkButtonClick = () => {
 /**
  * StatusBar component displays the current log event number and total number of events.
  *
- * @param props The properties object.
- * @param props.logEventNum The current log event number.
- * @param props.numEvents The total number of events.
- * @return The rendered StatusBar component.
+ * @return
  */
-const StatusBar = ({logEventNum, numEvents}: StatusBarProps) => {
+const StatusBar = () => {
+    const {numEvents} = useContext(StateContext);
+    const {logEventNum} = useContext(UrlContext);
+
     return (
         <Sheet className={"status-bar"}>
             <Typography
