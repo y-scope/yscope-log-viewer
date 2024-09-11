@@ -25,12 +25,9 @@ import "./index.css";
 
 
 /**
- * MenuBar component
+ * Renders a menu bar which displays file information and provides navigation and settings buttons.
  *
- * This component renders a menu bar with various navigation and action buttons.
- * It uses context to access the current log event number, file name, and other state information.
- *
- * @return The rendered MenuBar component.
+ * @return
  */
 const MenuBar = () => {
     const {fileName, loadFile} = useContext(StateContext);
