@@ -39,7 +39,6 @@ const StatusBar = () => {
                 Status message
             </Typography>
             <Button
-                className={"status-button"}
                 size={"sm"}
                 onClick={handleCopyLinkButtonClick}
             >
