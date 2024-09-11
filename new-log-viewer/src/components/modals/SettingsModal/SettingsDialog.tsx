@@ -109,11 +109,11 @@ const handleConfigFormSubmit = (ev: React.FormEvent) => {
 };
 
 /**
- * Renders a configuration settings form.
+ * Renders a settings dialog for configurations.
  *
  * @return
  */
-const ConfigDialog = forwardRef<HTMLFormElement>((_, ref) => {
+const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
     const {setMode, mode} = useColorScheme();
 
     return (
@@ -199,6 +199,6 @@ const ConfigDialog = forwardRef<HTMLFormElement>((_, ref) => {
     );
 });
 
-ConfigDialog.displayName = "ConfigDialog";
+SettingsDialog.displayName = "SettingsDialog";
 
-export default ConfigDialog;
+export default SettingsDialog;

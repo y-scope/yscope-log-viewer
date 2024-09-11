@@ -75,14 +75,14 @@ const MenuBar = () => {
                 </SmallIconButton>
                 <Divider orientation={"vertical"}/>
                 <SmallIconButton
-                    onClick={handleSettingsModalClose}
+                    onClick={handleSettingsModalOpen}
                 >
                     <Settings/>
                 </SmallIconButton>
             </Sheet>
             <ConfigModal
                 isOpen={isSettingsModalOpen}
-                onClose={handleSettingsModalOpen}/>
+                onClose={handleSettingsModalClose}/>
         </>
     );
 };

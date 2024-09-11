@@ -1,6 +1,6 @@
 import Modal from "@mui/joy/Modal";
 
-import ConfigDialog from "./ConfigDialog";
+import SettingsDialog from "./SettingsDialog";
 
 import "./index.css";
 
@@ -19,7 +19,7 @@ const ConfigModal = ({isOpen, onClose}: { isOpen: boolean, onClose: () => void }
             open={isOpen}
             onClose={onClose}
         >
-            <ConfigDialog/>
+            <SettingsDialog/>
         </Modal>
     );
 };
