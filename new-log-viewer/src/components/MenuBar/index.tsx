@@ -4,6 +4,7 @@ import React, {
 } from "react";
 
 import {
+    Divider,
     IconButton,
     Sheet,
     Stack,
@@ -18,7 +19,6 @@ import NavigateNext from "@mui/icons-material/NavigateNext";
 import Settings from "@mui/icons-material/Settings";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
-import TipsAndUpdates from "@mui/icons-material/TipsAndUpdates";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {UrlContext} from "../../contexts/UrlContextProvider";
@@ -103,6 +103,7 @@ const MenuBar = () => {
                     </Typography>
                 </Stack>
 
+                <Divider orientation={"vertical"}/>
                 <SmallNavIconButton
                     actionName={ACTION_NAME.FIRST_PAGE}
                     Icon={SkipPrevious}/>
@@ -115,9 +116,12 @@ const MenuBar = () => {
                 <SmallNavIconButton
                     actionName={ACTION_NAME.LAST_PAGE}
                     Icon={SkipNext}/>
+
+                <Divider orientation={"vertical"}/>
                 <SmallIconButton
                     Icon={FileOpenIcon}
                     onClick={handleOpenFileButtonClick}/>
+                <Divider orientation={"vertical"}/>
                 <SmallIconButton
                     Icon={Settings}
                     onClick={() => {
