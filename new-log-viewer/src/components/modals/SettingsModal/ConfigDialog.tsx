@@ -124,7 +124,7 @@ const ConfigDialog = forwardRef<HTMLFormElement>((_, ref) => {
             onSubmit={handleConfigFormSubmit}
         >
             <ModalDialog
-                maxWidth={"lg"}
+                minWidth={"md"}
                 size={"lg"}
             >
                 <DialogTitle className={"settings-modal"}>
