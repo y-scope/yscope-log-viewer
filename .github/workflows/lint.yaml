@@ -2,7 +2,7 @@ name: "lint"
 
 on:
   pull_request:
-    types: ["opened", "reopened"]
+    types: ["opened", "reopened", "synchronize"]
   push:
   schedule:
     # Run at midnight UTC every day with 15 minutes delay added to avoid high load periods
