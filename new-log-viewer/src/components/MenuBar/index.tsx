@@ -35,12 +35,20 @@ import "./index.css";
 const MenuBar = () => {
     const {fileName, loadFile} = useContext(StateContext);
 
-    const [settingsModelOpen, setSettingsModelOpen] = useState<boolean>(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
     const handleOpenFileButtonClick = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
+    };
+
+    const handleSettingsModalClose = () => {
+        setIsSettingsModalOpen(false);
+    };
+
+    const handleSettingsModalOpen = () => {
+        setIsSettingsModalOpen(true);
     };
 
     return (
@@ -67,18 +75,14 @@ const MenuBar = () => {
                 </SmallIconButton>
                 <Divider orientation={"vertical"}/>
                 <SmallIconButton
-                    onClick={() => {
-                        setSettingsModelOpen(true);
-                    }}
+                    onClick={handleSettingsModalClose}
                 >
                     <Settings/>
                 </SmallIconButton>
             </Sheet>
             <ConfigModal
-                isOpen={settingsModelOpen}
-                onClose={() => {
-                    setSettingsModelOpen(false);
-                }}/>
+                isOpen={isSettingsModalOpen}
+                onClose={handleSettingsModalOpen}/>
         </>
     );
 };
