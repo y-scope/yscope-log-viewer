@@ -88,51 +88,53 @@ const MenuBar = () => {
     );
 
     return (
-        <Sheet className={"menu-bar"}>
-            <Stack
-                alignItems={"center"}
-                className={"menu-bar-filename"}
-                direction={"row"}
-                flexGrow={1}
-                gap={0.5}
-            >
-                <Description/>
-                <Typography level={"body-md"}>
-                    {fileName}
-                </Typography>
-            </Stack>
+        <>
+            <Sheet className={"menu-bar"}>
+                <Stack
+                    alignItems={"center"}
+                    className={"menu-bar-filename"}
+                    direction={"row"}
+                    flexGrow={1}
+                    gap={0.5}
+                >
+                    <Description/>
+                    <Typography level={"body-md"}>
+                        {fileName}
+                    </Typography>
+                </Stack>
 
-            <SmallNavIconButton
-                actionName={ACTION_NAME.FIRST_PAGE}
-                Icon={SkipPrevious}/>
-            <SmallNavIconButton
-                actionName={ACTION_NAME.PREV_PAGE}
-                Icon={NavigateBefore}/>
-            <SmallNavIconButton
-                actionName={ACTION_NAME.NEXT_PAGE}
-                Icon={NavigateNext}/>
-            <SmallNavIconButton
-                actionName={ACTION_NAME.LAST_PAGE}
-                Icon={SkipNext}/>
-            <SmallIconButton
-                Icon={FileOpenIcon}
-                onClick={handleOpenFileButtonClick}/>
-            <SmallIconButton
-                Icon={Settings}
-                onClick={() => {
-                    setSettingsModelOpen(true);
-                }}/>
-            <IconButton
-                size={"sm"}
-            >
-                <TipsAndUpdates/>
-            </IconButton>
+                <SmallNavIconButton
+                    actionName={ACTION_NAME.FIRST_PAGE}
+                    Icon={SkipPrevious}/>
+                <SmallNavIconButton
+                    actionName={ACTION_NAME.PREV_PAGE}
+                    Icon={NavigateBefore}/>
+                <SmallNavIconButton
+                    actionName={ACTION_NAME.NEXT_PAGE}
+                    Icon={NavigateNext}/>
+                <SmallNavIconButton
+                    actionName={ACTION_NAME.LAST_PAGE}
+                    Icon={SkipNext}/>
+                <SmallIconButton
+                    Icon={FileOpenIcon}
+                    onClick={handleOpenFileButtonClick}/>
+                <SmallIconButton
+                    Icon={Settings}
+                    onClick={() => {
+                        setSettingsModelOpen(true);
+                    }}/>
+                <IconButton
+                    size={"sm"}
+                >
+                    <TipsAndUpdates/>
+                </IconButton>
+            </Sheet>
             <ConfigModal
                 isOpen={settingsModelOpen}
                 onClose={() => {
                     setSettingsModelOpen(false);
                 }}/>
-        </Sheet>
+        </>
     );
 };
 
