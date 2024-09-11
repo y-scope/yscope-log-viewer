@@ -123,11 +123,6 @@ const MenuBar = () => {
                     onClick={() => {
                         setSettingsModelOpen(true);
                     }}/>
-                <IconButton
-                    size={"sm"}
-                >
-                    <TipsAndUpdates/>
-                </IconButton>
             </Sheet>
             <ConfigModal
                 isOpen={settingsModelOpen}
