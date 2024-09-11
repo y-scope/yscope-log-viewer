@@ -4,47 +4,6 @@
     flex-direction: column;
 }
 
-.menu-bar {
-    display: flex;
-    flexDirection: "row";
-    height: var(--ylv-status-bar-height);
-    alignItems: "center";
-}
-
-.menu-bar-typography {
-    align-items: center;
-    display: flex;
-    flex-grow: 1;
-    gap: 2px;
-}
-
-.settings-modal {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
 .editor {
     height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height));
-}
-
-.status-bar {
-    align-items: center;
-    bottom: 0;
-    display: flex;
-    position: absolute;
-    width: 100%;
-}
-
-.config-form-control {
-    margin-top: 16px;
-}
-
-.status-message {
-    flex-grow: 1;
-}
-
-.status-button {
-    min-height: 0;
 }

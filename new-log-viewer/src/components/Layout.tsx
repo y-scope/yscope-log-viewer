@@ -10,22 +10,19 @@ import * as monaco from "monaco-editor";
 import {CssVarsProvider} from "@mui/joy/styles";
 
 import {StateContext} from "../contexts/StateContextProvider";
-import {
-    copyPermalinkToClipboard,
-    UrlContext,
-} from "../contexts/UrlContextProvider";
+import {UrlContext} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
-import {ACTION_NAME} from "../utils/actions";
+import {
+    ACTION_NAME,
+    handleAction,
+} from "../utils/actions";
 import {CONFIG_DEFAULT} from "../utils/config";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import {goToPositionAndCenter} from "./Editor/MonacoInstance/utils";
-import {
-    handleAction,
-    MenuBar,
-} from "./MenuBar";
-import {StatusBar} from "./StatusBar";
+import MenuBar from "./MenuBar";
+import StatusBar from "./StatusBar/StatusBar";
 import monacoTheme from "./theme";
 
 import "./Layout.css";
@@ -43,9 +40,6 @@ const Layout = () => {
     const logEventNumRef = useRef<Nullable<number>>(logEventNum);
     const numEventsRef = useRef<Nullable<number>>(numEvents);
 
-    const handleCopyLinkButtonClick = () => {
-        copyPermalinkToClipboard({}, {});
-    };
 
     const handleEditorCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
@@ -97,7 +91,6 @@ const Layout = () => {
                     <Editor onCustomAction={handleEditorCustomAction}/>
                 </DropFileContainer>
                 <StatusBar
-                    handleCopyLinkButtonClick={handleCopyLinkButtonClick}
                     logEventNum={logEventNum}
                     numEvents={numEvents}/>
             </CssVarsProvider>

@@ -19,57 +19,28 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 import TipsAndUpdates from "@mui/icons-material/TipsAndUpdates";
 
-import {StateContext} from "../contexts/StateContextProvider";
+import {StateContext} from "../../contexts/StateContextProvider";
+import {UrlContext} from "../../contexts/UrlContextProvider";
+import {CURSOR_CODE} from "../../typings/worker";
 import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../contexts/UrlContextProvider";
-import {CONFIG_KEY} from "../typings/config";
-import {CURSOR_CODE} from "../typings/worker";
-import {ACTION_NAME} from "../utils/actions";
-import {getConfig} from "../utils/config";
-import {openFile} from "../utils/file";
-import {
-    getFirstItemNumInNextChunk,
-    getLastItemNumInPrevChunk,
-} from "../utils/math";
-import ConfigModal from "./modals/SettingsModal";
+    ACTION_NAME,
+    handleAction,
+} from "../../utils/actions";
+import {openFile} from "../../utils/file";
+import ConfigModal from "../modals/SettingsModal";
+
+import "./index.css";
 
 
 /**
+ * MenuBar component
  *
- * @param actionName
- * @param logEventNum
- * @param numEvents
- */
-export const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEvents: number) => {
-    const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
-    switch (actionName) {
-        case ACTION_NAME.FIRST_PAGE:
-            updateWindowUrlHashParams({logEventNum: 1});
-            break;
-        case ACTION_NAME.PREV_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getLastItemNumInPrevChunk(logEventNum, pageSize),
-            });
-            break;
-        case ACTION_NAME.NEXT_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getFirstItemNumInNextChunk(logEventNum, pageSize),
-            });
-            break;
-        case ACTION_NAME.LAST_PAGE:
-            updateWindowUrlHashParams({logEventNum: numEvents});
-            break;
-        default:
-            break;
-    }
-};
-
-/**
+ * This component renders a menu bar with various navigation and action buttons.
+ * It uses context to access the current log event number, file name, and other state information.
  *
+ * @return The rendered MenuBar component.
  */
-export const MenuBar = () => {
+const MenuBar = () => {
     const {logEventNum} = useContext(UrlContext);
     const {fileName, loadFile, numEvents} = useContext(StateContext);
 
@@ -155,3 +126,5 @@ export const MenuBar = () => {
         </Sheet>
     );
 };
+
+export default MenuBar;

@@ -1,0 +1,10 @@
+.settings-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.config-form-control {
+    margin-top: 16px;
+}

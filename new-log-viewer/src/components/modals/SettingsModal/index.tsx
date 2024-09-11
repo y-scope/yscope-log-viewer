@@ -2,6 +2,8 @@ import Modal from "@mui/joy/Modal";
 
 import ConfigDialog from "./ConfigDialog";
 
+import "./index.css";
+
 
 /**
  *

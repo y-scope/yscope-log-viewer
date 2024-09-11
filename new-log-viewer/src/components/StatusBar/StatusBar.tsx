@@ -1,17 +1,33 @@
-import React from "react";
-
 import Button from "@mui/joy/Button";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 
+import {copyPermalinkToClipboard} from "../../contexts/UrlContextProvider";
+
+import "./index.css";
+
 
 interface StatusBarProps {
-    handleCopyLinkButtonClick: () => void;
     logEventNum: number | null;
     numEvents: number | null;
 }
 
-const StatusBar = ({handleCopyLinkButtonClick, logEventNum, numEvents}: StatusBarProps) => {
+/**
+ *
+ */
+const handleCopyLinkButtonClick = () => {
+    copyPermalinkToClipboard({}, {});
+};
+
+/**
+ * StatusBar component displays the current log event number and total number of events.
+ *
+ * @param props The properties object.
+ * @param props.logEventNum The current log event number.
+ * @param props.numEvents The total number of events.
+ * @return The rendered StatusBar component.
+ */
+const StatusBar = ({logEventNum, numEvents}: StatusBarProps) => {
     return (
         <Sheet className={"status-bar"}>
             <Typography
@@ -36,3 +52,5 @@ const StatusBar = ({handleCopyLinkButtonClick, logEventNum, numEvents}: StatusBa
         </Sheet>
     );
 };
+
+export default StatusBar;

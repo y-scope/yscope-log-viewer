@@ -13,3 +13,4 @@ root.render(
         <App/>
     </StrictMode>
 );
+export {handleAction} from "./utils/actions";

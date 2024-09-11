@@ -171,14 +171,9 @@ const ConfigDialog = forwardRef<HTMLFormElement>((_, ref) => {
                                 {field.label}
                             </FormLabel>
                             <Input
-                                slotProps={{
-                                    input: {
-                                        defaultValue: field.initialValue,
-                                        name: field.name,
-                                        size: 100,
-                                        type: field.type,
-                                    },
-                                }}/>
+                                defaultValue={field.initialValue}
+                                name={field.name}
+                                type={field.type}/>
                             <FormHelperText>
                                 {field.helperText}
                             </FormHelperText>

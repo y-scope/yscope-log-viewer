@@ -1,0 +1,13 @@
+.menu-bar {
+    display: flex;
+    flexDirection: "row";
+    height: var(--ylv-status-bar-height);
+    alignItems: "center";
+}
+
+.menu-bar-typography {
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+    gap: 2px;
+}
