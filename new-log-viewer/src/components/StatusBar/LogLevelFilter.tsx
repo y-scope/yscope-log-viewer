@@ -41,8 +41,6 @@ export default function LogLevelFilter () {
             multiple
             value={selectedLogLevels.map(String)}
             sx={{minWidth: "13rem"}}
-            onChange={handleChange}
-
             slotProps={{
                 listbox: {
                     sx: {
@@ -50,6 +48,7 @@ export default function LogLevelFilter () {
                     },
                 },
             }}
+            onChange={handleChange}
         >
             {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
                 <Option
