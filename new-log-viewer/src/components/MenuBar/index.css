@@ -1,0 +1,6 @@
+.menu-bar {
+    display: flex;
+    flex-direction: row;
+    height: var(--ylv-status-bar-height);
+    align-items: center;
+}
