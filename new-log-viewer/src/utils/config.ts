@@ -31,7 +31,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
  * @param props.key
  * @param props.value
  * @return `null` if the value is valid, or an error message otherwise.
- * @throws {Error} If the config item should not be handled by the config utilities.
+ * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
