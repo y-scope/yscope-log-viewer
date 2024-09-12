@@ -126,6 +126,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
