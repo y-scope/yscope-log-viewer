@@ -102,7 +102,7 @@ const MonacoInstance = ({
         onMount,
     ]);
 
-    // On `themeName` update, set theme in the editor.
+    // On `themeName` update, set the theme in the editor.
     useEffect(() => {
         monaco.editor.setTheme(themeName);
     }, [themeName]);
