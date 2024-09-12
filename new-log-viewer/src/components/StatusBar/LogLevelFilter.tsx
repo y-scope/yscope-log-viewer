@@ -41,6 +41,7 @@ export default function LogLevelFilter () {
             // Convert selected log levels to strings for value.
             multiple
             value={selectedLogLevels.map(String)}
+            onChange={handleChange}
             slotProps={{
                 listbox: {
                     sx: {
@@ -49,12 +50,12 @@ export default function LogLevelFilter () {
                 },
             }}
             sx={{minWidth: "13rem"}}
-            onChange={handleChange}
         >
             {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
                 <Option
                     key={logLevelName}
-                    value={index.toString()} // Use index as value
+                    // Use index as value.
+                    value={index.toString()}
                 >
                     {logLevelName}
                 </Option>
