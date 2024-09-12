@@ -52,6 +52,7 @@ interface StateContextType {
 
     changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (newPageNum: number) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -72,6 +73,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 
     changeLogLevelFilter: () => null,
     loadFile: () => null,
+    loadPage: () => null,
 });
 
 interface StateContextProviderProps {
@@ -140,6 +142,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
@@ -224,6 +227,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
+
     const changeLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
@@ -232,6 +236,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.CHANGE_FILTER, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
             logLevelFilter: newLogLevelFilter,
+         });
+     };
+          
+
+    const loadPage = (newPageNum: number) => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
+            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
         });
     };
 
@@ -252,6 +267,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+
         if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
             0 === firstLogEventNumPerPage.current.length) {
             return;
@@ -276,9 +292,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
                 // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
-                workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-                    cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                });
+                loadPage(newPageNum);
             }
         }
 
@@ -325,9 +339,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numFilteredEvents: numFilteredEvents.current,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
-
                 changeLogLevelFilter: changeLogLevelFilter,
                 loadFile: loadFile,
+                loadPage: loadPage,
             }}
         >
             {children}

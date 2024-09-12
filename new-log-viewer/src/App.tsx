@@ -10,13 +10,11 @@ import UrlContextProvider from "./contexts/UrlContextProvider";
  */
 const App = () => {
     return (
-        <>
-            <UrlContextProvider>
-                <StateContextProvider>
-                    <Layout/>
-                </StateContextProvider>
-            </UrlContextProvider>
-        </>
+        <UrlContextProvider>
+            <StateContextProvider>
+                <Layout/>
+            </StateContextProvider>
+        </UrlContextProvider>
     );
 };
 

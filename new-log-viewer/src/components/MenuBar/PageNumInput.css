@@ -1,0 +1,9 @@
+.page-num-input input::-webkit-outer-spin-button,
+.page-num-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.page-num-input-num-pages-text {
+    font-size: inherit !important;
+}

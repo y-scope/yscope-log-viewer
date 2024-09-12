@@ -1,0 +1,3 @@
+.editor {
+    height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height));
+}
