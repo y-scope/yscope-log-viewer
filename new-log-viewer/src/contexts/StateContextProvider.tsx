@@ -322,17 +322,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
-                fileName: fileName,
                 changeLogLevelFilter: changeLogLevelFilter,
+                fileName: fileName,
                 firstLogEventNumPerPage: firstLogEventNumPerPage.current,
                 lastLogEventNumPerPage: lastLogEventNumPerPage.current,
+                loadFile: loadFile,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,
                 numFilteredEvents: numFilteredEvents.current,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
-                loadFile: loadFile,
                 loadPage: loadPage,
             }}
         >
