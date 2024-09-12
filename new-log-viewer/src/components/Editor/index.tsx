@@ -8,6 +8,8 @@ import {
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import {useColorScheme} from "@mui/joy";
+
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
     updateWindowUrlHashParams,
@@ -42,6 +44,8 @@ import "./index.css";
  * @return
  */
 const Editor = () => {
+    const {mode, systemMode} = useColorScheme();
+
     const {beginLineNumToLogEventNum, logData, numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -185,6 +189,10 @@ const Editor = () => {
         beginLineNumToLogEventNum,
     ]);
 
+    const themeName = (("system" === mode) ?
+        systemMode :
+        mode) ?? "dark";
+
     return (
         <div className={"editor"}>
             <MonacoInstance
@@ -192,6 +200,7 @@ const Editor = () => {
                 beforeTextUpdate={resetCachedPageSize}
                 lineNum={lineNum}
                 text={logData}
+                themeName={themeName}
                 onCursorExplicitPosChange={handleCursorExplicitPosChange}
                 onCustomAction={handleEditorCustomAction}
                 onMount={handleMount}
