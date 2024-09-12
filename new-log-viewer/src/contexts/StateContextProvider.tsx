@@ -245,7 +245,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadPage = (newPageNum: number) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
-        
+
             return;
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
