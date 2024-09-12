@@ -15,8 +15,8 @@ import FormLabel from "@mui/joy/FormLabel/FormLabel";
 import Input from "@mui/joy/Input";
 import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
-import DarkMode from "@mui/icons-material/DarkMode";
-import LightMode from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
 import {Nullable} from "../../../typings/common";
@@ -65,7 +65,7 @@ const CONFIG_FORM_FIELDS = [
 /**
  * Handles the reset event for the configuration form.
  *
- * @param ev The form event triggered by the reset action.
+ * @param ev
  */
 const handleConfigFormReset = (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -76,7 +76,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 /**
  * Handles the submit event for the configuration form.
  *
- * @param ev The form event triggered by the submit action.
+ * @param ev
  */
 const handleConfigFormSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -142,7 +142,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                         }}
                     >
                         <Button
-                            startDecorator={<LightMode/>}
+                            startDecorator={<LightModeIcon/>}
                             value={THEME_NAME.LIGHT}
                         >
                             Light
@@ -154,7 +154,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                             System
                         </Button>
                         <Button
-                            startDecorator={<DarkMode/>}
+                            startDecorator={<DarkModeIcon/>}
                             value={THEME_NAME.DARK}
                         >
                             Dark
