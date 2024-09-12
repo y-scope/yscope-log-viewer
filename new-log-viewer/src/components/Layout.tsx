@@ -6,7 +6,7 @@ import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import MenuBar from "./MenuBar";
 import StatusBar from "./StatusBar";
-import monacoTheme from "./theme";
+import APP_THEME from "./theme";
 
 
 /**
@@ -19,7 +19,7 @@ const Layout = () => {
         <CssVarsProvider
             defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
             modeStorageKey={CONFIG_KEY.THEME}
-            theme={monacoTheme}
+            theme={APP_THEME}
         >
             <div className={"layout"}>
                 <MenuBar/>

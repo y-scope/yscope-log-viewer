@@ -3,7 +3,7 @@ import {extendTheme} from "@mui/joy/styles";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 
 
-const monacoTheme = extendTheme({
+const APP_THEME = extendTheme({
     colorSchemes: {
         light: {
             palette: {
@@ -85,4 +85,4 @@ const monacoTheme = extendTheme({
     },
 });
 
-export default monacoTheme;
+export default APP_THEME;
