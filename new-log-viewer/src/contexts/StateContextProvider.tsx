@@ -327,13 +327,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 firstLogEventNumPerPage: firstLogEventNumPerPage.current,
                 lastLogEventNumPerPage: lastLogEventNumPerPage.current,
                 loadFile: loadFile,
+                loadPage: loadPage,
                 logData: logData,
                 logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,
                 numFilteredEvents: numFilteredEvents.current,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
-                loadPage: loadPage,
             }}
         >
             {children}
