@@ -39,8 +39,8 @@ export default function LogLevelFilter () {
 
             // Convert selected log levels to strings for value.
             multiple
-            value={selectedLogLevels.map(String)}
             sx={{minWidth: "13rem"}}
+            value={selectedLogLevels.map(String)}
             slotProps={{
                 listbox: {
                     sx: {
