@@ -25,14 +25,13 @@ export default function LogLevelFilter () {
         event: React.SyntheticEvent | null,
         newValue: Array<string> | null
     ) => {
-    // convert strings to numbers.
+        // convert strings to numbers.
         const selected: LOG_LEVEL[] = newValue ?
             newValue.map((value) => Number(value)) :
             [];
 
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
-        console.log(`You have chosen "${selected}"`);
     };
 
     return (
@@ -41,6 +40,8 @@ export default function LogLevelFilter () {
             // Convert selected log levels to strings for value.
             multiple
             value={selectedLogLevels.map(String)}
+            sx={{minWidth: "13rem"}}
+            onChange={handleChange}
 
             slotProps={{
                 listbox: {
@@ -49,8 +50,6 @@ export default function LogLevelFilter () {
                     },
                 },
             }}
-            sx={{minWidth: "13rem"}}
-            onChange={handleChange}
         >
             {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
                 <Option
