@@ -13,6 +13,7 @@ import {
     LOG_LEVEL_VALUES_LIST,
 } from "../../typings/logs";
 
+
 /**
  * Renders log level filter
  *
