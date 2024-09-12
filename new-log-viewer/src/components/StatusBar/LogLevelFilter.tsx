@@ -1,6 +1,6 @@
 import React, {
     useContext,
-    useState
+    useState,
 } from "react";
 
 import Option from "@mui/joy/Option";
@@ -10,7 +10,7 @@ import {StateContext} from "../../contexts/StateContextProvider";
 import {
     LOG_LEVEL,
     LOG_LEVEL_NAMES_LIST,
-    LOG_LEVEL_VALUES_LIST
+    LOG_LEVEL_VALUES_LIST,
 } from "../../typings/logs";
 
 
@@ -21,6 +21,12 @@ export default function LogLevelFilter () {
 
     const {changeLogLevelFilter} = useContext(StateContext);
 
+    /**
+     * Handles changes in the selection of log levels.
+     *
+     * @param event The synthetic event triggered by the selection change.
+     * @param newValue An array of selected values
+     */
     const handleChange = (
         event: React.SyntheticEvent | null,
         newValue: Array<string> | null
