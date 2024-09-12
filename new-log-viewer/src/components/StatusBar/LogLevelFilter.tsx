@@ -1,4 +1,7 @@
-import React, {useContext, useState} from "react";
+import React, {
+    useContext,
+    useState
+} from "react";
 
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -9,6 +12,7 @@ import {
     LOG_LEVEL_NAMES_LIST,
     LOG_LEVEL_VALUES_LIST
 } from "../../typings/logs";
+
 
 export default function LogLevelFilter () {
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([
@@ -23,7 +27,7 @@ export default function LogLevelFilter () {
     ) => {
     // convert strings to numbers.
         const selected: LOG_LEVEL[] = newValue ?
-            newValue.map((value) => Number(value)):
+            newValue.map((value) => Number(value)) :
             [];
 
         setSelectedLogLevels(selected);
@@ -33,10 +37,10 @@ export default function LogLevelFilter () {
 
     return (
         <Select
+
             // Convert selected log levels to strings for value.
             multiple
             value={selectedLogLevels.map(String)}
-            sx={{minWidth: "13rem"}}
             slotProps={{
                 listbox: {
                     sx: {
@@ -44,6 +48,7 @@ export default function LogLevelFilter () {
                     },
                 },
             }}
+            sx={{minWidth: "13rem"}}
             onChange={handleChange}
         >
             {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
