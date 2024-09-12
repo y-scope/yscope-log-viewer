@@ -38,7 +38,7 @@ const StatusBar = () => {
             >
                 Status message
             </Typography>
-            <LogLevelFilter />
+            <LogLevelFilter/>
             <Button
                 size={"sm"}
                 onClick={handleCopyLinkButtonClick}

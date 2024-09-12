@@ -32,7 +32,7 @@ export default function LogLevelFilter () {
 
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
-        console.log(`You have chosen "${newValue}"`);
+        console.log(`You have chosen "${selected}"`);
     };
 
     return (
@@ -41,7 +41,7 @@ export default function LogLevelFilter () {
             // Convert selected log levels to strings for value.
             multiple
             value={selectedLogLevels.map(String)}
-            onChange={handleChange}
+
             slotProps={{
                 listbox: {
                     sx: {
@@ -50,10 +50,12 @@ export default function LogLevelFilter () {
                 },
             }}
             sx={{minWidth: "13rem"}}
+            onChange={handleChange}
         >
             {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
                 <Option
                     key={logLevelName}
+
                     // Use index as value.
                     value={index.toString()}
                 >

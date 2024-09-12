@@ -8,6 +8,7 @@ import MenuBar from "./MenuBar";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
+
 /**
  * Renders the major layout of the log viewer.
  *
