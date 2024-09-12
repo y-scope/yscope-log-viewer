@@ -31,6 +31,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
  * @param props.key
  * @param props.value
  * @return `null` if the value is valid, or an error message otherwise.
+ * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
@@ -41,7 +42,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             }
             break;
         case CONFIG_KEY.THEME:
-            throw new Error(`${key} should be handled by JoyUI instead.`);
+            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
@@ -61,6 +62,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  * @param props.key
  * @param props.value
  * @return `null` if the update succeeds, or an error message otherwise.
+ * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     const error = testConfig({key, value} as ConfigUpdate);
@@ -86,7 +88,7 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             );
             break;
         case CONFIG_KEY.THEME:
-            throw new Error(`${key} should be handled by JoyUI instead.`);
+            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
             break;
@@ -101,6 +103,7 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  *
  * @param key
  * @return The value.
+ * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
     let value = null;
@@ -121,7 +124,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
             } as DecoderOptionsType;
             break;
         case CONFIG_KEY.THEME:
-            throw new Error(`${key} should be handled by JoyUI instead.`);
+            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
             break;
