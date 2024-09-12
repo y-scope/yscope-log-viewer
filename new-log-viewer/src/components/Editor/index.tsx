@@ -42,6 +42,20 @@ import "./index.css";
 
 
 /**
+ * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
+ * will be restored when {@link restoreCachedPageSize} is called.
+ */
+const resetCachedPageSize = () => {
+    const error = setConfig(
+        {key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]}
+    );
+
+    if (null !== error) {
+        console.error(`Unexpected error returned by setConfig(): ${error}`);
+    }
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
@@ -105,20 +119,6 @@ const Editor = () => {
         editor.onMouseUp(() => {
             isMouseDownRef.current = false;
         });
-    }, []);
-
-    /**
-     * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
-     * will be restored when {@link restoreCachedPageSize} is called.
-     */
-    const resetCachedPageSize = useCallback(() => {
-        const error = setConfig(
-            {key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]}
-        );
-
-        if (null !== error) {
-            console.error(`Unexpected error returned by setConfig(): ${error}`);
-        }
     }, []);
 
     /**
@@ -192,10 +192,6 @@ const Editor = () => {
         beginLineNumToLogEventNum,
     ]);
 
-    const themeName = (("system" === mode) ?
-        systemMode :
-        mode) ?? THEME_NAME.DARK;
-
     return (
         <div className={"editor"}>
             <MonacoInstance
@@ -203,7 +199,9 @@ const Editor = () => {
                 beforeTextUpdate={resetCachedPageSize}
                 lineNum={lineNum}
                 text={logData}
-                themeName={themeName}
+                themeName={(("system" === mode) ?
+                    systemMode :
+                    mode) ?? THEME_NAME.DARK}
                 onCursorExplicitPosChange={handleCursorExplicitPosChange}
                 onCustomAction={handleEditorCustomAction}
                 onMount={handleMount}
