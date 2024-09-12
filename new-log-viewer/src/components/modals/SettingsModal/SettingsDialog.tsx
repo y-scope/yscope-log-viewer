@@ -127,11 +127,8 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                 minWidth={"md"}
                 size={"lg"}
             >
-                <DialogTitle className={"settings-modal"}>
-                    <span
-                        style={{flexGrow: 1,
-                            fontSize: "2rem"}}
-                    >
+                <DialogTitle className={"settings-dialog-title"}>
+                    <span className={"settings-dialog-title-text"}>
                         Settings
                     </span>
                     <ToggleButtonGroup
