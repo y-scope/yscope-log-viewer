@@ -16,7 +16,10 @@ import {
     UrlContext,
 } from "../../contexts/UrlContextProvider";
 import {Nullable} from "../../typings/common";
-import {CONFIG_KEY} from "../../typings/config";
+import {
+    CONFIG_KEY,
+    THEME_NAME,
+} from "../../typings/config";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -191,7 +194,7 @@ const Editor = () => {
 
     const themeName = (("system" === mode) ?
         systemMode :
-        mode) ?? "dark";
+        mode) ?? THEME_NAME.DARK;
 
     return (
         <div className={"editor"}>

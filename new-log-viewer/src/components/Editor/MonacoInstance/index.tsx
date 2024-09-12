@@ -26,7 +26,7 @@ interface MonacoEditorProps {
     actions: ActionType[],
     lineNum: number,
     text: string,
-    themeName: string,
+    themeName: "dark" | "light",
 
     beforeMount?: BeforeMountCallback,
     beforeTextUpdate?: BeforeTextUpdateCallback,
