@@ -199,6 +199,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numFilteredEvents.current = args.numFilteredEvents;
                 firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
                 lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
+                numPagesRef.current =
+                    getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -238,7 +240,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             logLevelFilter: newLogLevelFilter,
          });
      };
-          
+
 
     const loadPage = (newPageNum: number) => {
         if (null === mainWorkerRef.current) {
@@ -255,19 +257,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // On `numEvents` update, recalculate `numPagesRef`.
-    useEffect(() => {
-        if (STATE_DEFAULT.numFilteredEvents === numFilteredEvents.current) {
-            return;
-        }
-
-        numPagesRef.current =
-            getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
-    }, [numFilteredEvents]);
-
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-
         if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
             0 === firstLogEventNumPerPage.current.length) {
             return;
