@@ -13,8 +13,12 @@ import {
     LOG_LEVEL_VALUES_LIST,
 } from "../../typings/logs";
 
-
-export default function LogLevelFilter () {
+/**
+ * Renders log level filter
+ *
+ * @return
+ */
+const LogLevelFilter = () => {
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([
         ...LOG_LEVEL_VALUES_LIST,
     ]);
@@ -44,7 +48,7 @@ export default function LogLevelFilter () {
         <Select
 
             // Convert selected log levels to strings for value.
-            multiple
+            multiple={true}
             sx={{minWidth: "13rem"}}
             value={selectedLogLevels.map(String)}
             slotProps={{
@@ -68,4 +72,6 @@ export default function LogLevelFilter () {
             ))}
         </Select>
     );
-}
+};
+
+export default LogLevelFilter;

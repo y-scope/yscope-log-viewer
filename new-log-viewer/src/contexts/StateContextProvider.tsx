@@ -244,6 +244,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const loadPage = (newPageNum: number) => {
         if (null === mainWorkerRef.current) {
+            
             console.error("Unexpected null mainWorkerRef.current");
             return;
         }
@@ -322,6 +323,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
+                changeLogLevelFilter: changeLogLevelFilter,
                 firstLogEventNumPerPage: firstLogEventNumPerPage.current,
                 lastLogEventNumPerPage: lastLogEventNumPerPage.current,
                 logData: logData,
@@ -330,7 +332,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numFilteredEvents: numFilteredEvents.current,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
-                changeLogLevelFilter: changeLogLevelFilter,
                 loadFile: loadFile,
                 loadPage: loadPage,
             }}
