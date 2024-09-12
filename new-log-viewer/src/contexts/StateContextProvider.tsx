@@ -238,8 +238,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.CHANGE_FILTER, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
             logLevelFilter: newLogLevelFilter,
-         });
-     };
+        });
+    };
 
 
     const loadPage = (newPageNum: number) => {
