@@ -17,7 +17,7 @@ import Settings from "@mui/icons-material/Settings";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
-import ConfigModal from "../modals/SettingsModal";
+import SettingsModal from "../modals/SettingsModal";
 import NavigationBar from "./NavigationBar";
 import SmallIconButton from "./SmallIconButton";
 
@@ -77,7 +77,7 @@ const MenuBar = () => {
                     <Settings/>
                 </SmallIconButton>
             </Sheet>
-            <ConfigModal
+            <SettingsModal
                 isOpen={isSettingsModalOpen}
                 onClose={handleSettingsModalClose}/>
         </>

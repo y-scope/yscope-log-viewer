@@ -5,15 +5,20 @@ import SettingsDialog from "./SettingsDialog";
 import "./index.css";
 
 
+interface SettingsModalProps {
+    isOpen: boolean,
+    onClose: () => void
+}
+
 /**
- * ConfigModal component.
+ * Renders a modal for setting configurations.
  *
- * @param props The component props.
- * @param props.isOpen Determines if the modal is open.
- * @param props.onClose Function to call when the modal is closed.
- * @return The rendered ConfigModal component.
+ * @param props
+ * @param props.isOpen
+ * @param props.onClose
+ * @return
  */
-const ConfigModal = ({isOpen, onClose}: { isOpen: boolean, onClose: () => void }) => {
+const SettingsModal = ({isOpen, onClose}: SettingsModalProps) => {
     return (
         <Modal
             open={isOpen}
@@ -24,4 +29,4 @@ const ConfigModal = ({isOpen, onClose}: { isOpen: boolean, onClose: () => void }
     );
 };
 
-export default ConfigModal;
+export default SettingsModal;
