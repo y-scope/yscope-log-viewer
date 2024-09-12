@@ -9,6 +9,7 @@ import {
     copyPermalinkToClipboard,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
+import LogLevelFilter from "./LogLevelFilter";
 
 import "./index.css";
 
@@ -37,6 +38,7 @@ const StatusBar = () => {
             >
                 Status message
             </Typography>
+            <LogLevelFilter />
             <Button
                 size={"sm"}
                 onClick={handleCopyLinkButtonClick}
