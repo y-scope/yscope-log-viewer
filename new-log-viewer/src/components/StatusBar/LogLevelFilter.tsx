@@ -1,18 +1,18 @@
-import React, {
+import {
     useContext,
     useState,
 } from "react";
 
-import Select, { SelectStaticProps } from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-import IconButton from '@mui/joy/IconButton';
-import CloseRounded from '@mui/icons-material/CloseRounded';
+import IconButton from "@mui/joy/IconButton";
+import Option from "@mui/joy/Option";
+import Select, {SelectStaticProps} from "@mui/joy/Select";
+
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
-    LOG_LEVEL,
-    LogLevelFilter,
     LOG_LEVEL_NAMES_LIST,
+    LogLevelFilter,
 } from "../../typings/logs";
 
 
@@ -22,9 +22,10 @@ import {
  * @return
  */
 const LogLevelSelect = () => {
-    const [selectedLogLevels, setSelectedLogLevels] = useState<LogLevelFilter>(null);
+    const [selectedLogLevels, setSelectedLogLevels] =
+    useState<LogLevelFilter>(null);
     const {changeLogLevelFilter} = useContext(StateContext);
-    const action: SelectStaticProps['action'] = React.useRef(null);
+    const action: SelectStaticProps["action"] = React.useRef(null);
 
     /**
      * Handles changes in the selection of log levels.
@@ -36,9 +37,9 @@ const LogLevelSelect = () => {
         event: React.SyntheticEvent | null,
         newValue: Array<string> | null
     ) => {
-        // convert strings to numbers.
-        const selected: LogLevelFilter = newValue &&
-            newValue.map((value) => Number(value));
+    // convert strings to numbers.
+        const selected: LogLevelFilter =
+      newValue && newValue.map((value) => Number(value));
 
         console.log(newValue);
 
@@ -50,18 +51,16 @@ const LogLevelSelect = () => {
         <Select
             action={action}
             multiple={true}
-            placeholder="Filter Verbosity"
+            placeholder={"Filter Verbosity"}
             size={"sm"}
-            sx={{
-                borderRadius: 0,
-                minWidth: "8rem"
-            }}
+
+            // Convert selected log levels to strings for value.
+            value={selectedLogLevels?.map(String) || []}
+
             // It would be nice for variant=solid; however, JoyUI appears to have
             // where selected values are not highlighted with variant=solid
             // There may be workarounds for this, but left as variant=plain for now.
-            variant="plain"
-            // Convert selected log levels to strings for value.
-            value={selectedLogLevels?.map(String) || []}
+            variant={"plain"}
             slotProps={{
                 listbox: {
                     sx: {
@@ -69,27 +68,32 @@ const LogLevelSelect = () => {
                     },
                 },
             }}
+            sx={{
+                borderRadius: 0,
+                minWidth: "8rem",
+            }}
+
             // The following code is responsible for the clear action "x" on
             // select element
             {...(selectedLogLevels && {
                 // display the button and remove select indicator
                 // when user has selected a value
                 endDecorator: (
-                <IconButton
-                    variant="plain"
-                    sx={{ color: 'white' }}
-                    onMouseDown={(event) => {
-                    // Don't open the popup when clicking on this button
-                    event.stopPropagation();
-                    }}
-                    onClick={() => {
-                    //reset log levels to null
-                    handleChange(null,null);
-                    action.current?.focusVisible();
-                    }}
-                >
-                    <CloseRounded />
-                </IconButton>
+                    <IconButton
+                        sx={{color: "white"}}
+                        variant={"plain"}
+                        onClick={() => {
+                            // Reset log levels to null.
+                            handleChange(null, null);
+                            action.current?.focusVisible();
+                        }}
+                        onMouseDown={(event) => {
+                            // Don't open the popup when clicking on this button.
+                            event.stopPropagation();
+                        }}
+                    >
+                        <CloseRounded/>
+                    </IconButton>
                 ),
                 indicator: null,
             })}

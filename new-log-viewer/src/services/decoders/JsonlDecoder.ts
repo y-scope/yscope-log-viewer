@@ -99,6 +99,7 @@ class JsonlDecoder implements Decoder {
 
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         this.#filterLogs(logLevelFilter);
+
         return true;
     }
 
@@ -203,8 +204,9 @@ class JsonlDecoder implements Decoder {
     #filterLogs (logLevelFilter: LogLevelFilter) {
         this.#filteredLogIndices.length = 0;
 
-        if (!logLevelFilter || logLevelFilter.length === 0) {
+        if (!logLevelFilter || 0 === logLevelFilter.length) {
             this.#filteredLogIndices = createIndicesArray(this.#logEvents.length);
+
             return;
         }
 
