@@ -68,7 +68,7 @@ const EDITOR_ACTIONS: ActionType[] = [
 /* eslint-enable sort-keys */
 
 /**
- * Handles an action based on the given action name, log event number, and total number of events.
+ * Handles an action based on the given action name.
  *
  * @param actionName
  * @param pageNum
