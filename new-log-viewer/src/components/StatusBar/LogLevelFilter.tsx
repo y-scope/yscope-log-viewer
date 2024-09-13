@@ -1,5 +1,6 @@
-import {
+import React, {
     useContext,
+    useRef,
     useState,
 } from "react";
 
@@ -25,7 +26,7 @@ const LogLevelSelect = () => {
     const [selectedLogLevels, setSelectedLogLevels] =
     useState<LogLevelFilter>(null);
     const {changeLogLevelFilter} = useContext(StateContext);
-    const action: SelectStaticProps["action"] = React.useRef(null);
+    const action: SelectStaticProps["action"] = useRef(null);
 
     /**
      * Handles changes in the selection of log levels.
@@ -88,7 +89,7 @@ const LogLevelSelect = () => {
                             action.current?.focusVisible();
                         }}
                         onMouseDown={(event) => {
-                            // Don't open the popup when clicking on this button.
+                            // Don't open the popup when clicking on this button
                             event.stopPropagation();
                         }}
                     >
