@@ -21,11 +21,6 @@ concurrency:
 jobs:
   lint-check:
     runs-on: "ubuntu-latest"
-    permissions:
-      # So `eslint-annotate-action` can create / update status checks
-      checks: "write"
-      # So `eslint-annotate-action` can get pull request files
-      contents: "read"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -35,10 +30,3 @@ jobs:
           node-version: 22
       - run: "npm --prefix new-log-viewer/ clean-install"
       - run: "npm --prefix new-log-viewer/ run lint:ci"
-        continue-on-error: true
-      - uses: "ataylorme/eslint-annotate-action@v3"
-        with:
-          fail-on-error: true
-          fail-on-warning: true
-          only-pr-files: true
-          report-json: "./new-log-viewer/eslint-report.json"
