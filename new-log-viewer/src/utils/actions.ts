@@ -82,26 +82,26 @@ const handleAction = (
     loadPage: (newPageNum: number) => void,
 ) => {
     const safeCurrentPage = pageNum ?? 1;
+    let newPage: number = safeCurrentPage;
     switch (actionName) {
         case ACTION_NAME.FIRST_PAGE:
-            loadPage(1);
+            newPage = 1;
             break;
         case ACTION_NAME.PREV_PAGE: {
-            const prevPage = clamp(safeCurrentPage - 1, 1, numPages);
-            loadPage(prevPage);
+            newPage = clamp(safeCurrentPage - 1, 1, numPages);
             break;
         }
         case ACTION_NAME.NEXT_PAGE: {
-            const nextPage = clamp(safeCurrentPage + 1, 1, numPages);
-            loadPage(nextPage);
+            newPage = clamp(safeCurrentPage + 1, 1, numPages);
             break;
         }
         case ACTION_NAME.LAST_PAGE:
-            loadPage(numPages);
+            newPage = numPages;
             break;
         default:
             break;
     }
+    loadPage(newPage);
 };
 
 export {

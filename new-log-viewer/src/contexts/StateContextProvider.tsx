@@ -239,6 +239,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
             logLevelFilter: newLogLevelFilter,
         });
+
+        pageNumRef.current = 1;
     };
 
 
@@ -251,6 +253,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
         });
+
+        pageNumRef.current = newPageNum;
     };
 
     // Synchronize `logEventNumRef` with `logEventNum`.
@@ -287,8 +291,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadPage(newPageNum);
             }
         }
-
-        pageNumRef.current = newPageNum;
     }, [
         numEvents,
         logEventNum,
