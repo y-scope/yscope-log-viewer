@@ -6,7 +6,6 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {UrlContext} from "../../contexts/UrlContextProvider";
 import {
     ACTION_NAME,
     handleAction,
