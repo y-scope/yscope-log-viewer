@@ -56,7 +56,7 @@ const PageNumInput = () => {
         }
         inputRef.current.style.width = "0";
         inputRef.current.style.width =
-         `${inputRef.current.scrollWidth + PAGE_NUM_INPUT_FIT_EXTRA_WIDTH}px`;
+            `${inputRef.current.scrollWidth + PAGE_NUM_INPUT_FIT_EXTRA_WIDTH}px`;
     };
 
     const handleInputChange = () => {

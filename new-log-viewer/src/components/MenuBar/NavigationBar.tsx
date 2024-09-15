@@ -22,11 +22,7 @@ import SmallIconButton from "./SmallIconButton";
  */
 const NavigationBar = () => {
     const {pageNum, numPages, loadPage} = useContext(StateContext);
-    const {logEventNum} = useContext(UrlContext);
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (null === logEventNum) {
-            return;
-        }
         const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
         if (Object.values(ACTION_NAME).includes(actionName)) {
             handleAction(actionName, pageNum, numPages, loadPage);
