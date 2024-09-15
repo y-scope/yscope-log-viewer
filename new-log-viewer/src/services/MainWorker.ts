@@ -9,6 +9,7 @@ import {
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../typings/worker";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import LogFileManager from "./LogFileManager";
 
 
@@ -16,6 +17,7 @@ import LogFileManager from "./LogFileManager";
 dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsTimezone);
 /* eslint-enable import/no-named-as-default-member */
+
 
 /**
  * Manager for the currently opened log file.
@@ -41,6 +43,18 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
 
     try {
         switch (code) {
+            case WORKER_REQ_CODE.EXPORT_LOG: {
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+
+                let decodedEventIdx = 0;
+                while (LOG_FILE_MANAGER.numEvents > decodedEventIdx) {
+                    postResp(WORKER_RESP_CODE.CHUNK_DATA, LOG_FILE_MANAGER.loadChunk(decodedEventIdx));
+                    decodedEventIdx += EXPORT_LOGS_CHUNK_SIZE;
+                }
+                break;
+            }
             case WORKER_REQ_CODE.LOAD_FILE: {
                 LOG_FILE_MANAGER = await LogFileManager.create(
                     args.fileSrc,

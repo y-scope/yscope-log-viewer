@@ -11,6 +11,7 @@ import {
 } from "@mui/joy";
 
 import Description from "@mui/icons-material/Description";
+import Download from "@mui/icons-material/Download";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import Settings from "@mui/icons-material/Settings";
 
@@ -30,7 +31,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile} = useContext(StateContext);
+    const {fileName, exportLogs, loadFile} = useContext(StateContext);
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
@@ -46,6 +47,10 @@ const MenuBar = () => {
 
     const handleSettingsModalOpen = () => {
         setIsSettingsModalOpen(true);
+    };
+
+    const handleExportLogsButtonClick = () => {
+        exportLogs();
     };
 
     return (
@@ -75,6 +80,9 @@ const MenuBar = () => {
                     onClick={handleSettingsModalOpen}
                 >
                     <Settings/>
+                </SmallIconButton>
+                <SmallIconButton onClick={handleExportLogsButtonClick}>
+                    <Download/>
                 </SmallIconButton>
             </Sheet>
             <SettingsModal

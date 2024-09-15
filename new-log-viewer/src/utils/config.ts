@@ -10,6 +10,7 @@ import {DecoderOptionsType} from "../typings/decoders";
 
 
 const MAX_PAGE_SIZE = 1_000_000;
+const EXPORT_LOGS_CHUNK_SIZE = 10_000;
 
 /**
  * The default configuration values.
@@ -148,6 +149,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
 
 export {
     CONFIG_DEFAULT,
+    EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
     setConfig,
     testConfig,

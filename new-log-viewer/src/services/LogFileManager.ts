@@ -10,6 +10,7 @@ import {
     CursorType,
     FileSrcType,
 } from "../typings/worker";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
@@ -150,6 +151,30 @@ class LogFileManager {
      */
     setDecoderOptions (options: DecoderOptionsType) {
         this.#decoder.setDecoderOptions(options);
+    }
+
+    loadChunk (eventIdx: number): {
+        logs: string,
+    } {
+        const results = this.#decoder.decode(
+            eventIdx,
+            Math.min(eventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents)
+        );
+
+        if (null === results) {
+            throw new Error("Error occurred during decoding chunk. " +
+                `eventIdx=${eventIdx});`);
+        }
+
+        const messages: string[] = [];
+        results.forEach((r) => {
+            const [msg] = r;
+            messages.push(msg);
+        });
+
+        return {
+            logs: messages.join(""),
+        };
     }
 
     /**

@@ -20,7 +20,10 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {getConfig} from "../utils/config";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    getConfig,
+} from "../utils/config";
 import {
     clamp,
     getChunkNum,
@@ -37,12 +40,14 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPage: (newPageNum: number) => void,
     logData: string,
     numEvents: number,
     numPages: number,
-    pageNum: Nullable<number>
+    pageNum: Nullable<number>,
+
+    exportLogs: () => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (newPageNum: number) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -52,12 +57,14 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "",
-    loadFile: () => null,
-    loadPage: () => null,
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
     pageNum: 0,
+
+    exportLogs: () => null,
+    loadFile: () => null,
+    loadPage: () => null,
 });
 
 interface StateContextProviderProps {
@@ -138,16 +145,43 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
+    const receivedNumChunksRef = useRef<number>(0);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
+
+        // Create a file blob and push the data inside
+        const blob = new Blob();
+        const url = URL.createObjectURL(blob);
+        const numChunks = Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE);
+
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
+            case WORKER_RESP_CODE.CHUNK_DATA:
+                receivedNumChunksRef.current += 1;
+                console.log(receivedNumChunksRef.current, args.logs);
+
+                // If all chunks are received, trigger the download of the file
+                if (numChunks === receivedNumChunksRef.current) {
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = `${fileName}-exported-${new Date().toISOString()
+                        .replace(/[:.]/g, "-")}.log`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+                break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
+                break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // eslint-disable-next-line no-warning-comments
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -156,16 +190,24 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
-                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
+    }, []);
+
+    const exportLogs = useCallback(() => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        receivedNumChunksRef.current = 0;
+        workerPostReq(
+            mainWorkerRef.current,
+            WORKER_REQ_CODE.EXPORT_LOG,
+            {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
+        );
     }, []);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
@@ -275,12 +317,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
-                loadFile: loadFile,
-                loadPage: loadPage,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
                 pageNum: pageNumRef.current,
+
+                exportLogs: exportLogs,
+                loadFile: loadFile,
+                loadPage: loadPage,
             }}
         >
             {children}
