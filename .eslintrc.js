@@ -5,18 +5,15 @@ module.exports = {
     },
     "extends": [
         "plugin:react/recommended",
-        "plugin:@typescript-eslint/recommended",
         "google",
     ],
     "overrides": [],
-    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
     },
     "plugins": [
         "react",
-        "@typescript-eslint",
         "simple-import-sort",
     ],
     "rules": {
@@ -35,7 +32,7 @@ module.exports = {
         "keyword-spacing": "warn",
         "max-len": ["warn", {
             "code": 100,
-            "comments": 100,
+            "comments": 80,
             "ignoreComments": false,
             "ignoreTrailingComments": false,
         }],
@@ -47,7 +44,7 @@ module.exports = {
         "operator-linebreak": "off",
         "padded-blocks": "warn",
         "quotes": ["warn", "double", {"avoidEscape": true}],
-        //"require-jsdoc": "warn",
+        "require-jsdoc": "warn",
         "semi-spacing": "warn",
         "simple-import-sort/exports": "warn",
         "simple-import-sort/imports": ["warn", {
@@ -68,14 +65,6 @@ module.exports = {
         "space-before-blocks": "warn",
         "space-before-function-paren": ["warn", "always"],
         "spaced-comment": "warn",
-        "require-jsdoc" : 0,
-        "valid-jsdoc": "off",
-        //"valid-jsdoc": ["warn", {
-        //    "requireParamType": false,
-        //    "requireReturn": false,
-        //    "requireReturnType": false,
-        //    "requireReturnDescription": false,
-        //    "requireParamDescription": false
-        //}]
+        "valid-jsdoc": "warn",
     },
 };
