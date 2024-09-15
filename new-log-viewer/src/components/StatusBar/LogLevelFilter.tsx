@@ -42,8 +42,6 @@ const LogLevelSelect = () => {
         const selected: LogLevelFilter =
       newValue && newValue.map((value) => Number(value));
 
-        console.log(newValue);
-
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
     };
