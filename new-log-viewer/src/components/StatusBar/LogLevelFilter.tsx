@@ -31,8 +31,8 @@ const LogLevelSelect = () => {
     /**
      * Handles changes in the selection of log levels.
      *
-     * @param event The synthetic event triggered by the selection change.
-     * @param newValue An array of selected values
+     * @param event
+     * @param newValue An array of new filter values.
      */
     const handleChange = (
         event: React.SyntheticEvent | null,
@@ -56,9 +56,9 @@ const LogLevelSelect = () => {
             // Convert selected log levels to strings for value.
             value={selectedLogLevels?.map(String) || []}
 
-            // It would be nice for variant=solid; however, JoyUI appears to have
-            // where selected values are not highlighted with variant=solid
-            // There may be workarounds for this, but left as variant=plain for now.
+            // It would be nice for variant=solid; however, JoyUI appears to have a bug
+            // where selected values are not highlighted with variant=solid. There may be
+            // workarounds for this, but left as variant=plain for now.
             variant={"plain"}
             slotProps={{
                 listbox: {
@@ -73,10 +73,10 @@ const LogLevelSelect = () => {
             }}
 
             // The following code is responsible for the clear action "x" on
-            // select element
+            // select element.
             {...(selectedLogLevels && {
-                // display the button and remove select indicator
-                // when user has selected a value
+                // Display the button and remove select indicator
+                // when user has selected a value.
                 endDecorator: (
                     <IconButton
                         sx={{color: "white"}}

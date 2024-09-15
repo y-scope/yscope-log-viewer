@@ -30,12 +30,12 @@ import LogbackFormatter from "../formatters/LogbackFormatter";
  * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
  */
 const createIndicesArray = (length: number): number[] => {
-    const filteredLogIndices: number[] = Array.from(
+    const LogIndices: number[] = Array.from(
         {length: length},
         (_, index) => index
     );
 
-    return filteredLogIndices;
+    return LogIndices;
 };
 
 /**
@@ -87,7 +87,7 @@ class JsonlDecoder implements Decoder {
         }
 
         this.#deserialize();
-        this.#filteredLogIndices = createIndicesArray(this.#logEvents.length);
+        this.#filterLogs(null);
 
         const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
 
