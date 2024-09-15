@@ -14,9 +14,6 @@ import APP_THEME from "./theme";
  *
  * @return
  */
-// eslint-disable-next-line no-warning-comments
-// TODO: replace elements in this component once we integrate with a UI framework
-// eslint-disable-next-line max-lines-per-function
 const Layout = () => {
     return (
         <CssVarsProvider

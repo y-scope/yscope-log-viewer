@@ -85,8 +85,8 @@ type WorkerRespMap = {
     },
     [WORKER_RESP_CODE.VIEW_INFO]: {
         firstLogEventNumPerPage: number[],
-        numFilteredEvents: number,
         lastLogEventNumPerPage: number[],
+        numFilteredEvents: number,
     }
 };
 
