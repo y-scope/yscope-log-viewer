@@ -2,7 +2,7 @@ name: "lint"
 
 on:
   pull_request:
-    types: ["opened", "reopened"]
+    types: ["opened", "reopened", "synchronize"]
   push:
   schedule:
     # Run at midnight UTC every day with 15 minutes delay added to avoid high load periods
@@ -21,11 +21,6 @@ concurrency:
 jobs:
   lint-check:
     runs-on: "ubuntu-latest"
-    permissions:
-      # So `eslint-annotate-action` can create / update status checks
-      checks: "write"
-      # So `eslint-annotate-action` can get pull request files
-      contents: "read"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -34,15 +29,6 @@ jobs:
         with:
           node-version: 22
       - run: "npm --prefix new-log-viewer/ clean-install"
-      - name: "Run CSS lint checker"
-        run: "npm --prefix new-log-viewer/ run lint:css-ci"
-      - name: "Run TypeScript / JavaScript lint checker"
-        run: "npm --prefix new-log-viewer/ run lint:js-ci"
+      - run: "npm --prefix new-log-viewer/ run lint:css-ci"
+      - run: "npm --prefix new-log-viewer/ run lint:check"
         if: "always()"
-      - uses: "ataylorme/eslint-annotate-action@v3"
-        if: "always()"
-        with:
-          fail-on-error: true
-          fail-on-warning: true
-          only-pr-files: true
-          report-json: "./new-log-viewer/eslint-report.json"

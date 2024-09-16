@@ -14,8 +14,7 @@
     "lint:css-check": "stylelint src/**/*.css",
     "lint:css-ci": "npm run lint:css-check -- --formatter github",
     "lint:css-fix": "npm run lint:css-check -- --fix",
-    "lint:js-check": "eslint src webpack.*.js",
-    "lint:js-ci": "npm run lint:js-check -- --output-file eslint-report.json --format json",
+    "lint:js-check": "eslint src webpack.*.js --max-warnings 0",
     "lint:js-fix": "npm run lint:js-check -- --fix"
   },
   "repository": {
@@ -29,6 +28,10 @@
   },
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/joy": "^5.0.0-beta.48",
     "axios": "^1.7.2",
     "clp-ffi-js": "^0.1.0",
     "dayjs": "^1.11.11",

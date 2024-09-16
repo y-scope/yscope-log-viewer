@@ -38,6 +38,7 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (newPageNum: number) => void,
     logData: string,
     numEvents: number,
     numPages: number,
@@ -52,6 +53,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "",
     loadFile: () => null,
+    loadPage: () => null,
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
@@ -124,6 +126,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
@@ -186,6 +189,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
+    const loadPage = (newPageNum: number) => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
+            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
+            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+        });
+    };
+
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
@@ -202,7 +217,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 
@@ -221,10 +236,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
                 // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
-                workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-                    cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-                    decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-                });
+                loadPage(newPageNum);
             }
         }
 
@@ -264,6 +276,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 fileName: fileName,
                 loadFile: loadFile,
+                loadPage: loadPage,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,

@@ -1,0 +1,12 @@
+.status-bar {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    position: absolute;
+    width: 100%;
+}
+
+.status-message {
+    padding-left: 8px;
+    flex-grow: 1;
+}
