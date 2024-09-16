@@ -6,8 +6,7 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "lint": "npm run lint:check",
-    "lint:ci": "npm run lint:check -- --output-file eslint-report.json --format json",
-    "lint:check": "eslint src webpack.*.js",
+    "lint:check": "eslint src webpack.*.js --max-warnings 0",
     "lint:fix": "npm run lint:check -- --fix",
     "start": "webpack serve --open --config webpack.dev.js"
   },
