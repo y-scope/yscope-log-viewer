@@ -4,6 +4,7 @@
   "description": "A tool tailored for viewing logs, including log formats designed by YScope.",
   "main": "src/index.tsx",
   "scripts": {
+    "analyze:size": "webpack --config webpack.prod.js --profile --json=bundle-stats.json && webpack-bundle-analyzer bundle-stats.json dist/",
     "build": "webpack --config webpack.prod.js",
     "lint": "npm run lint:check",
     "lint:check": "eslint src webpack.*.js --max-warnings 0",
@@ -53,6 +54,7 @@
     "style-loader": "^4.0.0",
     "typescript": "^5.6.2",
     "webpack": "^5.92.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
     "webpack-merge": "^5.10.0"
