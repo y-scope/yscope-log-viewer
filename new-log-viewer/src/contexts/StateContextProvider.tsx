@@ -7,6 +7,7 @@ import React, {
     useState,
 } from "react";
 
+import LogExportManager from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
@@ -146,30 +147,24 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
     const receivedNumChunksRef = useRef<number>(0);
+    const logExportManagerRef = useRef<LogExportManager>(new LogExportManager());
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
+    logExportManagerRef.current.setNumChunks(Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE));
+    console.error("beforeDownload", logExportManagerRef.current.getNumChunks());
+
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
-
-        // Create a file blob and push the data inside
-        const blob = new Blob();
-        const url = URL.createObjectURL(blob);
-        const numChunks = Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE);
 
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
                 receivedNumChunksRef.current += 1;
+                logExportManagerRef.current.appendChunkData(args.logs);
 
-                // If all chunks are received, trigger the download of the file
-                if (numChunks === receivedNumChunksRef.current) {
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = `${fileName}-exported-${new Date().toISOString()
-                        .replace(/[:.]/g, "-")}.log`;
-                    link.click();
-                    URL.revokeObjectURL(url);
+                if (logExportManagerRef.current.getNumChunks() === receivedNumChunksRef.current) {
+                    logExportManagerRef.current.download(fileName);
                 }
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
@@ -202,6 +197,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
         receivedNumChunksRef.current = 0;
+
+        // FIXME: uncomment the line below to observe the error
+        // logExportManagerRef.current.reset(Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE));
+        console.error("numEvents", numEvents);
+        console.error(logExportManagerRef.current.getNumChunks());
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,
