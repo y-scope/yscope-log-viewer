@@ -7,7 +7,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import {ACTION_NAME} from "../../../utils/actions";
 
 
-enum TOKEN_NAMES {
+enum TOKEN_NAME {
     CUSTOM_INFO = "customInfo",
     CUSTOM_WARN = "customWarn",
     CUSTOM_ERROR = "customError",
@@ -66,7 +66,7 @@ interface CustomMonacoEditorHandlers {
     onCustomAction?: CustomActionCallback,
 }
 
-export {TOKEN_NAMES};
+export {TOKEN_NAME};
 export type {
     BeforeMountCallback,
     BeforeTextUpdateCallback,
