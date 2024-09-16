@@ -5,14 +5,14 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
+    FormHelperText,
+    FormLabel,
+    Input,
     ModalDialog,
     ToggleButtonGroup,
     useColorScheme,
 } from "@mui/joy";
-import FormControl from "@mui/joy/FormControl/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel/FormLabel";
-import Input from "@mui/joy/Input";
 import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
 import DarkModeIcon from "@mui/icons-material/DarkMode";

@@ -4,6 +4,9 @@
 # Build
 /dist
 
+# For bundle size analysis
+/bundle-stats.json
+
 # IDEs
 /.idea
 /.vscode

@@ -1,4 +1,4 @@
-import {extendTheme} from "@mui/joy/styles";
+import {extendTheme} from "@mui/joy";
 
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 
