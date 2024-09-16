@@ -1,4 +1,4 @@
-import {CssVarsProvider} from "@mui/joy/styles";
+import {CssVarsProvider} from "@mui/joy";
 
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
