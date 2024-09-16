@@ -9,7 +9,7 @@ import {ACTION_NAME} from "../../../utils/actions";
 
 enum TOKEN_NAMES {
     CUSTOM_INFO = "customInfo",
-    CUSTOM_WARN = "customEarn",
+    CUSTOM_WARN = "customWarn",
     CUSTOM_ERROR = "customError",
     CUSTOM_FATAL = "customFatal",
     CUSTOM_DATE = "customDate",
