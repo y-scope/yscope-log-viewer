@@ -74,6 +74,24 @@
           "yscope/typescript"
         ]
       }
-    ]
+    ],
+    "rules": {
+      "no-restricted-imports": [
+        "error", {
+          "paths": [
+            {
+              "message": "Please use path imports and name your imports with postfix \"Icon\" to avoid confusions.",
+              "name": "@mui/icons-material"
+            }
+          ],
+          "patterns": [
+            {
+              "group": ["@mui/joy/*"],
+              "message": "Please use the default import from \"@mui/joy\" instead."
+            }
+          ]
+        }
+      ]
+    }
   }
 }
