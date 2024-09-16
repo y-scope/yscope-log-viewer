@@ -69,7 +69,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numEvents: 0,
     numFilteredEvents: 0,
     numPages: 0,
-    pageNum: 0,
+    pageNum: 1,
 
     changeLogLevelFilter: () => null,
     loadFile: () => null,
