@@ -21,13 +21,11 @@ const Layout = () => {
             modeStorageKey={CONFIG_KEY.THEME}
             theme={APP_THEME}
         >
-            <div className={"layout"}>
-                <MenuBar/>
-                <DropFileContainer>
-                    <Editor/>
-                </DropFileContainer>
-                <StatusBar/>
-            </div>
+            <MenuBar/>
+            <DropFileContainer>
+                <Editor/>
+            </DropFileContainer>
+            <StatusBar/>
         </CssVarsProvider>
     );
 };
