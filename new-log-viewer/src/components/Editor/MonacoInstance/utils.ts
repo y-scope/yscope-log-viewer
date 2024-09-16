@@ -7,6 +7,11 @@ import {
     setupFocusOnBacktickDown,
     setupMobileZoom,
 } from "./actions";
+import {
+    LOG_LANGUAGE_NAME,
+    setupCustomLogLanguage,
+} from "./language";
+import {setupThemes} from "./theme";
 import {CustomMonacoEditorHandlers} from "./typings";
 
 
@@ -38,12 +43,16 @@ const createMonacoEditor = (
     actions: ActionType[],
     handlers: CustomMonacoEditorHandlers
 ): monaco.editor.IStandaloneCodeEditor => {
+    setupCustomLogLanguage();
+    setupThemes();
+
     const editor = monaco.editor.create(
         editorContainer,
         {
             // eslint-disable-next-line no-warning-comments
             // TODO: Add custom observer to debounce automatic layout
             automaticLayout: true,
+            language: LOG_LANGUAGE_NAME,
             maxTokenizationLineLength: 30_000,
             mouseWheelZoom: true,
             readOnly: true,

@@ -8,13 +8,18 @@ import {
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import {useColorScheme} from "@mui/joy";
+
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
 import {Nullable} from "../../typings/common";
-import {CONFIG_KEY} from "../../typings/config";
+import {
+    CONFIG_KEY,
+    THEME_NAME,
+} from "../../typings/config";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -37,11 +42,27 @@ import "./index.css";
 
 
 /**
+ * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
+ * will be restored when {@link restoreCachedPageSize} is called.
+ */
+const resetCachedPageSize = () => {
+    const error = setConfig(
+        {key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]}
+    );
+
+    if (null !== error) {
+        console.error(`Unexpected error returned by setConfig(): ${error}`);
+    }
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
  */
 const Editor = () => {
+    const {mode, systemMode} = useColorScheme();
+
     const {beginLineNumToLogEventNum, logData, numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -98,20 +119,6 @@ const Editor = () => {
         editor.onMouseUp(() => {
             isMouseDownRef.current = false;
         });
-    }, []);
-
-    /**
-     * Resets the cached page size in case it causes a client OOM. If it doesn't, the saved value
-     * will be restored when {@link restoreCachedPageSize} is called.
-     */
-    const resetCachedPageSize = useCallback(() => {
-        const error = setConfig(
-            {key: CONFIG_KEY.PAGE_SIZE, value: CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE]}
-        );
-
-        if (null !== error) {
-            console.error(`Unexpected error returned by setConfig(): ${error}`);
-        }
     }, []);
 
     /**
@@ -192,6 +199,9 @@ const Editor = () => {
                 beforeTextUpdate={resetCachedPageSize}
                 lineNum={lineNum}
                 text={logData}
+                themeName={(("system" === mode) ?
+                    systemMode :
+                    mode) ?? THEME_NAME.DARK}
                 onCursorExplicitPosChange={handleCursorExplicitPosChange}
                 onCustomAction={handleEditorCustomAction}
                 onMount={handleMount}

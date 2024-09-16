@@ -23,9 +23,11 @@ import "./index.css";
 
 
 interface MonacoEditorProps {
+    actions: ActionType[],
     lineNum: number,
     text: string,
-    actions: ActionType[],
+    themeName: "dark" | "light",
+
     beforeMount?: BeforeMountCallback,
     beforeTextUpdate?: BeforeTextUpdateCallback,
     onCursorExplicitPosChange: CursorExplicitPosChangeCallback,
@@ -40,9 +42,10 @@ interface MonacoEditorProps {
  * the editor.
  *
  * @param props
+ * @param props.actions
  * @param props.lineNum
  * @param props.text
- * @param props.actions
+ * @param props.themeName
  * @param props.beforeMount
  * @param props.beforeTextUpdate
  * @param props.onCursorExplicitPosChange
@@ -52,9 +55,10 @@ interface MonacoEditorProps {
  * @return
  */
 const MonacoInstance = ({
+    actions,
     lineNum,
     text,
-    actions,
+    themeName,
     beforeMount,
     beforeTextUpdate,
     onMount,
@@ -97,6 +101,11 @@ const MonacoInstance = ({
         onCustomAction,
         onMount,
     ]);
+
+    // On `themeName` update, set the theme in the editor.
+    useEffect(() => {
+        monaco.editor.setTheme(themeName);
+    }, [themeName]);
 
     // On `text` update, set the text and position cursor in the editor.
     useEffect(() => {
