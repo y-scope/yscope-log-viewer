@@ -161,7 +161,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
                 receivedNumChunksRef.current += 1;
-                console.log(receivedNumChunksRef.current, args.logs);
 
                 // If all chunks are received, trigger the download of the file
                 if (numChunks === receivedNumChunksRef.current) {

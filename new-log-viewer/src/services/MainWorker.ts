@@ -18,7 +18,6 @@ dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsTimezone);
 /* eslint-enable import/no-named-as-default-member */
 
-
 /**
  * Manager for the currently opened log file.
  */

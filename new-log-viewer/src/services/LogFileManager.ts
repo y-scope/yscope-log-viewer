@@ -166,11 +166,7 @@ class LogFileManager {
                 `eventIdx=${eventIdx});`);
         }
 
-        const messages: string[] = [];
-        results.forEach((r) => {
-            const [msg] = r;
-            messages.push(msg);
-        });
+        const messages = results.map(([msg]) => msg);
 
         return {
             logs: messages.join(""),
