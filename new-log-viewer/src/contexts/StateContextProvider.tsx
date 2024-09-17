@@ -153,7 +153,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
-
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
@@ -204,8 +203,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             WORKER_REQ_CODE.EXPORT_LOG,
             {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
         );
-    }, [numEvents,
-        fileName]);
+    }, [
+        numEvents,
+        fileName,
+    ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
         if ("string" !== typeof fileSrc) {

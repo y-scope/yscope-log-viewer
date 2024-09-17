@@ -18,11 +18,11 @@ class LogExportManager {
     /**
      * Name of the file to export to.
      */
-    readonly #fileName: string;
+    readonly #exportedFileName: string;
 
     constructor (numChunks: number, fileName: string) {
         this.#numChunks = numChunks;
-        this.#fileName = fileName;
+        this.#exportedFileName = fileName;
     }
 
     /**
@@ -30,7 +30,8 @@ class LogExportManager {
      * If the number of chunks reaches the specified limit, trigger a download.
      *
      * @param chunkData The chunk of log string to append.
-     * @return The current download progress as a decimal between 0 (initialization) and 1 (download complete).
+     * @return The current download progress as a decimal between
+     * 0 (initialization) and 1 (download complete).
      */
     appendChunkData (chunkData: string): number {
         if (0 === this.#numChunks) {
@@ -52,7 +53,7 @@ class LogExportManager {
      */
     #download () {
         const blob = new Blob(this.#chunks, {type: "text/plain"});
-        const fileNameTimeStamped = `${this.#fileName}-exported-${new Date().toISOString()
+        const fileNameTimeStamped = `${this.#exportedFileName}-exported-${new Date().toISOString()
             .replace(/[:.]/g, "-")}.log`;
 
         downloadBlob(blob, fileNameTimeStamped);
