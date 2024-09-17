@@ -45,5 +45,4 @@ const FileInfoTab = () => {
     );
 };
 
-
 export default FileInfoTab;
