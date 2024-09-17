@@ -197,7 +197,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
+        if (null === logExportManagerRef.current) {
+            console.error("logExportManager not initialized");
 
+            return;
+        }
+        if (logExportManagerRef.current.getChunkLength()) {
+            logExportManagerRef.current.download();
+        }
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,

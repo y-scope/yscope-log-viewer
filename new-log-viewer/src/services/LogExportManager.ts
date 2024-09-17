@@ -14,6 +14,10 @@ class LogExportManager {
         this.#fileName = fileName;
     }
 
+    getChunkLength () {
+        return this.#chunks.length;
+    }
+
     appendChunkData (chunkData: string) {
         // TODO: check corner case: what if chunkData is empty?
         this.#chunks.push(chunkData);
