@@ -3,7 +3,7 @@
     width: 3px;
     height: 100%;
     background-color: var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
-    z-index: 1;
+    z-index: var(--ylv-resize-handle-z-index);
 }
 
 .resize-handle:hover {
