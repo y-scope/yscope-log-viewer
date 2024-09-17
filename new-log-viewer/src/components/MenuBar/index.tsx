@@ -27,10 +27,8 @@ const MenuBar = () => {
         <>
             <Sheet className={"menu-bar"}>
                 <Stack
-                    alignItems={"center"}
                     className={"menu-bar-filename"}
                     direction={"row"}
-                    flexGrow={1}
                     gap={0.5}
                 >
                     <Description/>
