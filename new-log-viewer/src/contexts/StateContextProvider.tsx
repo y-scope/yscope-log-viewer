@@ -69,7 +69,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numEvents: 0,
     numFilteredEvents: 0,
     numPages: 0,
-    pageNum: 1,
+    pageNum: 0,
 
     changeLogLevelFilter: () => null,
     loadFile: () => null,
@@ -291,6 +291,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadPage(newPageNum);
             }
         }
+        pageNumRef.current = newPageNum;
     }, [
         numEvents,
         logEventNum,
