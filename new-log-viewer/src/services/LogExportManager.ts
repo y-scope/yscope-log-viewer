@@ -19,7 +19,11 @@ class LogExportManager {
     }
 
     appendChunkData (chunkData: string) {
-        // TODO: check corner case: what if chunkData is empty?
+        if (0 === this.#numChunks) {
+            this.download();
+
+            return;
+        }
         this.#chunks.push(chunkData);
         if (this.#chunks.length === this.#numChunks) {
             this.download();
