@@ -65,6 +65,7 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.LOG_FILE_INFO]: {
         fileName: string,
         numEvents: number,
+        originalFileSizeInBytes: number,
     },
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,

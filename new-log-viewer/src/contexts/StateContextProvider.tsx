@@ -42,6 +42,7 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
+    originalFileSizeInBytes: number,
     pageNum: Nullable<number>
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -57,6 +58,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
+    originalFileSizeInBytes: 0,
     pageNum: 0,
 });
 
@@ -133,6 +135,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [originalFileSizeInBytes, setOriginalFileSizeInBytes] =
+        useState(STATE_DEFAULT.originalFileSizeInBytes);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
@@ -148,6 +152,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
+                setOriginalFileSizeInBytes(args.originalFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -280,6 +285,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
+                originalFileSizeInBytes: originalFileSizeInBytes,
                 pageNum: pageNumRef.current,
             }}
         >

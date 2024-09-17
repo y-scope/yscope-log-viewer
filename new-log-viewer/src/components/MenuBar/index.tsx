@@ -1,7 +1,4 @@
-import {
-    useContext,
-    useState,
-} from "react";
+import {useContext} from "react";
 
 import {
     Divider,
@@ -11,15 +8,9 @@ import {
 } from "@mui/joy";
 
 import Description from "@mui/icons-material/Description";
-import FileOpenIcon from "@mui/icons-material/FileOpen";
-import Settings from "@mui/icons-material/Settings";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {CURSOR_CODE} from "../../typings/worker";
-import {openFile} from "../../utils/file";
-import SettingsModal from "../modals/SettingsModal";
 import NavigationBar from "./NavigationBar";
-import SmallIconButton from "./SmallIconButton";
 
 import "./index.css";
 
@@ -30,23 +21,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile} = useContext(StateContext);
-
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-
-    const handleOpenFileButtonClick = () => {
-        openFile((file) => {
-            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
-        });
-    };
-
-    const handleSettingsModalClose = () => {
-        setIsSettingsModalOpen(false);
-    };
-
-    const handleSettingsModalOpen = () => {
-        setIsSettingsModalOpen(true);
-    };
+    const {fileName} = useContext(StateContext);
 
     return (
         <>
@@ -66,20 +41,7 @@ const MenuBar = () => {
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
-                <Divider orientation={"vertical"}/>
-                <SmallIconButton onClick={handleOpenFileButtonClick}>
-                    <FileOpenIcon/>
-                </SmallIconButton>
-                <Divider orientation={"vertical"}/>
-                <SmallIconButton
-                    onClick={handleSettingsModalOpen}
-                >
-                    <Settings/>
-                </SmallIconButton>
             </Sheet>
-            <SettingsModal
-                isOpen={isSettingsModalOpen}
-                onClose={handleSettingsModalClose}/>
         </>
     );
 };

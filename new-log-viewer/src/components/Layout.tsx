@@ -5,6 +5,7 @@ import {CONFIG_DEFAULT} from "../utils/config";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import MenuBar from "./MenuBar";
+import SidebarContainer from "./SidebarContainer";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
@@ -22,9 +23,11 @@ const Layout = () => {
             theme={APP_THEME}
         >
             <MenuBar/>
-            <DropFileContainer>
-                <Editor/>
-            </DropFileContainer>
+            <SidebarContainer>
+                <DropFileContainer>
+                    <Editor/>
+                </DropFileContainer>
+            </SidebarContainer>
             <StatusBar/>
         </CssVarsProvider>
     );

@@ -51,6 +51,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
                     fileName: LOG_FILE_MANAGER.fileName,
                     numEvents: LOG_FILE_MANAGER.numEvents,
+                    originalFileSizeInBytes: LOG_FILE_MANAGER.originalFileSizeInBytes,
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,

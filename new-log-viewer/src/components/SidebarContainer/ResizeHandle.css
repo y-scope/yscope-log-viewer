@@ -1,0 +1,11 @@
+.resize-handle {
+    cursor: ew-resize;
+    width: 3px;
+    height: 100%;
+    background-color: var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
+    z-index: 1;
+}
+
+.resize-handle:hover {
+    background-color: var(--joy-palette-primary-solidHoverBg, #0258a8);
+}
