@@ -22,4 +22,22 @@ const openFile = (onOpen: OnFileOpenCallback) => {
     input.click();
 };
 
-export {openFile};
+/**
+ *
+ * @param blob.blob
+ * @param blob
+ * @param fileName
+ * @param blob.fileName
+ */
+const downloadBlob = (blob: Blob, fileName: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+};
+
+export {
+    downloadBlob, openFile,
+};

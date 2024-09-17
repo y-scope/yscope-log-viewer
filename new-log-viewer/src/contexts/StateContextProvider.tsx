@@ -146,13 +146,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
-    const receivedNumChunksRef = useRef<number>(0);
-    const logExportManagerRef = useRef<LogExportManager>(new LogExportManager());
+    const logExportManagerRef = useRef<null|LogExportManager>(null);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    logExportManagerRef.current.setNumChunks(Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE));
-    console.error("beforeDownload", logExportManagerRef.current.getNumChunks());
+    useEffect(() => {
+        logExportManagerRef.current = new LogExportManager(
+            Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
+            fileName
+        );
+    }, [fileName,
+        numEvents]);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -160,11 +164,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
-                receivedNumChunksRef.current += 1;
-                logExportManagerRef.current.appendChunkData(args.logs);
-
-                if (logExportManagerRef.current.getNumChunks() === receivedNumChunksRef.current) {
-                    logExportManagerRef.current.download(fileName);
+                if (null !== logExportManagerRef.current) {
+                    logExportManagerRef.current.appendChunkData(args.logs);
                 }
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
@@ -196,12 +197,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        receivedNumChunksRef.current = 0;
 
-        // FIXME: uncomment the line below to observe the error
-        // logExportManagerRef.current.reset(Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE));
-        console.error("numEvents", numEvents);
-        console.error(logExportManagerRef.current.getNumChunks());
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,

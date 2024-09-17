@@ -1,41 +1,33 @@
-import downloadDecompressedLogs from "../utils/downloadDecompressedLogs";
+import {downloadBlob} from "../utils/file";
 
 
 class LogExportManager {
-    private blob: Blob;
+    readonly #chunks: string[];
 
-    private numChunks: number;
+    readonly #numChunks: number;
 
-    constructor (numChunks?: number) {
-        this.blob = new Blob();
-        this.numChunks = numChunks ?? 0;
-    }
+    readonly #fileName: string;
 
-    getBlob (): Blob {
-        return this.blob;
+    constructor (numChunks: number, fileName: string) {
+        this.#chunks = [];
+        this.#numChunks = numChunks;
+        this.#fileName = fileName;
     }
 
     appendChunkData (chunkData: string) {
-        this.blob = new Blob([this.blob,
-            chunkData], {type: "text/plain"});
+        // TODO: check corner case: what if chunkData is empty?
+        this.#chunks.push(chunkData);
+        if (this.#chunks.length === this.#numChunks) {
+            this.download();
+        }
     }
 
-    getNumChunks (): number {
-        return this.numChunks;
-    }
+    download () {
+        const blob = new Blob(this.#chunks, {type: "text/plain"});
+        const fileNameTimeStamped = `${this.#fileName}-exported-${new Date().toISOString()
+            .replace(/[:.]/g, "-")}.log`;
 
-    setNumChunks (numChunks: number) {
-        this.numChunks = numChunks;
-    }
-
-    download (fileName: string) {
-        // FIXME: eslint complains about this format
-        downloadDecompressedLogs({blob: this.blob, fileName});
-    }
-
-    reset (numChunks?: number) {
-        this.blob = new Blob();
-        this.numChunks = numChunks ?? 0;
+        downloadBlob(blob, fileNameTimeStamped);
     }
 }
 
