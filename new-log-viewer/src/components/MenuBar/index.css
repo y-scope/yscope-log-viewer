@@ -3,4 +3,6 @@
     flex-direction: row;
     height: var(--ylv-status-bar-height);
     align-items: center;
+    box-shadow: 0 1px 0 0 var(--joy-palette-neutral-outlinedBorder);
+    z-index: var(--ylv-menu-bar-z-index);
 }
