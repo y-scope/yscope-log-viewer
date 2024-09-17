@@ -36,6 +36,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+// eslint-disable-next-line max-lines-per-function,max-statements
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
@@ -51,8 +52,11 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 }
 
                 let decodedEventIdx = 0;
-                while (LOG_FILE_MANAGER.numEvents > decodedEventIdx) {
-                    postResp(WORKER_RESP_CODE.CHUNK_DATA, LOG_FILE_MANAGER.loadChunk(decodedEventIdx));
+                while (decodedEventIdx < LOG_FILE_MANAGER.numEvents) {
+                    postResp(
+                        WORKER_RESP_CODE.CHUNK_DATA,
+                        LOG_FILE_MANAGER.loadChunk(decodedEventIdx)
+                    );
                     decodedEventIdx += EXPORT_LOGS_CHUNK_SIZE;
                 }
                 break;

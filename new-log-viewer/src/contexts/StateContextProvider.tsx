@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import React, {
     createContext,
     useCallback,
@@ -150,14 +151,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    useEffect(() => {
-        logExportManagerRef.current = new LogExportManager(
-            Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
-            fileName
-        );
-    }, [fileName,
-        numEvents]);
-
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
 
@@ -197,20 +190,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        if (null === logExportManagerRef.current) {
-            console.error("logExportManager not initialized");
+        if (STATE_DEFAULT.numEvents === numEvents && STATE_DEFAULT.fileName === fileName) {
+            console.error("numEvents and fileName not initialized yet");
 
             return;
         }
-        if (logExportManagerRef.current.getChunkLength()) {
-            logExportManagerRef.current.download();
-        }
+        logExportManagerRef.current = new LogExportManager(
+            Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
+            fileName
+        );
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,
             {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
         );
-    }, []);
+    }, [numEvents,
+        fileName]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
         if ("string" !== typeof fileSrc) {

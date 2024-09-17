@@ -23,11 +23,10 @@ const openFile = (onOpen: OnFileOpenCallback) => {
 };
 
 /**
+ * Triggers a download of the provided Blob object with the specified file name.
  *
- * @param blob.blob
- * @param blob
- * @param fileName
- * @param blob.fileName
+ * @param blob The Blob object to download.
+ * @param fileName The name of the file to be downloaded.
  */
 const downloadBlob = (blob: Blob, fileName: string) => {
     const url = URL.createObjectURL(blob);

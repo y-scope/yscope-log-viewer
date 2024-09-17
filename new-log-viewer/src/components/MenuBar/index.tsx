@@ -10,10 +10,10 @@ import {
     Typography,
 } from "@mui/joy";
 
-import Description from "@mui/icons-material/Description";
-import Download from "@mui/icons-material/Download";
+import DescriptionIcon from "@mui/icons-material/Description";
+import DownloadIcon from "@mui/icons-material/Download";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
-import Settings from "@mui/icons-material/Settings";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
@@ -63,7 +63,7 @@ const MenuBar = () => {
                     flexGrow={1}
                     gap={0.5}
                 >
-                    <Description/>
+                    <DescriptionIcon/>
                     <Typography level={"body-md"}>
                         {fileName}
                     </Typography>
@@ -79,10 +79,10 @@ const MenuBar = () => {
                 <SmallIconButton
                     onClick={handleSettingsModalOpen}
                 >
-                    <Settings/>
+                    <SettingsIcon/>
                 </SmallIconButton>
                 <SmallIconButton onClick={handleExportLogsButtonClick}>
-                    <Download/>
+                    <DownloadIcon/>
                 </SmallIconButton>
             </Sheet>
             <SettingsModal
