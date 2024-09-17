@@ -38,5 +38,6 @@ const downloadBlob = (blob: Blob, fileName: string) => {
 };
 
 export {
-    downloadBlob, openFile,
+    downloadBlob,
+    openFile,
 };

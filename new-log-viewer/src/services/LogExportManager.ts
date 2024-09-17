@@ -6,26 +6,17 @@ import {downloadBlob} from "../utils/file";
  */
 class LogExportManager {
     /**
-     * Array to store chunks of log data.
-     *
-     * @type {string[]}
-     * @private
+     * Internal buffer which stores decoded chunks of log data.
      */
     readonly #chunks: string[] = [];
 
     /**
      * Total number of chunks to export.
-     *
-     * @type {number}
-     * @private
      */
     readonly #numChunks: number;
 
     /**
      * Name of the file to export to.
-     *
-     * @type {string}
-     * @private
      */
     readonly #fileName: string;
 
@@ -35,13 +26,13 @@ class LogExportManager {
     }
 
     /**
-     * Append a chunk of log string.
+     * Append the provided chunk of logs into an internal buffer.
      * If the number of chunks reaches the specified limit, trigger a download.
      *
      * @param chunkData The chunk of log string to append.
-     * @return The current download progress.
+     * @return The current download progress as a decimal between 0 (initialization) and 1 (download complete).
      */
-    appendChunkData (chunkData: string) {
+    appendChunkData (chunkData: string): number {
         if (0 === this.#numChunks) {
             this.#download();
 
@@ -58,8 +49,6 @@ class LogExportManager {
 
     /**
      * Trigger a download of the accumulated log data chunks.
-     *
-     * @private
      */
     #download () {
         const blob = new Blob(this.#chunks, {type: "text/plain"});
