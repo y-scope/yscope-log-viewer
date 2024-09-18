@@ -1,4 +1,4 @@
-import React, {
+import {
     forwardRef,
     useState,
 } from "react";
@@ -20,7 +20,6 @@ import TooltipTab from "./TooltipTab";
 interface PanelTabsProps {
     activeTabName: TAB_NAME,
     onActiveTabNameChange: (newValue: TAB_NAME) => void,
-    onPanelTabOpen: () => void,
 }
 
 /**
@@ -33,7 +32,6 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
     {
         activeTabName,
         onActiveTabNameChange,
-        onPanelTabOpen,
     },
     tabListRef
 ) => {
@@ -43,14 +41,13 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
         setIsSettingsModalOpen(false);
     };
 
-    const handleTabChange = (__: React.SyntheticEvent | null, value: number | string | null) => {
-        switch (value) {
+    const handleTabButtonClick = (tabName: TAB_NAME) => {
+        switch (tabName) {
             case TAB_NAME.SETTINGS:
                 setIsSettingsModalOpen(true);
                 break;
             default:
-                onActiveTabNameChange(value as TAB_NAME);
-                onPanelTabOpen();
+                onActiveTabNameChange(tabName as TAB_NAME);
         }
     };
 
@@ -61,7 +58,6 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                 orientation={"vertical"}
                 value={activeTabName}
                 variant={"plain"}
-                onChange={handleTabChange}
             >
                 <TabList
                     ref={tabListRef}
@@ -73,12 +69,14 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         <TooltipTab
                             Icon={Icon}
                             key={tabName}
-                            tabName={tabName}/>
+                            tabName={tabName}
+                            onTabButtonClick={handleTabButtonClick}/>
                     ))}
                     <div className={"sidebar-tab-list-spacing"}/>
                     <TooltipTab
                         Icon={SettingsOutlinedIcon}
-                        tabName={TAB_NAME.SETTINGS}/>
+                        tabName={TAB_NAME.SETTINGS}
+                        onTabButtonClick={handleTabButtonClick}/>
                 </TabList>
                 <FileInfoTab/>
             </Tabs>

@@ -13,7 +13,8 @@ import {
 
 interface TooltipTabProps {
     tabName: TAB_NAME,
-    Icon: SvgIconComponent
+    Icon: SvgIconComponent,
+    onTabButtonClick: (tabName: TAB_NAME) => void
 }
 
 /**
@@ -22,9 +23,14 @@ interface TooltipTabProps {
  * @param props
  * @param props.tabName
  * @param props.Icon
+ * @param props.onTabButtonClick
  * @return
  */
-const TooltipTab = ({tabName, Icon}: TooltipTabProps) => {
+const TooltipTab = ({tabName, Icon, onTabButtonClick}: TooltipTabProps) => {
+    const handleClick = () => {
+        onTabButtonClick(tabName);
+    };
+
     return (
         <Tooltip
             arrow={true}
@@ -36,6 +42,7 @@ const TooltipTab = ({tabName, Icon}: TooltipTabProps) => {
                 className={"sidebar-tab-button"}
                 color={"neutral"}
                 indicatorPlacement={"left"}
+                slotProps={{root: {onClick: handleClick}}}
                 value={tabName}
             >
                 <Icon className={"sidebar-tab-button-icon"}/>

@@ -33,15 +33,32 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
 
     const tabListRef = useRef<HTMLDivElement>(null);
 
-    const handlePanelTabOpen = useCallback(() => {
+    const hidePanelAndResizeHandle = () => {
+        setActiveTabName(TAB_NAME.NONE);
+        document.body.style.setProperty("--ylv-panel-resize-handle-width", "0px");
+    };
+
+    const handleActiveTabNameChange = useCallback((tabName: TAB_NAME) => {
+        if (null === tabListRef.current) {
+            console.error("Unexpected null tabListRef.current");
+
+            return;
+        }
+
+        if (activeTabName === tabName) {
+            hidePanelAndResizeHandle();
+            setPanelWidth(tabListRef.current.clientWidth);
+
+            return;
+        }
+        setActiveTabName(tabName);
         setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXEL);
         document.body.style.setProperty("--ylv-panel-resize-handle-width", "3px");
-    }, []);
+    }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
         if (panelWidth === tabListRef.current?.clientWidth) {
-            setActiveTabName(TAB_NAME.NONE);
-            document.body.style.setProperty("--ylv-panel-resize-handle-width", "0px");
+            hidePanelAndResizeHandle();
         }
     }, [panelWidth]);
 
@@ -69,8 +86,7 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
                 <PanelTabs
                     activeTabName={activeTabName}
                     ref={tabListRef}
-                    onActiveTabNameChange={setActiveTabName}
-                    onPanelTabOpen={handlePanelTabOpen}/>
+                    onActiveTabNameChange={handleActiveTabNameChange}/>
                 <ResizeHandle
                     onHandleRelease={handleResizeHandleRelease}
                     onResize={handleResize}/>
