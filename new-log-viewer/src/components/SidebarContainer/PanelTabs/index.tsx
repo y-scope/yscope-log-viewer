@@ -76,6 +76,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         <Tab
                             className={"sidebar-tab-button"}
                             color={"neutral"}
+                            indicatorPlacement={"left"}
                             key={tabName}
                             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
                             value={tabName}
