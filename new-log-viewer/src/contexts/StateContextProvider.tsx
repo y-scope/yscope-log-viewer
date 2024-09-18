@@ -199,6 +199,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
+
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName

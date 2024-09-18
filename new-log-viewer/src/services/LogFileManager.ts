@@ -162,8 +162,7 @@ class LogFileManager {
         );
 
         if (null === results) {
-            throw new Error("Error occurred during decoding chunk. " +
-                `eventIdx=${eventIdx});`);
+            throw new Error(`Failed to decode chunk containing logEventIdx=${eventIdx}`);
         }
 
         const messages = results.map(([msg]) => msg);

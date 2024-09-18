@@ -28,7 +28,7 @@ const ExportLogsButton = () => {
 
     return (
         <SmallIconButton
-            disabled={null !== exportProgress && 1 !== exportProgress}
+            disabled={null !== exportProgress && EXPORT_LOG_PROGRESS_COMPLETE !== exportProgress}
             onClick={handleExportLogsButtonClick}
         >
             {null === exportProgress || EXPORT_LOG_PROGRESS_INITIALIZATION === exportProgress ?

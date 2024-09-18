@@ -49,7 +49,6 @@ const MenuBar = () => {
         setIsSettingsModalOpen(true);
     };
 
-
     return (
         <>
             <Sheet className={"menu-bar"}>

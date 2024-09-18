@@ -5,7 +5,7 @@ const EXPORT_LOG_PROGRESS_INITIALIZATION = 0;
 const EXPORT_LOG_PROGRESS_COMPLETE = 1;
 
 /**
- * Manager for exporting logs to a file.
+ * Manager for exporting logs as a file.
  */
 class LogExportManager {
     /**
@@ -33,9 +33,8 @@ class LogExportManager {
      * Append the provided chunk of logs into an internal buffer.
      * If the number of chunks reaches the specified limit, trigger a download.
      *
-     * @param chunkData The chunk of log string to append.
-     * @return The current download progress as a decimal between
-     * 0 (initialization) and 1 (download complete).
+     * @param chunkData
+     * @return The current download progress as a float between 0 and 1.
      */
     appendChunkData (chunkData: string): number {
         if (0 === this.#numChunks) {
@@ -55,7 +54,7 @@ class LogExportManager {
     }
 
     /**
-     * Trigger a download of the accumulated log data chunks.
+     * Triggers a download of the accumulated chunks.
      */
     #download () {
         const blob = new Blob(this.#chunks, {type: "text/plain"});
