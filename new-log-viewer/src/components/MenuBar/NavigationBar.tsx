@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, {useContext, useMemo} from "react";
 
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
@@ -13,6 +13,12 @@ import {
 import PageNumInput from "./PageNumInput";
 import SmallIconButton from "./SmallIconButton";
 
+import {getConfig} from "../../utils/config";
+import {CONFIG_KEY} from "../../typings/config";
+import {
+    getChunkNum,
+} from "../../utils/math";
+
 
 /**
  * Renders a navigation bar for page switching actions.
@@ -20,7 +26,9 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const NavigationBar = () => {
-    const {pageNum, numPages, loadPage} = useContext(StateContext);
+    const {pageNum, numFilteredEvents, loadPage} = useContext(StateContext);
+    let numPages: number =
+        useMemo(() => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),[numFilteredEvents]);
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
         if (Object.values(ACTION_NAME).includes(actionName)) {

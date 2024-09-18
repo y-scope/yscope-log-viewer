@@ -44,10 +44,8 @@ interface StateContextType {
     firstLogEventNumPerPage: number[],
     lastLogEventNumPerPage: number[],
     logData: string,
-    logLevelFilter: LogLevelFilter,
     numEvents: number,
     numFilteredEvents: number,
-    numPages: number,
     pageNum: Nullable<number>,
 
     changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
@@ -65,7 +63,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     firstLogEventNumPerPage: [],
     lastLogEventNumPerPage: [],
     logData: "Loading...",
-    logLevelFilter: null,
     numEvents: 0,
     numFilteredEvents: 0,
     numPages: 0,
@@ -151,19 +148,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
 
+    const [numFilteredEvents, setNumFilteredEvents] = useState<number>(STATE_DEFAULT.numFilteredEvents);
+
+    const [pageNum, setPageNum] = useState<Nullable<number>>(STATE_DEFAULT.pageNum);
+
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
-    const logEventNumRef = useRef(logEventNum);
-    const logLevelFilterRef = useRef<LogLevelFilter>(STATE_DEFAULT.logLevelFilter);
-    const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
 
     const firstLogEventNumPerPage =
         useRef<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
     const lastLogEventNumPerPage =
         useRef<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
-    const numFilteredEvents =
-        useRef<number>(STATE_DEFAULT.numFilteredEvents);
+
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -186,21 +182,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
 
+                let newLogEventNum = Array.from(args.beginLineNumToLogEventNum.values())
+                    .includes(logEventNum as number) ?
+                    logEventNum :
+                    lastLogEventNum
+
                 updateLogEventNumInUrl(
                     lastLogEventNum,
-                    Array.from(args.beginLineNumToLogEventNum.values())
-                        .includes(logEventNumRef.current as number) ?
-                        logEventNumRef.current :
-                        lastLogEventNum
+                    newLogEventNum
                 );
+
                 break;
             }
             case WORKER_RESP_CODE.VIEW_INFO:
-                numFilteredEvents.current = args.numFilteredEvents;
+                setNumFilteredEvents(args.numFilteredEvents)
                 firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
                 lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
-                numPagesRef.current =
-                    getChunkNum(numFilteredEvents.current, getConfig(CONFIG_KEY.PAGE_SIZE));
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -234,13 +231,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-        logLevelFilterRef.current = newLogLevelFilter;
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.CHANGE_FILTER, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
             logLevelFilter: newLogLevelFilter,
         });
-
-        pageNumRef.current = 1;
     };
 
 
@@ -253,14 +247,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
         });
-
-        pageNumRef.current = newPageNum;
     };
-
-    // Synchronize `logEventNumRef` with `logEventNum`.
-    useEffect(() => {
-        logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -277,23 +264,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         // Request a page switch only if it's not the initial page load.
-        if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
-            if (newPageNum === pageNumRef.current) {
-                // Don't need to switch pages so just update `logEventNum` in the URL.
-                updateLogEventNumInUrl(
-                    numEvents,
-                    logEventNumRef.current
-                );
-            } else {
-                // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
-                // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
-                // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
+        if (STATE_DEFAULT.pageNum !== pageNum && newPageNum !== pageNum) {
                 loadPage(newPageNum);
-            }
         }
-        pageNumRef.current = newPageNum;
+        setPageNum(newPageNum);
     }, [
-        numEvents,
         logEventNum,
     ]);
 
@@ -304,16 +279,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            // Set which page to load since the user specified a specific `logEventNum`.
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
+            // Set which page to load since the user specified a specific `logEventNum`.\=
             // NOTE: Since we don't know how many pages the log file contains, we only clamp the
             // minimum of the page number.
             const newPageNum = Math.max(
-                getChunkNum(logEventNumRef.current, getConfig(CONFIG_KEY.PAGE_SIZE)),
+                getChunkNum(logEventNum, getConfig(CONFIG_KEY.PAGE_SIZE)),
                 1
             );
 
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
+            setPageNum(newPageNum)
         }
         loadFile(filePath, cursor);
     }, [
@@ -332,11 +308,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPage: loadPage,
                 logData: logData,
-                logLevelFilter: logLevelFilterRef.current,
                 numEvents: numEvents,
-                numFilteredEvents: numFilteredEvents.current,
-                numPages: numPagesRef.current,
-                pageNum: pageNumRef.current,
+                numFilteredEvents: numFilteredEvents,
+                pageNum: pageNum,
             }}
         >
             {children}

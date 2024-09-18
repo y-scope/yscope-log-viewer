@@ -3,7 +3,14 @@ import React, {
     useEffect,
     useRef,
     useState,
+    useMemo,
 } from "react";
+
+import {getConfig} from "../../utils/config";
+import {CONFIG_KEY} from "../../typings/config";
+import {
+    getChunkNum,
+} from "../../utils/math";
 
 import {Typography} from "@mui/joy";
 import Input from "@mui/joy/Input";
@@ -22,7 +29,10 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPage, numPages, pageNum} = useContext(StateContext);
+    const {loadPage, numFilteredEvents, pageNum} = useContext(StateContext);
+    let numPages: number =
+        useMemo(() => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),[numFilteredEvents]);
+
     const adjustedPageNum = (null === pageNum) ?
         0 :
         pageNum;
