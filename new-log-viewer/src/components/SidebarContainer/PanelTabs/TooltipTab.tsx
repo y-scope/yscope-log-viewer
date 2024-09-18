@@ -39,6 +39,7 @@ const TooltipTab = ({tabName, Icon, onTabButtonClick}: TooltipTabProps) => {
                 key={tabName}
                 placement={"right"}
                 title={TAB_DISPLAY_NAMES[tabName]}
+                variant={"outlined"}
             >
                 <Tab
                     className={"sidebar-tab-button"}
