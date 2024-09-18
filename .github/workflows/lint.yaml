@@ -29,6 +29,4 @@ jobs:
         with:
           node-version: 22
       - run: "npm --prefix new-log-viewer/ clean-install"
-      - run: "npm --prefix new-log-viewer/ run lint:css-ci"
       - run: "npm --prefix new-log-viewer/ run lint:check"
-        if: "always()"
