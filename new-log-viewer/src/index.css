@@ -24,7 +24,6 @@ html {
      * .monaco-editor .minimap { z-index: 5; }
      * ```
      */
-    --ylv-resize-handle-z-index: 1;
     --ylv-menu-bar-z-index: 6;
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;

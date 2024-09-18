@@ -5,21 +5,20 @@ import React, {
     useState,
 } from "react";
 
+import {TAB_NAME} from "../../typings/tab";
 import PanelTabs from "./PanelTabs";
 import ResizeHandle from "./ResizeHandle";
 
 import "./index.css";
 
 
-interface SidebarContainerProps {
-    children: React.ReactNode,
-}
-
-const RESIZE_HANDLE_WIDTH_IN_PIXEL = 3;
 const PANEL_DEFAULT_WIDTH_IN_PIXEL = 300;
 const PANEL_CLIP_THRESHOLD_IN_PIXEL = 80;
 const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
 
+interface SidebarContainerProps {
+    children: React.ReactNode,
+}
 
 /**
  * Wraps a children with a sidebar component on the left.
@@ -29,9 +28,25 @@ const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
  * @return
  */
 const SidebarContainer = ({children}: SidebarContainerProps) => {
+    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
     const [panelWidth, setPanelWidth] = useState<number>(PANEL_DEFAULT_WIDTH_IN_PIXEL);
 
     const tabListRef = useRef<HTMLDivElement>(null);
+
+    // handlePanelTabOpen
+    const handlePanelTabOpen = useCallback(() => {
+        setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXEL);
+    }, []);
+
+    const handlePanelTabClose = () => {
+        if (null === tabListRef.current) {
+            console.error("Unexpected null tabListRef.current");
+
+            return;
+        }
+        setActiveTabName(TAB_NAME.NONE);
+        setPanelWidth(tabListRef.current.clientWidth);
+    };
 
     const handleResize = useCallback((offset: number) => {
         if (null === tabListRef.current) {
@@ -40,9 +55,9 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
             return;
         }
         if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXEL > offset) {
-            setPanelWidth(tabListRef.current.clientWidth);
+            handlePanelTabClose();
         } else if (offset < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO) {
-            setPanelWidth(offset + RESIZE_HANDLE_WIDTH_IN_PIXEL);
+            setPanelWidth(offset);
         }
     }, []);
 
@@ -54,7 +69,11 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
     return (
         <div className={"sidebar-container"}>
             <div className={"sidebar-tabs-container"}>
-                <PanelTabs ref={tabListRef}/>
+                <PanelTabs
+                    activeTabName={activeTabName}
+                    ref={tabListRef}
+                    onActiveTabNameChange={setActiveTabName}
+                    onPanelTabOpen={handlePanelTabOpen}/>
                 <ResizeHandle onResize={handleResize}/>
             </div>
             <div className={"sidebar-children-container"}>

@@ -12,13 +12,15 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import SettingsIcon from "@mui/icons-material/Settings";
 
+import {TAB_NAME} from "../../../typings/tab";
 import SettingsModal from "../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
 
 
-enum TAB_NAME {
-    FILE_INFO = "fileInfo",
-    SETTINGS = "settings",
+interface PanelTabsProps {
+    activeTabName: TAB_NAME,
+    onActiveTabNameChange: (newValue: TAB_NAME) => void,
+    onPanelTabOpen: () => void,
 }
 
 /**
@@ -27,8 +29,14 @@ enum TAB_NAME {
  * @param tabListRef Reference object used to access the TabList DOM element.
  * @return
  */
-const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
-    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
+const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
+    {
+        activeTabName,
+        onActiveTabNameChange,
+        onPanelTabOpen,
+    },
+    tabListRef
+) => {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
     const handleSettingsModalClose = () => {
@@ -41,7 +49,8 @@ const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
                 setIsSettingsModalOpen(true);
                 break;
             default:
-                setActiveTabName(value as TAB_NAME);
+                onActiveTabNameChange(value as TAB_NAME);
+                onPanelTabOpen();
         }
     };
 
@@ -88,4 +97,3 @@ const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
 
 PanelTabs.displayName = "PanelTabs";
 export default PanelTabs;
-export {TAB_NAME};
