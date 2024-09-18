@@ -20,12 +20,11 @@ import SmallIconButton from "./SmallIconButton";
  *
  * @return
  */
-export const ExportLogsButton = () => {
+const ExportLogsButton = () => {
     const {exportLogs, exportProgress} = useContext(StateContext);
     const handleExportLogsButtonClick = () => {
         exportLogs();
     };
-
 
     return (
         <SmallIconButton

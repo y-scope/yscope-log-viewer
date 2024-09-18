@@ -25,7 +25,7 @@ class LogExportManager {
 
     constructor (numChunks: number, fileName: string) {
         this.#numChunks = numChunks;
-        this.#exportedFileName = `${fileName}-exported-${new Date().toISOString()
+        this.#exportedFileName = `exported-${fileName}-${new Date().toISOString()
             .replace(/[:.]/g, "-")}.log`;
     }
 
