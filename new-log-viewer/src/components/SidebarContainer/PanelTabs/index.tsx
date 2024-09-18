@@ -9,8 +9,8 @@ import {
     Tabs,
 } from "@mui/joy";
 
-import InfoIcon from "@mui/icons-material/Info";
-import SettingsIcon from "@mui/icons-material/Settings";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import {
     TAB_DISPLAY_NAMES,
@@ -71,8 +71,8 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                     size={"lg"}
                 >
                     {[
-                        {tabName: TAB_NAME.FILE_INFO, icon: <InfoIcon/>},
-                    ].map(({tabName, icon}) => (
+                        {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
+                    ].map(({tabName, Icon}) => (
                         <Tab
                             className={"sidebar-tab-button"}
                             color={"neutral"}
@@ -80,7 +80,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
                             value={tabName}
                         >
-                            {icon}
+                            <Icon className={"sidebar-tab-button-icon"}/>
                         </Tab>
                     ))}
                     <div className={"sidebar-tab-list-spacing"}/>
@@ -90,7 +90,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
                         value={TAB_NAME.SETTINGS}
                     >
-                        <SettingsIcon/>
+                        <SettingsOutlinedIcon className={"sidebar-tab-button-icon"}/>
                     </Tab>
                 </TabList>
                 <FileInfoTab/>

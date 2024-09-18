@@ -1,10 +1,10 @@
 import {useContext} from "react";
 
 import {
-    Button,
     Divider,
+    IconButton,
     Sheet,
-    Stack,
+    Tooltip,
     Typography,
 } from "@mui/joy";
 
@@ -13,7 +13,6 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
-import YScopeLogo from "../YScopeLogo";
 import NavigationBar from "./NavigationBar";
 
 import "./index.css";
@@ -36,23 +35,34 @@ const MenuBar = () => {
     return (
         <>
             <Sheet className={"menu-bar"}>
-                <YScopeLogo className={"menu-bar-logo"}/>
-                <Stack
-                    className={"menu-bar-filename"}
-                    direction={"row"}
-                    gap={1}
+                <div className={"menu-bar-logo-container"}>
+                    <img
+                        alt={"yscope-small-logo"}
+                        src={"./favicon.svg"}
+                        width={20}/>
+                </div>
+
+                <Divider orientation={"vertical"}/>
+                <Tooltip
+                    placement={"right"}
+                    title={"Open file"}
+                    variant={"outlined"}
                 >
-                    <Button
+                    <IconButton
                         size={"sm"}
-                        startDecorator={<FolderOpenIcon/>}
                         onClick={handleOpenFile}
                     >
-                        Open
-                    </Button>
-                    <Typography level={"body-md"}>
-                        {fileName}
-                    </Typography>
-                </Stack>
+                        <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
+                    </IconButton>
+                </Tooltip>
+                <Divider orientation={"vertical"}/>
+
+                <Typography
+                    className={"menu-bar-filename"}
+                    level={"body-md"}
+                >
+                    {fileName}
+                </Typography>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
