@@ -296,6 +296,5 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     );
 };
 
-
 export default StateContextProvider;
 export {StateContext};
