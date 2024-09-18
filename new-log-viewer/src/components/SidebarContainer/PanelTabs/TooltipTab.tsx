@@ -1,4 +1,5 @@
 import {
+    Divider,
     Tab,
     Tooltip,
 } from "@mui/joy";
@@ -32,22 +33,25 @@ const TooltipTab = ({tabName, Icon, onTabButtonClick}: TooltipTabProps) => {
     };
 
     return (
-        <Tooltip
-            arrow={true}
-            key={tabName}
-            placement={"right"}
-            title={TAB_DISPLAY_NAMES[tabName]}
-        >
-            <Tab
-                className={"sidebar-tab-button"}
-                color={"neutral"}
-                indicatorPlacement={"left"}
-                slotProps={{root: {onClick: handleClick}}}
-                value={tabName}
+        <>
+            <Tooltip
+                arrow={true}
+                key={tabName}
+                placement={"right"}
+                title={TAB_DISPLAY_NAMES[tabName]}
             >
-                <Icon className={"sidebar-tab-button-icon"}/>
-            </Tab>
-        </Tooltip>
+                <Tab
+                    className={"sidebar-tab-button"}
+                    color={"neutral"}
+                    indicatorPlacement={"left"}
+                    slotProps={{root: {onClick: handleClick}}}
+                    value={tabName}
+                >
+                    <Icon className={"sidebar-tab-button-icon"}/>
+                </Tab>
+            </Tooltip>
+            <Divider/>
+        </>
     );
 };
 
