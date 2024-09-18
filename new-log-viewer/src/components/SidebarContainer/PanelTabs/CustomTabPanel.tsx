@@ -25,7 +25,10 @@ interface CustomTabPanelProps {
  */
 const CustomTabPanel = ({children, tabName, title}: CustomTabPanelProps) => {
     return (
-        <TabPanel value={tabName}>
+        <TabPanel
+            className={"sidebar-tab-panel"}
+            value={tabName}
+        >
             <DialogTitle>
                 <Typography
                     fontSize={14}
