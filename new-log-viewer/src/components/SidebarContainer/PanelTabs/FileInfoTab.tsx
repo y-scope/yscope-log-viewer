@@ -33,17 +33,19 @@ const FileInfoTab = () => {
             tabName={TAB_NAME.FILE_INFO}
             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
         >
-            <List>
-                <CustomListItem
-                    content={fileName}
-                    icon={<AbcIcon/>}
-                    title={"Name"}/>
-                <Divider/>
-                <CustomListItem
-                    content={formatSizeInBytes(originalFileSizeInBytes)}
-                    icon={<StorageIcon/>}
-                    title={"Original Size"}/>
-            </List>
+            {"" === fileName ?
+                "No file is open." :
+                <List>
+                    <CustomListItem
+                        content={fileName}
+                        icon={<AbcIcon/>}
+                        title={"Name"}/>
+                    <Divider/>
+                    <CustomListItem
+                        content={formatSizeInBytes(originalFileSizeInBytes)}
+                        icon={<StorageIcon/>}
+                        title={"Original Size"}/>
+                </List>}
         </CustomTabPanel>
     );
 };
