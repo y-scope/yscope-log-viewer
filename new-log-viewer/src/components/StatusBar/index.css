@@ -1,5 +1,6 @@
 .status-bar {
     position: absolute;
+    z-index: var(--ylv-status-bar-z-index);
     bottom: 0;
 
     display: flex;
