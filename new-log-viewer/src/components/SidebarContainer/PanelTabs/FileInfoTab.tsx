@@ -34,7 +34,7 @@ const FileInfoTab = () => {
                 <CustomListItem
                     content={fileName}
                     icon={<AbcIcon/>}
-                    title={"File Info"}/>
+                    title={"Name"}/>
                 <Divider/>
                 <CustomListItem
                     content={formatSizeInBytes(originalFileSizeInBytes)}
