@@ -12,7 +12,7 @@ import ResizeHandle from "./ResizeHandle";
 import "./index.css";
 
 
-const PANEL_DEFAULT_WIDTH_IN_PIXEL = 300;
+const PANEL_DEFAULT_WIDTH_IN_PIXEL = 360;
 const PANEL_CLIP_THRESHOLD_IN_PIXEL = 250;
 const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
 
