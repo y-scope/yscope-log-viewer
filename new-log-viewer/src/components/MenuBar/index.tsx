@@ -1,8 +1,8 @@
 import {useContext} from "react";
 
 import {
+    Button,
     Divider,
-    IconButton,
     Sheet,
     Stack,
     Typography,
@@ -13,6 +13,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
+import YScopeLogo from "../YScopeLogo";
 import NavigationBar from "./NavigationBar";
 
 import "./index.css";
@@ -35,17 +36,19 @@ const MenuBar = () => {
     return (
         <>
             <Sheet className={"menu-bar"}>
+                <YScopeLogo className={"menu-bar-logo"}/>
                 <Stack
                     className={"menu-bar-filename"}
                     direction={"row"}
-                    gap={0.5}
+                    gap={1}
                 >
-                    <IconButton
+                    <Button
                         size={"sm"}
+                        startDecorator={<FolderOpenIcon/>}
                         onClick={handleOpenFile}
                     >
-                        <FolderOpenIcon/>
-                    </IconButton>
+                        Open
+                    </Button>
                     <Typography level={"body-md"}>
                         {fileName}
                     </Typography>

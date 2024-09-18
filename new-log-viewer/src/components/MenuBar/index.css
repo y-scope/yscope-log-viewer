@@ -10,6 +10,13 @@
     box-shadow: 0 1px 0 0 var(--joy-palette-neutral-outlinedBorder);
 }
 
+.menu-bar-logo {
+    user-select: none;
+    width: 64px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
 .menu-bar-filename {
     flex-grow: 1;
     align-items: center;
