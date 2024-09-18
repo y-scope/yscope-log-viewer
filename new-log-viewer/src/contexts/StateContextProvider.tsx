@@ -161,7 +161,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
                 if (null !== logExportManagerRef.current) {
-                    const progress = logExportManagerRef.current.appendChunkData(args.logs);
+                    const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
                 }
                 break;

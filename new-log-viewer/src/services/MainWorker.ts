@@ -36,6 +36,8 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+// eslint-disable-next-line no-warning-comments
+// TODO: break this function up into smaller functions
 // eslint-disable-next-line max-lines-per-function,max-statements
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;

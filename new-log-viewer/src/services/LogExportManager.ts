@@ -1,8 +1,8 @@
 import {downloadBlob} from "../utils/file";
 
 
-const EXPORT_LOG_PROGRESS_INITIALIZATION = 0;
-const EXPORT_LOG_PROGRESS_COMPLETE = 1;
+const EXPORT_LOG_PROGRESS_VALUE_MIN = 0;
+const EXPORT_LOG_PROGRESS_VALUE_MAX = 1;
 
 /**
  * Manager for exporting logs as a file.
@@ -25,29 +25,29 @@ class LogExportManager {
 
     constructor (numChunks: number, fileName: string) {
         this.#numChunks = numChunks;
-        this.#exportedFileName = `exported-${fileName}-${new Date().toISOString()
+        this.#exportedFileName = `${fileName}-exported-${new Date().toISOString()
             .replace(/[:.]/g, "-")}.log`;
     }
 
     /**
-     * Append the provided chunk of logs into an internal buffer.
-     * If the number of chunks reaches the specified limit, trigger a download.
+     * Appends the provided chunk of logs into an internal buffer. If the number of chunks reaches
+     * the specified limit, trigger a download.
      *
-     * @param chunkData
+     * @param chunk
      * @return The current download progress as a float between 0 and 1.
      */
-    appendChunkData (chunkData: string): number {
+    appendChunk (chunk: string): number {
         if (0 === this.#numChunks) {
             this.#download();
 
-            return EXPORT_LOG_PROGRESS_COMPLETE;
+            return EXPORT_LOG_PROGRESS_VALUE_MAX;
         }
-        this.#chunks.push(chunkData);
+        this.#chunks.push(chunk);
         if (this.#chunks.length === this.#numChunks) {
             this.#download();
             this.#chunks.length = 0;
 
-            return EXPORT_LOG_PROGRESS_COMPLETE;
+            return EXPORT_LOG_PROGRESS_VALUE_MAX;
         }
 
         return this.#chunks.length / this.#numChunks;
@@ -64,6 +64,6 @@ class LogExportManager {
 
 export default LogExportManager;
 export {
-    EXPORT_LOG_PROGRESS_COMPLETE,
-    EXPORT_LOG_PROGRESS_INITIALIZATION,
+    EXPORT_LOG_PROGRESS_VALUE_MAX,
+    EXPORT_LOG_PROGRESS_VALUE_MIN,
 };

@@ -9,8 +9,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
-    EXPORT_LOG_PROGRESS_COMPLETE,
-    EXPORT_LOG_PROGRESS_INITIALIZATION,
+    EXPORT_LOG_PROGRESS_VALUE_MAX,
+    EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
 import SmallIconButton from "./SmallIconButton";
 
@@ -22,27 +22,24 @@ import SmallIconButton from "./SmallIconButton";
  */
 const ExportLogsButton = () => {
     const {exportLogs, exportProgress} = useContext(StateContext);
-    const handleExportLogsButtonClick = () => {
-        exportLogs();
-    };
 
     return (
         <SmallIconButton
-            disabled={null !== exportProgress && EXPORT_LOG_PROGRESS_COMPLETE !== exportProgress}
-            onClick={handleExportLogsButtonClick}
+            disabled={(null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress)}
+            onClick={exportLogs}
         >
-            {null === exportProgress || EXPORT_LOG_PROGRESS_INITIALIZATION === exportProgress ?
+            {null === exportProgress || EXPORT_LOG_PROGRESS_VALUE_MIN === exportProgress ?
                 <DownloadIcon/> :
                 <CircularProgress
                     determinate={true}
                     thickness={3}
                     value={exportProgress * 100}
                     variant={"solid"}
-                    color={EXPORT_LOG_PROGRESS_COMPLETE === exportProgress ?
+                    color={EXPORT_LOG_PROGRESS_VALUE_MAX === exportProgress ?
                         "success" :
                         "primary"}
                 >
-                    {EXPORT_LOG_PROGRESS_COMPLETE === exportProgress ?
+                    {EXPORT_LOG_PROGRESS_VALUE_MAX === exportProgress ?
                         <DownloadIcon
                             color={"success"}
                             sx={{fontSize: "14px"}}/> :

@@ -153,16 +153,23 @@ class LogFileManager {
         this.#decoder.setDecoderOptions(options);
     }
 
-    loadChunk (eventIdx: number): {
+    /**
+     * Loads a chunk of log events based on the provided event index.
+     *
+     * @param logEventIdx The index of the first event to load.
+     * @return An object containing the logs as a string.
+     * @throws {Error} if any error occurs during decode.
+     */
+    loadChunk (logEventIdx: number): {
         logs: string,
     } {
         const results = this.#decoder.decode(
-            eventIdx,
-            Math.min(eventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents)
+            logEventIdx,
+            Math.min(logEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents)
         );
 
         if (null === results) {
-            throw new Error(`Failed to decode chunk containing logEventIdx=${eventIdx}`);
+            throw new Error(`Failed to decode chunk containing logEventIdx=${logEventIdx}`);
         }
 
         const messages = results.map(([msg]) => msg);
