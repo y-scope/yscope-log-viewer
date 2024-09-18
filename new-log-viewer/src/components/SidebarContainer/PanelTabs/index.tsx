@@ -47,7 +47,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                 setIsSettingsModalOpen(true);
                 break;
             default:
-                onActiveTabNameChange(tabName as TAB_NAME);
+                onActiveTabNameChange(tabName);
         }
     };
 
