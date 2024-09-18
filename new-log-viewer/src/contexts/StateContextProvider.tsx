@@ -52,7 +52,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
-    fileName: "No file is open.",
+    fileName: "",
     loadFile: () => null,
     loadPage: () => null,
     logData: "No file is open.",
