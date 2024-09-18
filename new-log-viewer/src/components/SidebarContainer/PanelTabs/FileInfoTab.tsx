@@ -33,7 +33,7 @@ const FileInfoTab = () => {
             tabName={TAB_NAME.FILE_INFO}
             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
         >
-            {"" === fileName ?
+            {0 === fileName.length ?
                 "No file is open." :
                 <List>
                     <CustomListItem
