@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-clean-order/error",
+    "stylelint-prettier/recommended"
+  ]
+}

@@ -1,13 +1,16 @@
 .status-bar {
-    box-shadow: 0 -1px 0 0 var(--joy-palette-neutral-outlinedBorder);
-    align-items: center;
-    bottom: 0;
-    display: flex;
     position: absolute;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+
     width: 100%;
+
+    box-shadow: 0 -1px 0 0 var(--joy-palette-neutral-outlinedBorder);
 }
 
 .status-message {
-    padding-left: 8px;
     flex-grow: 1;
+    padding-left: 8px;
 }
