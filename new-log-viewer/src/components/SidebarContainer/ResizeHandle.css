@@ -6,9 +6,11 @@
     width: var(--ylv-panel-resize-handle-width);
     height: 100%;
 
+    /* stylelint-disable-next-line custom-property-pattern */
     background-color: var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
 }
 
 .resize-handle:hover {
+    /* stylelint-disable-next-line custom-property-pattern */
     background-color: var(--joy-palette-primary-solidHoverBg, #0258a8);
 }
