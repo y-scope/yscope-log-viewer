@@ -52,10 +52,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
-    fileName: "",
+    fileName: "No file is open.",
     loadFile: () => null,
     loadPage: () => null,
-    logData: "Loading...",
+    logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
     originalFileSizeInBytes: 0,
@@ -174,6 +174,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        setFileName("Loading...");
+        setLogData("Loading...");
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
