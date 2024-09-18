@@ -1,3 +1,7 @@
 .sidebar-tab-panel {
     padding: 0.75rem;
 }
+
+.sidebar-tab-panel-title {
+    margin-bottom: 0.5rem !important;
+}

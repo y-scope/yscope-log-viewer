@@ -7,6 +7,8 @@ import {
     Typography,
 } from "@mui/joy";
 
+import "./CustomTabPanel.css";
+
 
 interface CustomTabPanelProps {
     children: React.ReactNode,
@@ -29,7 +31,7 @@ const CustomTabPanel = ({children, tabName, title}: CustomTabPanelProps) => {
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <DialogTitle>
+            <DialogTitle className={"sidebar-tab-panel-title"}>
                 <Typography
                     fontSize={14}
                     fontWeight={400}
