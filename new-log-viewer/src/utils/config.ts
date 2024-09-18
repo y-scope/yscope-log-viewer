@@ -32,6 +32,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
  * @param props.key
  * @param props.value
  * @return `null` if the value is valid, or an error message otherwise.
+ * @throws {Error} If the key is CONFIG_KEY.THEME.
  */
 const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
@@ -62,6 +63,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  * @param props.key
  * @param props.value
  * @return `null` if the update succeeds, or an error message otherwise.
+ * @throws {Error} If the key is CONFIG_KEY.THEME.
  */
 const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     const error = testConfig({key, value} as ConfigUpdate);
@@ -102,6 +104,7 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  *
  * @param key
  * @return The value.
+ * @throws {Error} If the key is CONFIG_KEY.THEME.
  */
 const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
     let value = null;

@@ -21,11 +21,14 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress} = useContext(StateContext);
+    const {exportLogs, exportProgress, fileName} = useContext(StateContext);
 
     return (
         <SmallIconButton
-            disabled={(null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress)}
+            disabled={
+                (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
+                    "" === fileName
+            }
             onClick={exportLogs}
         >
             {null === exportProgress || EXPORT_LOG_PROGRESS_VALUE_MIN === exportProgress ?
