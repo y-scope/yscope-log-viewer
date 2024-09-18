@@ -42,6 +42,7 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
+    exportProgress: Nullable<number>,
     logData: string,
     numEvents: number,
     numPages: number,
@@ -58,6 +59,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
+    exportProgress: null,
     fileName: "",
     logData: "Loading...",
     numEvents: 0,
@@ -140,6 +142,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [exportProgress, setExportProgress] =
+        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const beginLineNumToLogEventNumRef =
@@ -157,7 +161,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         switch (code) {
             case WORKER_RESP_CODE.CHUNK_DATA:
                 if (null !== logExportManagerRef.current) {
-                    logExportManagerRef.current.appendChunkData(args.logs);
+                    const progress = logExportManagerRef.current.appendChunkData(args.logs);
+                    setExportProgress(progress);
                 }
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
@@ -314,6 +319,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
+                exportProgress: exportProgress,
                 fileName: fileName,
                 logData: logData,
                 numEvents: numEvents,

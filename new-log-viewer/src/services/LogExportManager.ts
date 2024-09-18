@@ -1,6 +1,9 @@
 import {downloadBlob} from "../utils/file";
 
 
+const EXPORT_LOG_PROGRESS_INITIALIZATION = 0;
+const EXPORT_LOG_PROGRESS_COMPLETE = 1;
+
 /**
  * Manager for exporting logs to a file.
  */
@@ -22,7 +25,8 @@ class LogExportManager {
 
     constructor (numChunks: number, fileName: string) {
         this.#numChunks = numChunks;
-        this.#exportedFileName = fileName;
+        this.#exportedFileName = `${fileName}-exported-${new Date().toISOString()
+            .replace(/[:.]/g, "-")}.log`;
     }
 
     /**
@@ -37,12 +41,14 @@ class LogExportManager {
         if (0 === this.#numChunks) {
             this.#download();
 
-            return 1;
+            return EXPORT_LOG_PROGRESS_COMPLETE;
         }
         this.#chunks.push(chunkData);
         if (this.#chunks.length === this.#numChunks) {
             this.#download();
             this.#chunks.length = 0;
+
+            return EXPORT_LOG_PROGRESS_COMPLETE;
         }
 
         return this.#chunks.length / this.#numChunks;
@@ -53,11 +59,12 @@ class LogExportManager {
      */
     #download () {
         const blob = new Blob(this.#chunks, {type: "text/plain"});
-        const fileNameTimeStamped = `${this.#exportedFileName}-exported-${new Date().toISOString()
-            .replace(/[:.]/g, "-")}.log`;
-
-        downloadBlob(blob, fileNameTimeStamped);
+        downloadBlob(blob, this.#exportedFileName);
     }
 }
 
 export default LogExportManager;
+export {
+    EXPORT_LOG_PROGRESS_COMPLETE,
+    EXPORT_LOG_PROGRESS_INITIALIZATION,
+};

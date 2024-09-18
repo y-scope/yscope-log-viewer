@@ -11,7 +11,6 @@ import {
 } from "@mui/joy";
 
 import DescriptionIcon from "@mui/icons-material/Description";
-import DownloadIcon from "@mui/icons-material/Download";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import SettingsIcon from "@mui/icons-material/Settings";
 
@@ -19,6 +18,7 @@ import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
 import SettingsModal from "../modals/SettingsModal";
+import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
 import SmallIconButton from "./SmallIconButton";
 
@@ -31,7 +31,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, exportLogs, loadFile} = useContext(StateContext);
+    const {fileName, loadFile} = useContext(StateContext);
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
@@ -49,9 +49,6 @@ const MenuBar = () => {
         setIsSettingsModalOpen(true);
     };
 
-    const handleExportLogsButtonClick = () => {
-        exportLogs();
-    };
 
     return (
         <>
@@ -81,9 +78,7 @@ const MenuBar = () => {
                 >
                     <SettingsIcon/>
                 </SmallIconButton>
-                <SmallIconButton onClick={handleExportLogsButtonClick}>
-                    <DownloadIcon/>
-                </SmallIconButton>
+                <ExportLogsButton/>
             </Sheet>
             <SettingsModal
                 isOpen={isSettingsModalOpen}

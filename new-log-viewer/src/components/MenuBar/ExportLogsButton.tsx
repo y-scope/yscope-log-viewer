@@ -1,0 +1,58 @@
+import {useContext} from "react";
+
+import {
+    CircularProgress,
+    Typography,
+} from "@mui/joy";
+
+import DownloadIcon from "@mui/icons-material/Download";
+
+import {StateContext} from "../../contexts/StateContextProvider";
+import {
+    EXPORT_LOG_PROGRESS_COMPLETE,
+    EXPORT_LOG_PROGRESS_INITIALIZATION,
+} from "../../services/LogExportManager";
+import SmallIconButton from "./SmallIconButton";
+
+
+/**
+ * Represents a button for triggering log exports and displays the progress.
+ *
+ * @return
+ */
+export const ExportLogsButton = () => {
+    const {exportLogs, exportProgress} = useContext(StateContext);
+    const handleExportLogsButtonClick = () => {
+        exportLogs();
+    };
+
+
+    return (
+        <SmallIconButton
+            disabled={null !== exportProgress && 1 !== exportProgress}
+            onClick={handleExportLogsButtonClick}
+        >
+            {null === exportProgress || EXPORT_LOG_PROGRESS_INITIALIZATION === exportProgress ?
+                <DownloadIcon/> :
+                <CircularProgress
+                    determinate={true}
+                    thickness={3}
+                    value={exportProgress * 100}
+                    variant={"solid"}
+                    color={EXPORT_LOG_PROGRESS_COMPLETE === exportProgress ?
+                        "success" :
+                        "primary"}
+                >
+                    {EXPORT_LOG_PROGRESS_COMPLETE === exportProgress ?
+                        <DownloadIcon
+                            color={"success"}
+                            sx={{fontSize: "14px"}}/> :
+                        <Typography level={"body-xs"}>
+                            {Math.ceil(exportProgress * 100)}
+                        </Typography>}
+                </CircularProgress>}
+        </SmallIconButton>
+    );
+};
+
+export default ExportLogsButton;
