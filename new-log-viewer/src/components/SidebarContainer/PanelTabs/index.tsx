@@ -10,7 +10,7 @@ import {
     Tabs,
 } from "@mui/joy";
 
-import FileOpenIcon from "@mui/icons-material/FileOpen";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InfoIcon from "@mui/icons-material/Info";
 import SettingsIcon from "@mui/icons-material/Settings";
 
@@ -76,7 +76,7 @@ const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
                     size={"lg"}
                 >
                     {[
-                        {tabName: TAB_NAME.OPEN_FILE, icon: <FileOpenIcon/>},
+                        {tabName: TAB_NAME.OPEN_FILE, icon: <FolderOpenIcon/>},
                         {tabName: TAB_NAME.FILE_INFO, icon: <InfoIcon/>},
                     ].map(({tabName, icon}) => (
                         <Tab
