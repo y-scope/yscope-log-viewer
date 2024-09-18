@@ -33,20 +33,17 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
 
     const tabListRef = useRef<HTMLDivElement>(null);
 
-    // handlePanelTabOpen
     const handlePanelTabOpen = useCallback(() => {
         setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXEL);
+        document.body.style.setProperty("--ylv-panel-resize-handle-width", "3px");
     }, []);
 
-    const handlePanelTabClose = () => {
-        if (null === tabListRef.current) {
-            console.error("Unexpected null tabListRef.current");
-
-            return;
+    const handleResizeHandleRelease = useCallback(() => {
+        if (panelWidth === tabListRef.current?.clientWidth) {
+            setActiveTabName(TAB_NAME.NONE);
+            document.body.style.setProperty("--ylv-panel-resize-handle-width", "0px");
         }
-        setActiveTabName(TAB_NAME.NONE);
-        setPanelWidth(tabListRef.current.clientWidth);
-    };
+    }, [panelWidth]);
 
     const handleResize = useCallback((offset: number) => {
         if (null === tabListRef.current) {
@@ -55,7 +52,7 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
             return;
         }
         if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXEL > offset) {
-            handlePanelTabClose();
+            setPanelWidth(tabListRef.current.clientWidth);
         } else if (offset < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO) {
             setPanelWidth(offset);
         }
@@ -74,7 +71,9 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
                     ref={tabListRef}
                     onActiveTabNameChange={setActiveTabName}
                     onPanelTabOpen={handlePanelTabOpen}/>
-                <ResizeHandle onResize={handleResize}/>
+                <ResizeHandle
+                    onHandleRelease={handleResizeHandleRelease}
+                    onResize={handleResize}/>
             </div>
             <div className={"sidebar-children-container"}>
                 {children}

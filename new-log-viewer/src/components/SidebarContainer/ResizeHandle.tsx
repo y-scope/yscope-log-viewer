@@ -1,4 +1,5 @@
 import React, {
+    useCallback,
     useEffect,
     useState,
 } from "react";
@@ -7,6 +8,7 @@ import "./ResizeHandle.css";
 
 
 interface ResizeHandleProps {
+    onHandleRelease: () => void,
     onResize: (offset: number) => void,
 }
 
@@ -15,9 +17,13 @@ interface ResizeHandleProps {
  *
  * @param props
  * @param props.onResize The method to call when a resize occurs.
+ * @param props.onHandleRelease
  * @return
  */
-const ResizeHandle = ({onResize}: ResizeHandleProps) => {
+const ResizeHandle = ({
+    onResize,
+    onHandleRelease,
+}: ResizeHandleProps) => {
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
 
     const handleMouseDown = (ev: React.MouseEvent) => {
@@ -25,10 +31,11 @@ const ResizeHandle = ({onResize}: ResizeHandleProps) => {
         setIsMouseDown(true);
     };
 
-    const handleMouseUp = (ev: MouseEvent) => {
+    const handleMouseUp = useCallback((ev: MouseEvent) => {
         ev.preventDefault();
         setIsMouseDown(false);
-    };
+        onHandleRelease();
+    }, [onHandleRelease]);
 
     useEffect(() => {
         if (false === isMouseDown) {
@@ -49,6 +56,7 @@ const ResizeHandle = ({onResize}: ResizeHandleProps) => {
             window.removeEventListener("mouseup", handleMouseUp);
         };
     }, [
+        handleMouseUp,
         isMouseDown,
         onResize,
     ]);
