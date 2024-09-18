@@ -1,8 +1,8 @@
 .settings-dialog-title {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .settings-dialog-title-text {

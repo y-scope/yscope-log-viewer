@@ -7,6 +7,17 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import {ACTION_NAME} from "../../../utils/actions";
 
 
+enum TOKEN_NAME {
+    CUSTOM_INFO = "customInfo",
+    CUSTOM_WARN = "customWarn",
+    CUSTOM_ERROR = "customError",
+    CUSTOM_FATAL = "customFatal",
+    CUSTOM_DATE = "customDate",
+    CUSTOM_EXCEPTION = "customException",
+    CUSTOM_NUMBER = "customNumber",
+    COMMENT = "comment",
+}
+
 /**
  * Gets called when the cursor position is explicitly changed in the editor.
  *
@@ -55,6 +66,7 @@ interface CustomMonacoEditorHandlers {
     onCustomAction?: CustomActionCallback,
 }
 
+export {TOKEN_NAME};
 export type {
     BeforeMountCallback,
     BeforeTextUpdateCallback,
