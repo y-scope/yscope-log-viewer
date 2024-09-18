@@ -1,9 +1,12 @@
 .resize-handle {
     cursor: ew-resize;
+
+    z-index: var(--ylv-resize-handle-z-index);
+
     width: var(--ylv-panel-resize-handle-width);
     height: 100%;
+
     background-color: var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
-    z-index: var(--ylv-resize-handle-z-index);
 }
 
 .resize-handle:hover {
