@@ -9,7 +9,10 @@ import AbcIcon from "@mui/icons-material/Abc";
 import StorageIcon from "@mui/icons-material/Storage";
 
 import {StateContext} from "../../../contexts/StateContextProvider";
-import {TAB_NAME} from "../../../typings/tab";
+import {
+    TAB_DISPLAY_NAMES,
+    TAB_NAME,
+} from "../../../typings/tab";
 import {formatSizeInBytes} from "../../../utils/units";
 import CustomListItem from "../../CustomListItem";
 import CustomTabPanel from "./CustomTabPanel";
@@ -28,7 +31,7 @@ const FileInfoTab = () => {
     return (
         <CustomTabPanel
             tabName={TAB_NAME.FILE_INFO}
-            title={"File Info"}
+            title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
         >
             <List>
                 <CustomListItem

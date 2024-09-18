@@ -12,7 +12,10 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-import {TAB_NAME} from "../../../typings/tab";
+import {
+    TAB_DISPLAY_NAMES,
+    TAB_NAME,
+} from "../../../typings/tab";
 import SettingsModal from "../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
 
@@ -73,6 +76,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         <Tab
                             color={"neutral"}
                             key={tabName}
+                            title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
                             value={tabName}
                         >
                             {icon}
@@ -81,6 +85,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                     <div className={"sidebar-tab-list-spacing"}/>
                     <Tab
                         color={"neutral"}
+                        title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
                         value={TAB_NAME.SETTINGS}
                     >
                         <SettingsIcon/>
