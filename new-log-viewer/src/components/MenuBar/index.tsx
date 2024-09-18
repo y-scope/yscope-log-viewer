@@ -44,6 +44,7 @@ const MenuBar = () => {
 
                 <Divider orientation={"vertical"}/>
                 <Tooltip
+                    arrow={true}
                     placement={"right"}
                     title={"Open file"}
                     variant={"outlined"}
