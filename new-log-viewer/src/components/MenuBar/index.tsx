@@ -2,14 +2,17 @@ import {useContext} from "react";
 
 import {
     Divider,
+    IconButton,
     Sheet,
     Stack,
     Typography,
 } from "@mui/joy";
 
-import Description from "@mui/icons-material/Description";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {CURSOR_CODE} from "../../typings/worker";
+import {openFile} from "../../utils/file";
 import NavigationBar from "./NavigationBar";
 
 import "./index.css";
@@ -21,7 +24,13 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName} = useContext(StateContext);
+    const {fileName, loadFile} = useContext(StateContext);
+
+    const handleOpenFile = () => {
+        openFile((file) => {
+            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+        });
+    };
 
     return (
         <>
@@ -31,7 +40,12 @@ const MenuBar = () => {
                     direction={"row"}
                     gap={0.5}
                 >
-                    <Description/>
+                    <IconButton
+                        size={"sm"}
+                        onClick={handleOpenFile}
+                    >
+                        <FolderOpenIcon/>
+                    </IconButton>
                     <Typography level={"body-md"}>
                         {fileName}
                     </Typography>

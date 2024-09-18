@@ -1,6 +1,5 @@
 import React, {
     forwardRef,
-    useContext,
     useState,
 } from "react";
 
@@ -10,19 +9,14 @@ import {
     Tabs,
 } from "@mui/joy";
 
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InfoIcon from "@mui/icons-material/Info";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-import {StateContext} from "../../../contexts/StateContextProvider";
-import {CURSOR_CODE} from "../../../typings/worker";
-import {openFile} from "../../../utils/file";
 import SettingsModal from "../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
 
 
 enum TAB_NAME {
-    OPEN_FILE = "openFile",
     FILE_INFO = "fileInfo",
     SETTINGS = "settings",
 }
@@ -34,16 +28,8 @@ enum TAB_NAME {
  * @return
  */
 const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
-    const {loadFile} = useContext(StateContext);
-
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-
-    const handleOpenFile = () => {
-        openFile((file) => {
-            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
-        });
-    };
 
     const handleSettingsModalClose = () => {
         setIsSettingsModalOpen(false);
@@ -51,9 +37,6 @@ const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
 
     const handleTabChange = (__: React.SyntheticEvent | null, value: number | string | null) => {
         switch (value) {
-            case TAB_NAME.OPEN_FILE:
-                handleOpenFile();
-                break;
             case TAB_NAME.SETTINGS:
                 setIsSettingsModalOpen(true);
                 break;
@@ -76,7 +59,6 @@ const PanelTabs = forwardRef<HTMLDivElement>((_, tabListRef) => {
                     size={"lg"}
                 >
                     {[
-                        {tabName: TAB_NAME.OPEN_FILE, icon: <FolderOpenIcon/>},
                         {tabName: TAB_NAME.FILE_INFO, icon: <InfoIcon/>},
                     ].map(({tabName, icon}) => (
                         <Tab

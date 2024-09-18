@@ -1,5 +1,4 @@
 .menu-bar {
-    padding-left: 8px;
     display: flex;
     flex-direction: row;
     height: var(--ylv-status-bar-height);
