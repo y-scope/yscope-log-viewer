@@ -74,6 +74,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         {tabName: TAB_NAME.FILE_INFO, icon: <InfoIcon/>},
                     ].map(({tabName, icon}) => (
                         <Tab
+                            className={"sidebar-tab-button"}
                             color={"neutral"}
                             key={tabName}
                             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
@@ -84,6 +85,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                     ))}
                     <div className={"sidebar-tab-list-spacing"}/>
                     <Tab
+                        className={"sidebar-tab-button"}
                         color={"neutral"}
                         title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
                         value={TAB_NAME.SETTINGS}
