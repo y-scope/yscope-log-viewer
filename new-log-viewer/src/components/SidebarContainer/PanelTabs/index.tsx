@@ -4,7 +4,6 @@ import React, {
 } from "react";
 
 import {
-    Tab,
     TabList,
     Tabs,
 } from "@mui/joy";
@@ -12,12 +11,10 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import {
-    TAB_DISPLAY_NAMES,
-    TAB_NAME,
-} from "../../../typings/tab";
+import {TAB_NAME} from "../../../typings/tab";
 import SettingsModal from "../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
+import TooltipTab from "./TooltipTab";
 
 
 interface PanelTabsProps {
@@ -73,26 +70,15 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                     {[
                         {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
                     ].map(({tabName, Icon}) => (
-                        <Tab
-                            className={"sidebar-tab-button"}
-                            color={"neutral"}
-                            indicatorPlacement={"left"}
+                        <TooltipTab
+                            Icon={Icon}
                             key={tabName}
-                            title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
-                            value={tabName}
-                        >
-                            <Icon className={"sidebar-tab-button-icon"}/>
-                        </Tab>
+                            tabName={tabName}/>
                     ))}
                     <div className={"sidebar-tab-list-spacing"}/>
-                    <Tab
-                        className={"sidebar-tab-button"}
-                        color={"neutral"}
-                        title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
-                        value={TAB_NAME.SETTINGS}
-                    >
-                        <SettingsOutlinedIcon className={"sidebar-tab-button-icon"}/>
-                    </Tab>
+                    <TooltipTab
+                        Icon={SettingsOutlinedIcon}
+                        tabName={TAB_NAME.SETTINGS}/>
                 </TabList>
                 <FileInfoTab/>
             </Tabs>
