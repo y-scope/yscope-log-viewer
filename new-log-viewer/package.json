@@ -8,11 +8,10 @@
     "start": "webpack serve --open --config webpack.dev.js",
 
     "lint": "npm run lint:check",
-    "lint:check": "npm-run-all --sequential --continue-on-error lint:check:**",
-    "lint:fix": "npm-run-all \"lint:check:** -- --fix\"",
-
-    "lint:check:css": "stylelint src/**/*.css --custom-formatter=stylelint-actions-formatters",
-    "lint:check:js": "eslint src webpack.*.js --max-warnings 0"
+    "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
+    "lint:check:css": "stylelint src/**/*.css --formatter github",
+    "lint:check:js": "eslint src webpack.*.js --max-warnings 0",
+    "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\""
   },
   "repository": {
     "type": "git",
