@@ -89,7 +89,7 @@ class LogFileManager {
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
-        this.#computePageBoundaries();
+        this.#computeUnfilteredPageBoundaries();
         console.log(
             `Found ${this.#numEvents} log events.`,
         );
@@ -183,7 +183,7 @@ class LogFileManager {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
         const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
+        const results = this.#decoder.decodeFilteredRange(beginLogEventNum - 1, endLogEventNum);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `beginLogEventNum=${beginLogEventNum}, ` +
@@ -226,7 +226,7 @@ class LogFileManager {
             throw new Error("Error changing log level filter");
         }
 
-        this.#computePageBoundaries();
+        logLevelFilter ? this.#computeFilteredPageBoundaries() : this.#computeUnfilteredPageBoundaries()
     }
 
     /**
@@ -234,7 +234,7 @@ class LogFileManager {
      * boundaries. The first array contains the number of first log event on each page. The
      * second array contains the number last log event on each page.
      */
-    #computePageBoundaries () {
+    #computeFilteredPageBoundaries () {
         this.#firstLogEventNumPerPage.length = 0;
         this.#lastLogEventNumPerPage.length = 0;
 
@@ -242,6 +242,7 @@ class LogFileManager {
         this.#numFilteredEvents = filteredLogEventsIndices.length;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
+
             const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
             this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
 
@@ -255,6 +256,27 @@ class LogFileManager {
 
             const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number;
             this.#lastLogEventNumPerPage.push(1 + lastLogEventOnPageIdx);
+        }
+    }
+
+    #computeUnfilteredPageBoundaries () {
+        this.#firstLogEventNumPerPage.length = 0;
+        this.#lastLogEventNumPerPage.length = 0;
+
+        this.#numFilteredEvents = this.#numEvents;
+
+        for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
+            this.#firstLogEventNumPerPage.push(1 + i);
+
+            // Need to minus one from page size to get correct index into filtered log events.
+            let lastPageIdx: number = i + this.#pageSize - 1;
+
+            // Guard to prevent indexing out of array on last page.
+            if (lastPageIdx >= this.#numFilteredEvents) {
+                lastPageIdx = this.#numFilteredEvents - 1;
+            }
+
+            this.#lastLogEventNumPerPage.push(1 + lastPageIdx);
         }
     }
 

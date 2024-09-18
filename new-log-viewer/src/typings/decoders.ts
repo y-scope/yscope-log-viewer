@@ -84,14 +84,25 @@ interface Decoder {
     buildIdx(beginIdx: number, endIdx: number): Nullable<LogEventCount>;
 
     /**
-     * Decodes the log events in the range `[beginIdx, endIdx)`.
+     * Decodes filtered log events (i.e. only includes events are included in current filter) in
+     * the range `[beginIdx, endIdx)`.
      *
      * @param beginIdx
      * @param endIdx
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
-    decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
+    decodeFilteredRange(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
+
+    /**
+     * Decodes the all log events in the range `[beginIdx, endIdx)` irrespective of filter applied.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @return The decoded log events on success or null if any log event in the range doesn't exist
+     * (e.g., the range exceeds the number of log events in the file).
+     */
+    decodeRange(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 }
 
 /**
