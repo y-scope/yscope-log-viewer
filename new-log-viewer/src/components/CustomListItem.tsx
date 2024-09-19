@@ -5,12 +5,16 @@ import {
     ListItemContent,
     ListItemDecorator,
     Typography,
+    TypographyProps,
 } from "@mui/joy";
 
 
 interface CustomListItemProps {
     content: string,
     icon: React.ReactNode,
+    slotProps?: {
+        content?: TypographyProps
+    },
     title: string
 }
 
@@ -21,9 +25,10 @@ interface CustomListItemProps {
  * @param props.content
  * @param props.icon
  * @param props.title
+ * @param props.slotProps
  * @return
  */
-const CustomListItem = ({content, icon, title}: CustomListItemProps) => (
+const CustomListItem = ({content, icon, slotProps, title}: CustomListItemProps) => (
     <ListItem>
         <ListItemDecorator>
             {icon}
@@ -33,6 +38,7 @@ const CustomListItem = ({content, icon, title}: CustomListItemProps) => (
                 {title}
             </Typography>
             <Typography
+                {...slotProps?.content}
                 level={"body-sm"}
             >
                 {content}

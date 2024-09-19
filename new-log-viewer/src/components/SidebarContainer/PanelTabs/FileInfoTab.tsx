@@ -37,6 +37,7 @@ const FileInfoTab = () => {
                     <CustomListItem
                         content={fileName}
                         icon={<AbcIcon/>}
+                        slotProps={{content: {sx: {wordBreak: "break-word"}}}}
                         title={"Name"}/>
                     <Divider/>
                     <CustomListItem
