@@ -5,11 +5,14 @@
   "main": "src/index.tsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
+    "start": "webpack serve --open --config webpack.dev.js",
+
     "lint": "npm run lint:check",
-    "lint:ci": "npm run lint:check -- --output-file eslint-report.json --format json",
-    "lint:check": "eslint src webpack.*.js",
-    "lint:fix": "npm run lint:check -- --fix",
-    "start": "webpack serve --open --config webpack.dev.js"
+    "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
+    "lint:check:css": "stylelint src/**/*.css",
+    "lint:check:js": "eslint src webpack.*.js --max-warnings 0",
+    "lint:ci": "npm-run-all --sequential --continue-on-error lint:check:js \"lint:check:css -- --formatter github\"",
+    "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\""
   },
   "repository": {
     "type": "git",
@@ -50,8 +53,14 @@
     "html-webpack-plugin": "^5.6.0",
     "mini-css-extract-plugin": "^2.9.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3",
     "react-refresh": "^0.14.2",
     "style-loader": "^4.0.0",
+    "stylelint": "^16.9.0",
+    "stylelint-config-clean-order": "^6.1.0",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-prettier": "^5.0.2",
     "typescript": "^5.6.2",
     "webpack": "^5.92.0",
     "webpack-cli": "^5.1.4",
