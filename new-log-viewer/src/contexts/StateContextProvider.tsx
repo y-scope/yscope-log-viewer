@@ -167,7 +167,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             if (!newLogEventNum) {
                 // If no nums on page are smaller than user logEventNum, user logEventNum is the
-               //  smallest so we should just return the smallest value on the page.
+                //  smallest so we should just return the smallest value on the page.
                 newLogEventNum = logEventNumOnPage[0] as number;
             }
 
