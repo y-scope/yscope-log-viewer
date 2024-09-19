@@ -41,8 +41,8 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
-    firstLogEventNumPerPage: number[],
-    lastLogEventNumPerPage: number[],
+    firstLogEventNumOnPage: number[],
+    lastLogEventNumOnPage: number[],
     logData: string,
     numEvents: number,
     numFilteredEvents: number,
@@ -60,8 +60,8 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "",
-    firstLogEventNumPerPage: [],
-    lastLogEventNumPerPage: [],
+    firstLogEventNumOnPage: [],
+    lastLogEventNumOnPage: [],
     logData: "Loading...",
     numEvents: 0,
     numFilteredEvents: 0,
@@ -76,43 +76,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 interface StateContextProviderProps {
     children: React.ReactNode
 }
-
-/**
- * Updates the log event number in the current window's URL hash parameters.
- *
- * @param lastLogEventNum The last log event number value.
- * @param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
- * number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
- * hash parameter log event number will be clamped to that range.
- */
-const updateLogEventNumInUrl = (
-    lastLogEventNum: number,
-    inputLogEventNum: Nullable<number>
-) => {
-    const newLogEventNum = (null === inputLogEventNum) ?
-        lastLogEventNum :
-        clamp(inputLogEventNum, 1, lastLogEventNum);
-
-    updateWindowUrlHashParams({
-        logEventNum: newLogEventNum,
-    });
-};
-
-/**
- * Gets the last log event number from a map of begin line numbers to log event numbers.
- *
- * @param beginLineNumToLogEventNum
- * @return The last log event number.
- */
-const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
-    const allLogEventNums = Array.from(beginLineNumToLogEventNum.values());
-    let lastLogEventNum = allLogEventNums.at(-1);
-    if ("undefined" === typeof lastLogEventNum) {
-        lastLogEventNum = 1;
-    }
-
-    return lastLogEventNum;
-};
 
 /**
  * Sends a post message to a worker with the given code and arguments. This wrapper around
@@ -156,10 +119,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
 
     const firstLogEventNumPerPage =
-        useRef<number[]>(STATE_DEFAULT.firstLogEventNumPerPage);
+        useRef<number[]>(STATE_DEFAULT.firstLogEventNumOnPage);
     const lastLogEventNumPerPage =
-        useRef<number[]>(STATE_DEFAULT.lastLogEventNumPerPage);
-
+        useRef<number[]>(STATE_DEFAULT.lastLogEventNumOnPage);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -180,18 +142,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
-
-                let newLogEventNum = Array.from(args.beginLineNumToLogEventNum.values())
-                    .includes(logEventNum as number) ?
-                    logEventNum :
-                    lastLogEventNum
-
-                updateLogEventNumInUrl(
-                    lastLogEventNum,
-                    newLogEventNum
-                );
-
+                console.log(`page data log event`)
+                //console.log(logEventNumRef.current);
+                //let logEventInput = logEventNumRef.current;
+                const newLogEventNum: number = getClosestLogEventNum(args.beginLineNumToLogEventNum)
+                updateWindowUrlHashParams({
+                    logEventNum: newLogEventNum,
+                });
                 break;
             }
             case WORKER_RESP_CODE.VIEW_INFO:
@@ -241,7 +198,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadPage = (newPageNum: number) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
-
             return;
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
@@ -251,23 +207,40 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        console.log(logEventNum)
         if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
-            0 === firstLogEventNumPerPage.current.length) {
+            0 === firstLogEventNumPerPage.current.length || numEvents === STATE_DEFAULT.numEvents) {
             return;
         }
 
-        const newPageNum = 1 +
-            firstLogEventNumPerPage.current.findLastIndex((value: number) => value <= logEventNum);
+        let clampedLogEventNum: number  = clamp(logEventNum, 1, numEvents);
 
-        if (0 === newPageNum) {
+        console.log(logEventNum)
+
+        const newPageIndex = firstLogEventNumPerPage.current.findLastIndex((value: number) => value <= clampedLogEventNum);
+
+        if (-1 === newPageIndex) {
+            // logEventNum is not on any available page
+            if (logEventNum !== clampedLogEventNum)
+            updateWindowUrlHashParams({
+                logEventNum: clampedLogEventNum,
+            });
             return;
         }
 
-        // Request a page switch only if it's not the initial page load.
-        if (STATE_DEFAULT.pageNum !== pageNum && newPageNum !== pageNum) {
-                loadPage(newPageNum);
+        const newPageNum = newPageIndex + 1
+
+        if (newPageNum !== pageNum) {
+            loadPage(newPageNum);
+            setPageNum(newPageNum);
+        } else {
+            // Page has not changed
+            // This will trigger another useEffect but shouldn't do anything
+            const newLogEventNum = getClosestLogEventNum(beginLineNumToLogEventNumRef.current)
+            updateWindowUrlHashParams({
+                logEventNum: newLogEventNum,
+            });
         }
-        setPageNum(newPageNum);
     }, [
         logEventNum,
     ]);
@@ -297,14 +270,42 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadFile,
     ]);
 
+    // Do not move this out of component. There are some strange effects with React that will occasionally
+    // set logEventNum to null if outside.
+    const getClosestLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
+        let inputLogEventNum = logEventNum;
+        let newLogEventNum: Nullable<number>  = null;
+        const logEventNumOnPage = Array.from(beginLineNumToLogEventNum.values())
+
+        // On initial load we don't know load event so just use last value
+        if (!inputLogEventNum) {
+            newLogEventNum = logEventNumOnPage.at(-1) as number
+            return newLogEventNum;
+        }
+
+        for (let i = logEventNumOnPage.length; i > 0; i--) {
+            if (logEventNumOnPage[i] as number <= inputLogEventNum) {
+                newLogEventNum = logEventNumOnPage[i] as number;
+                break;
+            }
+        }
+
+        if (!newLogEventNum) {
+            //If all elements larger than logEvent, i.e. all checks in findLastIndex are false, i.e. logEvent is the smallest return first one
+            newLogEventNum = logEventNumOnPage[0] as number;
+        }
+
+        return newLogEventNum;
+    };
+
     return (
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 changeLogLevelFilter: changeLogLevelFilter,
                 fileName: fileName,
-                firstLogEventNumPerPage: firstLogEventNumPerPage.current,
-                lastLogEventNumPerPage: lastLogEventNumPerPage.current,
+                firstLogEventNumOnPage: firstLogEventNumPerPage.current,
+                lastLogEventNumOnPage: lastLogEventNumPerPage.current,
                 loadFile: loadFile,
                 loadPage: loadPage,
                 logData: logData,

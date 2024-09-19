@@ -59,9 +59,9 @@ class LogFileManager {
 
     #numFilteredEvents: number = 0;
 
-    #firstLogEventNumPerPage: number[] = [];
+    #firstLogEventNumOnPage: number[] = [];
 
-    #lastLogEventNumPerPage: number[] = [];
+    #lastLogEventNumOnPage: number[] = [];
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -108,11 +108,11 @@ class LogFileManager {
     }
 
     get firstLogEventNumPerPage () {
-        return this.#firstLogEventNumPerPage;
+        return this.#firstLogEventNumOnPage;
     }
 
     get lastLogEventNumPerPage () {
-        return this.#lastLogEventNumPerPage;
+        return this.#lastLogEventNumOnPage;
     }
 
     /**
@@ -236,8 +236,8 @@ class LogFileManager {
      * second array contains the number last log event on each page.
      */
     #computeFilteredPageBoundaries () {
-        this.#firstLogEventNumPerPage.length = 0;
-        this.#lastLogEventNumPerPage.length = 0;
+        this.#firstLogEventNumOnPage.length = 0;
+        this.#lastLogEventNumOnPage.length = 0;
 
         const filteredLogEventsIndices: number[] = this.#decoder.getFilteredLogEvents();
         this.#numFilteredEvents = filteredLogEventsIndices.length;
@@ -245,7 +245,7 @@ class LogFileManager {
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
 
             const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
-            this.#firstLogEventNumPerPage.push(1 + firstLogEventOnPageIdx);
+            this.#firstLogEventNumOnPage.push(1 + firstLogEventOnPageIdx);
 
             // Need to minus one from page size to get correct index into filtered log events.
             let lastPageIdx: number = i + this.#pageSize - 1;
@@ -256,18 +256,18 @@ class LogFileManager {
             }
 
             const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number;
-            this.#lastLogEventNumPerPage.push(1 + lastLogEventOnPageIdx);
+            this.#lastLogEventNumOnPage.push(1 + lastLogEventOnPageIdx);
         }
     }
 
     #computeUnfilteredPageBoundaries () {
-        this.#firstLogEventNumPerPage.length = 0;
-        this.#lastLogEventNumPerPage.length = 0;
+        this.#firstLogEventNumOnPage.length = 0;
+        this.#lastLogEventNumOnPage.length = 0;
 
         this.#numFilteredEvents = this.#numEvents;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
-            this.#firstLogEventNumPerPage.push(1 + i);
+            this.#firstLogEventNumOnPage.push(1 + i);
 
             // Need to minus one from page size to get correct index into filtered log events.
             let lastPageIdx: number = i + this.#pageSize - 1;
@@ -277,7 +277,7 @@ class LogFileManager {
                 lastPageIdx = this.#numFilteredEvents - 1;
             }
 
-            this.#lastLogEventNumPerPage.push(1 + lastPageIdx);
+            this.#lastLogEventNumOnPage.push(1 + lastPageIdx);
         }
     }
 
