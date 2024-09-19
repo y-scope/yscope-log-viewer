@@ -80,6 +80,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     throw new Error("Log file manager hasn't been initialized");
                 }
                 LOG_FILE_MANAGER.changeLogLevelFilter(args.logLevelFilter);
+
                 postResp(WORKER_RESP_CODE.VIEW_INFO, {
                     numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
                     firstLogEventNumPerPage: LOG_FILE_MANAGER.firstLogEventNumPerPage,

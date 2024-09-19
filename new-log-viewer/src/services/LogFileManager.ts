@@ -223,7 +223,8 @@ class LogFileManager {
         const result: boolean = this.#decoder.changeLogLevelFilter(logLevelFilter);
 
         if (false === result) {
-            throw new Error("Error changing log level filter");
+            throw new Error(`Error changing log level filter as feature not yet
+                implemented for this file type on new log viewer`);
         }
 
         logLevelFilter ? this.#computeFilteredPageBoundaries() : this.#computeUnfilteredPageBoundaries()

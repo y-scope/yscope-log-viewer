@@ -20,24 +20,6 @@ import {
     LogLevelFilter,
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
-import { number } from "prop-types";
-
-
-/**
- * Set the default log level filter (i.e. all levels are selected, so the array should include all
- * log indices).
- *
- * @param length
- * @return Array with indices as values (i.e [0, 1, 2, 3, ..., length - 1])
- */
-const createIndicesArray = (length: number): number[] => {
-    const LogIndices: number[] = Array.from(
-        {length: length},
-        (_, index) => index
-    );
-
-    return LogIndices;
-};
 
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for

@@ -49,10 +49,14 @@ class ClpIrDecoder implements Decoder {
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         // eslint-disable-next-line no-warning-comments
         // TODO fix this after log level filtering is implemented in clp-ffi-js
-        return true;
+        return false;
     }
 
-    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        return this.#streamReader.decodeRange(beginIdx, endIdx);
+    }
+
+    decodeFilteredRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 }
