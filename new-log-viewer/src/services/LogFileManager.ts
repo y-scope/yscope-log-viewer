@@ -265,6 +265,9 @@ class LogFileManager {
         }
     }
 
+    /**
+     * Computes logEventNum page boundaries with assuming no filter.
+     */
     #computeUnfilteredPageBoundaries () {
         this.#firstLogEventNumOnPage.length = 0;
         this.#lastLogEventNumOnPage.length = 0;

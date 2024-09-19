@@ -102,6 +102,17 @@ class JsonlDecoder implements Decoder {
         return this.#decodeAnyRange(beginIdx, endIdx, this.#isFiltered);
     }
 
+
+    /**
+     * Decodes JSON log events from the filtered log events array or unfiltered
+     * based on the value of useFilter.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @param useFilter Whether to use filtered or unfiltered log event array
+     * @return The decoded log events on success or null if any log event in the range doesn't exist
+     * (e.g., the range exceeds the number of log events in the file).
+     */
     #decodeAnyRange (
         beginIdx: number,
         endIdx: number,

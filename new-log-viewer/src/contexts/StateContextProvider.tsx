@@ -106,9 +106,14 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
+    // #TODO: logEventNumRef is a bit of trick and should removed. We should be able to directly use
+    // the state from urlContext; however, making the change will require large changes to a few hooks.
+    const logEventNumRef = useRef(logEventNum);
+
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
 
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
+
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
 
     const [numFilteredEvents, setNumFilteredEvents] = useState<number>(
@@ -130,39 +135,39 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         STATE_DEFAULT.lastLogEventNumOnPage,
     );
 
-    const previousFilePath = useRef<string>("");
-
     const mainWorkerRef = useRef<null | Worker>(null);
 
+    // Returns the closest logEventNum on the current page to user provided logEventNum. User
+    // provided logEventNum may not be in the filtered array, so here we find the closest value
+    // that actually exists on the page.
     const getClosestLogEventNum = useCallback(
         (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
-            const inputLogEventNum = logEventNum;
             let newLogEventNum: Nullable<number> = null;
             const logEventNumOnPage = Array.from(beginLineNumToLogEventNum.values());
 
-            // On initial load we don't know load event so just use last value
-            if (!inputLogEventNum) {
+            // On initial file load we don't know logEventNum so just use last value on page
+            if (!logEventNumRef.current) {
                 newLogEventNum = logEventNumOnPage.at(-1) as number;
-
                 return newLogEventNum;
             }
 
+            // Find first logEventNum smaller or equal to user provided logEventNum.
             for (let i = logEventNumOnPage.length; 0 < i; i--) {
-                if ((logEventNumOnPage[i] as number) <= inputLogEventNum) {
+                if ((logEventNumOnPage[i] as number) <= logEventNumRef.current) {
                     newLogEventNum = logEventNumOnPage[i] as number;
                     break;
                 }
             }
 
             if (!newLogEventNum) {
-                // If all elements larger than logEvent, i.e. all checks in findLastIndex are false,
-                // i.e. logEvent is the smallest return first one
+                // If no Nums on page are smaller than user logEventNum, user logEventNum is the smallest
+                // So we should just return the smallest value on the page.
                 newLogEventNum = logEventNumOnPage[0] as number;
             }
 
             return newLogEventNum;
         },
-        [logEventNum],
+        [],
     );
 
     const handleMainWorkerResp = useCallback(
@@ -252,11 +257,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        logEventNumRef.current = logEventNum;
+
         if (
             null === mainWorkerRef.current ||
-      URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
-      0 === firstLogEventNumPerPage.current.length ||
-      numEvents === STATE_DEFAULT.numEvents
+            URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
+            0 === firstLogEventNumPerPage.current.length ||
+            numEvents === STATE_DEFAULT.numEvents
         ) {
             return;
         }
@@ -268,7 +275,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         );
 
         if (-1 === newPageIndex) {
-            // logEventNum is not on any available page
+            // logEventNum is not on any available page.
             if (logEventNum !== clampedLogEventNum) {
                 updateWindowUrlHashParams({
                     logEventNum: clampedLogEventNum,
@@ -281,11 +288,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const newPageNum = newPageIndex + 1;
 
         if (newPageNum !== pageNum) {
+            // Will update the url when loadPage returns, so not necessary to do here.
             loadPage(newPageNum);
             setPageNum(newPageNum);
         } else {
-            // Page has not changed
-            // This will trigger another useEffect but shouldn't do anything
+            // Page has not changed. This will trigger another useEffect but shouldn't do anything.
             const newLogEventNum = getClosestLogEventNum(
                 beginLineNumToLogEventNumRef.current,
             );
@@ -301,22 +308,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
-        if (
-            previousFilePath.current === filePath ||
-      URL_SEARCH_PARAMS_DEFAULT.filePath === filePath
-        ) {
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
             return;
         }
 
-        previousFilePath.current = filePath;
-
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
             // Set which page to load since the user specified a specific `logEventNum`.\=
             // NOTE: Since we don't know how many pages the log file contains, we only clamp the
             // minimum of the page number.
             const newPageNum = Math.max(
-                getChunkNum(logEventNum, getConfig(CONFIG_KEY.PAGE_SIZE)),
+                getChunkNum(logEventNumRef.current, getConfig(CONFIG_KEY.PAGE_SIZE)),
                 1,
             );
 
@@ -324,9 +326,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             setPageNum(newPageNum);
         }
         loadFile(filePath, cursor);
-    }, [logEventNum,
+    }, [
         filePath,
-        loadFile]);
+        loadFile,
+    ]);
 
     return (
         <StateContext.Provider

@@ -38,9 +38,9 @@ const LogLevelSelect = () => {
         event: React.SyntheticEvent | null,
         newValue: Array<string> | null
     ) => {
-    // convert strings to numbers.
+        // convert strings to numbers.
         const selected: LogLevelFilter =
-      newValue && newValue.map((value) => Number(value));
+            newValue && newValue.map((value) => Number(value));
 
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
