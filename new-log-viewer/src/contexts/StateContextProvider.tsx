@@ -176,6 +176,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
         setFileName("Loading...");
         setLogData("Loading...");
+        setOriginalFileSizeInBytes(STATE_DEFAULT.originalFileSizeInBytes);
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
