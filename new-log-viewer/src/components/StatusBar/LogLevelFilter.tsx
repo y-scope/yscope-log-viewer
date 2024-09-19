@@ -39,11 +39,11 @@ const LogLevelSelect = () => {
         newValue: Array<string> | null
     ) => {
         let selected: LogLevelFilter;
-        if (newValue && newValue.length > 0) {
-             // convert strings to number
+        if (newValue && 0 < newValue.length) {
+            // convert strings to number
             selected = newValue.map((value) => Number(value));
         } else {
-            selected = null
+            selected = null;
         }
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
