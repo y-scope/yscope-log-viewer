@@ -38,10 +38,13 @@ const LogLevelSelect = () => {
         event: React.SyntheticEvent | null,
         newValue: Array<string> | null
     ) => {
-        // convert strings to numbers.
-        const selected: LogLevelFilter =
-            newValue && newValue.map((value) => Number(value));
-
+        let selected: LogLevelFilter;
+        if (newValue && newValue.length > 0) {
+             // convert strings to number
+            selected = newValue.map((value) => Number(value));
+        } else {
+            selected = null
+        }
         setSelectedLogLevels(selected);
         changeLogLevelFilter(selected);
     };
