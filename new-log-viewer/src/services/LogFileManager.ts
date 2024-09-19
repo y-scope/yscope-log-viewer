@@ -154,22 +154,26 @@ class LogFileManager {
     }
 
     /**
-     * Loads a chunk of log events based on the provided event index.
+     * Loads log events in the range [`logEventIdx`, `logEventIdx + EXPORT_LOGS_CHUNK_SIZE`) or all
+     * remaining log events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
      *
-     * @param logEventIdx The index of the first event to load.
-     * @return An object containing the logs as a string.
-     * @throws {Error} if any error occurs during decode.
+     * @param logEventIdx
+     * @return An object containing the log events as a string.
+     * @throws {Error} if any error occurs when decoding the log events.
      */
     loadChunk (logEventIdx: number): {
         logs: string,
     } {
+        const logEventEndIdx = Math.min(logEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
         const results = this.#decoder.decode(
             logEventIdx,
-            Math.min(logEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents)
+            logEventEndIdx
         );
 
         if (null === results) {
-            throw new Error(`Failed to decode chunk containing logEventIdx=${logEventIdx}`);
+            throw new Error(
+                `Failed to decode log events in range [${logEventIdx}, ${logEventEndIdx})`
+            );
         }
 
         const messages = results.map(([msg]) => msg);
