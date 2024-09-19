@@ -3,5 +3,6 @@
 }
 
 .sidebar-tab-panel-title {
+    user-select: none;
     margin-bottom: 0.5rem !important;
 }
