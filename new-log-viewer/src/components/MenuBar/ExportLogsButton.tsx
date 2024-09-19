@@ -26,10 +26,9 @@ const ExportLogsButton = () => {
     return (
         <SmallIconButton
             disabled={
-
                 // eslint-disable-next-line no-warning-comments
-                // TODO: replace "" with another context variable which indicates whether
-                //  the fileName is loaded
+                // TODO: Replace `"" === fileName` with a more specific context variable that
+                // indicates whether the file has been loaded.
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
                     "" === fileName
             }
