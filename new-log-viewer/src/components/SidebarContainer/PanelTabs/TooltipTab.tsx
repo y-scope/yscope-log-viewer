@@ -10,6 +10,8 @@ import {
     TAB_NAME,
 } from "../../../typings/tab";
 
+import "./TooltipTab.css";
+
 
 interface TooltipTabProps {
     tabName: TAB_NAME,

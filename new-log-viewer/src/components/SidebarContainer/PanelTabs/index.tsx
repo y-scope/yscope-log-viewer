@@ -16,6 +16,8 @@ import SettingsModal from "../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
 import TooltipTab from "./TooltipTab";
 
+import "./index.css";
+
 
 interface PanelTabsProps {
     activeTabName: TAB_NAME,

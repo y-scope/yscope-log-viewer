@@ -17,8 +17,6 @@ import {formatSizeInBytes} from "../../../utils/units";
 import CustomListItem from "../../CustomListItem";
 import CustomTabPanel from "./CustomTabPanel";
 
-import "./index.css";
-
 
 /**
  * Display the file name and original size of the selected file.
