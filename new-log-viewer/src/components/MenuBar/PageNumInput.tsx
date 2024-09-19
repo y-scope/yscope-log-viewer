@@ -29,10 +29,10 @@ const PageNumInput = () => {
     const {loadPage, numFilteredEvents, pageNum} = useContext(StateContext);
     const numPages: number =
         useMemo(
-            () => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),
+            () => numFilteredEvents &&
+            getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),
             [numFilteredEvents]
         );
-
     const adjustedPageNum = (null === pageNum) ?
         0 :
         pageNum;

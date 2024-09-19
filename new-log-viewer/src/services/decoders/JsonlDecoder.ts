@@ -258,7 +258,7 @@ class JsonlDecoder implements Decoder {
         if (false === logLevelStr.toUpperCase() in LOG_LEVEL) {
             console.error(`${logLevelStr} doesn't match any known log level.`);
         } else {
-            logLevel = LOG_LEVEL[logLevelStr as keyof typeof LOG_LEVEL];
+            logLevel = LOG_LEVEL[logLevelStr.toUpperCase() as keyof typeof LOG_LEVEL];
         }
 
         return logLevel;

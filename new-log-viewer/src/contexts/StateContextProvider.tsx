@@ -124,6 +124,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         STATE_DEFAULT.pageNum,
     );
 
+    // #TODO: pageNumRef is a bit of trick and should removed. We should use state only but will be
+    // complicated.
+    const pageNumRef = useRef(STATE_DEFAULT.pageNum);
+
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         STATE_DEFAULT.beginLineNumToLogEventNum,
     );
@@ -188,11 +192,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 case WORKER_RESP_CODE.PAGE_DATA: {
                     setLogData(args.logs);
                     beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                    console.log("page data log event");
 
                     const newLogEventNum: number = getClosestLogEventNum(
                         args.beginLineNumToLogEventNum,
                     );
+
+                    const newPageNum = 1 + firstLogEventNumPerPage.current.findLastIndex(
+                        (value: number) => value <= newLogEventNum,
+                    );
+
+                    setPageNum(newPageNum);
+                    pageNumRef.current = newPageNum
 
                     updateWindowUrlHashParams({
                         logEventNum: newLogEventNum,
@@ -287,10 +297,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         const newPageNum = newPageIndex + 1;
 
-        if (newPageNum !== pageNum) {
+        if (newPageNum !== pageNumRef.current) {
             // Will update the url when loadPage returns, so not necessary to do here.
             loadPage(newPageNum);
-            setPageNum(newPageNum);
         } else {
             // Page has not changed. This will trigger another useEffect but shouldn't do anything.
             const newLogEventNum = getClosestLogEventNum(
@@ -302,9 +311,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             });
         }
     }, [numEvents,
-        pageNum,
         logEventNum,
         getClosestLogEventNum]);
+
+     // On `numFilteredEvents` update, set page number to zero if no logs.
+     useEffect(() => {
+        if (numFilteredEvents === 0) {
+            setPageNum(0)
+        }
+    }, [numFilteredEvents]);
 
     // On `filePath` update, load file.
     useEffect(() => {
@@ -323,7 +338,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             );
 
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
-            setPageNum(newPageNum);
         }
         loadFile(filePath, cursor);
     }, [

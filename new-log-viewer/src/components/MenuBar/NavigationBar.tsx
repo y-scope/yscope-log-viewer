@@ -29,7 +29,8 @@ const NavigationBar = () => {
     const {pageNum, numFilteredEvents, loadPage} = useContext(StateContext);
     const numPages: number =
         useMemo(
-            () => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),
+            () => numFilteredEvents &&
+            getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),
             [numFilteredEvents]
         );
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
