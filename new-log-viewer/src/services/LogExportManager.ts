@@ -31,7 +31,7 @@ class LogExportManager {
 
     /**
      * Appends the provided chunk of logs into an internal buffer. If the number of chunks reaches
-     * the specified limit, trigger a download.
+     * the specified limit, triggers a download.
      *
      * @param chunk
      * @return The current download progress as a float between 0 and 1.
