@@ -39,18 +39,18 @@ import {
 
 
 interface StateContextType {
-  beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-  fileName: string;
-  firstLogEventNumOnPage: number[];
-  lastLogEventNumOnPage: number[];
-  logData: string;
-  numEvents: number;
-  numFilteredEvents: number;
-  pageNum: Nullable<number>;
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+    fileName: string,
+    firstLogEventNumOnPage: number[],
+    lastLogEventNumOnPage: number[],
+    logData: string,
+    numEvents: number,
+    numFilteredEvents: number,
+    pageNum: Nullable<number>,
 
-  changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void;
-  loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
-  loadPage: (newPageNum: number) => void;
+    changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (newPageNum: number) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -74,7 +74,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 });
 
 interface StateContextProviderProps {
-  children: React.ReactNode;
+    children: React.ReactNode
 }
 
 /**
@@ -106,41 +106,31 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
-    // #TODO: logEventNumRef is a bit of trick and should removed. We should be able to directly
-    // use the state from urlContext; however, making the change will require large changes to a
-    // few hooks.
-    const logEventNumRef = useRef(logEventNum);
-
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
-
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [numFilteredEvents, setNumFilteredEvents] =
+        useState<number>(STATE_DEFAULT.numFilteredEvents);
+    const [pageNum, setPageNum] =
+        useState<Nullable<number>>(STATE_DEFAULT.pageNum);
 
-    const [numFilteredEvents, setNumFilteredEvents] = useState<number>(
-        STATE_DEFAULT.numFilteredEvents,
-    );
-
-    const [pageNum, setPageNum] = useState<Nullable<number>>(
-        STATE_DEFAULT.pageNum,
-    );
-
-    // #TODO: pageNumRef is a bit of trick and should removed. We should use state only but will be
-    // complicated.
+    // eslint-disable-next-line no-warning-comments
+    // TODO:
+    //  - `logEventNumRef` is a bit of trick and should removed. We should be able to directly use
+    //    the state from UrlContext; however, making the change will require large changes to a few
+    //    hooks.
+    //  - pageNumRef is a bit of trick and should removed. We should use state only but it'll be
+    //    complicated.
+    const beginLineNumToLogEventNumRef =
+        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const firstLogEventNumPerPage =
+        useRef<number[]>(STATE_DEFAULT.firstLogEventNumOnPage);
+    const lastLogEventNumPerPage =
+        useRef<number[]>(STATE_DEFAULT.lastLogEventNumOnPage);
+    const logEventNumRef = useRef(logEventNum);
     const pageNumRef = useRef(STATE_DEFAULT.pageNum);
 
-    const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
-        STATE_DEFAULT.beginLineNumToLogEventNum,
-    );
-
-    const firstLogEventNumPerPage = useRef<number[]>(
-        STATE_DEFAULT.firstLogEventNumOnPage,
-    );
-    const lastLogEventNumPerPage = useRef<number[]>(
-        STATE_DEFAULT.lastLogEventNumOnPage,
-    );
-
-    const mainWorkerRef = useRef<null | Worker>(null);
+    const mainWorkerRef = useRef<null|Worker>(null);
 
     // Returns the closest logEventNum on the current page to user provided logEventNum. User
     // provided logEventNum may not be in the filtered array, so here we find the closest value
@@ -176,75 +166,73 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         [],
     );
 
-    const handleMainWorkerResp = useCallback(
-        (ev: MessageEvent<MainWorkerRespMessage>) => {
-            const {code, args} = ev.data;
-            console.log(`[MainWorker -> Renderer] code=${code}`);
-            switch (code) {
-                case WORKER_RESP_CODE.LOG_FILE_INFO:
-                    setFileName(args.fileName);
-                    setNumEvents(args.numEvents);
-                    break;
-                case WORKER_RESP_CODE.NOTIFICATION:
-                    // eslint-disable-next-line no-warning-comments
-                    // TODO: notifications should be shown in the UI when the NotificationProvider
-                    //  is added
-                    console.error(args.logLevel, args.message);
-                    break;
-                case WORKER_RESP_CODE.PAGE_DATA: {
-                    setLogData(args.logs);
-                    beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
+    const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
+        const {code, args} = ev.data;
+        console.log(`[MainWorker -> Renderer] code=${code}`);
+        switch (code) {
+            case WORKER_RESP_CODE.LOG_FILE_INFO:
+                setFileName(args.fileName);
+                setNumEvents(args.numEvents);
+                break;
+            case WORKER_RESP_CODE.PAGE_DATA: {
+                setLogData(args.logs);
+                beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
 
-                    const newLogEventNum: number = getClosestLogEventNum(
-                        args.beginLineNumToLogEventNum,
-                    );
+                const newLogEventNum: number = getClosestLogEventNum(
+                    args.beginLineNumToLogEventNum,
+                );
 
-                    const newPageNum = 1 + firstLogEventNumPerPage.current.findLastIndex(
-                        (value: number) => value <= newLogEventNum,
-                    );
+                const newPageNum = 1 + firstLogEventNumPerPage.current.findLastIndex(
+                    (value: number) => value <= newLogEventNum,
+                );
 
-                    setPageNum(newPageNum);
-                    pageNumRef.current = newPageNum;
+                setPageNum(newPageNum);
+                pageNumRef.current = newPageNum;
 
-                    updateWindowUrlHashParams({
-                        logEventNum: newLogEventNum,
-                    });
-                    break;
-                }
-                case WORKER_RESP_CODE.VIEW_INFO:
-                    setNumFilteredEvents(args.numFilteredEvents);
-                    firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
-                    lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
-                    break;
-                default:
-                    console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
-                    break;
+                updateWindowUrlHashParams({
+                    logEventNum: newLogEventNum,
+                });
+                break;
             }
-        },
-        [getClosestLogEventNum],
-    );
+            case WORKER_RESP_CODE.VIEW_INFO:
+                setNumFilteredEvents(args.numFilteredEvents);
+                firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
+                lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
+                break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // eslint-disable-next-line no-warning-comments
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
+                break;
+            default:
+                console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
+                break;
+        }
+    }, [
+        getClosestLogEventNum,
+    ]);
 
-    const loadFile = useCallback(
-        (fileSrc: FileSrcType, cursor: CursorType) => {
-            if ("string" !== typeof fileSrc) {
-                updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
-            }
-            if (null !== mainWorkerRef.current) {
-                mainWorkerRef.current.terminate();
-            }
-            mainWorkerRef.current = new Worker(
-                new URL("../services/MainWorker.ts", import.meta.url),
-            );
-            mainWorkerRef.current.onmessage = handleMainWorkerResp;
-            workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_FILE, {
-                fileSrc: fileSrc,
-                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                cursor: cursor,
-                decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-            });
-        },
-        [handleMainWorkerResp],
-    );
+    const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
+        if (null !== mainWorkerRef.current) {
+            mainWorkerRef.current.terminate();
+        }
+        mainWorkerRef.current = new Worker(
+            new URL("../services/MainWorker.ts", import.meta.url)
+        );
+        mainWorkerRef.current.onmessage = handleMainWorkerResp;
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_FILE, {
+            fileSrc: fileSrc,
+            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+            cursor: cursor,
+            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+        });
+    }, [
+        handleMainWorkerResp,
+    ]);
 
     const changeLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
@@ -312,9 +300,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logEventNum: newLogEventNum,
             });
         }
-    }, [numEvents,
+    }, [
+        numEvents,
         logEventNum,
-        getClosestLogEventNum]);
+        getClosestLogEventNum,
+    ]);
 
     // On `numFilteredEvents` update, set page number to zero if no logs.
     useEffect(() => {
@@ -331,12 +321,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            // Set which page to load since the user specified a specific `logEventNum`.\=
+            // Set which page to load since the user specified a specific `logEventNum`.
             // NOTE: Since we don't know how many pages the log file contains, we only clamp the
             // minimum of the page number.
             const newPageNum = Math.max(
                 getChunkNum(logEventNumRef.current, getConfig(CONFIG_KEY.PAGE_SIZE)),
-                1,
+                1
             );
 
             cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
@@ -367,6 +357,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         </StateContext.Provider>
     );
 };
+
 
 export default StateContextProvider;
 export {StateContext};

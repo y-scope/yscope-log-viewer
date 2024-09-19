@@ -5,19 +5,19 @@ import {clamp} from "../utils/math";
 
 
 enum ACTION_NAME {
-  FIRST_PAGE = "firstPage",
-  PREV_PAGE = "prevPage",
-  NEXT_PAGE = "nextPage",
-  LAST_PAGE = "lastPage",
-  PAGE_TOP = "pageTop",
-  PAGE_BOTTOM = "pageBottom",
+    FIRST_PAGE = "firstPage",
+    PREV_PAGE = "prevPage",
+    NEXT_PAGE = "nextPage",
+    LAST_PAGE = "lastPage",
+    PAGE_TOP = "pageTop",
+    PAGE_BOTTOM = "pageBottom",
 }
 
 type ActionType = {
-  actionName: Nullable<ACTION_NAME>;
-  label: string;
-  keyBindings: monaco.KeyCode[];
-};
+    actionName: Nullable<ACTION_NAME>,
+    label: string,
+    keyBindings: monaco.KeyCode[],
+}
 
 /**
  * Actions that can be performed in the editor. Actions without a name are not triggered by Monaco
@@ -33,9 +33,7 @@ const EDITOR_ACTIONS: ActionType[] = [
     {
         actionName: ACTION_NAME.FIRST_PAGE,
         label: "First page",
-        keyBindings: [
-            monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft,
-        ],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
     },
     {
         actionName: ACTION_NAME.PREV_PAGE,
@@ -50,9 +48,7 @@ const EDITOR_ACTIONS: ActionType[] = [
     {
         actionName: ACTION_NAME.LAST_PAGE,
         label: "Last page",
-        keyBindings: [
-            monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight,
-        ],
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
     },
     {
         actionName: ACTION_NAME.PAGE_TOP,
@@ -105,6 +101,8 @@ const handleAction = (
 };
 
 export {
-    ACTION_NAME, EDITOR_ACTIONS, handleAction,
+    ACTION_NAME,
+    EDITOR_ACTIONS,
+    handleAction,
 };
 export type {ActionType};

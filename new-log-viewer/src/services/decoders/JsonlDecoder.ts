@@ -74,9 +74,7 @@ class JsonlDecoder implements Decoder {
 
         this.#deserialize();
 
-        const numInvalidEvents = Array.from(
-            this.#invalidLogEventIdxToRawLine.keys(),
-        ).length;
+        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
 
         return {
             numValidEvents: this.#logEvents.length - numInvalidEvents,
@@ -102,7 +100,6 @@ class JsonlDecoder implements Decoder {
         return this.#decodeAnyRange(beginIdx, endIdx, this.#isFiltered);
     }
 
-
     /**
      * Decodes JSON log events from the filtered log events array or unfiltered
      * based on the value of useFilter.
@@ -125,6 +122,7 @@ class JsonlDecoder implements Decoder {
         if (0 > beginIdx || length < endIdx) {
             return null;
         }
+
         // eslint-disable-next-line no-warning-comments
         // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
         // every iteration.
@@ -148,19 +146,19 @@ class JsonlDecoder implements Decoder {
             } else {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since the index comes from a class-internal filter.
-                const logEvent: JsonLogEvent = this.#logEvents[
-                    filteredIdx
-                ] as JsonLogEvent;
+                const logEvent: JsonLogEvent = this.#logEvents[filteredIdx] as JsonLogEvent;
 
                 logLevel = logEvent.level;
                 message = this.#formatter.formatLogEvent(logEvent);
                 timestamp = logEvent.timestamp.valueOf();
             }
 
-            results.push([message,
+            results.push([
+                message,
                 timestamp,
                 logLevel,
-                filteredIdx + 1]);
+                filteredIdx + 1,
+            ]);
         }
 
         return results;
@@ -179,12 +177,11 @@ class JsonlDecoder implements Decoder {
         let beginIdx = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
-            const line =
-        -1 === endIdx ?
-            text.substring(beginIdx) :
-            text.substring(beginIdx, endIdx);
+            const line = (-1 === endIdx) ?
+                text.substring(beginIdx) :
+                text.substring(beginIdx, endIdx);
 
-            beginIdx = -1 === endIdx ?
+            beginIdx = (-1 === endIdx) ?
                 text.length :
                 endIdx + 1;
 
@@ -250,12 +247,11 @@ class JsonlDecoder implements Decoder {
             return logLevel;
         }
 
-        const logLevelStr =
-      "object" === typeof parsedLogLevel ?
-          JSON.stringify(parsedLogLevel) :
-          String(parsedLogLevel);
+        const logLevelStr = "object" === typeof parsedLogLevel ?
+            JSON.stringify(parsedLogLevel) :
+            String(parsedLogLevel);
 
-        if (false === logLevelStr.toUpperCase() in LOG_LEVEL) {
+        if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
             console.error(`${logLevelStr} doesn't match any known log level.`);
         } else {
             logLevel = LOG_LEVEL[logLevelStr.toUpperCase() as keyof typeof LOG_LEVEL];

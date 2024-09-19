@@ -92,9 +92,7 @@ class LogFileManager {
 
         this.#numEvents = decoder.getEstimatedNumEvents();
         this.#computeUnfilteredPageBoundaries();
-        console.log(
-            `Found ${this.#numEvents} log events.`,
-        );
+        console.log(`Found ${this.#numEvents} log events.`);
     }
 
     get fileName () {
