@@ -8,7 +8,7 @@ import React, {
     useState,
 } from "react";
 
-import LogExportManager from "../services/LogExportManager";
+import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
@@ -203,6 +203,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName

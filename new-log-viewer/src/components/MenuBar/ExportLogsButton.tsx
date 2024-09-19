@@ -26,6 +26,9 @@ const ExportLogsButton = () => {
     return (
         <SmallIconButton
             disabled={
+
+                // TODO: replace "" with another context variable which indicates whether
+                //  the fileName is loaded
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
                     "" === fileName
             }
