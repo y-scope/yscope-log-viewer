@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 import {
     Decoder,
     DecoderOptions,
@@ -227,7 +229,11 @@ class LogFileManager {
                 implemented for this file type on new log viewer`);
         }
 
-        logLevelFilter ? this.#computeFilteredPageBoundaries() : this.#computeUnfilteredPageBoundaries()
+        if (logLevelFilter) {
+            this.#computeFilteredPageBoundaries();
+        } else {
+            this.#computeUnfilteredPageBoundaries();
+        }
     }
 
     /**
@@ -243,7 +249,6 @@ class LogFileManager {
         this.#numFilteredEvents = filteredLogEventsIndices.length;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
-
             const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
             this.#firstLogEventNumOnPage.push(1 + firstLogEventOnPageIdx);
 

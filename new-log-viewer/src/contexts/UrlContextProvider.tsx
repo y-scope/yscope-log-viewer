@@ -212,8 +212,8 @@ const getWindowUrlHashParams = () => {
             parsed;
     }
 
-    console.log("update params")
-    console.log(urlHashParams)
+    console.log("update params");
+    console.log(urlHashParams);
 
     return urlHashParams;
 };
@@ -242,8 +242,8 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
 
     useEffect(() => {
         const handleHashChange = () => {
-            console.log("set params")
-            console.log(getWindowUrlHashParams())
+            console.log("set params");
+            console.log(getWindowUrlHashParams());
             setUrlParams({
                 ...URL_SEARCH_PARAMS_DEFAULT,
                 ...URL_HASH_PARAMS_DEFAULT,

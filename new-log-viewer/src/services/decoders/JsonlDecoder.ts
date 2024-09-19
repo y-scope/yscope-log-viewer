@@ -21,6 +21,7 @@ import {
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
+
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for
  * properties that are specific to log events (compared to generic JSON records).
@@ -62,7 +63,7 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
-    getFilteredLogEvents () : number[] {
+    getFilteredLogEvents (): number[] {
         return this.#filteredLogIndices;
     }
 
@@ -73,7 +74,9 @@ class JsonlDecoder implements Decoder {
 
         this.#deserialize();
 
-        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
+        const numInvalidEvents = Array.from(
+            this.#invalidLogEventIdxToRawLine.keys(),
+        ).length;
 
         return {
             numValidEvents: this.#logEvents.length - numInvalidEvents,
@@ -83,20 +86,30 @@ class JsonlDecoder implements Decoder {
 
     changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         this.#filterLogs(logLevelFilter);
-        this.#isFiltered = logLevelFilter ? true : false;
+        this.#isFiltered = Boolean(logLevelFilter);
+
         return true;
     }
 
     decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        return this.#decodeAnyRange(beginIdx,endIdx,false)
+        return this.#decodeAnyRange(beginIdx, endIdx, false);
     }
 
-    decodeFilteredRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        return this.#decodeAnyRange(beginIdx,endIdx,this.#isFiltered)
+    decodeFilteredRange (
+        beginIdx: number,
+        endIdx: number,
+    ): Nullable<DecodeResultType[]> {
+        return this.#decodeAnyRange(beginIdx, endIdx, this.#isFiltered);
     }
 
-    #decodeAnyRange (beginIdx: number, endIdx: number, useFilter: boolean): Nullable<DecodeResultType[]> {
-        let length: number = useFilter ? this.#filteredLogIndices.length : this.#logEvents.length
+    #decodeAnyRange (
+        beginIdx: number,
+        endIdx: number,
+        useFilter: boolean,
+    ): Nullable<DecodeResultType[]> {
+        const length: number = useFilter ?
+            this.#filteredLogIndices.length :
+            this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
             return null;
@@ -113,9 +126,9 @@ class JsonlDecoder implements Decoder {
             // Explicit cast since typescript thinks `#filteredLogIndices[filteredLogEventIdx]` can
             // be undefined, but it shouldn't be since we performed a bounds check at the beginning
             // of the method.
-            let filteredIdx: number = useFilter ?
-                this.#filteredLogIndices[logEventIdx] as number :
-                logEventIdx
+            const filteredIdx: number = useFilter ?
+                (this.#filteredLogIndices[logEventIdx] as number) :
+                logEventIdx;
 
             if (this.#invalidLogEventIdxToRawLine.has(filteredIdx)) {
                 timestamp = INVALID_TIMESTAMP_VALUE;
@@ -124,18 +137,19 @@ class JsonlDecoder implements Decoder {
             } else {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since the index comes from a class-internal filter.
-                const logEvent: JsonLogEvent = this.#logEvents[filteredIdx] as JsonLogEvent;
+                const logEvent: JsonLogEvent = this.#logEvents[
+                    filteredIdx
+                ] as JsonLogEvent;
+
                 logLevel = logEvent.level;
                 message = this.#formatter.formatLogEvent(logEvent);
                 timestamp = logEvent.timestamp.valueOf();
             }
 
-            results.push([
-                message,
+            results.push([message,
                 timestamp,
                 logLevel,
-                filteredIdx + 1,
-            ]);
+                filteredIdx + 1]);
         }
 
         return results;
@@ -154,11 +168,12 @@ class JsonlDecoder implements Decoder {
         let beginIdx = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
-            const line = (-1 === endIdx) ?
-                text.substring(beginIdx) :
-                text.substring(beginIdx, endIdx);
+            const line =
+        -1 === endIdx ?
+            text.substring(beginIdx) :
+            text.substring(beginIdx, endIdx);
 
-            beginIdx = (-1 === endIdx) ?
+            beginIdx = -1 === endIdx ?
                 text.length :
                 endIdx + 1;
 
@@ -224,14 +239,15 @@ class JsonlDecoder implements Decoder {
             return logLevel;
         }
 
-        const logLevelStr = "object" === typeof parsedLogLevel ?
-            JSON.stringify(parsedLogLevel) :
-            String(parsedLogLevel);
+        const logLevelStr =
+      "object" === typeof parsedLogLevel ?
+          JSON.stringify(parsedLogLevel) :
+          String(parsedLogLevel);
 
-        if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
+        if (false === logLevelStr.toUpperCase() in LOG_LEVEL) {
             console.error(`${logLevelStr} doesn't match any known log level.`);
         } else {
-            logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
+            logLevel = LOG_LEVEL[logLevelStr as keyof typeof LOG_LEVEL];
         }
 
         return logLevel;

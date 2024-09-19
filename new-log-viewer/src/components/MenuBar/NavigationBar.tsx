@@ -1,4 +1,7 @@
-import React, {useContext, useMemo} from "react";
+import React, {
+    useContext,
+    useMemo,
+} from "react";
 
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
@@ -6,18 +9,15 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {CONFIG_KEY} from "../../typings/config";
 import {
     ACTION_NAME,
     handleAction,
 } from "../../utils/actions";
+import {getConfig} from "../../utils/config";
+import {getChunkNum} from "../../utils/math";
 import PageNumInput from "./PageNumInput";
 import SmallIconButton from "./SmallIconButton";
-
-import {getConfig} from "../../utils/config";
-import {CONFIG_KEY} from "../../typings/config";
-import {
-    getChunkNum,
-} from "../../utils/math";
 
 
 /**
@@ -27,8 +27,11 @@ import {
  */
 const NavigationBar = () => {
     const {pageNum, numFilteredEvents, loadPage} = useContext(StateContext);
-    let numPages: number =
-        useMemo(() => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),[numFilteredEvents]);
+    const numPages: number =
+        useMemo(
+            () => getChunkNum(numFilteredEvents, getConfig(CONFIG_KEY.PAGE_SIZE)),
+            [numFilteredEvents]
+        );
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
         if (Object.values(ACTION_NAME).includes(actionName)) {
