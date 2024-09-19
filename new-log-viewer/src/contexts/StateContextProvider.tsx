@@ -106,8 +106,9 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
-    // #TODO: logEventNumRef is a bit of trick and should removed. We should be able to directly use
-    // the state from urlContext; however, making the change will require large changes to a few hooks.
+    // #TODO: logEventNumRef is a bit of trick and should removed. We should be able to directly
+    // use the state from urlContext; however, making the change will require large changes to a
+    // few hooks.
     const logEventNumRef = useRef(logEventNum);
 
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
@@ -152,6 +153,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             // On initial file load we don't know logEventNum so just use last value on page
             if (!logEventNumRef.current) {
                 newLogEventNum = logEventNumOnPage.at(-1) as number;
+
                 return newLogEventNum;
             }
 
@@ -164,8 +166,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
 
             if (!newLogEventNum) {
-                // If no Nums on page are smaller than user logEventNum, user logEventNum is the smallest
-                // So we should just return the smallest value on the page.
+                // If no nums on page are smaller than user logEventNum, user logEventNum is the
+               //  smallest so we should just return the smallest value on the page.
                 newLogEventNum = logEventNumOnPage[0] as number;
             }
 
@@ -202,7 +204,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     );
 
                     setPageNum(newPageNum);
-                    pageNumRef.current = newPageNum
+                    pageNumRef.current = newPageNum;
 
                     updateWindowUrlHashParams({
                         logEventNum: newLogEventNum,
@@ -314,10 +316,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNum,
         getClosestLogEventNum]);
 
-     // On `numFilteredEvents` update, set page number to zero if no logs.
-     useEffect(() => {
-        if (numFilteredEvents === 0) {
-            setPageNum(0)
+    // On `numFilteredEvents` update, set page number to zero if no logs.
+    useEffect(() => {
+        if (0 === numFilteredEvents) {
+            setPageNum(0);
         }
     }, [numFilteredEvents]);
 
