@@ -48,9 +48,9 @@ enum WORKER_REQ_CODE {
 
 enum WORKER_RESP_CODE {
     LOG_FILE_INFO = "logFileInfo",
-    NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
     VIEW_INFO = "viewInfo",
+    NOTIFICATION = "notification",
 }
 
 type WorkerReqMap = {
@@ -74,10 +74,6 @@ type WorkerRespMap = {
         fileName: string,
         numEvents: number,
     },
-    [WORKER_RESP_CODE.NOTIFICATION]: {
-        logLevel: LOG_LEVEL,
-        message: string,
-    },
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
@@ -87,7 +83,11 @@ type WorkerRespMap = {
         firstLogEventNumPerPage: number[],
         lastLogEventNumPerPage: number[],
         numFilteredEvents: number,
-    }
+    },
+    [WORKER_RESP_CODE.NOTIFICATION]: {
+        logLevel: LOG_LEVEL,
+        message: string
+    },
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
