@@ -170,7 +170,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
-                setExportProgress(STATE_DEFAULT.exportProgress);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -235,6 +234,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
+
+        setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
     ]);
