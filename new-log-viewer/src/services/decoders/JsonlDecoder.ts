@@ -130,9 +130,9 @@ class JsonlDecoder implements Decoder {
             let message: string;
             let logLevel: LOG_LEVEL;
 
-            // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]` can
-            // be undefined, but it shouldn't be since we performed a bounds check at the beginning
-            // of the method.
+            // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]`
+            // can be undefined, but it shouldn't be since we performed a bounds check at the
+            // beginning of the method.
             const filteredIdx: number = useFilter ?
                 (this.#filteredLogEventIndices[logEventIdx] as number) :
                 logEventIdx;
@@ -174,7 +174,7 @@ class JsonlDecoder implements Decoder {
         }
 
         const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
-        let beginIdx = 0;
+        let beginIdx: number = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
             const line = (-1 === endIdx) ?
@@ -185,33 +185,44 @@ class JsonlDecoder implements Decoder {
                 text.length :
                 endIdx + 1;
 
-            try {
-                const fields = JSON.parse(line) as JsonValue;
-                if ("object" !== typeof fields) {
-                    throw new Error("Unexpected non-object.");
-                }
-                const fieldsObject = fields as JsonObject;
-                this.#logEvents.push({
-                    fields: fieldsObject,
-                    level: this.#parseLogLevel(fieldsObject),
-                    timestamp: this.#parseTimestamp(fieldsObject),
-                });
-            } catch (e) {
-                if (0 === line.length) {
-                    continue;
-                }
-                console.error(e, line);
-                const currentLogEventIdx = this.#logEvents.length;
-                this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
-                this.#logEvents.push({
-                    fields: {},
-                    level: LOG_LEVEL.NONE,
-                    timestamp: dayjs.utc(INVALID_TIMESTAMP_VALUE),
-                });
-            }
+            this.#parseJson(line);
         }
 
         this.#dataArray = null;
+    }
+
+
+    /**
+     * Parse line into a json log event and adds to log events array. If the line contains invalid
+     * json, an entry is added to invalid log event map.
+     *
+     * @param line
+     */
+    #parseJson (line: string) {
+        try {
+            const fields = JSON.parse(line) as JsonValue;
+            if ("object" !== typeof fields) {
+                throw new Error("Unexpected non-object.");
+            }
+            const fieldsObject = fields as JsonObject;
+            this.#logEvents.push({
+                fields: fieldsObject,
+                level: this.#parseLogLevel(fieldsObject),
+                timestamp: this.#parseTimestamp(fieldsObject),
+            });
+        } catch (e) {
+            if (0 === line.length) {
+                return;
+            }
+            console.error(e, line);
+            const currentLogEventIdx = this.#logEvents.length;
+            this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
+            this.#logEvents.push({
+                fields: {},
+                level: LOG_LEVEL.NONE,
+                timestamp: dayjs.utc(INVALID_TIMESTAMP_VALUE),
+            });
+        }
     }
 
     /**

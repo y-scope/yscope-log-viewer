@@ -62,15 +62,14 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     fileName: "",
     firstLogEventNumOnPage: [],
     lastLogEventNumOnPage: [],
+    loadFile: () => null,
+    loadPage: () => null,
     logData: "Loading...",
     numEvents: 0,
     numFilteredEvents: 0,
     numPages: 0,
     pageNum: 0,
-
     setLogLevelFilter: () => null,
-    loadFile: () => null,
-    loadPage: () => null,
 });
 
 interface StateContextProviderProps {
@@ -341,7 +340,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
-                setLogLevelFilter: setLogLevelFilter,
                 fileName: fileName,
                 firstLogEventNumOnPage: firstLogEventNumOnPage.current,
                 lastLogEventNumOnPage: lastLogEventNumOnPage.current,
@@ -351,6 +349,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numEvents: numEvents,
                 numFilteredEvents: numFilteredEvents,
                 pageNum: pageNum,
+                setLogLevelFilter: setLogLevelFilter,
             }}
         >
             {children}

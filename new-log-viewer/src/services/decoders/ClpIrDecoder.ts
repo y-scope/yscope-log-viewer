@@ -53,11 +53,13 @@ class ClpIrDecoder implements Decoder {
     }
 
     decodeFilteredRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // eslint-disable-next-line no-warning-comments
         // TODO: Update after log level filtering is implemented in clp-ffi-js
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 
     decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // eslint-disable-next-line no-warning-comments
         // TODO: Update after log level filtering is implemented in clp-ffi-js
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }

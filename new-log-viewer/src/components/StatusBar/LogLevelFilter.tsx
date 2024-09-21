@@ -102,16 +102,16 @@ const LogLevelSelect = () => {
             onChange={handleChange}
         >
             {LOG_LEVEL_NAMES
-    .map((logLevelName, index) => (
-                <Option
-                    key={logLevelName}
+                .map((logLevelName, index) => (
+                    <Option
+                        key={logLevelName}
 
-                    // Use index as value.
-                    value={index.toString()}
-                >
-                    {logLevelName}
-                </Option>
-            ))}
+                        // Use index as value.
+                        value={index.toString()}
+                    >
+                        {logLevelName}
+                    </Option>
+                ))}
         </Select>
     );
 };

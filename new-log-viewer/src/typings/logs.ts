@@ -11,6 +11,9 @@ enum LOG_LEVEL {
     FATAL
 }
 
+/**
+ *  Log levels as strings.
+ */
 const LOG_LEVEL_NAMES = Object.freeze(
     Object.values(LOG_LEVEL).filter((value) => "string" === typeof value)
 );
