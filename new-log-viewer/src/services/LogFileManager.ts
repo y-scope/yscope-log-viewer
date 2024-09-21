@@ -107,11 +107,11 @@ class LogFileManager {
         return this.#numFilteredEvents;
     }
 
-    get firstLogEventNumPerPage () {
+    get firstLogEventNumOnPage () {
         return this.#firstLogEventNumOnPage;
     }
 
-    get lastLogEventNumPerPage () {
+    get lastLogEventNumOnPage () {
         return this.#lastLogEventNumOnPage;
     }
 
@@ -219,8 +219,8 @@ class LogFileManager {
      * @param logLevelFilter Array of selected log levels
      * @throws {Error} If changing the log level filter is not successful
      */
-    changeLogLevelFilter (logLevelFilter: LogLevelFilter) {
-        const result: boolean = this.#decoder.changeLogLevelFilter(logLevelFilter);
+    setLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result: boolean = this.#decoder.setLogLevelFilter(logLevelFilter);
 
         if (false === result) {
             throw new Error(`Error changing log level filter as feature not yet
@@ -243,7 +243,7 @@ class LogFileManager {
         this.#firstLogEventNumOnPage.length = 0;
         this.#lastLogEventNumOnPage.length = 0;
 
-        const filteredLogEventsIndices: number[] = this.#decoder.getFilteredLogEvents();
+        const filteredLogEventsIndices: number[] = this.#decoder.getFilteredLogEventIndices();
         this.#numFilteredEvents = filteredLogEventsIndices.length;
 
         for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {

@@ -48,7 +48,7 @@ interface StateContextType {
     numFilteredEvents: number,
     pageNum: Nullable<number>,
 
-    changeLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPage: (newPageNum: number) => void,
 }
@@ -68,7 +68,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     pageNum: 0,
 
-    changeLogLevelFilter: () => null,
+    setLogLevelFilter: () => null,
     loadFile: () => null,
     loadPage: () => null,
 });
@@ -123,9 +123,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     //    complicated.
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
-    const firstLogEventNumPerPage =
+    const firstLogEventNumOnPage =
         useRef<number[]>(STATE_DEFAULT.firstLogEventNumOnPage);
-    const lastLogEventNumPerPage =
+    const lastLogEventNumOnPage =
         useRef<number[]>(STATE_DEFAULT.lastLogEventNumOnPage);
     const logEventNumRef = useRef(logEventNum);
     const pageNumRef = useRef(STATE_DEFAULT.pageNum);
@@ -182,7 +182,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     args.beginLineNumToLogEventNum,
                 );
 
-                const newPageNum = 1 + firstLogEventNumPerPage.current.findLastIndex(
+                const newPageNum = 1 + firstLogEventNumOnPage.current.findLastIndex(
                     (value: number) => value <= newLogEventNum,
                 );
 
@@ -196,8 +196,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.VIEW_INFO:
                 setNumFilteredEvents(args.numFilteredEvents);
-                firstLogEventNumPerPage.current = args.firstLogEventNumPerPage;
-                lastLogEventNumPerPage.current = args.lastLogEventNumPerPage;
+                firstLogEventNumOnPage.current = args.firstLogEventNumOnPage;
+                lastLogEventNumOnPage.current = args.lastLogEventNumOnPage;
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -234,11 +234,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const changeLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+    const setLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.CHANGE_FILTER, {
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: 1}},
             logLevelFilter: newLogLevelFilter,
         });
@@ -262,7 +262,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (
             null === mainWorkerRef.current ||
             URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum ||
-            0 === firstLogEventNumPerPage.current.length ||
+            0 === firstLogEventNumOnPage.current.length ||
             numEvents === STATE_DEFAULT.numEvents
         ) {
             return;
@@ -270,7 +270,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         const clampedLogEventNum: number = clamp(logEventNum, 1, numEvents);
 
-        const newPageIndex = firstLogEventNumPerPage.current.findLastIndex(
+        const newPageIndex = firstLogEventNumOnPage.current.findLastIndex(
             (value: number) => value <= clampedLogEventNum,
         );
 
@@ -341,10 +341,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
-                changeLogLevelFilter: changeLogLevelFilter,
+                setLogLevelFilter: setLogLevelFilter,
                 fileName: fileName,
-                firstLogEventNumOnPage: firstLogEventNumPerPage.current,
-                lastLogEventNumOnPage: lastLogEventNumPerPage.current,
+                firstLogEventNumOnPage: firstLogEventNumOnPage.current,
+                lastLogEventNumOnPage: lastLogEventNumOnPage.current,
                 loadFile: loadFile,
                 loadPage: loadPage,
                 logData: logData,

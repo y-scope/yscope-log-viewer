@@ -37,9 +37,9 @@ class JsonlDecoder implements Decoder {
 
     #logEvents: JsonLogEvent[] = [];
 
-    #isFiltered: boolean;
+    #isFiltered: boolean = false;
 
-    #filteredLogIndices: number[];
+    #filteredLogEventIndices: number[] = [];
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
@@ -51,20 +51,25 @@ class JsonlDecoder implements Decoder {
      * @throws {Error} if the initial decoder options are erroneous.
      */
     constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptions) {
-        this.#filteredLogIndices = [];
+        this.#dataArray = dataArray;
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
         this.#formatter = new LogbackFormatter(decoderOptions);
-        this.#dataArray = dataArray;
-        this.#isFiltered = false;
     }
 
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
 
-    getFilteredLogEvents (): number[] {
-        return this.#filteredLogIndices;
+    getFilteredLogEventIndices (): number[] {
+        return this.#filteredLogEventIndices;
+    }
+
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        this.#filterLogs(logLevelFilter);
+        this.#isFiltered = Boolean(logLevelFilter);
+
+        return true;
     }
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
@@ -82,22 +87,15 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    changeLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        this.#filterLogs(logLevelFilter);
-        this.#isFiltered = Boolean(logLevelFilter);
-
-        return true;
-    }
-
-    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        return this.#decodeAnyRange(beginIdx, endIdx, false);
-    }
-
     decodeFilteredRange (
         beginIdx: number,
         endIdx: number,
     ): Nullable<DecodeResultType[]> {
         return this.#decodeAnyRange(beginIdx, endIdx, this.#isFiltered);
+    }
+
+    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        return this.#decodeAnyRange(beginIdx, endIdx, false);
     }
 
     /**
@@ -116,7 +114,7 @@ class JsonlDecoder implements Decoder {
         useFilter: boolean,
     ): Nullable<DecodeResultType[]> {
         const length: number = useFilter ?
-            this.#filteredLogIndices.length :
+            this.#filteredLogEventIndices.length :
             this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
@@ -132,11 +130,11 @@ class JsonlDecoder implements Decoder {
             let message: string;
             let logLevel: LOG_LEVEL;
 
-            // Explicit cast since typescript thinks `#filteredLogIndices[filteredLogEventIdx]` can
+            // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]` can
             // be undefined, but it shouldn't be since we performed a bounds check at the beginning
             // of the method.
             const filteredIdx: number = useFilter ?
-                (this.#filteredLogIndices[logEventIdx] as number) :
+                (this.#filteredLogEventIndices[logEventIdx] as number) :
                 logEventIdx;
 
             if (this.#invalidLogEventIdxToRawLine.has(filteredIdx)) {
@@ -190,10 +188,11 @@ class JsonlDecoder implements Decoder {
                 if ("object" !== typeof fields) {
                     throw new Error("Unexpected non-object.");
                 }
+                const fieldsObject = fields as JsonObject;
                 this.#logEvents.push({
-                    fields: fields as JsonObject,
-                    level: this.#parseLogLevel(fields as JsonObject),
-                    timestamp: this.#parseTimestamp(fields as JsonObject),
+                    fields: fieldsObject,
+                    level: this.#parseLogLevel(fieldsObject),
+                    timestamp: this.#parseTimestamp(fieldsObject),
                 });
             } catch (e) {
                 if (0 === line.length) {
@@ -220,7 +219,7 @@ class JsonlDecoder implements Decoder {
      * @param logLevelFilter Array of selected log levels
      */
     #filterLogs (logLevelFilter: LogLevelFilter) {
-        this.#filteredLogIndices.length = 0;
+        this.#filteredLogEventIndices.length = 0;
 
         if (!logLevelFilter) {
             return;
@@ -228,21 +227,21 @@ class JsonlDecoder implements Decoder {
 
         this.#logEvents.forEach((logEvent, index) => {
             if (logLevelFilter.includes(logEvent.level)) {
-                this.#filteredLogIndices.push(index);
+                this.#filteredLogEventIndices.push(index);
             }
         });
     }
 
     /**
-     * Parses the log level from the given log event.
+     * Parses the log level from the given log event fields.
      *
      * @param logEvent
      * @return The parsed log level.
      */
-    #parseLogLevel (logEvent: JsonObject): number {
+    #parseLogLevel (logEventFields: JsonObject): number {
         let logLevel = LOG_LEVEL.NONE;
 
-        const parsedLogLevel = logEvent[this.#logLevelKey];
+        const parsedLogLevel = logEventFields[this.#logLevelKey];
         if ("undefined" === typeof parsedLogLevel) {
             return logLevel;
         }
@@ -251,9 +250,7 @@ class JsonlDecoder implements Decoder {
             JSON.stringify(parsedLogLevel) :
             String(parsedLogLevel);
 
-        if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
-            console.error(`${logLevelStr} doesn't match any known log level.`);
-        } else {
+        if (logLevelStr.toUpperCase() in LOG_LEVEL) {
             logLevel = LOG_LEVEL[logLevelStr.toUpperCase() as keyof typeof LOG_LEVEL];
         }
 
@@ -261,15 +258,15 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Gets the timestamp from the log event.
+     * Gets the timestamp from the log event fields.
      *
-     * @param logEvent
+     * @param logEventFields
      * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
      * - the timestamp key doesn't exist in the log, or
      * - the timestamp's value is not a number.
      */
-    #parseTimestamp (logEvent: JsonObject): dayjs.Dayjs {
-        let timestamp = logEvent[this.#timestampKey];
+    #parseTimestamp (logEventFields: JsonObject): dayjs.Dayjs {
+        let timestamp = logEventFields[this.#timestampKey];
         if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
             timestamp = INVALID_TIMESTAMP_VALUE;
         }

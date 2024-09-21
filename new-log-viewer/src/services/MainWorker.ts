@@ -56,8 +56,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
 
                 postResp(WORKER_RESP_CODE.VIEW_INFO, {
                     numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
-                    firstLogEventNumPerPage: LOG_FILE_MANAGER.firstLogEventNumPerPage,
-                    lastLogEventNumPerPage: LOG_FILE_MANAGER.lastLogEventNumPerPage,
+                    firstLogEventNumOnPage: LOG_FILE_MANAGER.firstLogEventNumOnPage,
+                    lastLogEventNumOnPage: LOG_FILE_MANAGER.lastLogEventNumOnPage,
                 });
 
                 postResp(
@@ -75,16 +75,16 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     LOG_FILE_MANAGER.loadPage(args.cursor)
                 );
                 break;
-            case WORKER_REQ_CODE.CHANGE_FILTER:
+            case WORKER_REQ_CODE.SET_FILTER:
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                LOG_FILE_MANAGER.changeLogLevelFilter(args.logLevelFilter);
+                LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
 
                 postResp(WORKER_RESP_CODE.VIEW_INFO, {
                     numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
-                    firstLogEventNumPerPage: LOG_FILE_MANAGER.firstLogEventNumPerPage,
-                    lastLogEventNumPerPage: LOG_FILE_MANAGER.lastLogEventNumPerPage,
+                    firstLogEventNumOnPage: LOG_FILE_MANAGER.firstLogEventNumOnPage,
+                    lastLogEventNumOnPage: LOG_FILE_MANAGER.lastLogEventNumOnPage,
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,

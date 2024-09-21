@@ -62,7 +62,7 @@ interface Decoder {
      *
      * @return Indices of the filtered events.
      */
-    getFilteredLogEvents(): number[];
+    getFilteredLogEventIndices(): number[];
 
     /**
      * Sets the log level filter for the decoder.
@@ -70,7 +70,7 @@ interface Decoder {
      * @param logLevelFilter
      * @return Whether the filter was successfully set.
      */
-    changeLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
+    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
 
     /**
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.

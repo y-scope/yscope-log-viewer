@@ -43,7 +43,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
-    CHANGE_FILTER = "changeFilter",
+    SET_FILTER = "setFilter",
 }
 
 enum WORKER_RESP_CODE {
@@ -63,7 +63,7 @@ type WorkerReqMap = {
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
     },
-    [WORKER_REQ_CODE.CHANGE_FILTER]: {
+    [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType,
         logLevelFilter: LogLevelFilter,
     },
@@ -80,8 +80,8 @@ type WorkerRespMap = {
         cursorLineNum: number,
     },
     [WORKER_RESP_CODE.VIEW_INFO]: {
-        firstLogEventNumPerPage: number[],
-        lastLogEventNumPerPage: number[],
+        firstLogEventNumOnPage: number[],
+        lastLogEventNumOnPage: number[],
         numFilteredEvents: number,
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {

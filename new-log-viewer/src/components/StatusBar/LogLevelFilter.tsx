@@ -12,7 +12,7 @@ import CloseRounded from "@mui/icons-material/CloseRounded";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
-    LOG_LEVEL_NAMES_LIST,
+    LOG_LEVEL_NAMES,
     LogLevelFilter,
 } from "../../typings/logs";
 
@@ -25,7 +25,7 @@ import {
 const LogLevelSelect = () => {
     const [selectedLogLevels, setSelectedLogLevels] =
     useState<LogLevelFilter>(null);
-    const {changeLogLevelFilter} = useContext(StateContext);
+    const {setLogLevelFilter} = useContext(StateContext);
     const action: SelectStaticProps["action"] = useRef(null);
 
     /**
@@ -46,7 +46,7 @@ const LogLevelSelect = () => {
             selected = null;
         }
         setSelectedLogLevels(selected);
-        changeLogLevelFilter(selected);
+        setLogLevelFilter(selected);
     };
 
     return (
@@ -101,7 +101,8 @@ const LogLevelSelect = () => {
             })}
             onChange={handleChange}
         >
-            {LOG_LEVEL_NAMES_LIST.map((logLevelName, index) => (
+            {LOG_LEVEL_NAMES
+    .map((logLevelName, index) => (
                 <Option
                     key={logLevelName}
 
