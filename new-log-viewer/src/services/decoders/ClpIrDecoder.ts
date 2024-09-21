@@ -34,7 +34,7 @@ class ClpIrDecoder implements Decoder {
 
     getFilteredLogEventIndices (): number[] {
         // eslint-disable-next-line no-warning-comments
-        // TODO: fix this after log level filtering is implemented in clp-ffi-js
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
         return Array.from({length: this.#streamReader.getNumEventsBuffered()}, (_, index) => index);
     }
 
@@ -53,13 +53,14 @@ class ClpIrDecoder implements Decoder {
     }
 
     decodeFilteredRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // TODO: Update after log level filtering is implemented in clp-ffi-js
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 
     decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // TODO: Update after log level filtering is implemented in clp-ffi-js
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
-
 }
 
 export default ClpIrDecoder;
