@@ -1,9 +1,12 @@
+/* eslint-disable max-lines */
+
 import {
     Decoder,
-    DecoderOptionsType,
+    DecoderOptions,
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
+import {LogLevelFilter} from "../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -54,7 +57,13 @@ class LogFileManager {
 
     #decoder: Decoder;
 
-    #numEvents: number = 0;
+    readonly #numEvents: number = 0;
+
+    #numFilteredEvents: number = 0;
+
+    #firstLogEventNumOnPage: number[] = [];
+
+    #lastLogEventNumOnPage: number[] = [];
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -75,11 +84,14 @@ class LogFileManager {
 
         // Build index for the entire file
         const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
-        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
+        if (null === buildIdxResult) {
+            console.error("null result from decoder.buildIdx()");
+        } else if (0 < buildIdxResult.numInvalidEvents) {
             console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
+        this.#computeUnfilteredPageBoundaries();
         console.log(`Found ${this.#numEvents} log events.`);
     }
 
@@ -89,6 +101,18 @@ class LogFileManager {
 
     get numEvents () {
         return this.#numEvents;
+    }
+
+    get numFilteredEvents () {
+        return this.#numFilteredEvents;
+    }
+
+    get firstLogEventNumOnPage () {
+        return this.#firstLogEventNumOnPage;
+    }
+
+    get lastLogEventNumOnPage () {
+        return this.#lastLogEventNumOnPage;
     }
 
     /**
@@ -103,7 +127,7 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
@@ -123,7 +147,7 @@ class LogFileManager {
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
@@ -144,15 +168,6 @@ class LogFileManager {
     }
 
     /**
-     * Sets options for the decoder.
-     *
-     * @param options
-     */
-    setDecoderOptions (options: DecoderOptionsType) {
-        this.#decoder.setDecoderOptions(options);
-    }
-
-    /**
      * Loads a page of log events based on the provided cursor.
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
@@ -168,7 +183,7 @@ class LogFileManager {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
         const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
+        const results = this.#decoder.decodeFilteredRange(beginLogEventNum - 1, endLogEventNum);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `beginLogEventNum=${beginLogEventNum}, ` +
@@ -199,6 +214,72 @@ class LogFileManager {
     }
 
     /**
+     * Sets the log level filter.
+     *
+     * @param logLevelFilter
+     * @throws {Error} If changing the log level filter couldn't be set.
+     */
+    setLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result: boolean = this.#decoder.setLogLevelFilter(logLevelFilter);
+
+        if (false === result) {
+            throw new Error("Failed to set log level filter for current decoder.");
+        }
+
+        if (logLevelFilter) {
+            this.#computeFilteredPageBoundaries();
+        } else {
+            this.#computeUnfilteredPageBoundaries();
+        }
+    }
+
+    /**
+     * Computes the log event number at the beginning and end of each page, accounting for the level
+     * filter.
+     */
+    #computeFilteredPageBoundaries () {
+        this.#firstLogEventNumOnPage.length = 0;
+        this.#lastLogEventNumOnPage.length = 0;
+
+        const filteredLogEventsIndices: number[] = this.#decoder.getFilteredLogEventIndices();
+        this.#numFilteredEvents = filteredLogEventsIndices.length;
+
+        for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
+            const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
+            this.#firstLogEventNumOnPage.push(1 + firstLogEventOnPageIdx);
+
+            const j = Math.min(i + this.#pageSize - 1, this.#numFilteredEvents - 1);
+            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[j] as number;
+            this.#lastLogEventNumOnPage.push(1 + lastLogEventOnPageIdx);
+        }
+    }
+
+    /**
+     * Computes the log event number at the beginning and end of each page, assuming the events
+     * aren't filtered.
+     */
+    #computeUnfilteredPageBoundaries () {
+        this.#firstLogEventNumOnPage.length = 0;
+        this.#lastLogEventNumOnPage.length = 0;
+
+        this.#numFilteredEvents = this.#numEvents;
+
+        for (let i = 0; i < this.#numFilteredEvents; i += this.#pageSize) {
+            this.#firstLogEventNumOnPage.push(1 + i);
+
+            // Need to minus one from page size to get correct index into filtered log events.
+            let lastPageIdx: number = i + this.#pageSize - 1;
+
+            // Guard to prevent indexing out of array on last page.
+            if (lastPageIdx >= this.#numFilteredEvents) {
+                lastPageIdx = this.#numFilteredEvents - 1;
+            }
+
+            this.#lastLogEventNumOnPage.push(1 + lastPageIdx);
+        }
+    }
+
+    /**
      * Gets the range of log event numbers for the page containing the given cursor.
      *
      * @param cursor The cursor object containing the code and arguments.
@@ -218,14 +299,19 @@ class LogFileManager {
         if (CURSOR_CODE.PAGE_NUM === code) {
             beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
         }
-        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
+        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numFilteredEvents) {
             // Set to the first event of the last page
-            beginLogEventIdx = (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
+            beginLogEventIdx =
+                (getChunkNum(this.#numFilteredEvents, this.#pageSize) - 1) * this.#pageSize;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
             throw new Error(`Unsupported cursor type: ${code}`);
         }
         const beginLogEventNum = beginLogEventIdx + 1;
-        const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
+        const endLogEventNum = Math.min(
+            this.#numFilteredEvents,
+            beginLogEventNum + this.#pageSize - 1
+        );
+
         return {beginLogEventNum, endLogEventNum};
     }
 }

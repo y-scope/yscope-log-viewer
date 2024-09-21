@@ -35,6 +35,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+// eslint-disable-next-line max-lines-per-function
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
@@ -52,6 +53,13 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     fileName: LOG_FILE_MANAGER.fileName,
                     numEvents: LOG_FILE_MANAGER.numEvents,
                 });
+
+                postResp(WORKER_RESP_CODE.VIEW_INFO, {
+                    numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
+                    firstLogEventNumOnPage: LOG_FILE_MANAGER.firstLogEventNumOnPage,
+                    lastLogEventNumOnPage: LOG_FILE_MANAGER.lastLogEventNumOnPage,
+                });
+
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)
@@ -62,9 +70,22 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                if ("undefined" !== typeof args.decoderOptions) {
-                    LOG_FILE_MANAGER.setDecoderOptions(args.decoderOptions);
+                postResp(
+                    WORKER_RESP_CODE.PAGE_DATA,
+                    LOG_FILE_MANAGER.loadPage(args.cursor)
+                );
+                break;
+            case WORKER_REQ_CODE.SET_FILTER:
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
                 }
+                LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
+
+                postResp(WORKER_RESP_CODE.VIEW_INFO, {
+                    numFilteredEvents: LOG_FILE_MANAGER.numFilteredEvents,
+                    firstLogEventNumOnPage: LOG_FILE_MANAGER.firstLogEventNumOnPage,
+                    lastLogEventNumOnPage: LOG_FILE_MANAGER.lastLogEventNumOnPage,
+                });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)

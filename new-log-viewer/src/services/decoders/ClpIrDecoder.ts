@@ -6,6 +6,7 @@ import {
     DecodeResultType,
     LogEventCount,
 } from "../../typings/decoders";
+import {LogLevelFilter} from "../../typings/logs";
 
 
 class ClpIrDecoder implements Decoder {
@@ -31,6 +32,19 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
+    getFilteredLogEventIndices (): number[] {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
+        return Array.from({length: this.#streamReader.getNumEventsBuffered()}, (_, index) => index);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        // eslint-disable-next-line no-warning-comments
+        // TODO fix this after log level filtering is implemented in clp-ffi-js
+        return false;
+    }
+
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
         return {
             numInvalidEvents: 0,
@@ -38,12 +52,15 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    setDecoderOptions (): boolean {
-        return true;
+    decodeFilteredRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update after log level filtering is implemented in clp-ffi-js
+        return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 
-    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update after log level filtering is implemented in clp-ffi-js
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 }

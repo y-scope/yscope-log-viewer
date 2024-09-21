@@ -1,5 +1,8 @@
-import {DecoderOptionsType} from "./decoders";
-import {LOG_LEVEL} from "./logs";
+import {DecoderOptions} from "./decoders";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "./logs";
 
 
 /**
@@ -40,11 +43,13 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
+    SET_FILTER = "setFilter",
 }
 
 enum WORKER_RESP_CODE {
-    LOG_FILE_INFO = "fileInfo",
+    LOG_FILE_INFO = "logFileInfo",
     PAGE_DATA = "pageData",
+    VIEW_INFO = "viewInfo",
     NOTIFICATION = "notification",
 }
 
@@ -53,11 +58,14 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions,
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        decoderOptions?: DecoderOptionsType
+    },
+    [WORKER_REQ_CODE.SET_FILTER]: {
+        cursor: CursorType,
+        logLevelFilter: LogLevelFilter,
     },
 };
 
@@ -69,7 +77,12 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
+        cursorLineNum: number,
+    },
+    [WORKER_RESP_CODE.VIEW_INFO]: {
+        firstLogEventNumOnPage: number[],
+        lastLogEventNumOnPage: number[],
+        numFilteredEvents: number,
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,

@@ -1,4 +1,11 @@
+import {Dayjs} from "dayjs";
+
 import {Nullable} from "./common";
+import {JsonObject} from "./js";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "./logs";
 
 
 interface LogEventCount {
@@ -13,13 +20,22 @@ interface LogEventCount {
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptionsType {
+interface JsonlDecoderOptions {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
 }
 
-type DecoderOptionsType = JsonlDecoderOptionsType;
+type DecoderOptions = JsonlDecoderOptions;
+
+/**
+ * A log event parsed from a JSON log.
+ */
+interface JsonLogEvent {
+    timestamp: Dayjs,
+    level: LOG_LEVEL,
+    fields: JsonObject
+}
 
 /**
  * Type of the decoded log event. We use an array rather than object so that it's easier to return
@@ -42,6 +58,19 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
+     * @return Indices of the filtered events.
+     */
+    getFilteredLogEventIndices(): number[];
+
+    /**
+     * Sets the log level filter for the decoder.
+     *
+     * @param logLevelFilter
+     * @return Whether the filter was successfully set.
+     */
+    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
+
+    /**
      * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
      *
      * @param beginIdx
@@ -53,22 +82,26 @@ interface Decoder {
     buildIdx(beginIdx: number, endIdx: number): Nullable<LogEventCount>;
 
     /**
-     * Sets options for the decoder.
-     *
-     * @param options
-     * @return Whether the options were successfully set.
-     */
-    setDecoderOptions(options: DecoderOptionsType): boolean;
-
-    /**
-     * Decodes the log events in the range `[beginIdx, endIdx)`.
+     * Decodes filtered log events (i.e. only events included by the current filter) in the range
+     * `[beginIdx, endIdx)`.
      *
      * @param beginIdx
      * @param endIdx
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
-    decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
+    decodeFilteredRange(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
+
+    /**
+     * Decodes all log events in the range `[beginIdx, endIdx)`, ignoring any filter that may have
+     * been set.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @return The decoded log events on success or null if any log event in the range doesn't exist
+     * (e.g., the range exceeds the number of log events in the file).
+     */
+    decodeRange(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 }
 
 /**
@@ -81,7 +114,8 @@ export {LOG_EVENT_FILE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,
-    DecoderOptionsType,
-    JsonlDecoderOptionsType,
+    DecoderOptions,
+    JsonlDecoderOptions,
+    JsonLogEvent,
     LogEventCount,
 };

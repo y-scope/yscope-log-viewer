@@ -6,7 +6,7 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
-import {DecoderOptionsType} from "../typings/decoders";
+import {DecoderOptions} from "../typings/decoders";
 
 
 const MAX_PAGE_SIZE = 1_000_000;
@@ -17,6 +17,7 @@ const MAX_PAGE_SIZE = 1_000_000;
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.DECODER_OPTIONS]: {
         formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n",
+        logLevelFilter: null,
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },
@@ -121,7 +122,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 timestampKey: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
-            } as DecoderOptionsType;
+            } as DecoderOptions;
             break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);

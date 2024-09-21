@@ -1,13 +1,7 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
-import {CONFIG_KEY} from "../typings/config";
-import {getConfig} from "./config";
-import {
-    getFirstItemNumInNextChunk,
-    getLastItemNumInPrevChunk,
-} from "./math";
+import {clamp} from "../utils/math";
 
 
 enum ACTION_NAME {
@@ -16,7 +10,7 @@ enum ACTION_NAME {
     NEXT_PAGE = "nextPage",
     LAST_PAGE = "lastPage",
     PAGE_TOP = "pageTop",
-    PAGE_BOTTOM = "pageBottom"
+    PAGE_BOTTOM = "pageBottom",
 }
 
 type ActionType = {
@@ -30,7 +24,7 @@ type ActionType = {
  * but will be displayed in a help dialog.
  */
 /* eslint-disable sort-keys */
-const EDITOR_ACTIONS : ActionType[] = [
+const EDITOR_ACTIONS: ActionType[] = [
     {
         actionName: null,
         label: "Focus on Editor",
@@ -70,34 +64,40 @@ const EDITOR_ACTIONS : ActionType[] = [
 /* eslint-enable sort-keys */
 
 /**
- * Handles an action based on the given action name, log event number, and total number of events.
+ * Handles an action based on the given action name.
  *
  * @param actionName
- * @param logEventNum
- * @param numEvents
+ * @param pageNum
+ * @param numPages
+ * @param loadPage
  */
-const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEvents: number) => {
-    const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
+const handleAction = (
+    actionName: ACTION_NAME,
+    pageNum: Nullable<number>,
+    numPages: number,
+    loadPage: (newPageNum: number) => void,
+) => {
+    const safeCurrentPage = pageNum ?? 1;
+    let newPage: number = safeCurrentPage;
     switch (actionName) {
         case ACTION_NAME.FIRST_PAGE:
-            updateWindowUrlHashParams({logEventNum: 1});
+            newPage = 1;
             break;
-        case ACTION_NAME.PREV_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getLastItemNumInPrevChunk(logEventNum, pageSize),
-            });
+        case ACTION_NAME.PREV_PAGE: {
+            newPage = clamp(safeCurrentPage - 1, 1, numPages);
             break;
-        case ACTION_NAME.NEXT_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getFirstItemNumInNextChunk(logEventNum, pageSize),
-            });
+        }
+        case ACTION_NAME.NEXT_PAGE: {
+            newPage = clamp(safeCurrentPage + 1, 1, numPages);
             break;
+        }
         case ACTION_NAME.LAST_PAGE:
-            updateWindowUrlHashParams({logEventNum: numEvents});
+            newPage = numPages;
             break;
         default:
             break;
     }
+    loadPage(newPage);
 };
 
 export {
