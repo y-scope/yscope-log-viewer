@@ -214,17 +214,16 @@ class LogFileManager {
     }
 
     /**
-     * Changes the current log level filter and updates the page boundaries.
+     * Sets the log level filter.
      *
-     * @param logLevelFilter Array of selected log levels
-     * @throws {Error} If changing the log level filter is not successful
+     * @param logLevelFilter
+     * @throws {Error} If changing the log level filter couldn't be set.
      */
     changeLogLevelFilter (logLevelFilter: LogLevelFilter) {
         const result: boolean = this.#decoder.changeLogLevelFilter(logLevelFilter);
 
         if (false === result) {
-            throw new Error(`Error changing log level filter as feature not yet
-                implemented for this file type on new log viewer`);
+            throw new Error(`Failed to set log level filter for current decoder.`);
         }
 
         if (logLevelFilter) {
@@ -235,9 +234,8 @@ class LogFileManager {
     }
 
     /**
-     * Computes logEventNum page boundaries based on current filter. Sets two arrays of page
-     * boundaries. The first array contains the number of first log event on each page. The
-     * second array contains the number last log event on each page.
+     * Computes the log event number at the beginning and end of each page, accounting for the level
+     * filter.
      */
     #computeFilteredPageBoundaries () {
         this.#firstLogEventNumOnPage.length = 0;
@@ -250,21 +248,15 @@ class LogFileManager {
             const firstLogEventOnPageIdx: number = filteredLogEventsIndices[i] as number;
             this.#firstLogEventNumOnPage.push(1 + firstLogEventOnPageIdx);
 
-            // Need to minus one from page size to get correct index into filtered log events.
-            let lastPageIdx: number = i + this.#pageSize - 1;
-
-            // Guard to prevent indexing out of array on last page.
-            if (lastPageIdx >= this.#numFilteredEvents) {
-                lastPageIdx = this.#numFilteredEvents - 1;
-            }
-
-            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[lastPageIdx] as number;
+            const j = Math.min(i + this.#pageSize - 1, this.#numFilteredEvents - 1);
+            const lastLogEventOnPageIdx: number = filteredLogEventsIndices[j] as number;
             this.#lastLogEventNumOnPage.push(1 + lastLogEventOnPageIdx);
         }
     }
 
     /**
-     * Computes logEventNum page boundaries with assuming no filter.
+     * Computes the log event number at the beginning and end of each page, assuming the events
+     * aren't filtered.
      */
     #computeUnfilteredPageBoundaries () {
         this.#firstLogEventNumOnPage.length = 0;

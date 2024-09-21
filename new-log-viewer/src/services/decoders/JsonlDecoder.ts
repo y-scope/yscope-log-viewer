@@ -69,7 +69,7 @@ class JsonlDecoder implements Decoder {
 
     buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
         if (0 !== beginIdx || endIdx !== LOG_EVENT_FILE_END_IDX) {
-            throw new Error("Partial range deserialization is not yet supported.");
+            throw new Error("Partial range deserialization is currently unsupported.");
         }
 
         this.#deserialize();
@@ -101,12 +101,12 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Decodes JSON log events from the filtered log events array or unfiltered
-     * based on the value of useFilter.
+     * Decodes log events from the filtered or unfiltered log events array based on the value of
+     * `useFilter`.
      *
      * @param beginIdx
      * @param endIdx
-     * @param useFilter Whether to use filtered or unfiltered log event array
+     * @param useFilter Whether to decode from the filtered or unfiltered log events array.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
@@ -144,7 +144,7 @@ class JsonlDecoder implements Decoder {
                 message = `${this.#invalidLogEventIdxToRawLine.get(filteredIdx)}\n`;
                 logLevel = LOG_LEVEL.NONE;
             } else {
-                // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
+                // Explicit cast since typescript thinks `#logEvents[filteredIdx]` can be undefined,
                 // but it shouldn't be since the index comes from a class-internal filter.
                 const logEvent: JsonLogEvent = this.#logEvents[filteredIdx] as JsonLogEvent;
 
@@ -173,6 +173,7 @@ class JsonlDecoder implements Decoder {
         if (null === this.#dataArray) {
             return;
         }
+
         const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
         let beginIdx = 0;
         while (beginIdx < text.length) {
@@ -214,15 +215,14 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Creates an array containing indexes of logs which match the user selected levels. The
-     * previous array is removed and a new one is created on each call.
+     * Computes and saves the indices of the log events that match the log level filter.
      *
-     * @param logLevelFilter Array of selected log levels
+     * @param logLevelFilter
      */
     #filterLogs (logLevelFilter: LogLevelFilter) {
         this.#filteredLogIndices.length = 0;
 
-        if (!logLevelFilter) {
+        if (null === logLevelFilter) {
             return;
         }
 

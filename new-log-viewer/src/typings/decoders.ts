@@ -58,8 +58,6 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * Retrieves the filtered log events indices, which is usually based on log level.
-     *
      * @return Indices of the filtered events.
      */
     getFilteredLogEvents(): number[];
@@ -84,8 +82,8 @@ interface Decoder {
     buildIdx(beginIdx: number, endIdx: number): Nullable<LogEventCount>;
 
     /**
-     * Decodes filtered log events (i.e. only includes events are included in current filter) in
-     * the range `[beginIdx, endIdx)`.
+     * Decodes filtered log events (i.e. only events included by the current filter) in the range
+     * `[beginIdx, endIdx)`.
      *
      * @param beginIdx
      * @param endIdx
@@ -95,7 +93,8 @@ interface Decoder {
     decodeFilteredRange(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
 
     /**
-     * Decodes the all log events in the range `[beginIdx, endIdx)` irrespective of filter applied.
+     * Decodes all log events in the range `[beginIdx, endIdx)`, ignoring any filter that may have
+     * been set.
      *
      * @param beginIdx
      * @param endIdx
