@@ -165,7 +165,8 @@ class JsonlDecoder implements Decoder {
     /**
      * Parses each line from the data array as a JSON object and buffers it internally. If a
      * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
-     * Note the data array is freed after the very first run of the method.
+     *
+     * NOTE: The data array is freed after the very first run of this method.
      */
     #deserialize () {
         if (null === this.#dataArray) {
@@ -235,7 +236,7 @@ class JsonlDecoder implements Decoder {
     /**
      * Parses the log level from the given log event fields.
      *
-     * @param logEvent
+     * @param logEventFields
      * @return The parsed log level.
      */
     #parseLogLevel (logEventFields: JsonObject): number {
