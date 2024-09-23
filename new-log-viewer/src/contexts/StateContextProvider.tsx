@@ -184,6 +184,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
+            case WORKER_RESP_CODE.QUERY_RESULT:
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Handle query results
+                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;

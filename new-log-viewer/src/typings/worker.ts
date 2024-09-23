@@ -41,13 +41,15 @@ enum WORKER_REQ_CODE {
     EXPORT_LOG = "exportLog",
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
+    QUERY_LOG = "queryLog",
 }
 
 enum WORKER_RESP_CODE {
     CHUNK_DATA = "chunkData",
     LOG_FILE_INFO = "fileInfo",
-    PAGE_DATA = "pageData",
     NOTIFICATION = "notification",
+    PAGE_DATA = "pageData",
+    QUERY_RESULT = "queryResult",
 }
 
 type WorkerReqMap = {
@@ -64,6 +66,11 @@ type WorkerReqMap = {
         cursor: CursorType,
         decoderOptions?: DecoderOptionsType
     },
+    [WORKER_REQ_CODE.QUERY_LOG]: {
+        searchString: string,
+        isRegex: boolean,
+        matchCase: boolean,
+    }
 };
 
 type WorkerRespMap = {
@@ -74,15 +81,22 @@ type WorkerRespMap = {
         fileName: string,
         numEvents: number,
     },
+    [WORKER_RESP_CODE.NOTIFICATION]: {
+        logLevel: LOG_LEVEL,
+        message: string
+    },
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
     },
-    [WORKER_RESP_CODE.NOTIFICATION]: {
-        logLevel: LOG_LEVEL,
-        message: string
-    },
+    [WORKER_RESP_CODE.QUERY_RESULT]: {
+        [lineNum: number]: {
+            logEventNum: number;
+            message: string;
+            matchRange: [number, number];
+        };
+    }
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?

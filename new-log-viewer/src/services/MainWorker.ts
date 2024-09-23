@@ -92,6 +92,19 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     LOG_FILE_MANAGER.loadPage(args.cursor)
                 );
                 break;
+            case WORKER_REQ_CODE.QUERY_LOG:
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+                postResp(
+                    WORKER_RESP_CODE.QUERY_RESULT,
+                    LOG_FILE_MANAGER.queryLog(
+                        args.searchString,
+                        args.isRegex,
+                        args.matchCase
+                    )
+                );
+                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;

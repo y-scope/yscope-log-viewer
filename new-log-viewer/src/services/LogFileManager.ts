@@ -230,6 +230,60 @@ class LogFileManager {
         };
     }
 
+    queryLog (searchString: string, isRegex: boolean, matchCase: boolean): {
+        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }[]
+    } {
+        const results: { [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }[] } = {};
+        const regex = isRegex ?
+            new RegExp(searchString, matchCase ?
+                "g" :
+                "gi") :
+            null;
+        const searchStr = matchCase ?
+            searchString :
+            searchString.toLowerCase();
+
+        for (let i = 0; i < this.#numEvents; i++) {
+            const logEvent = this.#decoder.decode(i, i + 1);
+            if (logEvent && 0 < logEvent.length) {
+                const [message, , , logEventNum] = logEvent[0];
+                const msg = matchCase ?
+                    message :
+                    message.toLowerCase();
+                let match;
+                const matches: { logEventNum: number; message: string; matchRange: [number, number]; }[] = [];
+
+                if (regex) {
+                    while (null !== (match = regex.exec(msg))) {
+                        matches.push({
+                            logEventNum,
+                            message,
+                            matchRange: [match.index,
+                                match.index + match[0].length],
+                        });
+                    }
+                } else {
+                    let index = msg.indexOf(searchStr);
+                    while (-1 !== index) {
+                        matches.push({
+                            logEventNum,
+                            message,
+                            matchRange: [index,
+                                index + searchStr.length],
+                        });
+                        index = msg.indexOf(searchStr, index + searchStr.length);
+                    }
+                }
+
+                if (0 < matches.length) {
+                    results[i + 1] = matches;
+                }
+            }
+        }
+
+        return results;
+    }
+
     /**
      * Gets the range of log event numbers for the page containing the given cursor.
      *
