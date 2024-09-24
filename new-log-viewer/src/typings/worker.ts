@@ -8,10 +8,18 @@ import {LOG_LEVEL} from "./logs";
 type FileSrcType = string | File;
 
 /**
+ * Whether returned page should be anchored to top or bottom.
+ */
+enum LOG_EVENT_ANCHOR {
+    FIRST = "first",
+    LAST = "last",
+}
+
+/**
  * Enum of cursors used for locating some log event and navigating across pages.
  * - LAST_EVENT: the last event
  * - TIMESTAMP: the first event that has a timestamp >= the given value
- * - PAGE_NUM: the first event on the given page
+ * - PAGE_NUM: the first or last event on the given page
  */
 enum CURSOR_CODE {
     LAST_EVENT = "lastEvent",
@@ -22,7 +30,7 @@ enum CURSOR_CODE {
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, logEventAnchor: LOG_EVENT_ANCHOR; };
 };
 
 type CursorType = {
@@ -70,6 +78,7 @@ type WorkerRespMap = {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
+        newLogEventNum: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,
@@ -95,6 +104,7 @@ type MainWorkerRespMessage = {
 
 export {
     CURSOR_CODE,
+    LOG_EVENT_ANCHOR,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

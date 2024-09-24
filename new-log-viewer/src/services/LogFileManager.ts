@@ -9,6 +9,7 @@ import {
     CURSOR_CODE,
     CursorType,
     FileSrcType,
+    LOG_EVENT_ANCHOR,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
@@ -164,6 +165,7 @@ class LogFileManager {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
+        newLogEventNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
@@ -191,10 +193,13 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
+        const newLogEventNum: number = this.#getNewLogEventNum(cursor, beginLineNumToLogEventNum)
+
         return {
             logs: messages.join(""),
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
+            newLogEventNum: newLogEventNum,
         };
     }
 
@@ -227,6 +232,31 @@ class LogFileManager {
         const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
         return {beginLogEventNum, endLogEventNum};
+    }
+
+    /**
+     * Gets the range of log event numbers for the page containing the given cursor.
+     *
+     * @param cursor The cursor object containing the code and arguments.
+     * @return The range.
+     * @throws {Error} if the type of cursor is not supported.
+     */
+    #getNewLogEventNum (cursor: CursorType, beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap): number {
+        const {code, args} = cursor;
+        const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
+        let NewLogEventNum: number|undefined = logEventNumOnPage.at(0);
+
+        if (CURSOR_CODE.PAGE_NUM === code) {
+            if (args.logEventAnchor = LOG_EVENT_ANCHOR.FIRST) {
+                NewLogEventNum = logEventNumOnPage.at(-1);
+            }
+        }
+
+        if (NewLogEventNum === undefined) {
+            throw Error("Could not find Log Event on page")
+        }
+
+        return NewLogEventNum
     }
 }
 

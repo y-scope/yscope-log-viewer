@@ -6,10 +6,8 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {UrlContext} from "../../contexts/UrlContextProvider";
 import {
     ACTION_NAME,
-    handleAction,
 } from "../../utils/actions";
 import PageNumInput from "./PageNumInput";
 import SmallIconButton from "./SmallIconButton";
@@ -21,16 +19,12 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const NavigationBar = () => {
-    const {numEvents} = useContext(StateContext);
-    const {logEventNum} = useContext(UrlContext);
+    const {loadPage} = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (null === logEventNum) {
-            return;
-        }
         const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
         if (Object.values(ACTION_NAME).includes(actionName)) {
-            handleAction(actionName, logEventNum, numEvents);
+            loadPage(actionName);
         }
     };
 

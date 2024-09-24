@@ -15,12 +15,14 @@ import {
     CURSOR_CODE,
     CursorType,
     FileSrcType,
+    LOG_EVENT_ANCHOR,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
+import {ACTION_NAME} from "../utils/actions";
 import {
     clamp,
     getChunkNum,
@@ -33,16 +35,15 @@ import {
     UrlContext,
 } from "./UrlContextProvider";
 
-
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPage: (newPageNum: number) => void,
+    loadPage: (action: ACTION_NAME, specificPageNum?: Nullable<number>) => void,
     logData: string,
     numEvents: number,
     numPages: number,
-    pageNum: Nullable<number>
+    pageNum: number,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -86,22 +87,6 @@ const updateLogEventNumInUrl = (
 };
 
 /**
- * Gets the last log event number from a map of begin line numbers to log event numbers.
- *
- * @param beginLineNumToLogEventNum
- * @return The last log event number.
- */
-const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
-    const allLogEventNums = Array.from(beginLineNumToLogEventNum.values());
-    let lastLogEventNum = allLogEventNums.at(-1);
-    if ("undefined" === typeof lastLogEventNum) {
-        lastLogEventNum = 1;
-    }
-
-    return lastLogEventNum;
-};
-
-/**
  * Sends a post message to a worker with the given code and arguments. This wrapper around
  * `worker.postMessage()` ensures type safety for both the request code and its corresponding
  * arguments.
@@ -137,7 +122,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
+    const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
 
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -152,8 +137,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
-                updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
+                updateLogEventNumInUrl(numEvents, args.newLogEventNum);
                 break;
             }
             case WORKER_RESP_CODE.NOTIFICATION:
@@ -189,14 +173,51 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const loadPage = (newPageNum: number) => {
+    const loadPage = (action: ACTION_NAME, specificPageNum: Nullable<number> = null) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
-
             return;
         }
+
+        if (null === specificPageNum && action !== ACTION_NAME.SPECIFIC_PAGE) {
+            console.error(`Unexpected page number provided to page action ${action}`);
+            return;
+        }
+
+        if (STATE_DEFAULT.pageNum == pageNumRef.current) {
+            console.error(`Page actions cannot be executed if the current page is not set.`);
+            return;
+        }
+
+        let newPageNum: number;
+        let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
+
+        switch (action) {
+        case ACTION_NAME.SPECIFIC_PAGE:
+            // specificPageNum cannot be null, since already checked during validation.
+            newPageNum = specificPageNum!;
+            break;
+        case ACTION_NAME.FIRST_PAGE:
+            newPageNum = 1;
+            break;
+        case ACTION_NAME.PREV_PAGE:
+            anchor = LOG_EVENT_ANCHOR.LAST
+            newPageNum = clamp(pageNumRef.current - 1, 1, numPagesRef.current);
+            break;
+        case ACTION_NAME.NEXT_PAGE:
+            newPageNum = clamp(pageNumRef.current + 1, 1, numPagesRef.current);
+            break;
+        case ACTION_NAME.LAST_PAGE:
+            anchor = LOG_EVENT_ANCHOR.LAST
+            newPageNum = numPagesRef.current;
+            break;
+        default:
+            console.error(`Behaviour for action ${action} is not yet defined.`);
+            return;
+        }
+
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
+            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum, logEventAnchor: anchor}},
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
     };
@@ -236,7 +257,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
                 // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
-                loadPage(newPageNum);
+                loadPage(ACTION_NAME.SPECIFIC_PAGE, newPageNum);
             }
         }
 
@@ -262,7 +283,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 1
             );
 
-            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
+            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum, logEventAnchor:LOG_EVENT_ANCHOR.FIRST}};
         }
         loadFile(filePath, cursor);
     }, [

@@ -8,6 +8,7 @@ import React, {
 import {Typography} from "@mui/joy";
 import Input from "@mui/joy/Input";
 
+import {ACTION_NAME} from "../../utils/actions";
 import {StateContext} from "../../contexts/StateContextProvider";
 
 import "./PageNumInput.css";
@@ -38,7 +39,7 @@ const PageNumInput = () => {
             return;
         }
 
-        loadPage(Number(inputRef.current.value));
+        loadPage(ACTION_NAME.SPECIFIC_PAGE, Number(inputRef.current.value));
         setIsEditing(false);
     };
 

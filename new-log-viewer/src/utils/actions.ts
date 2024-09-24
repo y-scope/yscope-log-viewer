@@ -1,16 +1,9 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
-import {CONFIG_KEY} from "../typings/config";
-import {getConfig} from "./config";
-import {
-    getFirstItemNumInNextChunk,
-    getLastItemNumInPrevChunk,
-} from "./math";
-
 
 enum ACTION_NAME {
+    SPECIFIC_PAGE = "specificPage",
     FIRST_PAGE = "firstPage",
     PREV_PAGE = "prevPage",
     NEXT_PAGE = "nextPage",
@@ -67,42 +60,11 @@ const EDITOR_ACTIONS : ActionType[] = [
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
     },
 ];
-/* eslint-enable sort-keys */
 
-/**
- * Handles an action based on the given action name, log event number, and total number of events.
- *
- * @param actionName
- * @param logEventNum
- * @param numEvents
- */
-const handleAction = (actionName: ACTION_NAME, logEventNum: number, numEvents: number) => {
-    const pageSize = getConfig(CONFIG_KEY.PAGE_SIZE);
-    switch (actionName) {
-        case ACTION_NAME.FIRST_PAGE:
-            updateWindowUrlHashParams({logEventNum: 1});
-            break;
-        case ACTION_NAME.PREV_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getLastItemNumInPrevChunk(logEventNum, pageSize),
-            });
-            break;
-        case ACTION_NAME.NEXT_PAGE:
-            updateWindowUrlHashParams({
-                logEventNum: getFirstItemNumInNextChunk(logEventNum, pageSize),
-            });
-            break;
-        case ACTION_NAME.LAST_PAGE:
-            updateWindowUrlHashParams({logEventNum: numEvents});
-            break;
-        default:
-            break;
-    }
-};
+/* eslint-enable sort-keys */
 
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
-    handleAction,
 };
 export type {ActionType};
