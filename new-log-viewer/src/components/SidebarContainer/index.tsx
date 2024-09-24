@@ -1,6 +1,5 @@
 import React, {
     useCallback,
-    useEffect,
     useRef,
     useState,
 } from "react";
@@ -21,6 +20,25 @@ interface SidebarContainerProps {
 }
 
 /**
+ * Gets width of the panel from body style properties.
+ *
+ * @return the width in pixels as a number.
+ */
+const getPanelWidth = () => parseInt(
+    document.body.style.getPropertyValue("--ylv-panel-width"),
+    10
+);
+
+/**
+ * Sets width of the panel in body style properties.
+ *
+ * @param newValue in pixels.
+ */
+const setPanelWidth = (newValue: number) => {
+    document.body.style.setProperty("--ylv-panel-width", `${newValue}px`);
+};
+
+/**
  * Wraps a children with a sidebar component on the left.
  *
  * @param props
@@ -29,7 +47,6 @@ interface SidebarContainerProps {
  */
 const SidebarContainer = ({children}: SidebarContainerProps) => {
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
-    const [panelWidth, setPanelWidth] = useState<number>(PANEL_DEFAULT_WIDTH_IN_PIXEL);
 
     const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -57,10 +74,10 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
-        if (panelWidth === tabListRef.current?.clientWidth) {
+        if (getPanelWidth() === tabListRef.current?.clientWidth) {
             hidePanelAndResizeHandle();
         }
-    }, [panelWidth]);
+    }, []);
 
     const handleResize = useCallback((offset: number) => {
         if (null === tabListRef.current) {
@@ -74,11 +91,6 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
             setPanelWidth(offset);
         }
     }, []);
-
-    // On `panelWidth` change, update CSS variable `--ylv-panel-width`.
-    useEffect(() => {
-        document.body.style.setProperty("--ylv-panel-width", `${panelWidth}px`);
-    }, [panelWidth]);
 
     return (
         <div className={"sidebar-container"}>
