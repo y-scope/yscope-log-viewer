@@ -1,43 +1,28 @@
-import {
-    BeginLineNumToLogEventNumMap,
-    CURSOR_CODE,
-    CursorType,
-    FileSrcType,
-    LOG_EVENT_ANCHOR,
-} from "../../typings/worker";
+import {FileSrcType} from "../../typings/worker";
 import {getUint8ArrayFrom} from "../../utils/http";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
 /**
- * Gets the new log event number.
+ * Gets the range of log events to decode based on beginning log event index.
  *
- * @param cursor The cursor object containing the code and arguments.
- * @param beginLineNumToLogEventNum
- * @return The new log event number.
- * @throws {Error} There are no log events on the page.
+ * @param numEvents
+ * @param beginLogEventIdx
+ * @param pageSize
+ * @return Array with beginning log event number and ending log event number.
  */
-const getNewLogEventNum = (
-    cursor: CursorType,
-    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
-): number => {
-    const {code, args} = cursor;
-    const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
+const getRange = (
+    numEvents: number,
+    beginLogEventIdx: number,
+    pageSize: number
+): [number, number] => {
+    const beginLogEventNum: number = beginLogEventIdx + 1;
 
-    // Default to last event on page.
-    let newLogEventNum: number|undefined = logEventNumOnPage.at(-1);
+    // Clamp ending index using total number of events.
+    const endLogEventNum: number = Math.min(numEvents, beginLogEventNum + pageSize - 1);
 
-    if (CURSOR_CODE.PAGE_NUM === code) {
-        if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
-            newLogEventNum = logEventNumOnPage.at(0);
-        }
-    }
-
-    if (!newLogEventNum) {
-        throw Error("There are no log events on the page.");
-    }
-
-    return newLogEventNum;
+    return [beginLogEventNum,
+        endLogEventNum];
 };
 
 /**
@@ -67,6 +52,6 @@ const loadFile = async (fileSrc: FileSrcType)
 };
 
 export {
-    getNewLogEventNum,
+    getRange,
     loadFile,
 };

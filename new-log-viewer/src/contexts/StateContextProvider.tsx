@@ -170,6 +170,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
+                console.log(args);
 
                 // eslint-disable-next-line no-warning-comments
                 // TODO: Without logEvent cursor, we cannot jump to logEvents.

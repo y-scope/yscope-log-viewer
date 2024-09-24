@@ -9,6 +9,7 @@ import {
     CURSOR_CODE,
     CursorType,
     FileSrcType,
+    LOG_EVENT_ANCHOR,
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
@@ -16,7 +17,7 @@ import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 import {
-    getNewLogEventNum,
+    getRange,
     loadFile,
 } from "./utils";
 
@@ -177,7 +178,7 @@ class LogFileManager {
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
-        const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
+        const {beginLogEventNum, endLogEventNum, newLogEventNum} = this.#getCursorData(cursor);
         const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
@@ -201,7 +202,6 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
-        const newLogEventNum = getNewLogEventNum(cursor, beginLineNumToLogEventNum);
         const newPageNum: number = getChunkNum(beginLogEventNum, this.#pageSize);
 
         return {
@@ -214,34 +214,57 @@ class LogFileManager {
     }
 
     /**
-     * Gets the range of log event numbers for the page containing the given cursor.
+     * Gets the range of log event numbers for the page and the new log event number.
      *
      * @param cursor The cursor object containing the code and arguments.
-     * @return The range.
+     * @return The range and new log event number.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorRange (cursor: CursorType): { beginLogEventNum: number, endLogEventNum: number } {
+    #getCursorData (cursor: CursorType): {
+        beginLogEventNum: number, endLogEventNum:
+        number,
+        newLogEventNum: number} {
+        let beginLogEventIdx: number = 0;
+        let beginLogEventNum: number = 1;
+        let endLogEventNum: number = 0;
+        let newLogEventNum: number = 1;
+
         if (0 === this.#numEvents) {
             return {
-                beginLogEventNum: 1,
-                endLogEventNum: 0,
+                beginLogEventNum: beginLogEventNum,
+                endLogEventNum: endLogEventNum,
+                newLogEventNum: newLogEventNum,
             };
         }
 
-        let beginLogEventIdx: number = 0;
         const {code, args} = cursor;
         if (CURSOR_CODE.PAGE_NUM === code) {
             beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
+            [beginLogEventNum, endLogEventNum] = getRange(
+                this.#numEvents,
+                beginLogEventIdx,
+                this.#pageSize,
+            );
+            if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
+                newLogEventNum = beginLogEventNum;
+            } else {
+                newLogEventNum = endLogEventNum;
+            }
         }
         if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
             // Set to the first event of the last page
             beginLogEventIdx = (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
+            [beginLogEventNum, endLogEventNum] = getRange(
+                this.#numEvents,
+                beginLogEventIdx,
+                this.#pageSize,
+            );
+            newLogEventNum = endLogEventNum;
         } else if (CURSOR_CODE.TIMESTAMP === code) {
             throw new Error(`Unsupported cursor type: ${code}`);
         }
-        const beginLogEventNum = beginLogEventIdx + 1;
-        const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
-        return {beginLogEventNum, endLogEventNum};
+
+        return {beginLogEventNum, endLogEventNum, newLogEventNum};
     }
 }
 
