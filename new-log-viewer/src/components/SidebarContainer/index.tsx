@@ -50,10 +50,10 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
 
     const tabListRef = useRef<HTMLDivElement>(null);
 
-    const deactivateTabAndHideResizeHandle = () => {
+    const deactivateTabAndHideResizeHandle = useCallback(() => {
         setActiveTabName(TAB_NAME.NONE);
         document.body.style.setProperty("--ylv-panel-resize-handle-width", "0px");
-    };
+    }, []);
 
     const handleActiveTabNameChange = useCallback((tabName: TAB_NAME) => {
         if (null === tabListRef.current) {
