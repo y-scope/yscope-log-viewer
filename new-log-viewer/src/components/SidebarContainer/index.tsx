@@ -71,13 +71,16 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
         setActiveTabName(tabName);
         setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXEL);
         document.body.style.setProperty("--ylv-panel-resize-handle-width", "3px");
-    }, [activeTabName]);
+    }, [
+        activeTabName,
+        deactivateTabAndHideResizeHandle,
+    ]);
 
     const handleResizeHandleRelease = useCallback(() => {
         if (getPanelWidth() === tabListRef.current?.clientWidth) {
             deactivateTabAndHideResizeHandle();
         }
-    }, []);
+    }, [deactivateTabAndHideResizeHandle]);
 
     const handleResize = useCallback((resizeHandlePosition: number) => {
         if (null === tabListRef.current) {
