@@ -66,13 +66,13 @@ const EDITOR_ACTIONS : ActionType[] = [
 ];
 
 /**
- * Calculates the new page number and log event anchor.
+ * Calculates the new page number and log event anchor for the page num cursor.
  *
  * @param action
  * @param specificPageNum Page number for specific page action.
  * @param currentPageNum
  * @param numPages
- * @return The new page number and the log event anchor required for the page request. Returns
+ * @return The new page number and the log event anchor required for the page num cursor. Returns
  * null if the action is not setup or there is an error validating inputs.
  */
 const getPageNumCursorArgs = (
@@ -85,7 +85,7 @@ const getPageNumCursorArgs = (
     let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
 
     if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE === action) {
-        console.error("Specific page action missing page input");
+        console.error("Specific page action missing required page input");
 
         return [
             null,

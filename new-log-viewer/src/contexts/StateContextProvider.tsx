@@ -48,13 +48,14 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     exportProgress: Nullable<number>,
-    exportLogs: () => void,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPage: (action: ACTION_NAME, specificPageNum?: Nullable<number>) => void,
     logData: string,
     numEvents: number,
     numPages: number,
     pageNum: number,
+
+    exportLogs: () => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (action: ACTION_NAME, specificPageNum?: Nullable<number>) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -143,7 +144,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
-
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -170,6 +170,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
+
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Without logEvent cursor, we cannot jump to logEvents.
+                // Will be fixed once logEvent cursor is merged.
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
@@ -281,6 +285,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Remove newPageNum calc once log Event cursor complete. Instead
+        // we can check if in beginLineNumToLogEventNum, and if not send page request
+        // with logEvent cursor.
         const newPageNum = clamp(
             getChunkNum(logEventNum, getConfig(CONFIG_KEY.PAGE_SIZE)),
             1,
@@ -295,7 +303,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             } else {
                 // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
                 // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
-                // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
+                // `WORKER_REQ_CODE.LOAD_PAGE` requests).
+
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Replace with logEvent cursor once its complete.
                 loadPage(ACTION_NAME.SPECIFIC_PAGE, newPageNum);
             }
         }
@@ -321,6 +332,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 1
             );
 
+            // eslint-disable-next-line no-warning-comments
+            // TODO: Replace with logEvent cursor once its complete.
             cursor = {code: CURSOR_CODE.PAGE_NUM,
                 args: {pageNum: newPageNum, logEventAnchor: LOG_EVENT_ANCHOR.FIRST}};
         }
