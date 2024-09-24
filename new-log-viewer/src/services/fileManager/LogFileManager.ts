@@ -1,4 +1,4 @@
-import {CONFIG_KEY} from "../../typings/config";
+
 import {
     Decoder,
     DecoderOptionsType,
@@ -13,7 +13,6 @@ import {
 } from "../../typings/worker";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
-    getConfig,
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {formatSizeInBytes} from "../../utils/units";
@@ -206,7 +205,7 @@ class LogFileManager {
         });
 
         const newLogEventNum = getNewLogEventNum(cursor, beginLineNumToLogEventNum);
-        const newPageNum: number = getChunkNum(beginLogEventNum, getConfig(CONFIG_KEY.PAGE_SIZE));
+        const newPageNum: number = getChunkNum(beginLogEventNum, this.#pageSize);
 
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
