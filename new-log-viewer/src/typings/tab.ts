@@ -5,7 +5,7 @@ enum TAB_NAME {
 }
 
 /**
- * Mps the TAB_NAME enum values to their corresponding display names.
+ * Maps the TAB_NAME enum values to their corresponding display names.
  */
 const TAB_DISPLAY_NAMES: Record<TAB_NAME, string> = Object.freeze({
     [TAB_NAME.NONE]: "None",
