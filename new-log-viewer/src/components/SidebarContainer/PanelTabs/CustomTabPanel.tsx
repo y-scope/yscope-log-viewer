@@ -31,12 +31,10 @@ const CustomTabPanel = ({children, tabName, title}: CustomTabPanelProps) => {
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <DialogTitle className={"sidebar-tab-panel-title"}>
+            <DialogTitle className={"sidebar-tab-panel-title-container"}>
                 <Typography
-                    fontSize={14}
-                    fontWeight={400}
+                    className={"sidebar-tab-panel-title"}
                     level={"body-md"}
-                    textTransform={"uppercase"}
                 >
                     {title}
                 </Typography>
