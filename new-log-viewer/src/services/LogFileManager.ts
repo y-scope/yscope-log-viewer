@@ -13,6 +13,7 @@ import {
     LOG_EVENT_ANCHOR,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
@@ -184,6 +185,37 @@ class LogFileManager {
      */
     setDecoderOptions (options: DecoderOptionsType) {
         this.#decoder.setDecoderOptions(options);
+    }
+
+    /**
+     * Loads log events in the range
+     * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
+     * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
+     *
+     * @param beginLogEventIdx
+     * @return An object containing the log events as a string.
+     * @throws {Error} if any error occurs when decoding the log events.
+     */
+    loadChunk (beginLogEventIdx: number): {
+        logs: string,
+    } {
+        const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
+        const results = this.#decoder.decode(
+            beginLogEventIdx,
+            endLogEventIdx
+        );
+
+        if (null === results) {
+            throw new Error(
+                `Failed to decode log events in range [${beginLogEventIdx}, ${endLogEventIdx})`
+            );
+        }
+
+        const messages = results.map(([msg]) => msg);
+
+        return {
+            logs: messages.join(""),
+        };
     }
 
     /**
