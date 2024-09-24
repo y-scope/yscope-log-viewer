@@ -23,7 +23,7 @@ import {
 } from "../typings/worker";
 import {
     ACTION_NAME,
-    getPageReqCursorArgs,
+    getPageNumCursorArgs,
 } from "../utils/actions";
 import {getConfig} from "../utils/config";
 import {
@@ -187,7 +187,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        const [newPageNum, anchor] = getPageReqCursorArgs(
+        const [newPageNum, anchor] = getPageNumCursorArgs(
             action,
             specificPageNum,
             pageNumRef.current,

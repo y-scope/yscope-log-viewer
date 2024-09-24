@@ -66,7 +66,7 @@ const EDITOR_ACTIONS : ActionType[] = [
 ];
 
 /**
- * Calculates the new page number and log event anchor based on the action name.
+ * Calculates the new page number and log event anchor.
  *
  * @param action
  * @param specificPageNum Page number for specific page action.
@@ -75,7 +75,7 @@ const EDITOR_ACTIONS : ActionType[] = [
  * @return The new page number and the log event anchor required for the page request. Returns
  * null if the action is not setup or there is an error validating inputs.
  */
-const getPageReqCursorArgs = (
+const getPageNumCursorArgs = (
     action: ACTION_NAME,
     specificPageNum: Nullable<number>,
     currentPageNum: number,
@@ -84,9 +84,8 @@ const getPageReqCursorArgs = (
     let newPageNum: number;
     let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
 
-
-    if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE !== action) {
-        console.error(`Unexpected page number provided to page action ${action}`);
+    if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE === action) {
+        console.error("Specific page action missing page input");
 
         return [
             null,
@@ -130,16 +129,15 @@ const getPageReqCursorArgs = (
             ];
     }
 
-    return [newPageNum,
-        anchor];
+    return [
+        newPageNum,
+        anchor,
+    ];
 };
-
-
-/* eslint-enable sort-keys */
 
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
-    getPageReqCursorArgs,
+    getPageNumCursorArgs,
 };
 export type {ActionType};

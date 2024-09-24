@@ -35,6 +35,7 @@ const getNewLogEventNum = (
 ): number => {
     const {code, args} = cursor;
     const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
+
     // Default to last event on page.
     let NewLogEventNum: number|undefined = logEventNumOnPage.at(-1);
 

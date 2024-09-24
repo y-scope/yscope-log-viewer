@@ -8,7 +8,7 @@ import {LOG_LEVEL} from "./logs";
 type FileSrcType = string | File;
 
 /**
- * Whether returned page should be anchored to top or bottom.
+ * Input to page num cursor resulting if page is anchored to top or bottom.
  */
 enum LOG_EVENT_ANCHOR {
     FIRST = "first",
@@ -30,7 +30,7 @@ enum CURSOR_CODE {
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, logEventAnchor: LOG_EVENT_ANCHOR; };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, logEventAnchor: LOG_EVENT_ANCHOR};
 };
 
 type CursorType = {
