@@ -8,7 +8,8 @@ import {LOG_LEVEL} from "./logs";
 type FileSrcType = string | File;
 
 /**
- * Input to page num cursor resulting if page is anchored to top or bottom.
+ * Indicates whether the log event number should be anchored to the top or bottom of the page.
+ * Used as input for the page number cursor.
  */
 enum LOG_EVENT_ANCHOR {
     FIRST = "first",

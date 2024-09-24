@@ -66,14 +66,14 @@ const EDITOR_ACTIONS : ActionType[] = [
 ];
 
 /**
- * Calculates the new page number and log event anchor for the page num cursor.
+ * Calculates the new page number and log event anchor for the page number cursor.
  *
  * @param action
  * @param specificPageNum Page number for specific page action.
  * @param currentPageNum
  * @param numPages
- * @return The new page number and the log event anchor required for the page num cursor. Returns
- * null if the action is not setup or there is an error validating inputs.
+ * @return The new page number and the log event anchor required for the page number cursor.
+ * Returns null if the action is not setup or there is an error validating inputs.
  */
 const getPageNumCursorArgs = (
     action: ACTION_NAME,
@@ -82,7 +82,7 @@ const getPageNumCursorArgs = (
     numPages: number
 ): [Nullable<number>, Nullable<LOG_EVENT_ANCHOR>] => {
     let newPageNum: number;
-    let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
+    let anchor: LOG_EVENT_ANCHOR;
 
     if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE === action) {
         console.error("Specific page action missing required page input");
@@ -104,11 +104,14 @@ const getPageNumCursorArgs = (
 
     switch (action) {
         case ACTION_NAME.SPECIFIC_PAGE:
+            anchor = LOG_EVENT_ANCHOR.FIRST;
+
             // specificPageNum cannot be null, since already checked during loadPage validation.
             // Clamp is to prevent someone from requesting non-existent page.
             newPageNum = clamp(specificPageNum as number, 1, numPages);
             break;
         case ACTION_NAME.FIRST_PAGE:
+            anchor = LOG_EVENT_ANCHOR.FIRST;
             newPageNum = 1;
             break;
         case ACTION_NAME.PREV_PAGE:
@@ -116,6 +119,7 @@ const getPageNumCursorArgs = (
             newPageNum = clamp(currentPageNum - 1, 1, numPages);
             break;
         case ACTION_NAME.NEXT_PAGE:
+            anchor = LOG_EVENT_ANCHOR.FIRST;
             newPageNum = clamp(currentPageNum + 1, 1, numPages);
             break;
         case ACTION_NAME.LAST_PAGE:
