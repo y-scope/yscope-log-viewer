@@ -1,4 +1,3 @@
-
 import {
     Decoder,
     DecoderOptionsType,
@@ -11,9 +10,7 @@ import {
     CursorType,
     FileSrcType,
 } from "../../typings/worker";
-import {
-    EXPORT_LOGS_CHUNK_SIZE,
-} from "../../utils/config";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";

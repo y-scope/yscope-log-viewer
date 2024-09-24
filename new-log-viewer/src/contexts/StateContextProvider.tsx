@@ -231,7 +231,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const loadPage = (action: ACTION_NAME, specificPageNum: Nullable<number> = null) => {
+    const loadPage = useCallback((
+        action: ACTION_NAME,
+        specificPageNum: Nullable<number> = null
+    ) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
@@ -256,7 +259,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 args: {pageNum: newPageNum, logEventAnchor: anchor}},
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
-    };
+    }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -299,6 +302,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [
         numEvents,
         logEventNum,
+        loadPage,
     ]);
 
     // On `filePath` update, load file.
