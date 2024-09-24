@@ -38,19 +38,19 @@ const getNewLogEventNum = (
     const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
 
     // Default to last event on page.
-    let NewLogEventNum: number|undefined = logEventNumOnPage.at(-1);
+    let newLogEventNum: number|undefined = logEventNumOnPage.at(-1);
 
     if (CURSOR_CODE.PAGE_NUM === code) {
         if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
-            NewLogEventNum = logEventNumOnPage.at(0);
+            newLogEventNum = logEventNumOnPage.at(0);
         }
     }
 
-    if (!NewLogEventNum) {
+    if (!newLogEventNum) {
         throw Error("There are no log events on the page.");
     }
 
-    return NewLogEventNum;
+    return newLogEventNum;
 };
 
 /**
