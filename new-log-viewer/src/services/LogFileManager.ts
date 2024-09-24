@@ -35,11 +35,12 @@ const getNewLogEventNum = (
 ): number => {
     const {code, args} = cursor;
     const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
-    let NewLogEventNum: number|undefined = logEventNumOnPage.at(0);
+    // Default to last event on page.
+    let NewLogEventNum: number|undefined = logEventNumOnPage.at(-1);
 
     if (CURSOR_CODE.PAGE_NUM === code) {
         if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
-            NewLogEventNum = logEventNumOnPage.at(-1);
+            NewLogEventNum = logEventNumOnPage.at(0);
         }
     }
 

@@ -195,7 +195,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         );
 
         if (null === newPageNum || null === anchor) {
-            console.error(`Behaviour for action ${action} is not yet defined.`);
+            console.error(`Error with page action ${action}.`);
 
             return;
         }

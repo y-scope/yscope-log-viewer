@@ -73,7 +73,7 @@ const EDITOR_ACTIONS : ActionType[] = [
  * @param currentPageNum
  * @param numPages
  * @return The new page number and the log event anchor required for the page request. Returns
- * null for both if the action behaviour is not yet setup.
+ * null if the action is not setup or there is an error validating inputs.
  */
 const getPageReqCursorArgs = (
     action: ACTION_NAME,
@@ -88,15 +88,19 @@ const getPageReqCursorArgs = (
     if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE !== action) {
         console.error(`Unexpected page number provided to page action ${action}`);
 
-        return [null,
-            null];
+        return [
+            null,
+            null,
+        ];
     }
 
     if (STATE_DEFAULT.pageNum === currentPageNum) {
         console.error("Page actions cannot be executed if the current page is not set.");
 
-        return [null,
-            null];
+        return [
+            null,
+            null,
+        ];
     }
 
     switch (action) {
@@ -120,8 +124,10 @@ const getPageReqCursorArgs = (
             newPageNum = numPages;
             break;
         default:
-            return [null,
-                null];
+            return [
+                null,
+                null,
+            ];
     }
 
     return [newPageNum,
