@@ -1,14 +1,10 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {
-    LOG_EVENT_ANCHOR,
-} from "../typings/worker";
-
-import {
-    clamp,
-} from "../utils/math";
-
+import {STATE_DEFAULT} from "../contexts/StateContextProvider";
 import {Nullable} from "../typings/common";
+import {LOG_EVENT_ANCHOR} from "../typings/worker";
+import {clamp} from "../utils/math";
+
 
 enum ACTION_NAME {
     SPECIFIC_PAGE = "specificPage",
@@ -79,35 +75,58 @@ const EDITOR_ACTIONS : ActionType[] = [
  * @return The new page number and the log event anchor required for the page request. Returns
  * null for both if the action behaviour is not yet setup.
  */
-const getPageReqCursorArgs = (action: ACTION_NAME, specificPageNum: Nullable<number>, currentPageNum: number, numPages: number): [Nullable<number>, Nullable<LOG_EVENT_ANCHOR>] => {
+const getPageReqCursorArgs = (
+    action: ACTION_NAME,
+    specificPageNum: Nullable<number>,
+    currentPageNum: number,
+    numPages: number
+): [Nullable<number>, Nullable<LOG_EVENT_ANCHOR>] => {
     let newPageNum: number;
     let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
 
-    switch (action) {
-    case ACTION_NAME.SPECIFIC_PAGE:
-        // specificPageNum cannot be null, since already checked during loadPage validation. Clamp
-        // is to prevent someone from non-existent page.
-        newPageNum = clamp(specificPageNum!, 1, numPages);
-        break;
-    case ACTION_NAME.FIRST_PAGE:
-        newPageNum = 1;
-        break;
-    case ACTION_NAME.PREV_PAGE:
-        anchor = LOG_EVENT_ANCHOR.LAST
-        newPageNum = clamp(currentPageNum - 1, 1, numPages);
-        break;
-    case ACTION_NAME.NEXT_PAGE:
-        newPageNum = clamp(currentPageNum + 1, 1, numPages);
-        break;
-    case ACTION_NAME.LAST_PAGE:
-        anchor = LOG_EVENT_ANCHOR.LAST
-        newPageNum = numPages;
-        break;
-    default:
-        return [null, null];
+
+    if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE !== action) {
+        console.error(`Unexpected page number provided to page action ${action}`);
+
+        return [null,
+            null];
     }
-    return [newPageNum, anchor]
-}
+
+    if (STATE_DEFAULT.pageNum === currentPageNum) {
+        console.error("Page actions cannot be executed if the current page is not set.");
+
+        return [null,
+            null];
+    }
+
+    switch (action) {
+        case ACTION_NAME.SPECIFIC_PAGE:
+            // specificPageNum cannot be null, since already checked during loadPage validation.
+            // Clamp is to prevent someone from requesting non-existent page.
+            newPageNum = clamp(specificPageNum as number, 1, numPages);
+            break;
+        case ACTION_NAME.FIRST_PAGE:
+            newPageNum = 1;
+            break;
+        case ACTION_NAME.PREV_PAGE:
+            anchor = LOG_EVENT_ANCHOR.LAST;
+            newPageNum = clamp(currentPageNum - 1, 1, numPages);
+            break;
+        case ACTION_NAME.NEXT_PAGE:
+            newPageNum = clamp(currentPageNum + 1, 1, numPages);
+            break;
+        case ACTION_NAME.LAST_PAGE:
+            anchor = LOG_EVENT_ANCHOR.LAST;
+            newPageNum = numPages;
+            break;
+        default:
+            return [null,
+                null];
+    }
+
+    return [newPageNum,
+        anchor];
+};
 
 
 /* eslint-enable sort-keys */
@@ -115,6 +134,6 @@ const getPageReqCursorArgs = (action: ACTION_NAME, specificPageNum: Nullable<num
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
-    getPageReqCursorArgs
+    getPageReqCursorArgs,
 };
 export type {ActionType};

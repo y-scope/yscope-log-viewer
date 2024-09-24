@@ -8,8 +8,8 @@ import React, {
 import {Typography} from "@mui/joy";
 import Input from "@mui/joy/Input";
 
-import {ACTION_NAME} from "../../utils/actions";
 import {StateContext} from "../../contexts/StateContextProvider";
+import {ACTION_NAME} from "../../utils/actions";
 
 import "./PageNumInput.css";
 
@@ -24,9 +24,6 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  */
 const PageNumInput = () => {
     const {loadPage, numPages, pageNum} = useContext(StateContext);
-    const adjustedPageNum = (null === pageNum) ?
-        0 :
-        pageNum;
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -69,9 +66,9 @@ const PageNumInput = () => {
         if (null === inputRef.current) {
             return;
         }
-        inputRef.current.value = adjustedPageNum.toString();
+        inputRef.current.value = pageNum.toString();
         adjustInputWidth();
-    }, [adjustedPageNum]);
+    }, [pageNum]);
 
     return (
         <form

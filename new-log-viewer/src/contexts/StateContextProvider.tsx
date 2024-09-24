@@ -21,11 +21,11 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {getConfig} from "../utils/config";
 import {
+    ACTION_NAME,
     getPageReqCursorArgs,
-    ACTION_NAME}
-from "../utils/actions";
+} from "../utils/actions";
+import {getConfig} from "../utils/config";
 import {
     clamp,
     getChunkNum,
@@ -37,6 +37,7 @@ import {
     URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
 } from "./UrlContextProvider";
+
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
@@ -139,9 +140,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                pageNumRef.current = args.pageNum
+                pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                updateLogEventNumInUrl(numEvents, args.logEventNum);
+                updateWindowUrlHashParams({
+                    logEventNum: args.logEventNum,
+                });
                 break;
             }
             case WORKER_RESP_CODE.NOTIFICATION:
@@ -180,28 +183,26 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadPage = (action: ACTION_NAME, specificPageNum: Nullable<number> = null) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
+
             return;
         }
 
-        if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE !== action) {
-            console.error(`Unexpected page number provided to page action ${action}`);
-            return;
-        }
+        const [newPageNum, anchor] = getPageReqCursorArgs(
+            action,
+            specificPageNum,
+            pageNumRef.current,
+            numPagesRef.current
+        );
 
-        if (STATE_DEFAULT.pageNum === pageNumRef.current) {
-            console.error(`Page actions cannot be executed if the current page is not set.`);
-            return;
-        }
-
-        const [newPageNum, anchor] = getPageReqCursorArgs(action, specificPageNum!, pageNumRef.current, numPagesRef.current);
-
-        if (newPageNum === null|| anchor === null) {
+        if (null === newPageNum || null === anchor) {
             console.error(`Behaviour for action ${action} is not yet defined.`);
+
             return;
         }
 
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum, logEventAnchor: anchor}},
+            cursor: {code: CURSOR_CODE.PAGE_NUM,
+                args: {pageNum: newPageNum, logEventAnchor: anchor}},
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
     };
@@ -265,7 +266,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 1
             );
 
-            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum, logEventAnchor:LOG_EVENT_ANCHOR.FIRST}};
+            cursor = {code: CURSOR_CODE.PAGE_NUM,
+                args: {pageNum: newPageNum, logEventAnchor: LOG_EVENT_ANCHOR.FIRST}};
         }
         loadFile(filePath, cursor);
     }, [
@@ -291,6 +293,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     );
 };
 
-
 export default StateContextProvider;
-export {StateContext};
+export {
+    STATE_DEFAULT,
+    StateContext,
+};

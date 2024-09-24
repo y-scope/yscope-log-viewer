@@ -6,9 +6,7 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {
-    ACTION_NAME,
-} from "../../utils/actions";
+import {ACTION_NAME} from "../../utils/actions";
 import PageNumInput from "./PageNumInput";
 import SmallIconButton from "./SmallIconButton";
 

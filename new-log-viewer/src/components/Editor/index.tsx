@@ -98,7 +98,7 @@ const Editor = () => {
             default:
                 break;
         }
-    }, []);
+    }, [loadPage]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.

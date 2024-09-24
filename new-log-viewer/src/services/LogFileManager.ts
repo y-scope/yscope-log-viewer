@@ -1,10 +1,10 @@
+import {CONFIG_KEY} from "../typings/config";
 import {
     Decoder,
     DecoderOptionsType,
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
-import {CONFIG_KEY} from "../typings/config";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -12,8 +12,8 @@ import {
     FileSrcType,
     LOG_EVENT_ANCHOR,
 } from "../typings/worker";
-import {getUint8ArrayFrom} from "../utils/http";
 import {getConfig} from "../utils/config";
+import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
@@ -21,7 +21,34 @@ import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
+/**
+ * Gets the new log event number.
+ *
+ * @param cursor The cursor object containing the code and arguments.
+ * @param beginLineNumToLogEventNum
+ * @return The new log event number.
+ * @throws {Error} There are no log events on the page.
+ */
+const getNewLogEventNum = (
+    cursor: CursorType,
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
+): number => {
+    const {code, args} = cursor;
+    const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
+    let NewLogEventNum: number|undefined = logEventNumOnPage.at(0);
 
+    if (CURSOR_CODE.PAGE_NUM === code) {
+        if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
+            NewLogEventNum = logEventNumOnPage.at(-1);
+        }
+    }
+
+    if (!NewLogEventNum) {
+        throw Error("There are no log events on the page.");
+    }
+
+    return NewLogEventNum;
+};
 
 /**
  * Loads a file from a given source.
@@ -166,10 +193,10 @@ class LogFileManager {
      * @throws {Error} if any error occurs during decode.
      */
     loadPage (cursor: CursorType): {
-        logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
         logEventNum: number
+        logs: string,
         pageNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
@@ -198,14 +225,14 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
-        const newLogEventNum = this.#getNewLogEventNum(cursor, beginLineNumToLogEventNum);
-        const newPageNum: number =  getChunkNum(beginLogEventNum, getConfig(CONFIG_KEY.PAGE_SIZE));
+        const newLogEventNum = getNewLogEventNum(cursor, beginLineNumToLogEventNum);
+        const newPageNum: number = getChunkNum(beginLogEventNum, getConfig(CONFIG_KEY.PAGE_SIZE));
 
         return {
-            logs: messages.join(""),
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: newLogEventNum,
+            logs: messages.join(""),
             pageNum: newPageNum,
         };
     }
@@ -239,30 +266,6 @@ class LogFileManager {
         const beginLogEventNum = beginLogEventIdx + 1;
         const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
         return {beginLogEventNum, endLogEventNum};
-    }
-
-    /**
-     * Gets the new log event number.
-     *
-     * @param cursor The cursor object containing the code and arguments.
-     * @return The new log event number. Returns null if there are no events.
-     */
-    #getNewLogEventNum (cursor: CursorType, beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap): number {
-        const {code, args} = cursor;
-        const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
-        let NewLogEventNum: number|undefined = logEventNumOnPage.at(0);
-
-        if (CURSOR_CODE.PAGE_NUM === code) {
-            if (args.logEventAnchor = LOG_EVENT_ANCHOR.FIRST) {
-                NewLogEventNum = logEventNumOnPage.at(-1);
-            }
-        }
-
-        if (NewLogEventNum === undefined) {
-            throw Error("There are no log events on the page.");
-        }
-
-        return NewLogEventNum
     }
 }
 

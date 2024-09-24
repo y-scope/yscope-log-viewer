@@ -75,10 +75,10 @@ type WorkerRespMap = {
         numEvents: number,
     },
     [WORKER_RESP_CODE.PAGE_DATA]: {
-        logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
         logEventNum: number
+        logs: string,
         pageNum: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
