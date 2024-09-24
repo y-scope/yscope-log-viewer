@@ -62,11 +62,9 @@ const ResizeHandle = ({
     ]);
 
     return (
-        <>
-            <div
-                className={"resize-handle"}
-                onMouseDown={handleMouseDown}/>
-        </>
+        <div
+            className={"resize-handle"}
+            onMouseDown={handleMouseDown}/>
     );
 };
 
