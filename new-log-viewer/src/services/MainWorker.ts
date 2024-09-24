@@ -10,7 +10,7 @@ import {
     WorkerResp,
 } from "../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
-import LogFileManager from "./LogFileManager";
+import LogFileManager from "./fileManager/LogFileManager";
 
 
 /* eslint-disable import/no-named-as-default-member */

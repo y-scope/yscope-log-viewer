@@ -1,83 +1,29 @@
-import {CONFIG_KEY} from "../typings/config";
+import {CONFIG_KEY} from "../../typings/config";
 import {
     Decoder,
     DecoderOptionsType,
     LOG_EVENT_FILE_END_IDX,
-} from "../typings/decoders";
-import {MAX_V8_STRING_LENGTH} from "../typings/js";
+} from "../../typings/decoders";
+import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
     FileSrcType,
-    LOG_EVENT_ANCHOR,
-} from "../typings/worker";
-import {getConfig} from "../utils/config";
-import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
-import {getUint8ArrayFrom} from "../utils/http";
-import {getChunkNum} from "../utils/math";
-import {formatSizeInBytes} from "../utils/units";
-import {getBasenameFromUrlOrDefault} from "../utils/url";
-import ClpIrDecoder from "./decoders/ClpIrDecoder";
-import JsonlDecoder from "./decoders/JsonlDecoder";
+} from "../../typings/worker";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    getConfig,
+} from "../../utils/config";
+import {getChunkNum} from "../../utils/math";
+import {formatSizeInBytes} from "../../utils/units";
+import ClpIrDecoder from "../decoders/ClpIrDecoder";
+import JsonlDecoder from "../decoders/JsonlDecoder";
+import {
+    getNewLogEventNum,
+    loadFile,
+} from "./utils";
 
-
-/**
- * Gets the new log event number.
- *
- * @param cursor The cursor object containing the code and arguments.
- * @param beginLineNumToLogEventNum
- * @return The new log event number.
- * @throws {Error} There are no log events on the page.
- */
-const getNewLogEventNum = (
-    cursor: CursorType,
-    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
-): number => {
-    const {code, args} = cursor;
-    const logEventNumOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
-
-    // Default to last event on page.
-    let newLogEventNum: number|undefined = logEventNumOnPage.at(-1);
-
-    if (CURSOR_CODE.PAGE_NUM === code) {
-        if (LOG_EVENT_ANCHOR.FIRST === args.logEventAnchor) {
-            newLogEventNum = logEventNumOnPage.at(0);
-        }
-    }
-
-    if (!newLogEventNum) {
-        throw Error("There are no log events on the page.");
-    }
-
-    return newLogEventNum;
-};
-
-/**
- * Loads a file from a given source.
- *
- * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
- * object.
- * @return A promise that resolves with an object containing the file name and file data.
- * @throws {Error} If the file source type is not supported.
- */
-const loadFile = async (fileSrc: FileSrcType)
-    : Promise<{ fileName: string, fileData: Uint8Array }> => {
-    let fileName: string;
-    let fileData: Uint8Array;
-    if ("string" === typeof fileSrc) {
-        fileName = getBasenameFromUrlOrDefault(fileSrc);
-        fileData = await getUint8ArrayFrom(fileSrc, () => null);
-    } else {
-        fileName = fileSrc.name;
-        fileData = new Uint8Array(await fileSrc.arrayBuffer());
-    }
-
-    return {
-        fileName,
-        fileData,
-    };
-};
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
