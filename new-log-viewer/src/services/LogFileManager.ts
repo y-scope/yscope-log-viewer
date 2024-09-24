@@ -4,6 +4,7 @@ import {
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
+import {CONFIG_KEY} from "../typings/config";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -12,11 +13,14 @@ import {
     LOG_EVENT_ANCHOR,
 } from "../typings/worker";
 import {getUint8ArrayFrom} from "../utils/http";
+import {getConfig} from "../utils/config";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
+
+
 
 
 /**
@@ -165,7 +169,8 @@ class LogFileManager {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
-        newLogEventNum: number
+        logEventNum: number
+        pageNum: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
@@ -193,13 +198,15 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
-        const newLogEventNum: number = this.#getNewLogEventNum(cursor, beginLineNumToLogEventNum)
+        const newLogEventNum = this.#getNewLogEventNum(cursor, beginLineNumToLogEventNum);
+        const newPageNum: number =  getChunkNum(beginLogEventNum, getConfig(CONFIG_KEY.PAGE_SIZE));
 
         return {
             logs: messages.join(""),
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
-            newLogEventNum: newLogEventNum,
+            logEventNum: newLogEventNum,
+            pageNum: newPageNum,
         };
     }
 
@@ -235,11 +242,10 @@ class LogFileManager {
     }
 
     /**
-     * Gets the range of log event numbers for the page containing the given cursor.
+     * Gets the new log event number.
      *
      * @param cursor The cursor object containing the code and arguments.
-     * @return The range.
-     * @throws {Error} if the type of cursor is not supported.
+     * @return The new log event number. Returns null if there are no events.
      */
     #getNewLogEventNum (cursor: CursorType, beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap): number {
         const {code, args} = cursor;
@@ -253,7 +259,7 @@ class LogFileManager {
         }
 
         if (NewLogEventNum === undefined) {
-            throw Error("Could not find Log Event on page")
+            throw Error("There are no log events on the page.");
         }
 
         return NewLogEventNum

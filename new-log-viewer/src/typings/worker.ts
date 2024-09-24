@@ -78,7 +78,8 @@ type WorkerRespMap = {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
-        newLogEventNum: number
+        logEventNum: number
+        pageNum: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,

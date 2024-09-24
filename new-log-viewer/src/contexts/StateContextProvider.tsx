@@ -22,7 +22,10 @@ import {
     WorkerReq,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
-import {ACTION_NAME} from "../utils/actions";
+import {
+    getPageReqCursorArgs,
+    ACTION_NAME}
+from "../utils/actions";
 import {
     clamp,
     getChunkNum,
@@ -136,8 +139,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
+                pageNumRef.current = args.pageNum
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                updateLogEventNumInUrl(numEvents, args.newLogEventNum);
+                updateLogEventNumInUrl(numEvents, args.logEventNum);
                 break;
             }
             case WORKER_RESP_CODE.NOTIFICATION:
@@ -179,39 +183,19 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (null === specificPageNum && action !== ACTION_NAME.SPECIFIC_PAGE) {
+        if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE !== action) {
             console.error(`Unexpected page number provided to page action ${action}`);
             return;
         }
 
-        if (STATE_DEFAULT.pageNum == pageNumRef.current) {
+        if (STATE_DEFAULT.pageNum === pageNumRef.current) {
             console.error(`Page actions cannot be executed if the current page is not set.`);
             return;
         }
 
-        let newPageNum: number;
-        let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
+        const [newPageNum, anchor] = getPageReqCursorArgs(action, specificPageNum!, pageNumRef.current, numPagesRef.current);
 
-        switch (action) {
-        case ACTION_NAME.SPECIFIC_PAGE:
-            // specificPageNum cannot be null, since already checked during validation.
-            newPageNum = specificPageNum!;
-            break;
-        case ACTION_NAME.FIRST_PAGE:
-            newPageNum = 1;
-            break;
-        case ACTION_NAME.PREV_PAGE:
-            anchor = LOG_EVENT_ANCHOR.LAST
-            newPageNum = clamp(pageNumRef.current - 1, 1, numPagesRef.current);
-            break;
-        case ACTION_NAME.NEXT_PAGE:
-            newPageNum = clamp(pageNumRef.current + 1, 1, numPagesRef.current);
-            break;
-        case ACTION_NAME.LAST_PAGE:
-            anchor = LOG_EVENT_ANCHOR.LAST
-            newPageNum = numPagesRef.current;
-            break;
-        default:
+        if (newPageNum === null|| anchor === null) {
             console.error(`Behaviour for action ${action} is not yet defined.`);
             return;
         }
@@ -260,8 +244,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadPage(ACTION_NAME.SPECIFIC_PAGE, newPageNum);
             }
         }
-
-        pageNumRef.current = newPageNum;
     }, [
         numEvents,
         logEventNum,

@@ -1,5 +1,13 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import {
+    LOG_EVENT_ANCHOR,
+} from "../typings/worker";
+
+import {
+    clamp,
+} from "../utils/math";
+
 import {Nullable} from "../typings/common";
 
 enum ACTION_NAME {
@@ -61,10 +69,52 @@ const EDITOR_ACTIONS : ActionType[] = [
     },
 ];
 
+/**
+ * Calculates the new page number and log event anchor based on the action name.
+ *
+ * @param action
+ * @param specificPageNum Page number for specific page action.
+ * @param currentPageNum
+ * @param numPages
+ * @return The new page number and the log event anchor required for the page request. Returns
+ * null for both if the action behaviour is not yet setup.
+ */
+const getPageReqCursorArgs = (action: ACTION_NAME, specificPageNum: Nullable<number>, currentPageNum: number, numPages: number): [Nullable<number>, Nullable<LOG_EVENT_ANCHOR>] => {
+    let newPageNum: number;
+    let anchor: LOG_EVENT_ANCHOR = LOG_EVENT_ANCHOR.FIRST;
+
+    switch (action) {
+    case ACTION_NAME.SPECIFIC_PAGE:
+        // specificPageNum cannot be null, since already checked during loadPage validation. Clamp
+        // is to prevent someone from non-existent page.
+        newPageNum = clamp(specificPageNum!, 1, numPages);
+        break;
+    case ACTION_NAME.FIRST_PAGE:
+        newPageNum = 1;
+        break;
+    case ACTION_NAME.PREV_PAGE:
+        anchor = LOG_EVENT_ANCHOR.LAST
+        newPageNum = clamp(currentPageNum - 1, 1, numPages);
+        break;
+    case ACTION_NAME.NEXT_PAGE:
+        newPageNum = clamp(currentPageNum + 1, 1, numPages);
+        break;
+    case ACTION_NAME.LAST_PAGE:
+        anchor = LOG_EVENT_ANCHOR.LAST
+        newPageNum = numPages;
+        break;
+    default:
+        return [null, null];
+    }
+    return [newPageNum, anchor]
+}
+
+
 /* eslint-enable sort-keys */
 
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
+    getPageReqCursorArgs
 };
 export type {ActionType};
