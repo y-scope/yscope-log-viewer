@@ -50,7 +50,7 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
 
     const tabListRef = useRef<HTMLDivElement>(null);
 
-    const hidePanelAndResizeHandle = () => {
+    const deactivateTabAndHideResizeHandle = () => {
         setActiveTabName(TAB_NAME.NONE);
         document.body.style.setProperty("--ylv-panel-resize-handle-width", "0px");
     };
@@ -63,7 +63,7 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
         }
 
         if (activeTabName === tabName) {
-            hidePanelAndResizeHandle();
+            deactivateTabAndHideResizeHandle();
             setPanelWidth(tabListRef.current.clientWidth);
 
             return;
@@ -75,20 +75,27 @@ const SidebarContainer = ({children}: SidebarContainerProps) => {
 
     const handleResizeHandleRelease = useCallback(() => {
         if (getPanelWidth() === tabListRef.current?.clientWidth) {
-            hidePanelAndResizeHandle();
+            deactivateTabAndHideResizeHandle();
         }
     }, []);
 
-    const handleResize = useCallback((offset: number) => {
+    const handleResize = useCallback((resizeHandlePosition: number) => {
         if (null === tabListRef.current) {
             console.error("Unexpected null tabListRef.current");
 
             return;
         }
-        if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXEL > offset) {
+        if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXEL > resizeHandlePosition) {
+            // If the resize handle is positioned to the right of the <TabList/>'s right edge
+            // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);
-        } else if (offset < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO) {
-            setPanelWidth(offset);
+        } else if (
+            resizeHandlePosition < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO
+        ) {
+            // If the resize handle is positioned to the left of 80% of the window's width,
+            // update the panel width with the distance between the mouse pointer and the
+            // window's left edge.
+            setPanelWidth(resizeHandlePosition);
         }
     }, []);
 
