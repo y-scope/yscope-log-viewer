@@ -13,6 +13,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
+import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
 
 import "./index.css";
@@ -67,6 +68,9 @@ const MenuBar = () => {
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
+                <Divider orientation={"vertical"}/>
+
+                <ExportLogsButton/>
             </Sheet>
         </>
     );

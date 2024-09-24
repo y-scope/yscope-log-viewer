@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import React, {
     createContext,
     useCallback,
@@ -7,6 +8,7 @@ import React, {
     useState,
 } from "react";
 
+import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
@@ -20,7 +22,10 @@ import {
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
-import {getConfig} from "../utils/config";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    getConfig,
+} from "../utils/config";
 import {
     clamp,
     getChunkNum,
@@ -37,13 +42,16 @@ import {
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPage: (newPageNum: number) => void,
+    exportProgress: Nullable<number>,
     logData: string,
     numEvents: number,
     numPages: number,
     originalFileSizeInBytes: number,
-    pageNum: Nullable<number>
+    pageNum: Nullable<number>,
+
+    exportLogs: () => void,
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
+    loadPage: (newPageNum: number) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -52,14 +60,17 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
+    exportProgress: null,
     fileName: "",
-    loadFile: () => null,
-    loadPage: () => null,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
     originalFileSizeInBytes: 0,
     pageNum: 0,
+
+    exportLogs: () => null,
+    loadFile: () => null,
+    loadPage: () => null,
 });
 
 interface StateContextProviderProps {
@@ -132,6 +143,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
+    // States
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -139,20 +151,36 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         useState(STATE_DEFAULT.originalFileSizeInBytes);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const [exportProgress, setExportProgress] =
+        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+
+    // Refs
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
     const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
-
+    const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
+            case WORKER_RESP_CODE.CHUNK_DATA:
+                if (null !== logExportManagerRef.current) {
+                    const progress = logExportManagerRef.current.appendChunk(args.logs);
+                    setExportProgress(progress);
+                }
+                break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 setOriginalFileSizeInBytes(args.originalFileSizeInBytes);
+                break;
+            case WORKER_RESP_CODE.NOTIFICATION:
+                // eslint-disable-next-line no-warning-comments
+                // TODO: notifications should be shown in the UI when the NotificationProvider
+                //  is added
+                console.error(args.logLevel, args.message);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -161,22 +189,40 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
-                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
     }, []);
 
+    const exportLogs = useCallback(() => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        if (STATE_DEFAULT.numEvents === numEvents && STATE_DEFAULT.fileName === fileName) {
+            console.error("numEvents and fileName not initialized yet");
+
+            return;
+        }
+
+        setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
+        logExportManagerRef.current = new LogExportManager(
+            Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
+            fileName
+        );
+        workerPostReq(
+            mainWorkerRef.current,
+            WORKER_REQ_CODE.EXPORT_LOG,
+            {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
+        );
+    }, [
+        numEvents,
+        fileName,
+    ]);
+
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
-        setFileName("Loading...");
-        setLogData("Loading...");
-        setOriginalFileSizeInBytes(STATE_DEFAULT.originalFileSizeInBytes);
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
@@ -193,6 +239,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
+
+        setFileName("Loading...");
+        setLogData("Loading...");
+        setOriginalFileSizeInBytes(STATE_DEFAULT.originalFileSizeInBytes);
+        setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
     ]);
@@ -282,14 +333,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         <StateContext.Provider
             value={{
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
+                exportProgress: exportProgress,
                 fileName: fileName,
-                loadFile: loadFile,
-                loadPage: loadPage,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
                 originalFileSizeInBytes: originalFileSizeInBytes,
                 pageNum: pageNumRef.current,
+
+                exportLogs: exportLogs,
+                loadFile: loadFile,
+                loadPage: loadPage,
             }}
         >
             {children}
