@@ -62,7 +62,7 @@ const resetCachedPageSize = () => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, logData, loadPage} = useContext(StateContext);
+    const {beginLineNumToLogEventNum, logData, loadPageAction} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
@@ -82,7 +82,7 @@ const Editor = () => {
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:
             case ACTION_NAME.LAST_PAGE:
-                loadPage(ACTION_NAME.LAST_PAGE);
+                loadPageAction(ACTION_NAME.LAST_PAGE);
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
@@ -98,7 +98,7 @@ const Editor = () => {
             default:
                 break;
         }
-    }, [loadPage]);
+    }, [loadPageAction]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.

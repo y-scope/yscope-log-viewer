@@ -23,7 +23,7 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPage, numPages, pageNum} = useContext(StateContext);
+    const {loadPageAction, numPages, pageNum} = useContext(StateContext);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +36,7 @@ const PageNumInput = () => {
             return;
         }
 
-        loadPage(ACTION_NAME.SPECIFIC_PAGE, Number(inputRef.current.value));
+        loadPageAction(ACTION_NAME.SPECIFIC_PAGE, Number(inputRef.current.value));
         setIsEditing(false);
     };
 

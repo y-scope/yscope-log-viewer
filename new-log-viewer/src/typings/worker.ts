@@ -19,17 +19,20 @@ enum LOG_EVENT_ANCHOR {
 /**
  * Enum of cursors used for locating some log event and navigating across pages.
  * - LAST_EVENT: the last event
+ * - EVENT_NUM: a specific log event number
  * - TIMESTAMP: the first event that has a timestamp >= the given value
  * - PAGE_NUM: the first or last event on the given page
  */
 enum CURSOR_CODE {
     LAST_EVENT = "lastEvent",
+    EVENT_NUM = "eventNum",
     TIMESTAMP = "timestamp",
     PAGE_NUM = "pageNum"
 }
 
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
+    [CURSOR_CODE.EVENT_NUM]: { logEventNum: number };
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
     [CURSOR_CODE.PAGE_NUM]: { pageNum: number, logEventAnchor: LOG_EVENT_ANCHOR};
 };

@@ -17,12 +17,12 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const NavigationBar = () => {
-    const {loadPage} = useContext(StateContext);
+    const {loadPageAction} = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
         if (Object.values(ACTION_NAME).includes(actionName)) {
-            loadPage(actionName);
+            loadPageAction(actionName);
         }
     };
 
