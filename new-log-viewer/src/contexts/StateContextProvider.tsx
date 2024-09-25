@@ -121,7 +121,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    // eslint-disable-next-line max-lines-per-function
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -147,8 +146,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
 
-                // Assume page data always provides a valid log event num. i.e. non null or
-                // outside range.
+                // Assume page data always provides a valid log event num. i.e. non null and
+                // inside range.
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
@@ -273,8 +272,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNumRef.current.values());
 
-        // Do nothing if log event is on the current page. There is no need to update it, since
-        // it was the URL change that triggered this useEffect.
+        // eslint-disable-next-line no-warning-comments
+        // TODO: When filter is added, this will need to find the <= log event num on the page.
+        // If it is not the current log event, it will need to update it. However, a new request
+        // is not necessary.
         if (logEventNumsOnPage.includes(logEventNum)) {
             return;
         }
