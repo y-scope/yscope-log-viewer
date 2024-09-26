@@ -24,7 +24,7 @@ interface JsonLogEvent {
 }
 
 /**
- * Narrows input to JsonObject if valid type.
+ * Narrow JSON value to JSON object if compatible.
  * Reference: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
  *
  * @param fields
@@ -35,12 +35,12 @@ const isJsonObject = (fields: JsonValue): fields is JsonObject => {
 };
 
 /**
- * Maps the log level field to a log level value.
+ * Converts JSON log level field into a log level value.
  *
  * @param logLevelField Field in log event indexed by log level key.
  * @return Log level value.
  */
-const parseLogLevel = (logLevelField: JsonValue | undefined): number => {
+const LogLevelValue = (logLevelField: JsonValue | undefined): number => {
     let logLevelValue = LOG_LEVEL.NONE;
 
     if ("undefined" === typeof logLevelField) {
@@ -59,7 +59,7 @@ const parseLogLevel = (logLevelField: JsonValue | undefined): number => {
 };
 
 /**
- * Parses timestamp field in log event into dayjs timestamp.
+ * Converts JSON timestamp field into a dayjs timestamp.
  *
  * @param timestampField
  * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
@@ -67,7 +67,7 @@ const parseLogLevel = (logLevelField: JsonValue | undefined): number => {
  * 2. the timestamp's value is an unsupported type
  * 3. the timestamp's value is not a valid dayjs timestamp
  */
-const parseTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
+const DayjsTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
     // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
     if (("string" !== typeof timestampField &&
         "number" !== typeof timestampField) ||
@@ -81,11 +81,11 @@ const parseTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
         timestampField = INVALID_TIMESTAMP_VALUE;
     }
 
-    const dayjsTimestamp: Dayjs = dayjs.utc(timestampField);
+    let dayjsTimestamp: Dayjs = dayjs.utc(timestampField);
 
-    // Note if input is not valid (ex. timestampField = "deadbeef"), this can produce a
-    // non-valid timestamp and will show up in UI as `Invalid Date`. Current behaviour is to
-    // modify invalid dates to `INVALID_TIMESTAMP_VALUE`.
+    // Sanitize invalid date to `INVALID_TIMESTAMP_VALUE`. Note if input is not valid
+    // (ex. timestampField = "deadbeef") and not sanitized, result will be produce a
+    // non-valid dayjs timestamp and will show up in UI as `Invalid Date`.
     if (false === dayjsTimestamp.isValid()) {
         dayjsTimestamp = dayjs.utc(INVALID_TIMESTAMP_VALUE);
     }
@@ -94,7 +94,7 @@ const parseTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
 };
 export {
     isJsonObject,
-    parseLogLevel,
-    parseTimestamp,
+    LogLevelValue,
+    DayjsTimestamp,
 };
 export type {JsonLogEvent};

@@ -33,6 +33,12 @@ type DecoderOptionsType = JsonlDecoderOptionsType;
  */
 type DecodeResultType = [string, number, number, number];
 
+/**
+ * Mapping between filtered log event indices and log events indices. The array index refers to
+ * the `filtered log event index` and the value refers to the `log event index`.
+ */
+type FilteredLogEventMap = Nullable<number[]>;
+
 interface Decoder {
 
     /**
@@ -43,9 +49,9 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * @return Indices of the filtered events.
+     * @return Filtered log event map.
      */
-    getFilteredLogEventIndices(): Nullable<number[]>;
+    getFilteredLogEventMap(): FilteredLogEventMap;
 
     /**
      * Sets the log level filter for the decoder.
@@ -64,8 +70,10 @@ interface Decoder {
     build(): LogEventCount;
 
     /**
-     * Sets formatting options. Decoders support changing formatting without rebuilding
-     * existing log events.
+     * Sets formatting options.
+     *
+     * NOTE: The decoder supports changing formatting without rebuilding existing log
+     * events; however, the front-end currently does not support this.
      *
      * @param options
      * @return Whether the options were successfully set.
@@ -73,18 +81,18 @@ interface Decoder {
     setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log
-     * event indices or filtered log event indices based on the flag `useFilteredIndices`.
-     *
+     * Decode log events. The flag `useFilter` specifies whether the range boundaries `[BeginIdx, EndIdx)`
+     * refer to the log event index directly or a filtered index. The filtered index is based on a subset
+     * of log events that are included by the set filter.
      * @param beginIdx
      * @param endIdx
-     * @param useFilteredIndices Whether to decode from the filtered or unfiltered log events array.
+     * @param useFilter Whether index refers to filtered index or log event index.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
     decodeRange(beginIdx: number,
         endIdx: number,
-        useFilteredIndices: boolean
+        useFilter: boolean
     ): Nullable<DecodeResultType[]>;
 }
 
@@ -99,6 +107,7 @@ export type {
     Decoder,
     DecodeResultType,
     DecoderOptionsType,
+    FilteredLogEventMap,
     JsonlDecoderOptionsType,
     LogEventCount,
 };

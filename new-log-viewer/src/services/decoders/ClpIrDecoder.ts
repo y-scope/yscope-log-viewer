@@ -4,6 +4,7 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
+    FilteredLogEventMap,
     LOG_EVENT_FILE_END_IDX,
     LogEventCount,
 } from "../../typings/decoders";
@@ -34,7 +35,7 @@ class ClpIrDecoder implements Decoder {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    getFilteredLogEventIndices (): Nullable<number[]> {
+    getFilteredLogEventMap (): FilteredLogEventMap {
         // eslint-disable-next-line no-warning-comments
         // TODO: Update this after log level filtering is implemented in clp-ffi-js
         return null;
@@ -64,7 +65,7 @@ class ClpIrDecoder implements Decoder {
         beginIdx: number,
         endIdx: number,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        useFilteredIndices: boolean
+        useFilter: boolean
     ): Nullable<DecodeResultType[]> {
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }

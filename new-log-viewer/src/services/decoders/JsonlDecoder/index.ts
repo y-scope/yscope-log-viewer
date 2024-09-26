@@ -2,6 +2,7 @@ import {Nullable} from "../../../typings/common";
 import {
     Decoder,
     DecodeResultType,
+    FilteredLogEventMap,
     JsonlDecoderOptionsType,
     LogEventCount,
 } from "../../../typings/decoders";
@@ -16,8 +17,8 @@ import LogbackFormatter from "../../formatters/LogbackFormatter";
 import {
     isJsonObject,
     JsonLogEvent,
-    parseLogLevel,
-    parseTimestamp,
+    LogLevelValue,
+    DayjsTimestamp,
 } from "./utils";
 
 
@@ -36,7 +37,7 @@ class JsonlDecoder implements Decoder {
 
     #logEvents: JsonLogEvent[] = [];
 
-    #filteredLogEventIndices: Nullable<number[]> = null;
+    #filteredLogEventMap: FilteredLogEventMap = null;
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
@@ -58,8 +59,8 @@ class JsonlDecoder implements Decoder {
         return this.#logEvents.length;
     }
 
-    getFilteredLogEventIndices (): Nullable<number[]> {
-        return this.#filteredLogEventIndices;
+    getFilteredLogEventMap (): FilteredLogEventMap {
+        return this.#filteredLogEventMap;
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
@@ -88,16 +89,16 @@ class JsonlDecoder implements Decoder {
     decodeRange (
         beginIdx: number,
         endIdx: number,
-        useFilteredIndices: boolean,
+        useFilter: boolean,
     ): Nullable<DecodeResultType[]> {
-        if (useFilteredIndices && null === this.#filteredLogEventIndices) {
+        if (useFilter && null === this.#filteredLogEventMap) {
             return null;
         }
 
         // Prevents typescript potential null warning.
-        const filteredLogEventIndices: number[] = this.#filteredLogEventIndices as number[];
+        const filteredLogEventIndices: number[] = this.#filteredLogEventMap as number[];
 
-        const length: number = useFilteredIndices ?
+        const length: number = useFilter ?
             filteredLogEventIndices.length :
             this.#logEvents.length;
 
@@ -110,7 +111,7 @@ class JsonlDecoder implements Decoder {
             // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]`
             // can be undefined, but it shouldn't be since we performed a bounds check at the
             // beginning of the method.
-            const logEventIdx: number = useFilteredIndices ?
+            const logEventIdx: number = useFilter ?
                 (filteredLogEventIndices[i] as number) :
                 i;
 
@@ -198,8 +199,8 @@ class JsonlDecoder implements Decoder {
             }
             this.#logEvents.push({
                 fields: fields,
-                level: parseLogLevel(fields[this.#logLevelKey]),
-                timestamp: parseTimestamp(fields[this.#timestampKey]),
+                level: LogLevelValue(fields[this.#logLevelKey]),
+                timestamp: DayjsTimestamp(fields[this.#timestampKey]),
             });
         } catch (e) {
             if (0 === line.length) {
@@ -211,27 +212,28 @@ class JsonlDecoder implements Decoder {
             this.#logEvents.push({
                 fields: {},
                 level: LOG_LEVEL.NONE,
-                timestamp: parseTimestamp(INVALID_TIMESTAMP_VALUE),
+                timestamp: DayjsTimestamp(INVALID_TIMESTAMP_VALUE),
             });
         }
     }
 
     /**
-     * Computes and saves the indices of the log events that match the log level filter.
+     * Computes the indices of the log events that match the log level filter and
+     * buffers internally. Sets the indices to null if the filter is null.
      *
      * @param logLevelFilter
      */
     #filterLogs (logLevelFilter: LogLevelFilter) {
-        this.#filteredLogEventIndices = null;
+        this.#filteredLogEventMap = null;
 
         if (null === logLevelFilter) {
             return;
         }
 
-        this.#filteredLogEventIndices = [];
+        this.#filteredLogEventMap = [];
         this.#logEvents.forEach((logEvent, index) => {
             if (logLevelFilter.includes(logEvent.level)) {
-                (this.#filteredLogEventIndices as number[]).push(index);
+                (this.#filteredLogEventMap as number[]).push(index);
             }
         });
     }
