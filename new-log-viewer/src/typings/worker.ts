@@ -52,17 +52,17 @@ enum WORKER_RESP_CODE {
 
 type WorkerReqMap = {
     [WORKER_REQ_CODE.EXPORT_LOG]: {
-        DecoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptionsType
     }
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        DecoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptionsType
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        DecoderOptions?: DecoderOptionsType
+        decoderOptions?: DecoderOptionsType
     },
 };
 

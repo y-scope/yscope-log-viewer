@@ -19,15 +19,7 @@ interface JsonlDecoderOptionsType {
     timestampKey: string,
 }
 
-interface JsonlBuildOptions {
-    formatString: string,
-    logLevelKey: string,
-    timestampKey: string,
-}
-
 type DecoderOptionsType = JsonlDecoderOptionsType;
-
-type BuildOptions = JsonlBuildOptions;
 
 /**
  * Type of the decoded log event. We use an array rather than object so that it's easier to return
@@ -91,6 +83,5 @@ export type {
     BuildOptions,
     DecoderOptionsType,
     JsonlDecoderOptionsType,
-    JsonlBuildOptions,
     LogEventCount,
 };

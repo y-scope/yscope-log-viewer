@@ -67,7 +67,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 LOG_FILE_MANAGER = await LogFileManager.create(
                     args.fileSrc,
                     args.pageSize,
-                    args.DecoderOptions
+                    args.decoderOptions
                 );
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {

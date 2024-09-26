@@ -2,7 +2,7 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
-    JsonlDecoderOptions,
+    JsonlDecoderOptionsType,
     LogEventCount,
 } from "../../typings/decoders";
 import dayjs, { Dayjs } from "dayjs";
@@ -55,7 +55,7 @@ class JsonlDecoder implements Decoder {
      * @param decoderOptions
      * @throws {Error} if the initial decoder options are erroneous.
      */
-    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptions) {
+    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
         this.#dataArray = dataArray;
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;

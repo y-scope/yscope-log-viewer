@@ -97,7 +97,7 @@ class LogFileManager {
      * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
      * File object.
      * @param pageSize Page size for setting up pagination.
-     * @param DecoderOptions Initial decoder options.
+     * @param decoderOptions Initial decoder options.
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
@@ -116,7 +116,7 @@ class LogFileManager {
      *
      * @param fileName
      * @param fileData
-     * @param DecoderOptions Initial decoder options.
+     * @param decoderOptions Initial decoder options.
      * @return The constructed decoder.
      * @throws {Error} if no decoder supports a file with the given extension.
      */
