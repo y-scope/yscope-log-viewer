@@ -158,7 +158,7 @@ class JsonlDecoder implements Decoder {
      * Parses each line from the data array as a JSON object and buffers it internally. If a
      * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
      *
-     * NOTE: The data array is freed after the very first run of this method.
+     * NOTE: The data array(file) is freed after the very first run of this method.
      */
     #deserialize () {
         if (null === this.#dataArray) {
@@ -184,7 +184,7 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Parse line into a json log event and add to log events array. If the line contains invalid
+     * Parse line into a json log event and buffer internally. If the line contains invalid
      * json, an entry is added to invalid log event map.
      *
      * @param line
@@ -251,32 +251,32 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Parses timestamp into dayjs timestamp.
+     * Parses timestamp field in log event into dayjs timestamp.
      *
      * @param timestampField
      * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
-     * - the timestamp key doesn't exist in the log, or
-     * - the timestamp's value is not a number.
+     * 1. the timestamp key doesn't exist in the log
+     * 2. the timestamp's value is an unsupported type
+     * 3. the timestamp's value is not a valid dayjs timestamp
      */
     #parseTimestamp (timestampField: JsonValue | undefined): dayjs.Dayjs {
-
-        // If the field is an invalid type, then set the timestamp to INVALID_TIMESTAMP_VALUE.
+        // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
         if (typeof timestampField !== "string" &&
             typeof timestampField !== "number" ||
             // Dayjs library surprisingly thinks undefined is valid date...
             // Reference: https://day.js.org/docs/en/parse/now#docsNav
             typeof timestampField === undefined
         ) {
-            // INVALID_TIMESTAMP_VALUE is a valid dayjs date. Another potential option is daysjs(null)
-            // to show `Invalid Date` in UI.
+            // `INVALID_TIMESTAMP_VALUE` is a valid dayjs date. Another potential option is
+            // `daysjs(null)` to show `Invalid Date` in UI.
             timestampField = INVALID_TIMESTAMP_VALUE;
         }
 
         const dayjsTimestamp: Dayjs = dayjs.utc(timestampField);
 
-        // Note if input is not valid (timestampField = "deadbeef"), this can produce a non-valid
-        // timestamp and will show up in UI as `Invalid Date`. Here we modify invalid dates to
-        // INVALID_TIMESTAMP_VALUE.
+        // Note if input is not valid (ex. timestampField = "deadbeef"), this can produce a
+        // non-valid timestamp and will show up in UI as `Invalid Date`. Current behaviour is to
+        // modify invalid dates to `INVALID_TIMESTAMP_VALUE`.
         if (false === dayjsTimestamp.isValid()) {
             dayjsTimestamp == dayjs.utc(INVALID_TIMESTAMP_VALUE)
         }

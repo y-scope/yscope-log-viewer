@@ -66,8 +66,8 @@ interface Decoder {
     build(): LogEventCount;
 
     /**
-     * Sets formatting options. Changes are efficient and do not require rebuilding existing
-     * log events.
+     * Sets formatting options. Decoders support changing formatting without rebuilding
+     * existing log events.
      *
      * @param options
      * @return Whether the options were successfully set.
@@ -97,7 +97,6 @@ export {LOG_EVENT_FILE_END_IDX};
 export type {
     Decoder,
     DecodeResultType,
-    BuildOptions,
     DecoderOptionsType,
     JsonlDecoderOptionsType,
     LogEventCount,
