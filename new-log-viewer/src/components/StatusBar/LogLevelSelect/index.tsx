@@ -94,7 +94,7 @@ const LogLevelSelect = () => {
             onChange={handleSelectChange}
         >
             {/* Add a dummy MenuItem to avoid the first Option receiving focus. */}
-            <MenuItem sx={{display: "none"}}/>
+            <MenuItem className={"log-level-select-dummy-option"}/>
             {LOG_LEVEL_NAMES.map((logLevelName, index) => (
                 <Option
                     key={logLevelName}

@@ -6,3 +6,7 @@
 .log-level-select-render-value-box-label {
     background-color: initial !important;
 }
+
+.log-level-select-dummy-option {
+    display: none !important;
+}
