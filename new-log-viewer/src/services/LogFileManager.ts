@@ -75,7 +75,7 @@ class LogFileManager {
 
         // Build index for the entire file.
         const buildResult = decoder.build();
-        if (null !== buildResult && 0 < buildResult.numInvalidEvents) {
+        if (0 < buildResult.numInvalidEvents) {
             console.error("Invalid events found in decoder.buildIdx():", buildResult);
         }
 
@@ -103,7 +103,7 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType,
+        decoderOptions: DecoderOptionsType
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);

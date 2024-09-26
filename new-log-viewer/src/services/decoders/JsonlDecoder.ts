@@ -15,6 +15,7 @@ import {
 import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
+    LogLevelFilter,
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
@@ -44,7 +45,7 @@ class JsonlDecoder implements Decoder {
 
     #logEvents: JsonLogEvent[] = [];
 
-    #filteredLogEventIndices: number[] = [];
+    #filteredLogEventIndices: Nullable<number[]> = null;
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
@@ -70,6 +71,11 @@ class JsonlDecoder implements Decoder {
         return this.#filteredLogEventIndices;
     }
 
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        this.#filterLogs(logLevelFilter);
+        return true;
+    }
+
     build (): LogEventCount {
         this.#deserialize();
 
@@ -81,7 +87,7 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    setFormatterOptions (options: JsonlDecoderOptions): boolean {
+    setFormatterOptions (options: JsonlDecoderOptionsType): boolean {
         this.#formatter = new LogbackFormatter({formatString: options.formatString});
         return true;
     }
@@ -268,6 +274,25 @@ class JsonlDecoder implements Decoder {
         }
 
         return dayjsTimestamp;
+    }
+
+    /**
+     * Computes and saves the indices of the log events that match the log level filter.
+     *
+     * @param logLevelFilter
+     */
+    #filterLogs (logLevelFilter: LogLevelFilter) {
+        this.#filteredLogEventIndices = null;
+
+        if (null === logLevelFilter) {
+            return;
+        }
+
+        this.#logEvents.forEach((logEvent, index) => {
+            if (logLevelFilter.includes(logEvent.level)) {
+                (this.#filteredLogEventIndices as number[]).push(index);
+            }
+        });
     }
 }
 

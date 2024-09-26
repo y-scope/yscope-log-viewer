@@ -1,5 +1,9 @@
 import {Nullable} from "./common";
 
+import {
+    LogLevelFilter,
+} from "./logs"
+
 
 interface LogEventCount {
     numValidEvents: number,
@@ -40,6 +44,19 @@ interface Decoder {
      * @return The estimated number of events.
      */
     getEstimatedNumEvents(): number;
+
+    /**
+     * @return Indices of the filtered events.
+     */
+    getFilteredLogEventIndices(): Nullable<number[]>;
+
+    /**
+     * Sets the log level filter for the decoder.
+     *
+     * @param logLevelFilter
+     * @return Whether the filter was successfully set.
+     */
+    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
 
     /**
      * Deserializes all log events in the file.

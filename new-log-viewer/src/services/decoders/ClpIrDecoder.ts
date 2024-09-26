@@ -7,7 +7,7 @@ import {
     LOG_EVENT_FILE_END_IDX,
     LogEventCount,
 } from "../../typings/decoders";
-
+import {LogLevelFilter} from "../../typings/logs";
 
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpIrStreamReader;
@@ -30,6 +30,19 @@ class ClpIrDecoder implements Decoder {
 
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
+    }
+
+    getFilteredLogEventIndices (): Nullable<number[]> {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
+        return Array.from({length: this.#streamReader.getNumEventsBuffered()}, (_, index) => index);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        // eslint-disable-next-line no-warning-comments
+        // TODO fix this after log level filtering is implemented in clp-ffi-js
+        return false;
     }
 
     build (): LogEventCount {
