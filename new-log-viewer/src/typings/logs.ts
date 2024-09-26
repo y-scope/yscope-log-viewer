@@ -1,5 +1,6 @@
 import {Nullable} from "./common";
 
+
 enum LOG_LEVEL {
     NONE = 0,
     TRACE,

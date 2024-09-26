@@ -1,8 +1,5 @@
 import {Nullable} from "./common";
-
-import {
-    LogLevelFilter,
-} from "./logs"
+import {LogLevelFilter} from "./logs";
 
 
 interface LogEventCount {
@@ -60,6 +57,7 @@ interface Decoder {
 
     /**
      * Deserializes all log events in the file.
+     *
      * @return Count of the successfully deserialized ("valid") log events and count of any
      * un-deserializable ("invalid") log events within the range;
      */
@@ -75,8 +73,8 @@ interface Decoder {
     setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log event
-     * indices or filtered log event indices based on the flag `useFilteredIndices`.
+     * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log
+     * event indices or filtered log event indices based on the flag `useFilteredIndices`.
      *
      * @param beginIdx
      * @param endIdx
@@ -84,7 +82,10 @@ interface Decoder {
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
-    decodeRange(BeginIdx: number, EndIdx: number, useFilteredIndices: boolean): Nullable<DecodeResultType[]>;
+    decodeRange(beginIdx: number,
+        endIdx: number,
+        useFilteredIndices: boolean
+    ): Nullable<DecodeResultType[]>;
 }
 
 /**

@@ -9,6 +9,7 @@ import {
 } from "../../typings/decoders";
 import {LogLevelFilter} from "../../typings/logs";
 
+
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpIrStreamReader;
 
@@ -32,10 +33,11 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
+    // eslint-disable-next-line class-methods-use-this
     getFilteredLogEventIndices (): Nullable<number[]> {
         // eslint-disable-next-line no-warning-comments
         // TODO: Update this after log level filtering is implemented in clp-ffi-js
-        return null
+        return null;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
@@ -57,7 +59,13 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
-    decodeRange (beginIdx: number, endIdx: number, useFilteredIndices: boolean): Nullable<DecodeResultType[]> {
+
+    decodeRange (
+        beginIdx: number,
+        endIdx: number,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        useFilteredIndices: boolean
+    ): Nullable<DecodeResultType[]> {
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 }

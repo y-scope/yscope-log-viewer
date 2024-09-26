@@ -5,8 +5,8 @@ import {
     Formatter,
     FormatterOptionsType,
 } from "../../typings/formatters";
-import {JsonLogEvent} from "../decoders/JsonlDecoder";
 import {JsonObject} from "../../typings/js";
+import {JsonLogEvent} from "../decoders/JsonlDecoder/utils";
 
 
 /**
@@ -59,9 +59,10 @@ class LogbackFormatter implements Formatter {
      */
     formatLogEvent (logEvent: JsonLogEvent): string {
         const {fields, timestamp} = logEvent;
-        let formatStringWithTimestamp: string = this.#formatTimestamp(timestamp, this.#formatString);
-        let message = this.#formatVariables(formatStringWithTimestamp, fields);
-        return message
+        const formatStringWithTimestamp: string =
+            this.#formatTimestamp(timestamp, this.#formatString);
+        const message = this.#formatVariables(formatStringWithTimestamp, fields);
+        return message;
     }
 
     /**

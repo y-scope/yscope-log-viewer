@@ -1,5 +1,4 @@
-import {JsonObject} from "./js";
-import {JsonLogEvent} from "../services/decoders/JsonlDecoder";
+import {JsonLogEvent} from "../services/decoders/JsonlDecoder/utils";
 
 
 /**
