@@ -6,6 +6,7 @@ import React, {
 import {SelectValue} from "@mui/base/useSelect";
 import {
     Box,
+    Chip,
     IconButton,
     MenuItem,
     Option,
@@ -37,6 +38,12 @@ const LogLevelSelect = () => {
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
+            <Chip
+                className={"log-level-select-render-value-box-label"}
+                variant={"soft"}
+            >
+                Log Level
+            </Chip>
             {selected.map((selectedOption) => (
                 <LogLevelChip
                     key={selectedOption.value}
