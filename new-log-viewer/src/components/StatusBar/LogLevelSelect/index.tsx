@@ -62,7 +62,7 @@ const LogLevelSelect = () => {
             const [singleSelectValue] = newValue;
             setSelectedLogLevels(range(singleSelectValue as number, 1 + MAX_LOG_LEVEL));
         } else {
-            setSelectedLogLevels(newValue.sort());
+            setSelectedLogLevels(newValue.sort((a, b) => a - b));
         }
     }, [selectedLogLevels]);
 
