@@ -1,0 +1,7 @@
+.log-level-chip {
+    /* stylelint-disable-next-line custom-property-pattern */
+    --Chip-radius: 0;
+
+    font-family: "Roboto Mono", monospace !important;
+    font-weight: 600 !important;
+}
