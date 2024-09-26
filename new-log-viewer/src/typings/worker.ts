@@ -1,4 +1,4 @@
-import {DecoderOptions} from "./decoders";
+import {DecoderOptionsType} from "./decoders";
 import {LOG_LEVEL} from "./logs";
 
 
@@ -52,18 +52,17 @@ enum WORKER_RESP_CODE {
 
 type WorkerReqMap = {
     [WORKER_REQ_CODE.EXPORT_LOG]: {
-        DecoderOptions: DecoderOptions
+        DecoderOptions: DecoderOptionsType
     }
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        buildOptions: BuildOptions
-        DecoderOptions: DecoderOptions
+        DecoderOptions: DecoderOptionsType
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        DecoderOptions?: DecoderOptions
+        DecoderOptions?: DecoderOptionsType
     },
 };
 

@@ -2,7 +2,6 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
-    JsonlBuildOptions,
     JsonlDecoderOptions,
     LogEventCount,
 } from "../../typings/decoders";
@@ -53,14 +52,14 @@ class JsonlDecoder implements Decoder {
 
     /**
      * @param dataArray
-     * @param DecoderOptions
+     * @param decoderOptions
      * @throws {Error} if the initial decoder options are erroneous.
      */
-    constructor (dataArray: Uint8Array, DecoderOptions: JsonlDecoderOptions) {
+    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptions) {
         this.#dataArray = dataArray;
-        this.#logLevelKey = DecoderOptions.logLevelKey;
-        this.#timestampKey = DecoderOptions.timestampKey;
-        this.#formatter = new LogbackFormatter({formatString: DecoderOptions.formatString});
+        this.#logLevelKey = decoderOptions.logLevelKey;
+        this.#timestampKey = decoderOptions.timestampKey;
+        this.#formatter = new LogbackFormatter({formatString: decoderOptions.formatString});
     }
 
     getEstimatedNumEvents (): number {

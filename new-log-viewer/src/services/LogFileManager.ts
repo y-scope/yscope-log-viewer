@@ -1,7 +1,6 @@
 import {
     Decoder,
-    DecoderOptions,
-    LOG_EVENT_FILE_END_IDX,
+    DecoderOptionsType,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
@@ -74,10 +73,10 @@ class LogFileManager {
         this.#pageSize = pageSize;
         this.#decoder = decoder;
 
-        // Build index for the entire file
-        const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
-        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
-            console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
+        // Build index for the entire file.
+        const buildResult = decoder.build();
+        if (null !== buildResult && 0 < buildResult.numInvalidEvents) {
+            console.error("Invalid events found in decoder.buildIdx():", buildResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
@@ -104,11 +103,10 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        buildOptions: BuildOptions,
-        DecoderOptions: DecoderOptions,
+        decoderOptions: DecoderOptionsType,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const decoder = await LogFileManager.#initDecoder(fileName, fileData, buildOptions, DecoderOptions);
+        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
         return new LogFileManager(decoder, fileName, pageSize);
     }
@@ -125,11 +123,11 @@ class LogFileManager {
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        DecoderOptions: DecoderOptions
+        decoderOptions: DecoderOptionsType
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, DecoderOptions);
+            decoder = new JsonlDecoder(fileData, decoderOptions);
         } else if (fileName.endsWith(".clp.zst")) {
             decoder = await ClpIrDecoder.create(fileData);
         } else {
@@ -150,7 +148,7 @@ class LogFileManager {
      *
      * @param options
      */
-    setFormatterOptions (options: DecoderOptions) {
+    setFormatterOptions (options: DecoderOptionsType) {
         this.#decoder.setFormatterOptions(options);
     }
 

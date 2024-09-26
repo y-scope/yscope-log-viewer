@@ -13,7 +13,7 @@ interface LogEventCount {
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptions {
+interface JsonlDecoderOptionsType {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
@@ -25,7 +25,7 @@ interface JsonlBuildOptions {
     timestampKey: string,
 }
 
-type DecoderOptions = JsonlDecoderOptions;
+type DecoderOptionsType = JsonlDecoderOptionsType;
 
 type BuildOptions = JsonlBuildOptions;
 
@@ -63,7 +63,7 @@ interface Decoder {
      * @param options
      * @return Whether the options were successfully set.
      */
-    setFormatterOptions(options: DecoderOptions): boolean;
+    setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
      * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log event
@@ -89,8 +89,8 @@ export type {
     Decoder,
     DecodeResultType,
     BuildOptions,
-    DecoderOptions,
-    JsonlDecoderOptions,
+    DecoderOptionsType,
+    JsonlDecoderOptionsType,
     JsonlBuildOptions,
     LogEventCount,
 };

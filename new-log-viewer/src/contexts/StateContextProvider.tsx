@@ -210,7 +210,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,
-            {DecoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
+            {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
         );
     }, [
         numEvents,
@@ -232,7 +232,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             cursor: cursor,
-            DecoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
 
         setExportProgress(STATE_DEFAULT.exportProgress);
@@ -248,7 +248,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
             cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-            DecoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
     };
 
