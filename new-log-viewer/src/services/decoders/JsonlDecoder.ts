@@ -97,8 +97,16 @@ class JsonlDecoder implements Decoder {
         endIdx: number,
         useFilteredIndices: boolean,
     ): Nullable<DecodeResultType[]> {
+
+        if (useFilteredIndices && this.#filteredLogEventIndices === null) {
+            return null;
+        }
+
+        // Prevents typescript potential null warning.
+        const filteredLogEventIndices: number[] = this.#filteredLogEventIndices as number[];
+
         const length: number = useFilteredIndices ?
-            this.#filteredLogEventIndices.length :
+            filteredLogEventIndices.length :
             this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
@@ -109,7 +117,7 @@ class JsonlDecoder implements Decoder {
         // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
         // every iteration.
         const results: DecodeResultType[] = [];
-        for (let cursorIdx = beginIdx; cursorIdx < endIdx; cursorIdx++) {
+        for (let i = beginIdx; i < endIdx; i++) {
             let timestamp: number;
             let message: string;
             let logLevel: LOG_LEVEL;
@@ -118,8 +126,8 @@ class JsonlDecoder implements Decoder {
             // can be undefined, but it shouldn't be since we performed a bounds check at the
             // beginning of the method.
             const logEventIdx: number = useFilteredIndices ?
-                (this.#filteredLogEventIndices[cursorIdx] as number) :
-                cursorIdx;
+                (filteredLogEventIndices[i] as number) :
+                i;
 
             if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
                 timestamp = INVALID_TIMESTAMP_VALUE;
@@ -288,6 +296,7 @@ class JsonlDecoder implements Decoder {
             return;
         }
 
+        this.#filteredLogEventIndices = [];
         this.#logEvents.forEach((logEvent, index) => {
             if (logLevelFilter.includes(logEvent.level)) {
                 (this.#filteredLogEventIndices as number[]).push(index);

@@ -4,10 +4,8 @@ import {Nullable} from "../../typings/common";
 import {
     Formatter,
     FormatterOptionsType,
-    TimestampAndMessageType,
 } from "../../typings/formatters";
 import {JsonLogEvent} from "../decoders/JsonlDecoder";
-import {INVALID_TIMESTAMP_VALUE} from "../../typings/logs";
 import {JsonObject} from "../../typings/js";
 
 

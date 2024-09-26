@@ -35,13 +35,13 @@ class ClpIrDecoder implements Decoder {
     getFilteredLogEventIndices (): Nullable<number[]> {
         // eslint-disable-next-line no-warning-comments
         // TODO: Update this after log level filtering is implemented in clp-ffi-js
-        return Array.from({length: this.#streamReader.getNumEventsBuffered()}, (_, index) => index);
+        return null
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         // eslint-disable-next-line no-warning-comments
-        // TODO fix this after log level filtering is implemented in clp-ffi-js
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
         return false;
     }
 
