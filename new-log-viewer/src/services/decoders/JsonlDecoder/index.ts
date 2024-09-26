@@ -15,10 +15,10 @@ import {
 } from "../../../typings/logs";
 import LogbackFormatter from "../../formatters/LogbackFormatter";
 import {
+    DayjsTimestamp,
     isJsonObject,
     JsonLogEvent,
     LogLevelValue,
-    DayjsTimestamp,
 } from "./utils";
 
 

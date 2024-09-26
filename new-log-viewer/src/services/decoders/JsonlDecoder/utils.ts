@@ -93,8 +93,8 @@ const DayjsTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
     return dayjsTimestamp;
 };
 export {
+    DayjsTimestamp,
     isJsonObject,
     LogLevelValue,
-    DayjsTimestamp,
 };
 export type {JsonLogEvent};

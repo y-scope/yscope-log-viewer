@@ -84,6 +84,7 @@ interface Decoder {
      * Decode log events. The flag `useFilter` specifies whether the range boundaries `[BeginIdx, EndIdx)`
      * refer to the log event index directly or a filtered index. The filtered index is based on a subset
      * of log events that are included by the set filter.
+     *
      * @param beginIdx
      * @param endIdx
      * @param useFilter Whether index refers to filtered index or log event index.
