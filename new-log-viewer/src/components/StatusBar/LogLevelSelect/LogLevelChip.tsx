@@ -28,7 +28,7 @@ interface LogLevelChipProps {
     name: string,
     value: LOG_LEVEL,
 
-    onSelectedLogLevelsChange: (func: (value: LOG_LEVEL[]) => LOG_LEVEL[]) => void,
+    onSelectedLogLevelsChange: (setter: (value: LOG_LEVEL[]) => LOG_LEVEL[]) => void,
 }
 
 /**
