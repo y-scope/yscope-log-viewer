@@ -2,9 +2,12 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
-    JsonlDecoderOptionsType,
+    JsonlBuildOptions,
+    JsonlDecoderOptions,
     LogEventCount,
 } from "../../typings/decoders";
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc"
 import {Formatter} from "../../typings/formatters";
 import {
     JsonObject,
@@ -16,69 +19,84 @@ import {
 } from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 
+dayjs.extend(utc);
 
 /**
- * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecodeOptionsType` for
+ * A log event parsed from a JSON log.
+ */
+interface JsonLogEvent {
+    timestamp: Dayjs,
+    level: LOG_LEVEL,
+    fields: JsonObject
+}
+
+/**
+ * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptionsType` for
  * properties that are specific to log events (compared to generic JSON records).
  */
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
 
-    #logLevelKey: string = "level";
+    #dataArray: Nullable<Uint8Array>;
 
-    #logEvents: JsonObject[] = [];
+    #logLevelKey: string;
+
+    #timestampKey: string;
+
+    #logEvents: JsonLogEvent[] = [];
+
+    #filteredLogEventIndices: number[] = [];
 
     #invalidLogEventIdxToRawLine: Map<number, string> = new Map();
 
-    // @ts-expect-error #fomatter is set in the constructor by `setDecoderOptions()`
     #formatter: Formatter;
 
     /**
      * @param dataArray
-     * @param decoderOptions
+     * @param DecoderOptions
      * @throws {Error} if the initial decoder options are erroneous.
      */
-    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
-        const isOptionSet = this.setDecoderOptions(decoderOptions);
-        if (false === isOptionSet) {
-            throw new Error(
-                `Initial decoder options are erroneous: ${JSON.stringify(decoderOptions)}`
-            );
-        }
-        this.#deserialize(dataArray);
+    constructor (dataArray: Uint8Array, DecoderOptions: JsonlDecoderOptions) {
+        this.#dataArray = dataArray;
+        this.#logLevelKey = DecoderOptions.logLevelKey;
+        this.#timestampKey = DecoderOptions.timestampKey;
+        this.#formatter = new LogbackFormatter({formatString: DecoderOptions.formatString});
     }
 
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
 
-    buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
-        // This method is a dummy implementation since the actual deserialization is done in the
-        // constructor.
+    getFilteredLogEventIndices (): Nullable<number[]> {
+        return this.#filteredLogEventIndices;
+    }
 
-        if (0 > beginIdx || this.#logEvents.length < endIdx) {
-            return null;
-        }
+    build (): LogEventCount {
+        this.#deserialize();
 
-        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys())
-            .filter((eventIdx) => (beginIdx <= eventIdx && eventIdx < endIdx))
-            .length;
+        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
 
         return {
-            numValidEvents: endIdx - beginIdx - numInvalidEvents,
+            numValidEvents: this.#logEvents.length - numInvalidEvents,
             numInvalidEvents: numInvalidEvents,
         };
     }
 
-    setDecoderOptions (options: JsonlDecoderOptionsType): boolean {
-        this.#formatter = new LogbackFormatter(options);
-        this.#logLevelKey = options.logLevelKey;
-
+    setFormatterOptions (options: JsonlDecoderOptions): boolean {
+        this.#formatter = new LogbackFormatter({formatString: options.formatString});
         return true;
     }
 
-    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        if (0 > beginIdx || this.#logEvents.length < endIdx) {
+    decodeRange (
+        beginIdx: number,
+        endIdx: number,
+        useFilteredIndices: boolean,
+    ): Nullable<DecodeResultType[]> {
+        const length: number = useFilteredIndices ?
+            this.#filteredLogEventIndices.length :
+            this.#logEvents.length;
+
+        if (0 > beginIdx || length < endIdx) {
             return null;
         }
 
@@ -86,23 +104,30 @@ class JsonlDecoder implements Decoder {
         // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
         // every iteration.
         const results: DecodeResultType[] = [];
-        for (let logEventIdx = beginIdx; logEventIdx < endIdx; logEventIdx++) {
+        for (let cursorIdx = beginIdx; cursorIdx < endIdx; cursorIdx++) {
             let timestamp: number;
             let message: string;
             let logLevel: LOG_LEVEL;
+
+            // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]`
+            // can be undefined, but it shouldn't be since we performed a bounds check at the
+            // beginning of the method.
+            const logEventIdx: number = useFilteredIndices ?
+                (this.#filteredLogEventIndices[cursorIdx] as number) :
+                cursorIdx;
+
             if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
                 timestamp = INVALID_TIMESTAMP_VALUE;
                 message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
                 logLevel = LOG_LEVEL.NONE;
             } else {
-                // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
-                // but it shouldn't be since we performed a bounds check at the beginning of the
-                // method.
-                const logEvent = this.#logEvents[logEventIdx] as JsonObject;
-                (
-                    {timestamp, message} = this.#formatter.formatLogEvent(logEvent)
-                );
-                logLevel = this.#parseLogLevel(logEvent);
+                // Explicit cast since typescript thinks `#logEvents[filteredIdx]` can be undefined,
+                // but it shouldn't be since the index comes from a class-internal filter.
+                const logEvent: JsonLogEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
+
+                logLevel = logEvent.level;
+                message = this.#formatter.formatLogEvent(logEvent);
+                timestamp = logEvent.timestamp.valueOf();
             }
 
             results.push([
@@ -117,14 +142,18 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Parses each line from the given data array as a JSON object and buffers it internally. If a
+     * Parses each line from the data array as a JSON object and buffers it internally. If a
      * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
      *
-     * @param dataArray
+     * NOTE: The data array is freed after the very first run of this method.
      */
-    #deserialize (dataArray: Uint8Array) {
-        const text = JsonlDecoder.#textDecoder.decode(dataArray);
-        let beginIdx = 0;
+    #deserialize () {
+        if (null === this.#dataArray) {
+            return;
+        }
+
+        const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
+        let beginIdx: number = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
             const line = (-1 === endIdx) ?
@@ -135,52 +164,115 @@ class JsonlDecoder implements Decoder {
                 text.length :
                 endIdx + 1;
 
-            try {
-                const logEvent = JSON.parse(line) as JsonValue;
-                if ("object" !== typeof logEvent) {
-                    throw new Error("Unexpected non-object.");
-                }
-                this.#logEvents.push(logEvent as JsonObject);
-            } catch (e) {
-                if (0 === line.length) {
-                    continue;
-                }
-                console.error(e, line);
-                const currentLogEventIdx = this.#logEvents.length;
-                this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
-                this.#logEvents.push({});
+            this.#parseJson(line);
+        }
+
+        this.#dataArray = null;
+    }
+
+    /**
+     * Parse line into a json log event and add to log events array. If the line contains invalid
+     * json, an entry is added to invalid log event map.
+     *
+     * @param line
+     */
+    #parseJson (line: string) {
+        try {
+            const fields = JSON.parse(line) as JsonValue;
+            if (!this.#isJsonObject(fields)) {
+                throw new Error("Unexpected non-object.");
             }
+            this.#logEvents.push({
+                fields: fields,
+                level: this.#parseLogLevel(fields[this.#logLevelKey]),
+                timestamp: this.#parseTimestamp(fields[this.#timestampKey]),
+            });
+        } catch (e) {
+            if (0 === line.length) {
+                return;
+            }
+            console.error(e, line);
+            const currentLogEventIdx = this.#logEvents.length;
+            this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
+            this.#logEvents.push({
+                fields: {},
+                level: LOG_LEVEL.NONE,
+                timestamp: dayjs.utc(INVALID_TIMESTAMP_VALUE),
+            });
         }
     }
 
     /**
-     * Parses the log level from the given log event.
+     * Narrows input to JsonObject if valid type.
+     * Reference: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
      *
-     * @param logEvent
-     * @return The parsed log level.
+     * @param fields
+     * @return Whether type is JsonObject.
      */
-    #parseLogLevel (logEvent: JsonObject): number {
-        let logLevel = LOG_LEVEL.NONE;
+    #isJsonObject(fields: JsonValue): fields is JsonObject {
+        return "object" === typeof fields;
+    }
 
-        const parsedLogLevel = logEvent[this.#logLevelKey];
-        if ("undefined" === typeof parsedLogLevel) {
-            console.error(`${this.#logLevelKey} doesn't exist in log event.`);
+    /**
+     * Maps the log level field to a log level value.
+     *
+     * @param logLevelField Field in log event indexed by log level key.
+     * @return Log level value.
+     */
+    #parseLogLevel (logLevelField: JsonValue | undefined): number {
+        let logLevelValue = LOG_LEVEL.NONE;
 
-            return logLevel;
+        if ("undefined" === typeof logLevelField) {
+            return logLevelValue;
         }
 
-        const logLevelStr = "object" === typeof parsedLogLevel ?
-            JSON.stringify(parsedLogLevel) :
-            String(parsedLogLevel);
+        const logLevelName = "object" === typeof logLevelField ?
+            JSON.stringify(logLevelField) :
+            String(logLevelField);
 
-        if (false === (logLevelStr.toUpperCase() in LOG_LEVEL)) {
-            console.error(`${logLevelStr} doesn't match any known log level.`);
-        } else {
-            logLevel = LOG_LEVEL[logLevelStr as (keyof typeof LOG_LEVEL)];
+        if (logLevelName.toUpperCase() in LOG_LEVEL) {
+            logLevelValue = LOG_LEVEL[logLevelName.toUpperCase() as keyof typeof LOG_LEVEL];
         }
 
-        return logLevel;
+        return logLevelValue;
+    }
+
+    /**
+     * Parses timestamp into dayjs timestamp.
+     *
+     * @param timestampField
+     * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
+     * - the timestamp key doesn't exist in the log, or
+     * - the timestamp's value is not a number.
+     */
+    #parseTimestamp (timestampField: JsonValue | undefined): dayjs.Dayjs {
+
+        // If the field is an invalid type, then set the timestamp to INVALID_TIMESTAMP_VALUE.
+        if (typeof timestampField !== "string" &&
+            typeof timestampField !== "number" ||
+            // Dayjs library surprisingly thinks undefined is valid date...
+            // Reference: https://day.js.org/docs/en/parse/now#docsNav
+            typeof timestampField === undefined
+        ) {
+            // INVALID_TIMESTAMP_VALUE is a valid dayjs date. Another potential option is daysjs(null)
+            // to show `Invalid Date` in UI.
+            timestampField = INVALID_TIMESTAMP_VALUE;
+        }
+
+        const dayjsTimestamp: Dayjs = dayjs.utc(timestampField);
+
+        // Note if input is not valid (timestampField = "deadbeef"), this can produce a non-valid
+        // timestamp and will show up in UI as `Invalid Date`. Here we modify invalid dates to
+        // INVALID_TIMESTAMP_VALUE.
+        if (false === dayjsTimestamp.isValid()) {
+            dayjsTimestamp == dayjs.utc(INVALID_TIMESTAMP_VALUE)
+        }
+
+        return dayjsTimestamp;
     }
 }
 
 export default JsonlDecoder;
+export type {
+    JsonLogEvent,
+}

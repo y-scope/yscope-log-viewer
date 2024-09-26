@@ -1,4 +1,4 @@
-import {JsonlDecoderOptionsType} from "./decoders";
+import {JsonlDecoderOptions} from "./decoders";
 
 
 enum THEME_NAME {
@@ -8,7 +8,7 @@ enum THEME_NAME {
 }
 
 enum CONFIG_KEY {
-    DECODER_OPTIONS = "decoderOptions",
+    DECODER_OPTIONS = "DecoderOptions",
     THEME = "theme",
     PAGE_SIZE = "pageSize",
 }
@@ -24,7 +24,7 @@ enum LOCAL_STORAGE_KEY {
 /* eslint-enable @typescript-eslint/prefer-literal-enum-member */
 
 type ConfigMap = {
-    [CONFIG_KEY.DECODER_OPTIONS]: JsonlDecoderOptionsType,
+    [CONFIG_KEY.DECODER_OPTIONS]: JsonlDecoderOptions,
     [CONFIG_KEY.THEME]: THEME_NAME,
     [CONFIG_KEY.PAGE_SIZE]: number,
 };

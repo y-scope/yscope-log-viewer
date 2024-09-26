@@ -6,8 +6,9 @@ import {
     FormatterOptionsType,
     TimestampAndMessageType,
 } from "../../typings/formatters";
-import {JsonObject} from "../../typings/js";
+import {JsonLogEvent} from "../decoders/JsonlDecoder";
 import {INVALID_TIMESTAMP_VALUE} from "../../typings/logs";
+import {JsonObject} from "../../typings/js";
 
 
 /**
@@ -39,14 +40,11 @@ class LogbackFormatter implements Formatter {
 
     #dateFormat: string = "";
 
-    #timestampKey: string;
-
     #keys: string[] = [];
 
     constructor (options: FormatterOptionsType) {
         // NOTE: It's safe for these values to be empty strings.
         this.#formatString = options.formatString;
-        this.#timestampKey = options.timestampKey;
 
         // Remove new line
         this.#formatString = this.#formatString.replace("%n", "");
@@ -59,17 +57,13 @@ class LogbackFormatter implements Formatter {
      * Formats the given log event.
      *
      * @param logEvent
-     * @return The log event's timestamp and the formatted string.
+     * @return The formatted message.
      */
-    formatLogEvent (logEvent: JsonObject): TimestampAndMessageType {
-        const timestamp = this.#parseTimestamp(logEvent);
-        let formatted = this.#formatTimestamp(timestamp, this.#formatString);
-        formatted = this.#formatVariables(formatted, logEvent);
-
-        return {
-            timestamp: timestamp.valueOf(),
-            message: formatted,
-        };
+    formatLogEvent (logEvent: JsonLogEvent): string {
+        const {fields, timestamp} = logEvent;
+        let formatStringWithTimestamp: string = this.#formatTimestamp(timestamp, this.#formatString);
+        let message = this.#formatVariables(formatStringWithTimestamp, fields);
+        return message
     }
 
     /**
@@ -108,23 +102,6 @@ class LogbackFormatter implements Formatter {
             // since the pattern contains a capture group.
             this.#keys.push(key as string);
         }
-    }
-
-    /**
-     * Gets the timestamp from the log event.
-     *
-     * @param logEvent
-     * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
-     * - the timestamp key doesn't exist in the log, or
-     * - the timestamp's value is not a number.
-     */
-    #parseTimestamp (logEvent: JsonObject): dayjs.Dayjs {
-        let timestamp = logEvent[this.#timestampKey];
-        if ("number" !== typeof timestamp && "string" !== typeof timestamp) {
-            timestamp = INVALID_TIMESTAMP_VALUE;
-        }
-
-        return dayjs.utc(timestamp);
     }
 
     /**

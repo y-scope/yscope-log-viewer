@@ -1,6 +1,6 @@
 import {
     Decoder,
-    DecoderOptionsType,
+    DecoderOptions,
     LOG_EVENT_FILE_END_IDX,
 } from "../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
@@ -98,16 +98,17 @@ class LogFileManager {
      * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
      * File object.
      * @param pageSize Page size for setting up pagination.
-     * @param decoderOptions Initial decoder options.
+     * @param DecoderOptions Initial decoder options.
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        buildOptions: BuildOptions,
+        DecoderOptions: DecoderOptions,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
+        const decoder = await LogFileManager.#initDecoder(fileName, fileData, buildOptions, DecoderOptions);
 
         return new LogFileManager(decoder, fileName, pageSize);
     }
@@ -117,18 +118,18 @@ class LogFileManager {
      *
      * @param fileName
      * @param fileData
-     * @param decoderOptions Initial decoder options.
+     * @param DecoderOptions Initial decoder options.
      * @return The constructed decoder.
      * @throws {Error} if no decoder supports a file with the given extension.
      */
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        decoderOptions: DecoderOptionsType
+        DecoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, decoderOptions);
+            decoder = new JsonlDecoder(fileData, DecoderOptions);
         } else if (fileName.endsWith(".clp.zst")) {
             decoder = await ClpIrDecoder.create(fileData);
         } else {
@@ -145,12 +146,12 @@ class LogFileManager {
     }
 
     /**
-     * Sets options for the decoder.
+     * Sets formatting options for the decoder.
      *
      * @param options
      */
-    setDecoderOptions (options: DecoderOptionsType) {
-        this.#decoder.setDecoderOptions(options);
+    setFormatterOptions (options: DecoderOptions) {
+        this.#decoder.setFormatterOptions(options);
     }
 
     /**
@@ -166,9 +167,10 @@ class LogFileManager {
         logs: string,
     } {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
-        const results = this.#decoder.decode(
+        const results = this.#decoder.decodeRange(
             beginLogEventIdx,
-            endLogEventIdx
+            endLogEventIdx,
+            false,
         );
 
         if (null === results) {
@@ -200,7 +202,7 @@ class LogFileManager {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
         const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
+        const results = this.#decoder.decodeRange(beginLogEventNum - 1, endLogEventNum, false);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `beginLogEventNum=${beginLogEventNum}, ` +
