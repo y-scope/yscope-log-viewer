@@ -49,7 +49,7 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * @return Filtered log event map.
+     * @return Indices of the filtered events.
      */
     getFilteredLogEventMap(): FilteredLogEventMap;
 
@@ -70,10 +70,8 @@ interface Decoder {
     build(): LogEventCount;
 
     /**
-     * Sets formatting options.
-     *
-     * NOTE: The decoder supports changing formatting without rebuilding existing log
-     * events; however, the front-end currently does not support this.
+     * Sets formatting options. Decoders support changing formatting without rebuilding
+     * existing log events.
      *
      * @param options
      * @return Whether the options were successfully set.
@@ -81,13 +79,12 @@ interface Decoder {
     setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decode log events. The flag `useFilter` specifies whether the range boundaries `[BeginIdx, EndIdx)`
-     * refer to the log event index directly or a filtered index. The filtered index is based on a subset
-     * of log events that are included by the set filter.
+     * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log
+     * event indices or filtered log event indices based on the flag `useFilter`.
      *
      * @param beginIdx
      * @param endIdx
-     * @param useFilter Whether index refers to filtered index or log event index.
+     * @param useFilter Whether to decode from the filtered or unfiltered log events array.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
@@ -108,7 +105,6 @@ export type {
     Decoder,
     DecodeResultType,
     DecoderOptionsType,
-    FilteredLogEventMap,
     JsonlDecoderOptionsType,
     LogEventCount,
 };

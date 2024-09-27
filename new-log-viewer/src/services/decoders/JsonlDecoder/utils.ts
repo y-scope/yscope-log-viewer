@@ -37,10 +37,10 @@ const isJsonObject = (fields: JsonValue): fields is JsonObject => {
 /**
  * Converts JSON log level field into a log level value.
  *
- * @param logLevelField Field in log event indexed by log level key.
- * @return Log level value.
+ * @param logLevelField
+ * @return Integer for log level.
  */
-const LogLevelValue = (logLevelField: JsonValue | undefined): number => {
+const convertToLogLevelValue = (logLevelField: JsonValue | undefined): number => {
     let logLevelValue = LOG_LEVEL.NONE;
 
     if ("undefined" === typeof logLevelField) {
@@ -63,11 +63,11 @@ const LogLevelValue = (logLevelField: JsonValue | undefined): number => {
  *
  * @param timestampField
  * @return The timestamp or `INVALID_TIMESTAMP_VALUE` if:
- * 1. the timestamp key doesn't exist in the log
- * 2. the timestamp's value is an unsupported type
- * 3. the timestamp's value is not a valid dayjs timestamp
+ * 1. the timestamp key doesn't exist in the log.
+ * 2. the timestamp's value is an unsupported type.
+ * 3. the timestamp's value is not a valid dayjs timestamp.
  */
-const DayjsTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
+const convertToDayjsTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
     // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
     if (("string" !== typeof timestampField &&
         "number" !== typeof timestampField) ||
@@ -93,8 +93,8 @@ const DayjsTimestamp = (timestampField: JsonValue | undefined): dayjs.Dayjs => {
     return dayjsTimestamp;
 };
 export {
-    DayjsTimestamp,
+    convertToDayjsTimestamp,
+    convertToLogLevelValue,
     isJsonObject,
-    LogLevelValue,
 };
 export type {JsonLogEvent};

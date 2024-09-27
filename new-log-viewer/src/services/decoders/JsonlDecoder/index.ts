@@ -15,16 +15,16 @@ import {
 } from "../../../typings/logs";
 import LogbackFormatter from "../../formatters/LogbackFormatter";
 import {
-    DayjsTimestamp,
+    convertToDayjsTimestamp,
+    convertToLogLevelValue,
     isJsonObject,
     JsonLogEvent,
-    LogLevelValue,
 } from "./utils";
 
 
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptionsType` for
- * properties that are specific to log events (compared to generic JSON records).
+ * properties that are specific to json log events (compared to generic JSON records).
  */
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
@@ -46,7 +46,6 @@ class JsonlDecoder implements Decoder {
     /**
      * @param dataArray
      * @param decoderOptions
-     * @throws {Error} if the initial decoder options are erroneous.
      */
     constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
         this.#dataArray = dataArray;
@@ -125,7 +124,7 @@ class JsonlDecoder implements Decoder {
      * Retrieves log event using index then decodes into `DecodeResultType`.
      *
      * @param logEventIdx
-     * @return
+     * @return Decoded result.
      */
     #getDecodeResult = (logEventIdx: number): DecodeResultType => {
         let timestamp: number;
@@ -158,7 +157,8 @@ class JsonlDecoder implements Decoder {
 
     /**
      * Parses each line from the data array as a JSON object and buffers it internally. If a
-     * line cannot be parsed as a JSON object, an error is logged and the line is skipped.
+     * line cannot be parsed as a JSON object, an error is logged and the line added to an
+     * invalid map.
      *
      * NOTE: The data array(file) is freed after the very first run of this method.
      */
@@ -199,8 +199,8 @@ class JsonlDecoder implements Decoder {
             }
             this.#logEvents.push({
                 fields: fields,
-                level: LogLevelValue(fields[this.#logLevelKey]),
-                timestamp: DayjsTimestamp(fields[this.#timestampKey]),
+                level: convertToLogLevelValue(fields[this.#logLevelKey]),
+                timestamp: convertToDayjsTimestamp(fields[this.#timestampKey]),
             });
         } catch (e) {
             if (0 === line.length) {
@@ -212,14 +212,14 @@ class JsonlDecoder implements Decoder {
             this.#logEvents.push({
                 fields: {},
                 level: LOG_LEVEL.NONE,
-                timestamp: DayjsTimestamp(INVALID_TIMESTAMP_VALUE),
+                timestamp: convertToDayjsTimestamp(INVALID_TIMESTAMP_VALUE),
             });
         }
     }
 
     /**
-     * Computes the indices of the log events that match the log level filter and
-     * buffers internally. Sets the indices to null if the filter is null.
+     * Filters log events and generates an internal array which serves as a mapping between filtered
+     * events and the original log event index. Sets the map to null if the filter is null.
      *
      * @param logLevelFilter
      */
