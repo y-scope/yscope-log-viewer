@@ -75,6 +75,7 @@ type NavigationActionsMap = {
     [ACTION_NAME.LAST_PAGE]: null
 };
 
+// Some navigation actions supply code and args fields, and others only code field.
 type NavigationAction = {
     [T in keyof NavigationActionsMap]: NavigationActionsMap[T] extends object ?
     {code: T, args: NavigationActionsMap[T]} :
