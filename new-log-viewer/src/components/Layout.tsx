@@ -2,10 +2,10 @@ import {CssVarsProvider} from "@mui/joy/styles";
 
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
+import CentralContainer from "./CentralContainer";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import MenuBar from "./MenuBar";
-import SidebarContainer from "./SidebarContainer";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
@@ -23,11 +23,11 @@ const Layout = () => {
             theme={APP_THEME}
         >
             <MenuBar/>
-            <SidebarContainer>
+            <CentralContainer>
                 <DropFileContainer>
                     <Editor/>
                 </DropFileContainer>
-            </SidebarContainer>
+            </CentralContainer>
             <StatusBar/>
         </CssVarsProvider>
     );
