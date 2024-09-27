@@ -2,16 +2,12 @@
     --ylv-panel-width: 360px;
 }
 
-.sidebar-container {
+.central-container {
     display: grid;
     grid-template-columns: var(--ylv-panel-width) 1fr;
     width: 100vw;
 }
 
-.sidebar-tabs-container {
-    display: flex;
-}
-
-.sidebar-children-container {
+.central-container-children-container {
     width: calc(100vw - var(--ylv-panel-width));
 }
