@@ -83,7 +83,10 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                             tabName={tabName}
                             onTabButtonClick={handleTabButtonClick}/>
                     ))}
+
+                    {/* Forces the settings tab to bottom of sidebar. */}
                     <div className={"sidebar-tab-list-spacing"}/>
+
                     <TooltipTab
                         Icon={SettingsOutlinedIcon}
                         tabName={TAB_NAME.SETTINGS}
