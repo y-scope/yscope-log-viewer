@@ -19,6 +19,8 @@ import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
+const SEARCH_CHUNK_SIZE = 1000;
+
 /**
  * Loads a file from a given source.
  *
@@ -230,59 +232,75 @@ class LogFileManager {
         };
     }
 
-    queryLog (searchString: string, isRegex: boolean, matchCase: boolean): {
-        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }[]
-    } {
-        const results: { [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }[] } = {};
-        const regex = isRegex ?
-            new RegExp(searchString, matchCase ?
-                "g" :
-                "gi") :
-            null;
-        const searchStr = matchCase ?
+    /**
+     * Searches for log events based on the given search string.
+     *
+     * @param searchString The search string.
+     * @param isRegex Whether the search string is a regular expression.
+     * @param matchCase Whether the search is case-sensitive.
+     * @return An object containing the search results.
+     */
+    queryLog = (searchString: string, isRegex: boolean, matchCase: boolean): {
+        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
+    } => {
+        // If the search string is empty, or there are no logs, return
+        if ("" === searchString) {
+            return {};
+        } else if (0 === this.#numEvents) {
+            return {};
+        }
+
+        // Construct search RegExp
+        const regexPattern = isRegex ?
             searchString :
-            searchString.toLowerCase();
+            searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regexFlags = matchCase ?
+            "" :
+            "i";
+        const searchRegex = new RegExp(regexPattern, regexFlags);
 
-        for (let i = 0; i < this.#numEvents; i++) {
-            const logEvent = this.#decoder.decode(i, i + 1);
-            if (logEvent && 0 < logEvent.length) {
-                const [message, , , logEventNum] = logEvent[0];
-                const msg = matchCase ?
-                    message :
-                    message.toLowerCase();
-                let match;
-                const matches: { logEventNum: number; message: string; matchRange: [number, number]; }[] = [];
+        const results: {
+            [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
+        } = {};
 
-                if (regex) {
-                    while (null !== (match = regex.exec(msg))) {
-                        matches.push({
-                            logEventNum,
-                            message,
-                            matchRange: [match.index,
-                                match.index + match[0].length],
-                        });
-                    }
-                } else {
-                    let index = msg.indexOf(searchStr);
-                    while (-1 !== index) {
-                        matches.push({
-                            logEventNum,
-                            message,
-                            matchRange: [index,
-                                index + searchStr.length],
-                        });
-                        index = msg.indexOf(searchStr, index + searchStr.length);
-                    }
-                }
+        let beginSearchIdx = 0;
 
-                if (0 < matches.length) {
-                    results[i + 1] = matches;
-                }
-            }
+        while (beginSearchIdx < this.#numEvents) {
+            const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
+            this.searchChunk(beginSearchIdx, endSearchIdx, searchRegex, results);
+            beginSearchIdx = endSearchIdx;
         }
 
         return results;
-    }
+    };
+
+    /**
+     * Searches for log events in the given range.
+     *
+     * @param beginSearchIdx The beginning index of the search range.
+     * @param endSearchIdx The end index of the search range.
+     * @param searchRegex The regular expression to search
+     * @return
+     */
+    searchChunk = (beginSearchIdx: number, endSearchIdx: number, searchRegex: RegExp, results: {
+        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
+    }) => {
+        for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
+            const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
+
+            const match = contentString.match(searchRegex);
+            if (match) {
+                const logEventNum = eventIdx + 1;
+                const lineNum = eventIdx + 1;
+                results[lineNum].push({
+                    logEventNum,
+                    message: contentString,
+                    matchRange: [match.index,
+                        (match.index + match[0].length)],
+                });
+            }
+        }
+    };
 
     /**
      * Gets the range of log event numbers for the page containing the given cursor.
