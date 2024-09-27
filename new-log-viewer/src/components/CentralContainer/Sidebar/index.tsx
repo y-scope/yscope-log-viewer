@@ -36,7 +36,10 @@ const setPanelWidth = (newValue: number) => {
 
 
 /**
+ * Renders a sidebar component that displays tabbed panels and a resize handle.
+ * The active tab can be changed and the sidebar can be resized by dragging the handle.
  *
+ * @return
  */
 const Sidebar = () => {
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
