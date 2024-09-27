@@ -8,6 +8,7 @@ import {
     Tabs,
 } from "@mui/joy";
 
+import {SvgIconComponent} from "@mui/icons-material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
@@ -18,6 +19,16 @@ import TooltipTab from "./TooltipTab";
 
 import "./index.css";
 
+
+/**
+ * Lists information for each tab.
+ */
+const TABS_INFO_LIST: Readonly<Array<{
+    tabName: TAB_NAME,
+    Icon: SvgIconComponent
+}>> = Object.freeze([
+    {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
+]);
 
 interface SidebarTabsProps {
     activeTabName: TAB_NAME,
@@ -65,9 +76,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                     ref={tabListRef}
                     size={"lg"}
                 >
-                    {[
-                        {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
-                    ].map(({tabName, Icon}) => (
+                    {TABS_INFO_LIST.map(({tabName, Icon}) => (
                         <TooltipTab
                             Icon={Icon}
                             key={tabName}
