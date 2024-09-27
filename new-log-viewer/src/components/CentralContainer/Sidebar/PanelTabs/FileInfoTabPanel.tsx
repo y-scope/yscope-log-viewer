@@ -19,11 +19,11 @@ import CustomTabPanel from "./CustomTabPanel";
 
 
 /**
- * Display the file name and original size of the selected file.
+ * Displays a panel containing the file name and original size of the selected file.
  *
  * @return
  */
-const FileInfoTab = () => {
+const FileInfoTabPanel = () => {
     const {fileName, originalFileSizeInBytes} = useContext(StateContext);
 
     return (
@@ -49,4 +49,4 @@ const FileInfoTab = () => {
     );
 };
 
-export default FileInfoTab;
+export default FileInfoTabPanel;

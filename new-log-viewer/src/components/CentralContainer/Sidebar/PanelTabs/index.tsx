@@ -13,7 +13,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import {TAB_NAME} from "../../../../typings/tab";
 import SettingsModal from "../../../modals/SettingsModal";
-import FileInfoTab from "./FileInfoTab";
+import FileInfoTabPanel from "./FileInfoTabPanel";
 import TooltipTab from "./TooltipTab";
 
 import "./index.css";
@@ -80,7 +80,7 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
                         tabName={TAB_NAME.SETTINGS}
                         onTabButtonClick={handleTabButtonClick}/>
                 </TabList>
-                <FileInfoTab/>
+                <FileInfoTabPanel/>
             </Tabs>
             <SettingsModal
                 isOpen={isSettingsModalOpen}
