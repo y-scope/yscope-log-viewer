@@ -7,13 +7,14 @@ import {LOG_LEVEL} from "./logs";
  */
 type FileSrcType = string | File;
 
+
 /**
- * Indicates whether the log event number should be anchored to the top or bottom of the page.
- * Used as input for the page number cursor.
+ * For a page requested by the page number `CURSOR_CODE`, this enum indicates which log event
+ * number (e.g., first on page, or last on page) should be returned with the page.
  */
-enum LOG_EVENT_ANCHOR {
-    FIRST = "first",
-    LAST = "last",
+enum EVENT_POSITION {
+    TOP,
+    BOTTOM,
 }
 
 /**
@@ -34,7 +35,7 @@ type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.EVENT_NUM]: { logEventNum: number };
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, logEventAnchor: LOG_EVENT_ANCHOR };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPosition: EVENT_POSITION };
 };
 
 type CursorType = {
@@ -107,6 +108,7 @@ type WorkerResp<T extends WORKER_RESP_CODE> = T extends keyof WorkerRespMap ?
     WorkerRespMap[T] :
     never;
 
+
 type MainWorkerReqMessage = {
     [T in keyof WorkerReqMap]: { code: T, args: WorkerReqMap[T] };
 }[keyof WorkerReqMap];
@@ -117,7 +119,7 @@ type MainWorkerRespMessage = {
 
 export {
     CURSOR_CODE,
-    LOG_EVENT_ANCHOR,
+    EVENT_POSITION,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

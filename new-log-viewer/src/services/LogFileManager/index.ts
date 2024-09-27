@@ -180,7 +180,7 @@ class LogFileManager {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
         const {beginLogEventNum, endLogEventNum, newLogEventNum} = this.#getCursorData(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
+        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum - 1);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `beginLogEventNum=${beginLogEventNum}, ` +
@@ -232,7 +232,7 @@ class LogFileManager {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
                     args.pageNum,
-                    args.logEventAnchor,
+                    args.eventPosition,
                     this.#numEvents,
                     this.#pageSize
                 );

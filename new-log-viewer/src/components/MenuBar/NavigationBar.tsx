@@ -17,12 +17,19 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const NavigationBar = () => {
-    const {loadPageAction} = useContext(StateContext);
+    const {loadPageByAction} = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = event.currentTarget.dataset as { actionName: ACTION_NAME };
-        if (Object.values(ACTION_NAME).includes(actionName)) {
-            loadPageAction(actionName);
+        const {actionName} = event.currentTarget.dataset;
+
+        // Makes sure actionName is a valid navigation action code with no args.
+        if (
+            actionName === ACTION_NAME.FIRST_PAGE ||
+            actionName === ACTION_NAME.PREV_PAGE ||
+            actionName === ACTION_NAME.NEXT_PAGE ||
+            actionName === ACTION_NAME.LAST_PAGE
+        ) {
+            loadPageByAction({code: actionName});
         }
     };
 

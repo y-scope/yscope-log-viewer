@@ -16,6 +16,7 @@ import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
+    EVENT_POSITION,
     FileSrcType,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
@@ -24,13 +25,16 @@ import {
 } from "../typings/worker";
 import {
     ACTION_NAME,
-    getPageNumCursorArgs,
+    NavigationAction,
 } from "../utils/actions";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
 } from "../utils/config";
-import {getChunkNum} from "../utils/math";
+import {
+    clamp,
+    getChunkNum,
+} from "../utils/math";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -51,7 +55,7 @@ interface StateContextType {
 
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPageAction: (action: ACTION_NAME, specificPageNum?: Nullable<number>) => void,
+    loadPageByAction: (navAction: NavigationAction) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -69,7 +73,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 
     exportLogs: () => null,
     loadFile: () => null,
-    loadPageAction: () => null,
+    loadPageByAction: () => null,
 });
 
 interface StateContextProviderProps {
@@ -206,7 +210,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const loadPage = useCallback((
+    const loadPageByCursor = useCallback((
         cursor: CursorType,
     ) => {
         if (null === mainWorkerRef.current) {
@@ -221,35 +225,64 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         });
     }, []);
 
-    const loadPageAction = useCallback((
-        action: ACTION_NAME,
-        specificPageNum: Nullable<number> = null
-    ) => {
-        const [newPageNum, anchor] = getPageNumCursorArgs(
-            action,
-            specificPageNum,
-            pageNumRef.current,
-            numPagesRef.current
-        );
+    const getPageNumCursor = useCallback((navAction: NavigationAction): Nullable<CursorType> => {
+        let newPageNum: number;
+        let position: EVENT_POSITION;
 
-        if (null === newPageNum || null === anchor) {
-            console.error(`Error with page action ${action}.`);
+        if (STATE_DEFAULT.pageNum === pageNumRef.current) {
+            console.error("Page actions cannot be executed if the current page is not set.");
+
+            return null;
+        }
+
+        switch (navAction.code) {
+            case ACTION_NAME.SPECIFIC_PAGE:
+                position = EVENT_POSITION.TOP;
+
+                // Clamp is to prevent someone from requesting non-existent page.
+                newPageNum = clamp(navAction.args.specificPageNum, 1, numPagesRef.current);
+                break;
+            case ACTION_NAME.FIRST_PAGE:
+                position = EVENT_POSITION.TOP;
+                newPageNum = 1;
+                break;
+            case ACTION_NAME.PREV_PAGE:
+                position = EVENT_POSITION.BOTTOM;
+                newPageNum = clamp(pageNumRef.current - 1, 1, numPagesRef.current);
+                break;
+            case ACTION_NAME.NEXT_PAGE:
+                position = EVENT_POSITION.TOP;
+                newPageNum = clamp(pageNumRef.current + 1, 1, numPagesRef.current);
+                break;
+            case ACTION_NAME.LAST_PAGE:
+                position = EVENT_POSITION.BOTTOM;
+                newPageNum = numPagesRef.current;
+                break;
+            default:
+                return null;
+        }
+
+        return {
+            code: CURSOR_CODE.PAGE_NUM,
+            args: {pageNum: newPageNum, eventPosition: position},
+        };
+    }, []);
+
+    const loadPageByAction = useCallback((navAction: NavigationAction) => {
+        const cursor = getPageNumCursor(navAction);
+
+        if (null === cursor) {
+            console.error(`Error with nav action ${navAction.code}.`);
 
             return;
         }
 
-        const cursor: CursorType = {
-            code: CURSOR_CODE.PAGE_NUM,
-            args: {pageNum: newPageNum, logEventAnchor: anchor},
-        };
+        loadPageByCursor(cursor);
+    }, [
+        getPageNumCursor,
+        loadPageByCursor,
+    ]);
 
-        loadPage(cursor);
-    }, [loadPage]);
-
-    // Synchronize `logEventNumRef` with `logEventNum`.
-    useEffect(() => {
-        logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
@@ -282,10 +315,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             args: {logEventNum: logEventNum},
         };
 
-        loadPage(cursor);
+        loadPageByCursor(cursor);
     }, [
         logEventNum,
-        loadPage,
+        loadPageByCursor,
     ]);
 
     // On `filePath` update, load file.
@@ -318,7 +351,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
-                loadPageAction: loadPageAction,
+                loadPageByAction: loadPageByAction,
             }}
         >
             {children}

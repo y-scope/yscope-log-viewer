@@ -1,9 +1,6 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {STATE_DEFAULT} from "../contexts/StateContextProvider";
 import {Nullable} from "../typings/common";
-import {LOG_EVENT_ANCHOR} from "../typings/worker";
-import {clamp} from "./math";
 
 
 enum ACTION_NAME {
@@ -65,83 +62,30 @@ const EDITOR_ACTIONS : ActionType[] = [
     },
 ];
 
-/**
- * Calculates the new page number and log event anchor for the page number cursor.
- *
- * @param action
- * @param specificPageNum Page number for specific page action.
- * @param currentPageNum
- * @param numPages
- * @return The new page number and the log event anchor required for the page number cursor.
- * Returns null if the action is not setup or there is an error validating inputs.
- */
-const getPageNumCursorArgs = (
-    action: ACTION_NAME,
-    specificPageNum: Nullable<number>,
-    currentPageNum: number,
-    numPages: number
-): [Nullable<number>, Nullable<LOG_EVENT_ANCHOR>] => {
-    let newPageNum: number;
-    let anchor: LOG_EVENT_ANCHOR;
-
-    if (null === specificPageNum && ACTION_NAME.SPECIFIC_PAGE === action) {
-        console.error("Specific page action missing required page input");
-
-        return [
-            null,
-            null,
-        ];
-    }
-
-    if (STATE_DEFAULT.pageNum === currentPageNum) {
-        console.error("Page actions cannot be executed if the current page is not set.");
-
-        return [
-            null,
-            null,
-        ];
-    }
-
-    switch (action) {
-        case ACTION_NAME.SPECIFIC_PAGE:
-            anchor = LOG_EVENT_ANCHOR.FIRST;
-
-            // specificPageNum cannot be null, since already checked during loadPage validation.
-            // Clamp is to prevent someone from requesting non-existent page.
-            newPageNum = clamp(specificPageNum as number, 1, numPages);
-            break;
-        case ACTION_NAME.FIRST_PAGE:
-            anchor = LOG_EVENT_ANCHOR.FIRST;
-            newPageNum = 1;
-            break;
-        case ACTION_NAME.PREV_PAGE:
-            anchor = LOG_EVENT_ANCHOR.LAST;
-            newPageNum = clamp(currentPageNum - 1, 1, numPages);
-            break;
-        case ACTION_NAME.NEXT_PAGE:
-            anchor = LOG_EVENT_ANCHOR.FIRST;
-            newPageNum = clamp(currentPageNum + 1, 1, numPages);
-            break;
-        case ACTION_NAME.LAST_PAGE:
-            anchor = LOG_EVENT_ANCHOR.LAST;
-            newPageNum = numPages;
-            break;
-        default:
-            return [
-                null,
-                null,
-            ];
-    }
-
-    return [
-        newPageNum,
-        anchor,
-    ];
+type NavigationActionsMap = {
+    [ACTION_NAME.SPECIFIC_PAGE]: {
+        specificPageNum: number,
+    },
+    [ACTION_NAME.FIRST_PAGE]: null
+    ,
+    [ACTION_NAME.PREV_PAGE]: null
+    ,
+    [ACTION_NAME.NEXT_PAGE]: null
+    ,
+    [ACTION_NAME.LAST_PAGE]: null
 };
+
+type NavigationAction = {
+    [T in keyof NavigationActionsMap]: NavigationActionsMap[T] extends object ?
+    {code: T, args: NavigationActionsMap[T]} :
+    {code: T};
+    } [keyof NavigationActionsMap];
 
 export {
     ACTION_NAME,
     EDITOR_ACTIONS,
-    getPageNumCursorArgs,
 };
-export type {ActionType};
+export type {
+    ActionType,
+    NavigationAction,
+};

@@ -1,6 +1,6 @@
 import {
+    EVENT_POSITION,
     FileSrcType,
-    LOG_EVENT_ANCHOR,
 } from "../../typings/worker";
 import {getUint8ArrayFrom} from "../../utils/http";
 import {
@@ -26,7 +26,7 @@ const getRange = (
     const beginLogEventNum: number = beginLogEventIdx + 1;
 
     // Clamp ending index using total number of events.
-    const endLogEventNum: number = Math.min(numEvents, beginLogEventNum + pageSize - 1);
+    const endLogEventNum: number = Math.min(numEvents + 1, beginLogEventNum + pageSize);
 
     return [
         beginLogEventNum,
@@ -64,20 +64,20 @@ const loadFile = async (fileSrc: FileSrcType)
  * Gets range and new log event number using page number cursor
  *
  * @param pageNum
- * @param logEventAnchor
+ * @param eventPosition
  * @param numEvents
  * @param pageSize
  * @return An object containing the range and the new log event number.
  */
 const getPageNumCursorData = (
     pageNum: number,
-    logEventAnchor: LOG_EVENT_ANCHOR,
+    eventPosition: EVENT_POSITION,
     numEvents: number,
     pageSize: number
 ): { beginLogEventNum: number; endLogEventNum: number; newLogEventNum: number } => {
     const beginLogEventIdx = (pageNum - 1) * pageSize;
     const [beginLogEventNum, endLogEventNum] = getRange(numEvents, beginLogEventIdx, pageSize);
-    const newLogEventNum = logEventAnchor === LOG_EVENT_ANCHOR.FIRST ?
+    const newLogEventNum = eventPosition === EVENT_POSITION.TOP ?
         beginLogEventNum :
         endLogEventNum;
 
