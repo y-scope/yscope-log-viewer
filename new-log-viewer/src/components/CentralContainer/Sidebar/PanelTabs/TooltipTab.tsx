@@ -8,7 +8,7 @@ import {SvgIconComponent} from "@mui/icons-material";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
-} from "../../../typings/tab";
+} from "../../../../typings/tab";
 
 import "./TooltipTab.css";
 

@@ -4,11 +4,11 @@ import {
     useState,
 } from "react";
 
-import {TAB_NAME} from "../../typings/tab";
+import {TAB_NAME} from "../../../typings/tab";
 import PanelTabs from "./PanelTabs";
 import ResizeHandle from "./ResizeHandle";
 
-import "./Sidebar.css";
+import "./index.css";
 
 
 const PANEL_DEFAULT_WIDTH_IN_PIXEL = 360;

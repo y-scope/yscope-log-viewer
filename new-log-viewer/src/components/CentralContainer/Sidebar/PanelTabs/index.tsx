@@ -11,8 +11,8 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import {TAB_NAME} from "../../../typings/tab";
-import SettingsModal from "../../modals/SettingsModal";
+import {TAB_NAME} from "../../../../typings/tab";
+import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTab from "./FileInfoTab";
 import TooltipTab from "./TooltipTab";
 

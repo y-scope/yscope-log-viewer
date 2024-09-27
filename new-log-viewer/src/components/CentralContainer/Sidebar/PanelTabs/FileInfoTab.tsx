@@ -8,12 +8,12 @@ import {
 import AbcIcon from "@mui/icons-material/Abc";
 import StorageIcon from "@mui/icons-material/Storage";
 
-import {StateContext} from "../../../contexts/StateContextProvider";
+import {StateContext} from "../../../../contexts/StateContextProvider";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
-} from "../../../typings/tab";
-import {formatSizeInBytes} from "../../../utils/units";
+} from "../../../../typings/tab";
+import {formatSizeInBytes} from "../../../../utils/units";
 import CustomListItem from "./CustomListItem";
 import CustomTabPanel from "./CustomTabPanel";
 
