@@ -5,8 +5,8 @@ import {
 } from "react";
 
 import {TAB_NAME} from "../../../typings/tab";
-import PanelTabs from "./PanelTabs";
 import ResizeHandle from "./ResizeHandle";
+import SidebarTabs from "./SidebarTabs";
 
 import "./index.css";
 
@@ -97,7 +97,7 @@ const Sidebar = () => {
 
     return (
         <div className={"sidebar-tabs-container"}>
-            <PanelTabs
+            <SidebarTabs
                 activeTabName={activeTabName}
                 ref={tabListRef}
                 onActiveTabNameChange={handleActiveTabNameChange}/>

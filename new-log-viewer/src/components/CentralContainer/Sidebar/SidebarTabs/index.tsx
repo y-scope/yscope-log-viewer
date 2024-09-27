@@ -19,7 +19,7 @@ import TooltipTab from "./TooltipTab";
 import "./index.css";
 
 
-interface PanelTabsProps {
+interface SidebarTabsProps {
     activeTabName: TAB_NAME,
     onActiveTabNameChange: (newValue: TAB_NAME) => void,
 }
@@ -30,7 +30,7 @@ interface PanelTabsProps {
  * @param tabListRef Reference object used to access the TabList DOM element.
  * @return
  */
-const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
+const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
     {
         activeTabName,
         onActiveTabNameChange,
@@ -89,5 +89,5 @@ const PanelTabs = forwardRef<HTMLDivElement, PanelTabsProps>((
     );
 });
 
-PanelTabs.displayName = "PanelTabs";
-export default PanelTabs;
+SidebarTabs.displayName = "SidebarTabs";
+export default SidebarTabs;
