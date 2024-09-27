@@ -28,8 +28,10 @@ const getRange = (
     // Clamp ending index using total number of events.
     const endLogEventNum: number = Math.min(numEvents, beginLogEventNum + pageSize - 1);
 
-    return [beginLogEventNum,
-        endLogEventNum];
+    return [
+        beginLogEventNum,
+        endLogEventNum,
+    ];
 };
 
 /**

@@ -3,7 +3,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import {STATE_DEFAULT} from "../contexts/StateContextProvider";
 import {Nullable} from "../typings/common";
 import {LOG_EVENT_ANCHOR} from "../typings/worker";
-import {clamp} from "../utils/math";
+import {clamp} from "./math";
 
 
 enum ACTION_NAME {

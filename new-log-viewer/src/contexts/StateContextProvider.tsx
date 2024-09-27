@@ -145,9 +145,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setLogData(args.logs);
                 pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-
-                // Assume page data always provides a valid log event num. i.e. non null and
-                // inside range.
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
