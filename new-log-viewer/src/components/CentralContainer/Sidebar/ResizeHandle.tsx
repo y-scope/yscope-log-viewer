@@ -38,34 +38,40 @@ const ResizeHandle = ({
         setIsMouseDown(true);
     };
 
+    const handleMouseMove = useCallback((ev: MouseEvent) => {
+        ev.preventDefault();
+        onResize(ev.clientX);
+    }, [onResize]);
+
     const handleMouseUp = useCallback((ev: MouseEvent) => {
         ev.preventDefault();
         setIsMouseDown(false);
         onHandleRelease();
     }, [onHandleRelease]);
 
+    // Register the event listener for mouse up.
+    useEffect(() => {
+        window.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            window.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, [handleMouseUp]);
+
+    // On mouse down, register the event listener for mouse move.
     useEffect(() => {
         if (false === isMouseDown) {
             return () => null;
         }
 
-        window.addEventListener("mouseup", handleMouseUp);
-
-        const handleMouseMove = (ev: MouseEvent) => {
-            ev.preventDefault();
-            onResize(ev.clientX);
-        };
-
         window.addEventListener("mousemove", handleMouseMove);
 
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
         };
     }, [
-        handleMouseUp,
+        handleMouseMove,
         isMouseDown,
-        onResize,
     ]);
 
     return (
