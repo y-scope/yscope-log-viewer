@@ -18,7 +18,7 @@ html {
     /* size globals */
     --ylv-status-bar-height: 32px;
     --ylv-menu-bar-height: 32px;
-    --ylv-panel-resize-handle-width: 3px;
+    --ylv-panel-resize-handle-width: 4px;
 
     /* z-index globals
      *
