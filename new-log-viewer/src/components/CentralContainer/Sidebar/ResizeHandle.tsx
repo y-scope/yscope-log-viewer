@@ -76,7 +76,9 @@ const ResizeHandle = ({
 
     return (
         <div
-            className={"resize-handle"}
+            className={`resize-handle ${isMouseDown ?
+                "resize-handle-holding" :
+                ""}`}
             onMouseDown={handleMouseDown}/>
     );
 };

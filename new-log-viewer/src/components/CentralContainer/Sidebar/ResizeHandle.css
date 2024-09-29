@@ -13,6 +13,7 @@
     border-right: 1px solid var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
 }
 
+.resize-handle-holding,
 .resize-handle:hover {
     box-sizing: initial;
 
