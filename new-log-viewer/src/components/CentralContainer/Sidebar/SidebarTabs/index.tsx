@@ -15,7 +15,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {TAB_NAME} from "../../../../typings/tab";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
-import TooltipTab from "./TooltipTab";
+import TabButton from "./TabButton";
 
 import "./index.css";
 
@@ -77,7 +77,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                     size={"lg"}
                 >
                     {TABS_INFO_LIST.map(({tabName, Icon}) => (
-                        <TooltipTab
+                        <TabButton
                             Icon={Icon}
                             key={tabName}
                             tabName={tabName}
@@ -87,7 +87,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                     {/* Forces the settings tab to bottom of sidebar. */}
                     <div className={"sidebar-tab-list-spacing"}/>
 
-                    <TooltipTab
+                    <TabButton
                         Icon={SettingsOutlinedIcon}
                         tabName={TAB_NAME.SETTINGS}
                         onTabButtonClick={handleTabButtonClick}/>

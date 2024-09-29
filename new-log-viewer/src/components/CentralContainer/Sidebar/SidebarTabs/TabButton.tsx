@@ -10,10 +10,10 @@ import {
     TAB_NAME,
 } from "../../../../typings/tab";
 
-import "./TooltipTab.css";
+import "./TabButton.css";
 
 
-interface TooltipTabProps {
+interface TabButtonProps {
     tabName: TAB_NAME,
     Icon: SvgIconComponent,
     onTabButtonClick: (tabName: TAB_NAME) => void
@@ -28,7 +28,7 @@ interface TooltipTabProps {
  * @param props.onTabButtonClick
  * @return
  */
-const TooltipTab = ({tabName, Icon, onTabButtonClick}: TooltipTabProps) => {
+const TabButton = ({tabName, Icon, onTabButtonClick}: TabButtonProps) => {
     const handleClick = () => {
         onTabButtonClick(tabName);
     };
@@ -54,4 +54,4 @@ const TooltipTab = ({tabName, Icon, onTabButtonClick}: TooltipTabProps) => {
     );
 };
 
-export default TooltipTab;
+export default TabButton;
