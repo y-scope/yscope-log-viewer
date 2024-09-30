@@ -34,32 +34,36 @@ import "./index.css";
 
 
 /**
- * Renders a `<Tooltip/>` with its placement set to the left of the target element.
+ * Renders a `<Tooltip/>` with its placement set to the left of the children element.
  *
  * @param props
+ * @param props.children
+ * @param props.rest
  * @return
  */
-const PlacementLeftTooltip = (props: TooltipProps) => (
+const PlacementLeftTooltip = ({children, ...rest}: TooltipProps) => (
     <Tooltip
-        {...props}
+        {...rest}
         placement={"left"}
     >
-        {props.children}
+        {children}
     </Tooltip>
 );
 
 /**
- * Renders a `<Tooltip/>` with its placement set to the right of the target element.
+ * Renders a `<Tooltip/>` with its placement set to the right of the children element.
  *
  * @param props
+ * @param props.children
+ * @param props.rest
  * @return
  */
-const PlacementRightTooltip = (props: TooltipProps) => (
+const PlacementRightTooltip = ({children, ...rest}: TooltipProps) => (
     <Tooltip
-        {...props}
+        {...rest}
         placement={"right"}
     >
-        {props.children}
+        {children}
     </Tooltip>
 );
 
