@@ -29,7 +29,7 @@ const NavigationBar = () => {
             actionName === ACTION_NAME.NEXT_PAGE ||
             actionName === ACTION_NAME.LAST_PAGE
         ) {
-            loadPageByAction({code: actionName});
+            loadPageByAction({code: actionName, args: null});
         }
     };
 

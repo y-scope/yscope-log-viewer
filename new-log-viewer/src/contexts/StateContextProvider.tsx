@@ -98,6 +98,60 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 };
 
 /**
+ * Returns a cursor based on a navigation action.
+ *
+ * @param navAction Action to navigate to a new page.
+ * @param currentPageNum
+ * @param numPages
+ * @return `PAGE_NUM` cursor.
+ */
+const getPageNumCursor = (
+    navAction: NavigationAction,
+    currentPageNum: number,
+    numPages: number
+): Nullable<CursorType> => {
+    if (STATE_DEFAULT.pageNum === currentPageNum) {
+        console.error("Page actions cannot be executed if the current page is not set.");
+
+        return null;
+    }
+
+    let newPageNum: number;
+    let position: EVENT_POSITION_ON_PAGE;
+    switch (navAction.code) {
+        case ACTION_NAME.SPECIFIC_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+
+            // Clamp is to prevent someone from requesting non-existent page.
+            newPageNum = clamp(navAction.args.pageNum, 1, numPages);
+            break;
+        case ACTION_NAME.FIRST_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+            newPageNum = 1;
+            break;
+        case ACTION_NAME.PREV_PAGE:
+            position = EVENT_POSITION_ON_PAGE.BOTTOM;
+            newPageNum = clamp(currentPageNum - 1, 1, numPages);
+            break;
+        case ACTION_NAME.NEXT_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+            newPageNum = clamp(currentPageNum + 1, 1, numPages);
+            break;
+        case ACTION_NAME.LAST_PAGE:
+            position = EVENT_POSITION_ON_PAGE.BOTTOM;
+            newPageNum = numPages;
+            break;
+        default:
+            return null;
+    }
+
+    return {
+        code: CURSOR_CODE.PAGE_NUM,
+        args: {pageNum: newPageNum, eventPositionOnPage: position},
+    };
+};
+
+/**
  * Provides state management for the application. This provider must be wrapped by
  * UrlContextProvider to function correctly.
  *
@@ -225,50 +279,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         });
     }, []);
 
-    const getPageNumCursor = useCallback((navAction: NavigationAction): Nullable<CursorType> => {
-        if (STATE_DEFAULT.pageNum === pageNumRef.current) {
-            console.error("Page actions cannot be executed if the current page is not set.");
-
-            return null;
-        }
-
-        let newPageNum: number;
-        let position: EVENT_POSITION_ON_PAGE;
-        switch (navAction.code) {
-            case ACTION_NAME.SPECIFIC_PAGE:
-                position = EVENT_POSITION_ON_PAGE.TOP;
-
-                // Clamp is to prevent someone from requesting non-existent page.
-                newPageNum = clamp(navAction.args.pageNum, 1, numPagesRef.current);
-                break;
-            case ACTION_NAME.FIRST_PAGE:
-                position = EVENT_POSITION_ON_PAGE.TOP;
-                newPageNum = 1;
-                break;
-            case ACTION_NAME.PREV_PAGE:
-                position = EVENT_POSITION_ON_PAGE.BOTTOM;
-                newPageNum = clamp(pageNumRef.current - 1, 1, numPagesRef.current);
-                break;
-            case ACTION_NAME.NEXT_PAGE:
-                position = EVENT_POSITION_ON_PAGE.TOP;
-                newPageNum = clamp(pageNumRef.current + 1, 1, numPagesRef.current);
-                break;
-            case ACTION_NAME.LAST_PAGE:
-                position = EVENT_POSITION_ON_PAGE.BOTTOM;
-                newPageNum = numPagesRef.current;
-                break;
-            default:
-                return null;
-        }
-
-        return {
-            code: CURSOR_CODE.PAGE_NUM,
-            args: {pageNum: newPageNum, eventPositionOnPage: position},
-        };
-    }, []);
-
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
-        const cursor = getPageNumCursor(navAction);
+        const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
@@ -277,7 +289,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         loadPageByCursor(cursor);
     }, [
-        getPageNumCursor,
         loadPageByCursor,
     ]);
 

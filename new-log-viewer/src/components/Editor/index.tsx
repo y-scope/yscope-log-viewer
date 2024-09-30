@@ -82,7 +82,7 @@ const Editor = () => {
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:
             case ACTION_NAME.LAST_PAGE:
-                loadPageByAction({code: actionName});
+                loadPageByAction({code: actionName, args: null});
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
