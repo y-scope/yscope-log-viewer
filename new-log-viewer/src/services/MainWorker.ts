@@ -36,6 +36,16 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+
+// FIXME: pass this to the constructor / factory function of LogFileManager or the LogFileManager.search(onQueryResult) method?
+/**
+ *
+ * @param queryResult
+ */
+const handleQueryResult = (queryResult: string[]) => {
+    postResp(WORKER_RESP_CODE.QUERY_RESULT, queryResult);
+};
+
 // eslint-disable-next-line no-warning-comments
 // TODO: Break this function up into smaller functions.
 // eslint-disable-next-line max-lines-per-function,max-statements
@@ -96,13 +106,10 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                postResp(
-                    WORKER_RESP_CODE.QUERY_RESULT,
-                    LOG_FILE_MANAGER.queryLog(
-                        args.searchString,
-                        args.isRegex,
-                        args.matchCase
-                    )
+                LOG_FILE_MANAGER.startQuery(
+                    args.searchString,
+                    args.isRegex,
+                    args.isCaseSensitive
                 );
                 break;
             default:

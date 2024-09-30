@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+// TODO: either increase max-lines or refactor the code
 import {
     Decoder,
     DecoderOptionsType,
@@ -6,6 +8,7 @@ import {
 import {MAX_V8_STRING_LENGTH} from "../typings/js";
 import {
     BeginLineNumToLogEventNumMap,
+    ChunkResults,
     CURSOR_CODE,
     CursorType,
     FileSrcType,
@@ -13,6 +16,7 @@ import {
 import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
+import {defer} from "../utils/time";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
 import ClpIrDecoder from "./decoders/ClpIrDecoder";
@@ -51,13 +55,15 @@ const loadFile = async (fileSrc: FileSrcType)
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
-    readonly #pageSize: number;
-
     readonly #fileName: string;
 
-    #decoder: Decoder;
+    readonly #numEvents: number = 0;
 
-    #numEvents: number = 0;
+    readonly #pageSize: number;
+
+    #queryId: number = 0;
+
+    #decoder: Decoder;
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -155,6 +161,10 @@ class LogFileManager {
         this.#decoder.setDecoderOptions(options);
     }
 
+    incrementQueryId () {
+        this.#queryId++;
+    }
+
     /**
      * Loads log events in the range
      * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
@@ -240,14 +250,14 @@ class LogFileManager {
      * @param matchCase Whether the search is case-sensitive.
      * @return An object containing the search results.
      */
-    queryLog = (searchString: string, isRegex: boolean, matchCase: boolean): {
-        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
-    } => {
+    startQuery (searchString: string, isRegex: boolean, matchCase: boolean): void {
+        this.incrementQueryId();
+
         // If the search string is empty, or there are no logs, return
         if ("" === searchString) {
-            return {};
+            return;
         } else if (0 === this.#numEvents) {
-            return {};
+            return;
         }
 
         // Construct search RegExp
@@ -258,49 +268,52 @@ class LogFileManager {
             "" :
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
-
-        const results: {
-            [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
-        } = {};
-
-        let beginSearchIdx = 0;
-
-        while (beginSearchIdx < this.#numEvents) {
-            const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
-            this.searchChunk(beginSearchIdx, endSearchIdx, searchRegex, results);
-            beginSearchIdx = endSearchIdx;
-        }
-
-        return results;
-    };
+        this.#searchChunk(this.#queryId, 0, searchRegex);
+    }
 
     /**
      * Searches for log events in the given range.
      *
+     * @param queryId
      * @param beginSearchIdx The beginning index of the search range.
-     * @param endSearchIdx The end index of the search range.
      * @param searchRegex The regular expression to search
      * @return
      */
-    searchChunk = (beginSearchIdx: number, endSearchIdx: number, searchRegex: RegExp, results: {
-        [lineNum: number]: { logEventNum: number; message: string; matchRange: [number, number]; }
-    }) => {
+    #searchChunk (queryId: number, beginSearchIdx: number, searchRegex: RegExp): ChunkResults | null {
+        if (queryId !== this.#queryId) {
+            return null;
+        }
+
+        const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
+        const results: ChunkResults = {};
+
         for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
             const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
 
             const match = contentString.match(searchRegex);
-            if (match) {
+            if (match && match.index) {
                 const logEventNum = eventIdx + 1;
-                const lineNum = eventIdx + 1;
-                results[lineNum].push({
-                    logEventNum,
+                const pageNum = Math.ceil(logEventNum / this.#pageSize);
+                if (!results[pageNum]) {
+                    results[pageNum] = [];
+                }
+                results[pageNum].push({
+                    logEventNum: logEventNum,
                     message: contentString,
                     matchRange: [match.index,
                         (match.index + match[0].length)],
                 });
             }
         }
-    };
+
+        if (endSearchIdx < this.#numEvents) {
+            defer(() => {
+                this.#searchChunk(queryId, endSearchIdx, searchRegex);
+            });
+        }
+
+        return results;
+    }
 
     /**
      * Gets the range of log event numbers for the page containing the given cursor.

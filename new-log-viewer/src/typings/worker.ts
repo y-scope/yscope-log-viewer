@@ -67,11 +67,18 @@ type WorkerReqMap = {
         decoderOptions?: DecoderOptionsType
     },
     [WORKER_REQ_CODE.QUERY_LOG]: {
+        isCaseSensitive: boolean,
         searchString: string,
         isRegex: boolean,
-        matchCase: boolean,
     }
 };
+
+type ChunkResultType = {
+    logEventNum: number;
+    message: string;
+    matchRange: [number, number];
+};
+type ChunkResults = Record<number, ChunkResultType[]>;
 
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
@@ -91,11 +98,7 @@ type WorkerRespMap = {
         cursorLineNum: number
     },
     [WORKER_RESP_CODE.QUERY_RESULT]: {
-        [lineNum: number]: {
-            logEventNum: number;
-            message: string;
-            matchRange: [number, number];
-        };
+        chunkResults: ChunkResults,
     }
 };
 
@@ -122,6 +125,7 @@ export {
 };
 export type {
     BeginLineNumToLogEventNumMap,
+    ChunkResults,
     CursorType,
     FileSrcType,
     MainWorkerReqMessage,
