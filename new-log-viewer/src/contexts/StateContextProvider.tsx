@@ -98,7 +98,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 };
 
 /**
- * Returns a cursor based on a navigation action.
+ * Returns a `PAGE_NUM` cursor based on a navigation action.
  *
  * @param navAction Action to navigate to a new page.
  * @param currentPageNum
