@@ -107,10 +107,10 @@ const LogSelectOption = ({
                             alignItems={"center"}
                             direction={"row"}
                         >
-                            {logLevelName}
                             {isChecked ?
                                 <RemoveIcon/> :
                                 <AddIcon/>}
+                            {logLevelName}
                         </Stack>
                     }
                 >
