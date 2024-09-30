@@ -6,9 +6,11 @@ import {
     JsonlDecoderOptionsType,
     LogEventCount,
 } from "../../../typings/decoders";
+import {Dayjs} from "dayjs";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
 import {
+    JsonLogEvent,
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
     LogLevelFilter,
@@ -18,7 +20,6 @@ import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
-    JsonLogEvent,
 } from "./utils";
 
 
@@ -63,7 +64,7 @@ class JsonlDecoder implements Decoder {
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        this.#filterLogs(logLevelFilter);
+        this.#filterLogEvents(logLevelFilter);
 
         return true;
     }
@@ -90,16 +91,12 @@ class JsonlDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean,
     ): Nullable<DecodeResultType[]> {
-        if (useFilter && null === this.#filteredLogEventMap) {
+        if (null === this.#filteredLogEventMap && useFilter) {
             return null;
         }
 
-        // Prevents typescript potential null warning.
-        const filteredLogEventMap: number[] = this.#filteredLogEventMap as number[];
-
-
-        const length: number = useFilter ?
-            filteredLogEventMap.length :
+        const length: number = (useFilter && null !== this.#filteredLogEventMap) ?
+            this.#filteredLogEventMap.length :
             this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
@@ -111,50 +108,15 @@ class JsonlDecoder implements Decoder {
             // Explicit cast since typescript thinks `#filteredLogEventMap[i]`
             // can be undefined, but it shouldn't be since we performed a bounds check at the
             // beginning of the method.
-            const logEventIdx: number = useFilter ?
-                (filteredLogEventMap[i] as number) :
+            const logEventIdx: number = (useFilter && null !== this.#filteredLogEventMap) ?
+                (this.#filteredLogEventMap[i] as number) :
                 i;
 
-            results.push(this.#getDecodeResult(logEventIdx));
+            results.push(this.#decodeLogEvent(logEventIdx));
         }
 
         return results;
     }
-
-    /**
-     * Decodes a log event into a `DecodeResultType`.
-     *
-     * @param logEventIdx
-     * @return The decoded log event.
-     */
-    #getDecodeResult = (logEventIdx: number): DecodeResultType => {
-        let timestamp: number;
-        let message: string;
-        let logLevel: LOG_LEVEL;
-
-        // eslint-disable-next-line no-warning-comments
-        // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
-        // every iteration.
-        if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
-            timestamp = INVALID_TIMESTAMP_VALUE;
-            message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
-            logLevel = LOG_LEVEL.NONE;
-        } else {
-            // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
-            // but it shouldn't be since the index comes from a class-internal filter.
-            const logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
-            logLevel = logEvent.level;
-            message = this.#formatter.formatLogEvent(logEvent);
-            timestamp = logEvent.timestamp.valueOf();
-        }
-
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
-    };
 
     /**
      * Parses each line from the data array and buffers it internally.
@@ -191,16 +153,16 @@ class JsonlDecoder implements Decoder {
      * @param line
      */
     #parseJson (line: string) {
+        let fields: JsonValue;
+        let level: LOG_LEVEL;
+        let timestamp: Dayjs;
         try {
-            const fields = JSON.parse(line) as JsonValue;
+            fields = JSON.parse(line) as JsonValue;
             if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
-            this.#logEvents.push({
-                fields: fields,
-                level: convertToLogLevelValue(fields[this.#logLevelKey]),
-                timestamp: convertToDayjsTimestamp(fields[this.#timestampKey]),
-            });
+            level = convertToLogLevelValue(fields[this.#logLevelKey]);
+            timestamp = convertToDayjsTimestamp(fields[this.#timestampKey]);
         } catch (e) {
             if (0 === line.length) {
                 return;
@@ -208,12 +170,15 @@ class JsonlDecoder implements Decoder {
             console.error(e, line);
             const currentLogEventIdx = this.#logEvents.length;
             this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
-            this.#logEvents.push({
-                fields: {},
-                level: LOG_LEVEL.NONE,
-                timestamp: convertToDayjsTimestamp(INVALID_TIMESTAMP_VALUE),
-            });
+            fields = {};
+            level = LOG_LEVEL.NONE;
+            timestamp = convertToDayjsTimestamp(INVALID_TIMESTAMP_VALUE);
         }
+        this.#logEvents.push({
+            fields,
+            level,
+            timestamp,
+        });
     }
 
     /**
@@ -222,7 +187,7 @@ class JsonlDecoder implements Decoder {
      *
      * @param logLevelFilter
      */
-    #filterLogs (logLevelFilter: LogLevelFilter) {
+    #filterLogEvents (logLevelFilter: LogLevelFilter) {
         if (null === logLevelFilter) {
             this.#filteredLogEventMap = null;
             return;
@@ -235,6 +200,42 @@ class JsonlDecoder implements Decoder {
             }
         });
     }
+
+    /**
+     * Decodes a log event into a `DecodeResultType`.
+     *
+     * @param logEventIdx
+     * @return The decoded log event.
+     */
+    #decodeLogEvent = (logEventIdx: number): DecodeResultType => {
+        let timestamp: number;
+        let message: string;
+        let logLevel: LOG_LEVEL;
+
+        // eslint-disable-next-line no-warning-comments
+        // TODO We could probably optimize this to avoid checking `#invalidLogEventIdxToRawLine` on
+        // every iteration.
+        if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
+            timestamp = INVALID_TIMESTAMP_VALUE;
+            message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
+            logLevel = LOG_LEVEL.NONE;
+        } else {
+            // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
+            // but it shouldn't be since the index comes from a class-internal filter.
+            const logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
+            logLevel = logEvent.level;
+            message = this.#formatter.formatLogEvent(logEvent);
+            timestamp = logEvent.timestamp.valueOf();
+        }
+
+        return [
+            message,
+            timestamp,
+            logLevel,
+            logEventIdx + 1,
+        ];
+    };
 }
+
 
 export default JsonlDecoder;

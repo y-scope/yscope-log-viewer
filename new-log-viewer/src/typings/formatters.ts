@@ -1,5 +1,4 @@
-import {JsonLogEvent} from "../services/decoders/JsonlDecoder/utils";
-
+import {JsonLogEvent} from "./logs";
 
 /**
  * Options for the LogbackFormatter.

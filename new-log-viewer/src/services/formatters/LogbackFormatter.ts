@@ -6,7 +6,7 @@ import {
     FormatterOptionsType,
 } from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
-import {JsonLogEvent} from "../decoders/JsonlDecoder/utils";
+import {JsonLogEvent} from "../../typings/logs";
 
 
 /**
