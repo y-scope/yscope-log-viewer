@@ -125,6 +125,7 @@ const LogLevelSelect = () => {
                 const checked = selectedLogLevels.includes(logLevelValue);
                 return (
                     <Option
+                        data-value={logLevelValue}
                         key={logLevelName}
                         value={logLevelValue}
                     >
