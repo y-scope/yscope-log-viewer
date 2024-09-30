@@ -8,7 +8,8 @@
 }
 
 .log-level-select-listbox {
-    max-width: 100px;
+    /* Disallow width auto-resizing with the Select button. */
+    max-width: 0;
 }
 
 .log-level-select-dummy-option {
