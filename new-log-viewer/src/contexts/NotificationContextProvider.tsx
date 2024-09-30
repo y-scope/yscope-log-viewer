@@ -17,7 +17,22 @@ import {Nullable} from "../typings/common";
 import {LOG_LEVEL} from "../typings/logs";
 
 
+const AUTO_DISMISS_TIMEOUT_MILLIS = 5000;
+
+/**
+ * Callback for posting a pop-up message with a title and level.
+ *
+ * When the level is less than or equal to `LOG_LEVEL.INFO`, the message is automatically dismissed
+ * after `AUTO_DISMISS_TIMEOUT_MILLIS`.
+ */
 type PostPopupCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
+
+/**
+ * Callback for posting a status message with level.
+ *
+ * When the level is less than or equal to `LOG_LEVEL.INFO`, the message is automatically dismissed
+ * after `AUTO_DISMISS_TIMEOUT_MILLIS`.
+ */
 type PostStatusCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
 
 interface NotificationContextType {
@@ -80,7 +95,7 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         if (LOG_LEVEL.INFO >= level) {
             popupNotificationTimeoutRef.current = setTimeout(() => {
                 setPopupNotification(null);
-            }, 5000);
+            }, AUTO_DISMISS_TIMEOUT_MILLIS);
         }
     }, []);
 
@@ -93,7 +108,7 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         if (LOG_LEVEL.INFO >= level) {
             statusMsgTimeoutRef.current = setTimeout(() => {
                 setStatusMessage(NOTIFICATION_DEFAULT.statusMessage);
-            }, 5000);
+            }, AUTO_DISMISS_TIMEOUT_MILLIS);
         }
     }, []);
 
