@@ -143,9 +143,7 @@ class LogFileManager {
         return decoder;
     }
 
-    /**
-     * Sets formatting options for the decoder.
-     *
+    /* Sets any formatter options that exist in the decoder's options.
      * @param options
      */
     setFormatterOptions (options: DecoderOptionsType) {
