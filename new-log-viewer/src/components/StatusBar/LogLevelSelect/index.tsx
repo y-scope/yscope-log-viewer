@@ -6,8 +6,11 @@ import React, {
 import {SelectValue} from "@mui/base/useSelect";
 import {
     Box,
+    Checkbox,
     Chip,
     IconButton,
+    ListItemContent,
+    ListItemDecorator,
     MenuItem,
     Option,
     Select,
@@ -50,6 +53,23 @@ const LogLevelSelect = () => {
             ))}
         </Box>
     );
+
+    const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
+        ev.preventDefault();
+
+        const target = ev.target as HTMLInputElement;
+        const value = Number(target.value) as LOG_LEVEL;
+        let newSelectedLogLevels: LOG_LEVEL[];
+        if (selectedLogLevels.includes(value)) {
+            newSelectedLogLevels = selectedLogLevels.filter((logLevel) => logLevel !== value);
+        } else {
+            newSelectedLogLevels = [
+                ...selectedLogLevels,
+                value,
+            ];
+        }
+        setSelectedLogLevels(newSelectedLogLevels.sort((a, b) => a - b));
+    }, [selectedLogLevels]);
 
     const handleSelectChange = useCallback((
         ev: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null
@@ -99,29 +119,46 @@ const LogLevelSelect = () => {
             <MenuItem className={"log-level-select-dummy-option"}/>
             {LOG_LEVEL_NAMES.toReversed().map((logLevelName, index) => {
                 const logLevelValue = LOG_LEVEL_NAMES.length - 1 - index;
+                const checked = selectedLogLevels.includes(logLevelValue);
                 return (
-                    <Tooltip
+                    <Option
                         key={logLevelName}
-                        placement={"left"}
-                        title={`${logLevelName} and above`}
+                        value={logLevelValue}
                     >
-                        <Option
-                            data-value={logLevelValue}
-                            value={logLevelValue}
+                        <ListItemDecorator>
+                            <Tooltip
+                                placement={"left"}
+                                title={`${checked ?
+                                    "-" :
+                                    "+"} ${logLevelName}`}
+                            >
+                                <Checkbox
+                                    checked={checked}
+                                    size={"sm"}
+                                    value={logLevelValue}
+                                    onClick={handleCheckboxClick}/>
+                            </Tooltip>
+                        </ListItemDecorator>
+                        <Tooltip
+                            placement={"right"}
+                            title={`^ ${logLevelName}`}
                         >
-                            {logLevelName}
-                        </Option>
-                    </Tooltip>
+                            <ListItemContent data-value={logLevelValue}>
+                                {logLevelName}
+                            </ListItemContent>
+                        </Tooltip>
+                    </Option>
                 );
             })}
             <Tooltip
-                placement={"left"}
+                placement={"right"}
                 title={"Clear filters"}
             >
                 <Option
                     value={-1}
                     onClick={handleSelectClearButtonClick}
                 >
+                    <ListItemDecorator/>
                     ALL
                 </Option>
             </Tooltip>
