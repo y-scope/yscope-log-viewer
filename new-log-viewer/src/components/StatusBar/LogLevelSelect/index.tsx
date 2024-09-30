@@ -15,12 +15,15 @@ import {
     Option,
     Select,
     SelectOption,
+    Stack,
     Tooltip,
     TooltipProps,
 } from "@mui/joy";
 
+import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 import {
     LOG_LEVEL,
@@ -65,6 +68,111 @@ const PlacementRightTooltip = ({children, ...rest}: TooltipProps) => (
     >
         {children}
     </Tooltip>
+);
+
+interface LogSelectOptionProps {
+    isChecked: boolean,
+    logLevelName: string,
+    logLevelValue: LOG_LEVEL,
+    onCheckboxClick: React.MouseEventHandler
+}
+
+/**
+ * Renders an <Option/> in the <LogLevelSelect/> for selecting some log level and the level above
+ * it.
+ *
+ * @param props
+ * @param props.isChecked
+ * @param props.logLevelName
+ * @param props.logLevelValue
+ * @param props.onCheckboxClick
+ * @return
+ */
+const LogSelectOption = ({
+    isChecked,
+    logLevelName,
+    logLevelValue,
+    onCheckboxClick,
+}:LogSelectOptionProps) => {
+    return (
+        <Option
+            data-value={logLevelValue}
+            key={logLevelName}
+            value={logLevelValue}
+        >
+            <ListItemDecorator>
+                <PlacementLeftTooltip
+                    title={
+                        <Stack
+                            alignItems={"center"}
+                            direction={"row"}
+                        >
+                            {logLevelName}
+                            {isChecked ?
+                                <RemoveIcon/> :
+                                <AddIcon/>}
+                        </Stack>
+                    }
+                >
+                    <Checkbox
+                        checked={isChecked}
+                        size={"sm"}
+                        value={logLevelValue}
+                        onClick={onCheckboxClick}/>
+                </PlacementLeftTooltip>
+            </ListItemDecorator>
+            <PlacementRightTooltip
+                title={
+                    <Stack
+                        alignItems={"center"}
+                        direction={"row"}
+                    >
+                        <KeyboardArrowUpIcon/>
+                        {logLevelName}
+                    </Stack>
+                }
+            >
+                <ListItemContent data-value={logLevelValue}>
+                    {logLevelName}
+                </ListItemContent>
+            </PlacementRightTooltip>
+        </Option>
+    );
+};
+
+interface ClearFiltersOptionProps {
+    onClick: () => void
+}
+
+/**
+ * Renders an <Option/> to clear all filters in the <LogLevelSelect/>.
+ *
+ * @param props
+ * @param props.onClick
+ * @return
+ */
+const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
+    <PlacementRightTooltip
+        title={
+            <Stack
+                alignItems={"center"}
+                direction={"row"}
+            >
+                <CloseIcon/>
+                {"Clear filters"}
+            </Stack>
+        }
+    >
+        <Option
+            value={-1}
+            onClick={onClick}
+        >
+            <ListItemDecorator>
+                <CloseIcon/>
+            </ListItemDecorator>
+            ALL
+        </Option>
+    </PlacementRightTooltip>
 );
 
 /**
@@ -147,53 +255,29 @@ const LogLevelSelect = () => {
                         <CloseIcon/>
                     </IconButton>
                 </Tooltip>}
-            slotProps={{listbox: {
-                className: "log-level-select-listbox",
-                placement: "top-end",
-            }}}
+            slotProps={{
+                listbox: {
+                    className: "log-level-select-listbox",
+                    placement: "top-end",
+                },
+            }}
             onChange={handleSelectChange}
         >
             {/* Add a dummy MenuItem to avoid the first Option receiving focus. */}
             <MenuItem className={"log-level-select-dummy-option"}/>
-            {LOG_LEVEL_NAMES.toReversed().map((logLevelName, index) => {
-                const logLevelValue = LOG_LEVEL_NAMES.length - 1 - index;
+            {LOG_LEVEL_NAMES.toReversed().map((logLevelName) => {
+                const logLevelValue = LOG_LEVEL[logLevelName];
                 const checked = selectedLogLevels.includes(logLevelValue);
                 return (
-                    <Option
-                        data-value={logLevelValue}
+                    <LogSelectOption
+                        isChecked={checked}
                         key={logLevelName}
-                        value={logLevelValue}
-                    >
-                        <ListItemDecorator>
-                            <PlacementLeftTooltip
-                                title={`${checked ?
-                                    "-" :
-                                    "+"} ${logLevelName}`}
-                            >
-                                <Checkbox
-                                    checked={checked}
-                                    size={"sm"}
-                                    value={logLevelValue}
-                                    onClick={handleCheckboxClick}/>
-                            </PlacementLeftTooltip>
-                        </ListItemDecorator>
-                        <PlacementRightTooltip title={`^ ${logLevelName}`}>
-                            <ListItemContent data-value={logLevelValue}>
-                                {logLevelName}
-                            </ListItemContent>
-                        </PlacementRightTooltip>
-                    </Option>
+                        logLevelName={logLevelName}
+                        logLevelValue={logLevelValue}
+                        onCheckboxClick={handleCheckboxClick}/>
                 );
             })}
-            <PlacementRightTooltip title={"Clear filters"}>
-                <Option
-                    value={-1}
-                    onClick={handleSelectClearButtonClick}
-                >
-                    <ListItemDecorator/>
-                    ALL
-                </Option>
-            </PlacementRightTooltip>
+            <ClearFiltersOption onClick={handleSelectClearButtonClick}/>
         </Select>
     );
 };

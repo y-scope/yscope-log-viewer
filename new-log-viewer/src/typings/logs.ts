@@ -13,7 +13,7 @@ enum LOG_LEVEL {
  */
 const LOG_LEVEL_NAMES = Object.freeze(
     Object.values(LOG_LEVEL).filter((value) => "string" === typeof value)
-);
+) as ReadonlyArray<keyof typeof LOG_LEVEL>;
 
 /**
  * Values in enum `LOG_LEVEL`.
