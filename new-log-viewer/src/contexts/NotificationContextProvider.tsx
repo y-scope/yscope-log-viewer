@@ -17,11 +17,14 @@ import {Nullable} from "../typings/common";
 import {LOG_LEVEL} from "../typings/logs";
 
 
+type PostPopupCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
+type PostStatusCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
+
 interface NotificationContextType {
     statusMessage: string,
 
-    postPopup: (level: LOG_LEVEL, message: string, title?: string) => void,
-    postStatus: (level: LOG_LEVEL, message: string) => void,
+    postPopup: PostPopupCallback,
+    postStatus: PostStatusCallback,
 }
 
 const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
@@ -130,5 +133,9 @@ const NotificationContextProvider = ({children}: NotificationContextProvider) =>
     );
 };
 
+export type {
+    PostPopupCallback,
+    PostStatusCallback,
+};
 export {NotificationContext};
 export default NotificationContextProvider;
