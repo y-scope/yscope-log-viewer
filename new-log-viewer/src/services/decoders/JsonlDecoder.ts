@@ -93,7 +93,7 @@ class JsonlDecoder implements Decoder {
             if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
                 timestamp = INVALID_TIMESTAMP_VALUE;
                 message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
-                logLevel = LOG_LEVEL.NONE;
+                logLevel = LOG_LEVEL.UNKNOWN;
             } else {
                 // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
                 // but it shouldn't be since we performed a bounds check at the beginning of the
@@ -160,7 +160,7 @@ class JsonlDecoder implements Decoder {
      * @return The parsed log level.
      */
     #parseLogLevel (logEvent: JsonObject): number {
-        let logLevel = LOG_LEVEL.NONE;
+        let logLevel = LOG_LEVEL.UNKNOWN;
 
         const parsedLogLevel = logEvent[this.#logLevelKey];
         if ("undefined" === typeof parsedLogLevel) {

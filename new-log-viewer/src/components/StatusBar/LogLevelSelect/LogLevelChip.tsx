@@ -15,7 +15,7 @@ import "./LogLevelChip.css";
  * Maps log levels with colors from JoyUI's default color palette.
  */
 const LOG_LEVEL_COLOR_MAP: Record<LOG_LEVEL, DefaultColorPalette> = Object.freeze({
-    [LOG_LEVEL.NONE]: "neutral",
+    [LOG_LEVEL.UNKNOWN]: "neutral",
     [LOG_LEVEL.TRACE]: "neutral",
     [LOG_LEVEL.DEBUG]: "neutral",
     [LOG_LEVEL.INFO]: "primary",
