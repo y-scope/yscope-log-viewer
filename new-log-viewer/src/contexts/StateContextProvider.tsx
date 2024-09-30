@@ -16,7 +16,7 @@ import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
-    EVENT_POSITION,
+    EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
@@ -226,36 +226,35 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const getPageNumCursor = useCallback((navAction: NavigationAction): Nullable<CursorType> => {
-        let newPageNum: number;
-        let position: EVENT_POSITION;
-
         if (STATE_DEFAULT.pageNum === pageNumRef.current) {
             console.error("Page actions cannot be executed if the current page is not set.");
 
             return null;
         }
 
+        let newPageNum: number;
+        let position: EVENT_POSITION_ON_PAGE;
         switch (navAction.code) {
             case ACTION_NAME.SPECIFIC_PAGE:
-                position = EVENT_POSITION.TOP;
+                position = EVENT_POSITION_ON_PAGE.TOP;
 
                 // Clamp is to prevent someone from requesting non-existent page.
-                newPageNum = clamp(navAction.args.specificPageNum, 1, numPagesRef.current);
+                newPageNum = clamp(navAction.args.pageNum, 1, numPagesRef.current);
                 break;
             case ACTION_NAME.FIRST_PAGE:
-                position = EVENT_POSITION.TOP;
+                position = EVENT_POSITION_ON_PAGE.TOP;
                 newPageNum = 1;
                 break;
             case ACTION_NAME.PREV_PAGE:
-                position = EVENT_POSITION.BOTTOM;
+                position = EVENT_POSITION_ON_PAGE.BOTTOM;
                 newPageNum = clamp(pageNumRef.current - 1, 1, numPagesRef.current);
                 break;
             case ACTION_NAME.NEXT_PAGE:
-                position = EVENT_POSITION.TOP;
+                position = EVENT_POSITION_ON_PAGE.TOP;
                 newPageNum = clamp(pageNumRef.current + 1, 1, numPagesRef.current);
                 break;
             case ACTION_NAME.LAST_PAGE:
-                position = EVENT_POSITION.BOTTOM;
+                position = EVENT_POSITION_ON_PAGE.BOTTOM;
                 newPageNum = numPagesRef.current;
                 break;
             default:
@@ -264,7 +263,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         return {
             code: CURSOR_CODE.PAGE_NUM,
-            args: {pageNum: newPageNum, eventPosition: position},
+            args: {pageNum: newPageNum, eventPositionOnPage: position},
         };
     }, []);
 
@@ -291,6 +290,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
     }, [numEvents]);
 
+    // Synchronize `logEventNumRef` with `logEventNum`.
+    useEffect(() => {
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
@@ -300,21 +304,31 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNumRef.current.values());
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
+
         // eslint-disable-next-line no-warning-comments
-        // TODO: When filter is added, this will need to find the <= log event num on the page.
-        // If it is not the current log event, it will need to update it. However, a new request
-        // is not necessary.
-        if (logEventNumsOnPage.includes(logEventNum)) {
+        // TODO: After filter is added, will need find the largest <= log event number on the
+        // current page. Once found, we update the log event number in the URL instead of sending
+        // a new request since the page has not changed.
+
+        if (logEventNumsOnPage.includes(clampedLogEventNum)) {
+            if (clampedLogEventNum !== logEventNum) {
+                updateWindowUrlHashParams({
+                    logEventNum: clampedLogEventNum,
+                });
+            }
+
             return;
         }
 
         const cursor: CursorType = {
             code: CURSOR_CODE.EVENT_NUM,
-            args: {logEventNum: logEventNum},
+            args: {eventNum: logEventNum},
         };
 
         loadPageByCursor(cursor);
     }, [
+        numEvents,
         logEventNum,
         loadPageByCursor,
     ]);
@@ -329,7 +343,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
-                args: {logEventNum: logEventNumRef.current},
+                args: {eventNum: logEventNumRef.current},
             };
         }
         loadFile(filePath, cursor);
@@ -359,8 +373,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     );
 };
 
+
 export default StateContextProvider;
-export {
-    STATE_DEFAULT,
-    StateContext,
-};
+export {StateContext};

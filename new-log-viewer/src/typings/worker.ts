@@ -11,7 +11,7 @@ type FileSrcType = string | File;
  * For `CURSOR_CODE.PAGE_NUM`, this enum indicates which log event number (e.g., first/last on page)
  * should be returned with the page.
  */
-enum EVENT_POSITION {
+enum EVENT_POSITION_ON_PAGE {
     TOP,
     BOTTOM,
 }
@@ -32,9 +32,9 @@ enum CURSOR_CODE {
 
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
-    [CURSOR_CODE.EVENT_NUM]: { logEventNum: number };
+    [CURSOR_CODE.EVENT_NUM]: { eventNum: number };
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPosition: EVENT_POSITION };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPositionOnPage: EVENT_POSITION_ON_PAGE };
 };
 
 type CursorType = {
@@ -117,7 +117,7 @@ type MainWorkerRespMessage = {
 
 export {
     CURSOR_CODE,
-    EVENT_POSITION,
+    EVENT_POSITION_ON_PAGE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

@@ -1,5 +1,5 @@
 import {
-    EVENT_POSITION,
+    EVENT_POSITION_ON_PAGE,
     FileSrcType,
 } from "../../typings/worker";
 import {getUint8ArrayFrom} from "../../utils/http";
@@ -14,27 +14,106 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
  * Gets the log event number range [begin, end) of the page that starts at the given log event
  * index.
  *
- * @param numEvents
  * @param beginLogEventIdx
+ * @param numEvents
  * @param pageSize
  * @return An array:
- * - beginLogEventNum
- * - endLogEventNum
+ * - pageBeginLogEventNum
+ * - pageEndLogEventNum
  */
-const getRange = (
-    numEvents: number,
+const getPageBoundaries = (
     beginLogEventIdx: number,
+    numEvents: number,
     pageSize: number
 ): [number, number] => {
-    const beginLogEventNum: number = beginLogEventIdx + 1;
+    const pageBeginLogEventNum: number = beginLogEventIdx + 1;
 
     // Clamp ending index using total number of events.
-    const endLogEventNum: number = Math.min(numEvents + 1, beginLogEventNum + pageSize);
+    const pageEndLogEventNum: number = Math.min(numEvents + 1, pageBeginLogEventNum + pageSize);
 
     return [
-        beginLogEventNum,
-        endLogEventNum,
+        pageBeginLogEventNum,
+        pageEndLogEventNum,
     ];
+};
+
+/**
+ * Gets the data for the `PAGE_NUM` cursor.
+ *
+ * @param pageNum
+ * @param eventPositionOnPage
+ * @param numEvents
+ * @param pageSize
+ * @return Log event numbers for:
+ * - the range [begin, end) of page `pageNum`.
+ * - the log event indicated by `eventPositionOnPage`.
+ */
+const getPageNumCursorData = (
+    pageNum: number,
+    eventPositionOnPage: EVENT_POSITION_ON_PAGE,
+    numEvents: number,
+    pageSize: number
+): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
+    const beginLogEventIdx = (pageNum - 1) * pageSize;
+    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
+        beginLogEventIdx,
+        numEvents,
+        pageSize
+    );
+    const matchingLogEventNum = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
+        pageBeginLogEventNum :
+        pageEndLogEventNum;
+
+    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+};
+
+/**
+ * Gets the data for the `EVENT_NUM` cursor.
+ *
+ * @param logEventNum
+ * @param numEvents
+ * @param pageSize
+ * @return Log event numbers for:
+ * - the range [begin, end) of the page containing `logEventNum`.
+ * - log event `logEventNum`.
+ */
+const getEventNumCursorData = (
+    logEventNum: number,
+    numEvents: number,
+    pageSize: number
+): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
+    const validLogEventNum = clamp(logEventNum, 1, numEvents);
+    const beginLogEventIdx = (getChunkNum(validLogEventNum, pageSize) - 1) * pageSize;
+    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
+        beginLogEventIdx,
+        numEvents,
+        pageSize
+    );
+    const matchingLogEventNum: number = validLogEventNum;
+    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+};
+
+/**
+ * Gets the data for the `LAST` cursor.
+ *
+ * @param numEvents
+ * @param pageSize
+ * @return Log event numbers for:
+ * - the range [begin, end) of the last page.
+ * - the last log event on the last page.
+ */
+const getLastEventCursorData = (
+    numEvents: number,
+    pageSize: number
+): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
+    const beginLogEventIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
+    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
+        beginLogEventIdx,
+        numEvents,
+        pageSize
+    );
+    const matchingLogEventNum: number = pageEndLogEventNum;
+    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
 };
 
 /**
@@ -61,73 +140,6 @@ const loadFile = async (fileSrc: FileSrcType)
         fileName,
         fileData,
     };
-};
-
-/**
- * Gets the data for the `PAGE_NUM` cursor.
- *
- * @param pageNum
- * @param eventPosition
- * @param numEvents
- * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of page `pageNum`.
- * - the log event (on the page) indicated by `eventPosition`.
- */
-const getPageNumCursorData = (
-    pageNum: number,
-    eventPosition: EVENT_POSITION,
-    numEvents: number,
-    pageSize: number
-): { beginLogEventNum: number; endLogEventNum: number; newLogEventNum: number } => {
-    const beginLogEventIdx = (pageNum - 1) * pageSize;
-    const [beginLogEventNum, endLogEventNum] = getRange(numEvents, beginLogEventIdx, pageSize);
-    const newLogEventNum = eventPosition === EVENT_POSITION.TOP ?
-        beginLogEventNum :
-        endLogEventNum;
-
-    return {beginLogEventNum, endLogEventNum, newLogEventNum};
-};
-
-/**
- * Gets the data for the `EVENT_NUM` cursor.
- *
- * @param logEventNum
- * @param numEvents
- * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of the page containing `logEventNum`.
- * - log event `logEventNum`.
- */
-const getEventNumCursorData = (
-    logEventNum: number,
-    numEvents: number,
-    pageSize: number
-): { beginLogEventNum: number; endLogEventNum: number; newLogEventNum: number } => {
-    const validLogEventNum = clamp(logEventNum, 1, numEvents);
-    const beginLogEventIdx = (getChunkNum(validLogEventNum, pageSize) - 1) * pageSize;
-    const [beginLogEventNum, endLogEventNum] = getRange(numEvents, beginLogEventIdx, pageSize);
-    const newLogEventNum: number = validLogEventNum;
-    return {beginLogEventNum, endLogEventNum, newLogEventNum};
-};
-
-/**
- * Gets the data for the `LAST` cursor.
- *
- * @param numEvents
- * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of the last page.
- * - the last log event on the last page.
- */
-const getLastEventCursorData = (
-    numEvents: number,
-    pageSize: number
-): { beginLogEventNum: number; endLogEventNum: number; newLogEventNum: number } => {
-    const beginLogEventIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
-    const [beginLogEventNum, endLogEventNum] = getRange(numEvents, beginLogEventIdx, pageSize);
-    const newLogEventNum: number = endLogEventNum;
-    return {beginLogEventNum, endLogEventNum, newLogEventNum};
 };
 
 export {

@@ -13,7 +13,7 @@ enum ACTION_NAME {
     PAGE_BOTTOM = "pageBottom"
 }
 
-type ActionType = {
+type EditorAction = {
     actionName: Nullable<ACTION_NAME>,
     label: string,
     keyBindings: monaco.KeyCode[],
@@ -24,7 +24,7 @@ type ActionType = {
  * but will be displayed in a help dialog.
  */
 /* eslint-disable sort-keys */
-const EDITOR_ACTIONS : ActionType[] = [
+const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: null,
         label: "Focus on Editor",
@@ -61,10 +61,11 @@ const EDITOR_ACTIONS : ActionType[] = [
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
     },
 ];
+/* eslint-enable sort-keys */
 
 type NavigationActionsMap = {
     [ACTION_NAME.SPECIFIC_PAGE]: {
-        specificPageNum: number,
+        pageNum: number,
     },
     [ACTION_NAME.FIRST_PAGE]: null,
     [ACTION_NAME.PREV_PAGE]: null,
@@ -84,6 +85,6 @@ export {
     EDITOR_ACTIONS,
 };
 export type {
-    ActionType,
+    EditorAction,
     NavigationAction,
 };

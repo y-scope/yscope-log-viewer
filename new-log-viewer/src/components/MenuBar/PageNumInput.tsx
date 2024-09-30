@@ -38,7 +38,7 @@ const PageNumInput = () => {
 
         loadPageByAction({
             code: ACTION_NAME.SPECIFIC_PAGE,
-            args: {specificPageNum: Number(inputRef.current.value)},
+            args: {pageNum: Number(inputRef.current.value)},
         });
         setIsEditing(false);
     };

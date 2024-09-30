@@ -179,12 +179,17 @@ class LogFileManager {
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
-        const {beginLogEventNum, endLogEventNum, newLogEventNum} = this.#getCursorData(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum - 1);
+        const {
+            pageBeginLogEventNum,
+            pageEndLogEventNum,
+            matchingLogEventNum,
+        } = this.#getCursorData(cursor);
+
+        const results = this.#decoder.decode(pageBeginLogEventNum - 1, pageEndLogEventNum - 1);
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
-                `beginLogEventNum=${beginLogEventNum}, ` +
-                `endLogEventNum=${endLogEventNum}`);
+                `pageBeginLogEventNum=${pageBeginLogEventNum}, ` +
+                `pageEndLogEventNum=${pageEndLogEventNum}`);
         }
 
         const messages: string[] = [];
@@ -203,35 +208,37 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
-        const newPageNum: number = getChunkNum(beginLogEventNum, this.#pageSize);
+        const newPageNum: number = getChunkNum(pageBeginLogEventNum, this.#pageSize);
 
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
-            logEventNum: newLogEventNum,
+            logEventNum: matchingLogEventNum,
             logs: messages.join(""),
             pageNum: newPageNum,
         };
     }
 
     /**
-     * Gets the range of log event numbers for the page and the new log event number.
+     * Gets the data that corresponds to the cursor.
      *
-     * @param cursor The cursor object containing the code and arguments.
-     * @return The range and new log event number.
+     * @param cursor
+     * @return Log event numbers for:
+     * - the range [begin, end) of the page containing the matching log event.
+     * - the log event number that matches the cursor.
      * @throws {Error} if the type of cursor is not supported.
      */
     #getCursorData (cursor: CursorType): {
-        beginLogEventNum: number,
-        endLogEventNum: number,
-        newLogEventNum: number
+        pageBeginLogEventNum: number,
+        pageEndLogEventNum: number,
+        matchingLogEventNum: number
     } {
         const {code, args} = cursor;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
                     args.pageNum,
-                    args.eventPosition,
+                    args.eventPositionOnPage,
                     this.#numEvents,
                     this.#pageSize
                 );
@@ -244,7 +251,7 @@ class LogFileManager {
 
             case CURSOR_CODE.EVENT_NUM:
                 return getEventNumCursorData(
-                    args.logEventNum,
+                    args.eventNum,
                     this.#numEvents,
                     this.#pageSize
                 );
