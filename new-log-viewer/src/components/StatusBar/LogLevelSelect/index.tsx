@@ -16,6 +16,7 @@ import {
     Select,
     SelectOption,
     Tooltip,
+    TooltipProps,
 } from "@mui/joy";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -31,6 +32,36 @@ import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
 
+
+/**
+ * Renders a `<Tooltip/>` with its placement set to the left of the target element.
+ *
+ * @param props
+ * @return
+ */
+const PlacementLeftTooltip = (props: TooltipProps) => (
+    <Tooltip
+        {...props}
+        placement={"left"}
+    >
+        {props.children}
+    </Tooltip>
+);
+
+/**
+ * Renders a `<Tooltip/>` with its placement set to the right of the target element.
+ *
+ * @param props
+ * @return
+ */
+const PlacementRightTooltip = (props: TooltipProps) => (
+    <Tooltip
+        {...props}
+        placement={"right"}
+    >
+        {props.children}
+    </Tooltip>
+);
 
 /**
  * Renders a dropdown box for selecting log levels.
@@ -130,8 +161,7 @@ const LogLevelSelect = () => {
                         value={logLevelValue}
                     >
                         <ListItemDecorator>
-                            <Tooltip
-                                placement={"left"}
+                            <PlacementLeftTooltip
                                 title={`${checked ?
                                     "-" :
                                     "+"} ${logLevelName}`}
@@ -141,23 +171,17 @@ const LogLevelSelect = () => {
                                     size={"sm"}
                                     value={logLevelValue}
                                     onClick={handleCheckboxClick}/>
-                            </Tooltip>
+                            </PlacementLeftTooltip>
                         </ListItemDecorator>
-                        <Tooltip
-                            placement={"right"}
-                            title={`^ ${logLevelName}`}
-                        >
+                        <PlacementRightTooltip title={`^ ${logLevelName}`}>
                             <ListItemContent data-value={logLevelValue}>
                                 {logLevelName}
                             </ListItemContent>
-                        </Tooltip>
+                        </PlacementRightTooltip>
                     </Option>
                 );
             })}
-            <Tooltip
-                placement={"right"}
-                title={"Clear filters"}
-            >
+            <PlacementRightTooltip title={"Clear filters"}>
                 <Option
                     value={-1}
                     onClick={handleSelectClearButtonClick}
@@ -165,7 +189,7 @@ const LogLevelSelect = () => {
                     <ListItemDecorator/>
                     ALL
                 </Option>
-            </Tooltip>
+            </PlacementRightTooltip>
         </Select>
     );
 };
