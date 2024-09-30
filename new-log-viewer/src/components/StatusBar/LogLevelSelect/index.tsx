@@ -99,7 +99,6 @@ const LogLevelSelect = () => {
             placeholder={"Log Level"}
             renderValue={handleRenderValue}
             size={"sm"}
-            slotProps={{listbox: {className: "log-level-select-listbox"}}}
             value={selectedLogLevels}
             variant={"soft"}
             indicator={0 === selectedLogLevels.length ?
@@ -113,6 +112,10 @@ const LogLevelSelect = () => {
                         <CloseIcon/>
                     </IconButton>
                 </Tooltip>}
+            slotProps={{listbox: {
+                className: "log-level-select-listbox",
+                placement: "top-end",
+            }}}
             onChange={handleSelectChange}
         >
             {/* Add a dummy MenuItem to avoid the first Option receiving focus. */}
