@@ -1,0 +1,13 @@
+:root {
+    --ylv-panel-width: 360px;
+}
+
+.central-container {
+    display: grid;
+    grid-template-columns: var(--ylv-panel-width) 1fr;
+    width: 100vw;
+}
+
+.central-container-children-container {
+    width: calc(100vw - var(--ylv-panel-width));
+}

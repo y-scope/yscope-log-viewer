@@ -1,0 +1,21 @@
+.results-group-title-button {
+    flex-direction: row-reverse !important;
+    gap: 2px !important;
+    padding-inline-start: 0 !important;
+}
+
+.results-group-title-container {
+    display: flex;
+    flex-grow: 1;
+}
+
+.results-group-title-text-container {
+    flex-grow: 1;
+    gap: 0.1rem;
+    align-items: center;
+}
+
+.results-group-content {
+    margin-left: 1.5px !important;
+    border-left: 1px solid var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
+}

@@ -1,6 +1,28 @@
 .menu-bar {
+    z-index: var(--ylv-menu-bar-z-index);
+
     display: flex;
     flex-direction: row;
     align-items: center;
+
     height: var(--ylv-status-bar-height);
+
+    /* stylelint-disable-next-line custom-property-pattern */
+    box-shadow: 0 1px 0 0 var(--joy-palette-neutral-outlinedBorder);
+}
+
+.menu-bar-logo-container {
+    display: flex;
+    justify-content: center;
+    width: 48px;
+    height: var(--ylv-status-bar-height);
+}
+
+.menu-bar-open-file-icon {
+    font-size: 24px !important;
+}
+
+.menu-bar-filename {
+    flex-grow: 1;
+    padding-left: 10px;
 }

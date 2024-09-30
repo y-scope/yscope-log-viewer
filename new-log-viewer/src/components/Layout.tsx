@@ -2,6 +2,7 @@ import {CssVarsProvider} from "@mui/joy/styles";
 
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
+import CentralContainer from "./CentralContainer";
 import DropFileContainer from "./DropFileContainer";
 import Editor from "./Editor";
 import MenuBar from "./MenuBar";
@@ -21,13 +22,13 @@ const Layout = () => {
             modeStorageKey={CONFIG_KEY.THEME}
             theme={APP_THEME}
         >
-            <div className={"layout"}>
-                <MenuBar/>
+            <MenuBar/>
+            <CentralContainer>
                 <DropFileContainer>
                     <Editor/>
                 </DropFileContainer>
-                <StatusBar/>
-            </div>
+            </CentralContainer>
+            <StatusBar/>
         </CssVarsProvider>
     );
 };

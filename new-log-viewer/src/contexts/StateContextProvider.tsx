@@ -46,6 +46,7 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
+    originalFileSizeInBytes: number,
     pageNum: Nullable<number>,
 
     exportLogs: () => void,
@@ -61,9 +62,10 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    logData: "Loading...",
+    logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
+    originalFileSizeInBytes: 0,
     pageNum: 0,
 
     exportLogs: () => null,
@@ -137,7 +139,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
@@ -145,6 +147,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [originalFileSizeInBytes, setOriginalFileSizeInBytes] =
+        useState(STATE_DEFAULT.originalFileSizeInBytes);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
@@ -170,6 +174,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
+                setOriginalFileSizeInBytes(args.originalFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -235,6 +240,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
 
+        setFileName("Loading...");
+        setLogData("Loading...");
+        setOriginalFileSizeInBytes(STATE_DEFAULT.originalFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
@@ -330,6 +338,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
+                originalFileSizeInBytes: originalFileSizeInBytes,
                 pageNum: pageNumRef.current,
 
                 exportLogs: exportLogs,
@@ -341,7 +350,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         </StateContext.Provider>
     );
 };
-
 
 export default StateContextProvider;
 export {StateContext};
