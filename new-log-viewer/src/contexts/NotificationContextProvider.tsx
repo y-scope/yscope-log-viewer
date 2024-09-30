@@ -29,7 +29,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
 
-interface NotificationContextProvider {
+interface NotificationContextProviderProps {
     children: React.ReactNode;
 }
 
@@ -54,7 +54,7 @@ interface PopupNotification {
  * @param props
  * @param props.children
  */
-const NotificationContextProvider = ({children}: NotificationContextProvider) => {
+const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
     const [popupNotification, setPopupNotification] = useState<Nullable<PopupNotification>>(null);
     const [statusMessage, setStatusMessage] = useState<string>(NOTIFICATION_DEFAULT.statusMessage);
     const popupNotificationTimeoutRef = useRef<Nullable<ReturnType<typeof setTimeout>>>(null);
