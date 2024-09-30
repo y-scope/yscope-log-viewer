@@ -95,10 +95,11 @@ class JsonlDecoder implements Decoder {
         }
 
         // Prevents typescript potential null warning.
-        const filteredLogEventIndices: number[] = this.#filteredLogEventMap as number[];
+        const filteredLogEventMap: number[] = this.#filteredLogEventMap as number[];
+
 
         const length: number = useFilter ?
-            filteredLogEventIndices.length :
+            filteredLogEventMap.length :
             this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
@@ -107,11 +108,11 @@ class JsonlDecoder implements Decoder {
 
         const results: DecodeResultType[] = [];
         for (let i = beginIdx; i < endIdx; i++) {
-            // Explicit cast since typescript thinks `#filteredLogEventIndices[filteredLogEventIdx]`
+            // Explicit cast since typescript thinks `#filteredLogEventMap[i]`
             // can be undefined, but it shouldn't be since we performed a bounds check at the
             // beginning of the method.
             const logEventIdx: number = useFilter ?
-                (filteredLogEventIndices[i] as number) :
+                (filteredLogEventMap[i] as number) :
                 i;
 
             results.push(this.#getDecodeResult(logEventIdx));

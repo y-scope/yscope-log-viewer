@@ -105,6 +105,7 @@ export type {
     Decoder,
     DecodeResultType,
     DecoderOptionsType,
+    FilteredLogEventMap,
     JsonlDecoderOptionsType,
     LogEventCount,
 };
