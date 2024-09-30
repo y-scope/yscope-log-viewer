@@ -122,32 +122,33 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
             }}
         >
             {children}
-            {null !== popupNotification && <Snackbar
-                open={true}
-                sx={{right: "14px", bottom: "32px"}}
-                color={popupNotification.level >= LOG_LEVEL.ERROR ?
-                    "danger" :
-                    "primary"}
-            >
-                <Stack>
-                    <Box>
-                        <Typography
-                            level={"title-sm"}
-                            color={popupNotification.level >= LOG_LEVEL.ERROR ?
-                                "danger" :
-                                "primary"}
-                        >
-                            {popupNotification.title}
+            {null !== popupNotification &&
+                <Snackbar
+                    open={true}
+                    sx={{right: "14px", bottom: "32px"}}
+                    color={popupNotification.level >= LOG_LEVEL.ERROR ?
+                        "danger" :
+                        "primary"}
+                >
+                    <Stack>
+                        <Box>
+                            <Typography
+                                level={"title-sm"}
+                                color={popupNotification.level >= LOG_LEVEL.ERROR ?
+                                    "danger" :
+                                    "primary"}
+                            >
+                                {popupNotification.title}
+                            </Typography>
+                            <ModalClose
+                                size={"sm"}
+                                onClick={() => { setPopupNotification(null); }}/>
+                        </Box>
+                        <Typography level={"body-sm"}>
+                            {popupNotification.message}
                         </Typography>
-                        <ModalClose
-                            size={"sm"}
-                            onClick={() => { setPopupNotification(null); }}/>
-                    </Box>
-                    <Typography level={"body-sm"}>
-                        {popupNotification.message}
-                    </Typography>
-                </Stack>
-            </Snackbar>}
+                    </Stack>
+                </Snackbar>}
         </NotificationContext.Provider>
     );
 };
