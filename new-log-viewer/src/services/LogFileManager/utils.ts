@@ -62,7 +62,7 @@ const getPageNumCursorData = (
     );
     const matchingLogEventNum = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
         pageBeginLogEventNum :
-        pageEndLogEventNum;
+        pageEndLogEventNum - 1;
 
     return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
 };
@@ -112,7 +112,7 @@ const getLastEventCursorData = (
         numEvents,
         pageSize
     );
-    const matchingLogEventNum: number = pageEndLogEventNum;
+    const matchingLogEventNum: number = pageEndLogEventNum - 1;
     return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
 };
 
