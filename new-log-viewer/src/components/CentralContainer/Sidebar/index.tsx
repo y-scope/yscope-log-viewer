@@ -42,7 +42,7 @@ const setPanelWidth = (newValue: number) => {
  * @return
  */
 const Sidebar = () => {
-    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
+    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.SEARCH);
 
     const tabListRef = useRef<HTMLDivElement>(null);
 

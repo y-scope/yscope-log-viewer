@@ -4,10 +4,12 @@
 
 .sidebar-tab-panel-title-container {
     user-select: none;
+    align-items: center;
     margin-bottom: 0.5rem !important;
 }
 
 .sidebar-tab-panel-title {
+    flex-grow: 1;
     font-size: 0.875rem !important;
     font-weight: 400 !important;
     text-transform: uppercase;
