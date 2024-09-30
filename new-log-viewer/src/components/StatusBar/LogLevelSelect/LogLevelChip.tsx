@@ -48,9 +48,8 @@ const LogLevelChip = ({name, value, onSelectedLogLevelsChange}: LogLevelChipProp
 
     return (
         <Tooltip
-            color={LOG_LEVEL_COLOR_MAP[value]}
             key={value}
-            title={name}
+            title={`${name} (Click to deselect)`}
         >
             <Chip
                 className={"log-level-chip"}
