@@ -12,9 +12,10 @@ import {
     Option,
     Select,
     SelectOption,
+    Tooltip,
 } from "@mui/joy";
 
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 import {
@@ -55,19 +56,21 @@ const LogLevelSelect = () => {
     );
 
     const handleSelectChange = useCallback((
-        _: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null,
-        newValue: SelectValue<LOG_LEVEL, true>
+        ev: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null
     ) => {
-        if (0 === selectedLogLevels.length) {
-            const [singleSelectValue] = newValue;
-            setSelectedLogLevels(range(singleSelectValue as number, 1 + MAX_LOG_LEVEL));
-        } else {
-            setSelectedLogLevels(newValue.sort((a, b) => a - b));
+        if (null === ev) {
+            setSelectedLogLevels([]);
+
+            return;
         }
-    }, [selectedLogLevels]);
+
+        const target = ev.target as HTMLElement;
+        const selectedValue = Number(target.dataset.value);
+        setSelectedLogLevels(range(selectedValue, 1 + MAX_LOG_LEVEL));
+    }, []);
 
     const handleSelectClearButtonClick = () => {
-        handleSelectChange(null, []);
+        handleSelectChange(null);
     };
 
     const handleSelectClearButtonMouseDown = (ev: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,25 +87,36 @@ const LogLevelSelect = () => {
             variant={"soft"}
             indicator={0 === selectedLogLevels.length ?
                 <KeyboardArrowUpIcon/> :
-                <IconButton
-                    variant={"plain"}
-                    onClick={handleSelectClearButtonClick}
-                    onMouseDown={handleSelectClearButtonMouseDown}
-                >
-                    <CloseRoundedIcon/>
-                </IconButton>}
+                <Tooltip title={"Show all"}>
+                    <IconButton
+                        variant={"plain"}
+                        onClick={handleSelectClearButtonClick}
+                        onMouseDown={handleSelectClearButtonMouseDown}
+                    >
+                        <CloseIcon/>
+                    </IconButton>
+                </Tooltip>}
             onChange={handleSelectChange}
         >
             {/* Add a dummy MenuItem to avoid the first Option receiving focus. */}
             <MenuItem className={"log-level-select-dummy-option"}/>
-            {LOG_LEVEL_NAMES.map((logLevelName, index) => (
-                <Option
-                    key={logLevelName}
-                    value={index}
-                >
-                    {logLevelName}
-                </Option>
-            ))}
+            {LOG_LEVEL_NAMES.toReversed().map((logLevelName, index) => {
+                const logLevelValue = LOG_LEVEL_NAMES.length - 1 - index;
+                return (
+                    <Tooltip
+                        key={logLevelName}
+                        placement={"left"}
+                        title={`${logLevelName} and above`}
+                    >
+                        <Option
+                            data-value={logLevelValue}
+                            value={logLevelValue}
+                        >
+                            {logLevelName}
+                        </Option>
+                    </Tooltip>
+                );
+            })}
         </Select>
     );
 };
