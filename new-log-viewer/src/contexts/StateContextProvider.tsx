@@ -187,7 +187,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, []);
+    }, [postStatus]);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
