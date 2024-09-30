@@ -83,6 +83,7 @@ const LogLevelSelect = () => {
             placeholder={"Log Level"}
             renderValue={handleRenderValue}
             size={"sm"}
+            slotProps={{listbox: {className: "log-level-select-listbox"}}}
             value={selectedLogLevels}
             variant={"soft"}
             indicator={0 === selectedLogLevels.length ?
