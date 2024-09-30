@@ -39,18 +39,14 @@ const LogLevelSelect = () => {
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
-            <Chip
-                className={"log-level-select-render-value-box-label"}
-                variant={"soft"}
-            >
+            <Chip className={"log-level-select-render-value-box-label"}>
                 Log Level
             </Chip>
             {selected.map((selectedOption) => (
                 <LogLevelChip
                     key={selectedOption.value}
                     name={selectedOption.label as string}
-                    value={selectedOption.value}
-                    onSelectedLogLevelsChange={setSelectedLogLevels}/>
+                    value={selectedOption.value}/>
             ))}
         </Box>
     );
