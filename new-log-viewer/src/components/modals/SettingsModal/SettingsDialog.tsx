@@ -1,4 +1,7 @@
-import React, {forwardRef} from "react";
+import React, {
+    forwardRef,
+    useContext,
+} from "react";
 
 import {
     Button,
@@ -19,12 +22,14 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
+import {NotificationContext} from "../../../contexts/NotificationContextProvider";
 import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../../../typings/config";
+import {LOG_LEVEL} from "../../../typings/logs";
 import {
     getConfig,
     setConfig,
@@ -74,38 +79,39 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 };
 
 /**
- * Handles the submit event for the configuration form.
+ * Generates a handler for the submit event for the configuration form.
  *
- * @param ev
+ * @return the generated handler.
  */
-const handleConfigFormSubmit = (ev: React.FormEvent) => {
-    ev.preventDefault();
-    const formData = new FormData(ev.target as HTMLFormElement);
-    const getFormDataValue = (key: string) => formData.get(key) as string;
+const useHandleConfigFormSubmit = () => {
+    const {postPopup} = useContext(NotificationContext);
 
-    const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-    const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-    const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-    const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
+    return (ev: React.FormEvent) => {
+        ev.preventDefault();
+        const formData = new FormData(ev.target as HTMLFormElement);
+        const getFormDataValue = (key: string) => formData.get(key) as string;
 
-    let error: Nullable<string> = null;
-    error ||= setConfig({
-        key: CONFIG_KEY.DECODER_OPTIONS,
-        value: {formatString, logLevelKey, timestampKey},
-    });
-    error ||= setConfig({
-        key: CONFIG_KEY.PAGE_SIZE,
-        value: Number(pageSize),
-    });
+        const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+        const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
-    if (null !== error) {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: Show an error pop-up once NotificationProvider is implemented.
-        // eslint-disable-next-line no-alert
-        window.alert(error);
-    } else {
-        window.location.reload();
-    }
+        let error: Nullable<string> = null;
+        error ||= setConfig({
+            key: CONFIG_KEY.DECODER_OPTIONS,
+            value: {formatString, logLevelKey, timestampKey},
+        });
+        error ||= setConfig({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: Number(pageSize),
+        });
+
+        if (null !== error) {
+            postPopup(LOG_LEVEL.ERROR, error, "Unable to apply config.");
+        } else {
+            window.location.reload();
+        }
+    };
 };
 
 /**
@@ -121,7 +127,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
             ref={ref}
             tabIndex={-1}
             onReset={handleConfigFormReset}
-            onSubmit={handleConfigFormSubmit}
+            onSubmit={useHandleConfigFormSubmit()}
         >
             <ModalDialog
                 minWidth={"md"}

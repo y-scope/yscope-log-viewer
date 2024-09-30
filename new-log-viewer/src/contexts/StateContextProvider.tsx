@@ -30,6 +30,7 @@ import {
     clamp,
     getChunkNum,
 } from "../utils/math";
+import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -139,6 +140,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  */
 // eslint-disable-next-line max-lines-per-function
 const StateContextProvider = ({children}: StateContextProviderProps) => {
+    const {postStatus} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
@@ -172,10 +174,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setNumEvents(args.numEvents);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
+                postStatus(args.logLevel, args.message);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
