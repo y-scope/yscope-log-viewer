@@ -121,13 +121,14 @@ const useHandleConfigFormSubmit = () => {
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
     const {setMode, mode} = useColorScheme();
+    const handleConfigFormSubmit = useHandleConfigFormSubmit();
 
     return (
         <form
             ref={ref}
             tabIndex={-1}
             onReset={handleConfigFormReset}
-            onSubmit={useHandleConfigFormSubmit()}
+            onSubmit={handleConfigFormSubmit}
         >
             <ModalDialog
                 minWidth={"md"}
