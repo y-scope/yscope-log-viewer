@@ -24,7 +24,7 @@ import {
 
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptionsType` for
- * properties that are specific to json log events (compared to generic JSON records).
+ * properties that are specific to log events (compared to generic JSON records).
  */
 class JsonlDecoder implements Decoder {
     static #textDecoder = new TextDecoder();
@@ -121,10 +121,10 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Retrieves log event using index then decodes into `DecodeResultType`.
+     * Decodes a log event into a `DecodeResultType`.
      *
      * @param logEventIdx
-     * @return Decoded result.
+     * @return The decoded log event.
      */
     #getDecodeResult = (logEventIdx: number): DecodeResultType => {
         let timestamp: number;
@@ -139,7 +139,7 @@ class JsonlDecoder implements Decoder {
             message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
             logLevel = LOG_LEVEL.NONE;
         } else {
-            // Explicit cast since typescript thinks `#logEvents[filteredIdx]` can be undefined,
+            // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
             // but it shouldn't be since the index comes from a class-internal filter.
             const logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
             logLevel = logEvent.level;
@@ -156,11 +156,9 @@ class JsonlDecoder implements Decoder {
     };
 
     /**
-     * Parses each line from the data array as a JSON object and buffers it internally. If a
-     * line cannot be parsed as a JSON object, an error is logged and the line added to an
-     * invalid map.
+     * Parses each line from the data array and buffers it internally.
      *
-     * NOTE: The data array(file) is freed after the very first run of this method.
+     * NOTE: `#dataArray` is freed after the very first run of this method.
      */
     #deserialize () {
         if (null === this.#dataArray) {
@@ -168,7 +166,7 @@ class JsonlDecoder implements Decoder {
         }
 
         const text = JsonlDecoder.#textDecoder.decode(this.#dataArray);
-        let beginIdx: number = 0;
+        let beginIdx = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
             const line = (-1 === endIdx) ?
@@ -186,15 +184,15 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Parse line into a json log event and buffer internally. If the line contains invalid
-     * json, an entry is added to invalid log event map.
+     * Parses a JSON line into a log event and buffers it internally. If the line isn't valid JSON,
+     * a default log event is buffered and the line is added to `#invalidLogEventIdxToRawLine`.
      *
      * @param line
      */
     #parseJson (line: string) {
         try {
             const fields = JSON.parse(line) as JsonValue;
-            if (!isJsonObject(fields)) {
+            if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
             this.#logEvents.push({
@@ -218,15 +216,14 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Filters log events and generates an internal array which serves as a mapping between filtered
-     * events and the original log event index. Sets the map to null if the filter is null.
+     * Filters log events and generates `#filteredLogEventMap`. If `logLevelFilter` is `null`,
+     * `#filteredLogEventMap` will be set to `null`.
      *
      * @param logLevelFilter
      */
     #filterLogs (logLevelFilter: LogLevelFilter) {
-        this.#filteredLogEventMap = null;
-
         if (null === logLevelFilter) {
+            this.#filteredLogEventMap = null;
             return;
         }
 

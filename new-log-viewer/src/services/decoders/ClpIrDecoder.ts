@@ -60,7 +60,6 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
-
     decodeRange (
         beginIdx: number,
         endIdx: number,

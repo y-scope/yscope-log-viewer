@@ -76,7 +76,7 @@ class LogFileManager {
         // Build index for the entire file.
         const buildResult = decoder.build();
         if (0 < buildResult.numInvalidEvents) {
-            console.error("Invalid events found in decoder.buildIdx():", buildResult);
+            console.error("Invalid events found in decoder.build():", buildResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();

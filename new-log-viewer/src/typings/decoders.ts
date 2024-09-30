@@ -29,13 +29,13 @@ type DecoderOptionsType = JsonlDecoderOptionsType;
  * @property message
  * @property timestamp
  * @property level
- * @property number The log event number is always the unfiltered number.
+ * @property number
  */
 type DecodeResultType = [string, number, number, number];
 
 /**
- * Mapping between filtered log event indices and log events indices. The array index refers to
- * the `filtered log event index` and the value refers to the `log event index`.
+ * Mapping between an index in the filtered log events collection to an index in the unfiltered log
+ * events collection.
  */
 type FilteredLogEventMap = Nullable<number[]>;
 
@@ -49,7 +49,7 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * @return Indices of the filtered events.
+     * @return The filtered log events map.
      */
     getFilteredLogEventMap(): FilteredLogEventMap;
 
@@ -65,13 +65,12 @@ interface Decoder {
      * Deserializes all log events in the file.
      *
      * @return Count of the successfully deserialized ("valid") log events and count of any
-     * un-deserializable ("invalid") log events within the range;
+     * un-deserializable ("invalid") log events.
      */
     build(): LogEventCount;
 
     /**
-     * Sets formatting options. Decoders support changing formatting without rebuilding
-     * existing log events.
+     * Sets any formatter options that exist in the decoder's options.
      *
      * @param options
      * @return Whether the options were successfully set.
@@ -79,16 +78,17 @@ interface Decoder {
     setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decode log events. The range boundaries `[BeginIdx, EndIdx)` can refer to unfiltered log
-     * event indices or filtered log event indices based on the flag `useFilter`.
+     * Decodes log events in the range `[beginIdx, endIdx)` of the filtered or unfiltered
+     * (depending on the value of `useFilter`) log events collection.
      *
      * @param beginIdx
      * @param endIdx
-     * @param useFilter Whether to decode from the filtered or unfiltered log events array.
+     * @param useFilter Whether to decode from the filtered or unfiltered log events collection.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the file).
      */
-    decodeRange(beginIdx: number,
+    decodeRange(
+        beginIdx: number,
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResultType[]>;

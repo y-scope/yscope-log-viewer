@@ -55,14 +55,14 @@ class LogbackFormatter implements Formatter {
      * Formats the given log event.
      *
      * @param logEvent
-     * @return The formatted message.
+     * @return The formatted log event.
      */
     formatLogEvent (logEvent: JsonLogEvent): string {
         const {fields, timestamp} = logEvent;
         const formatStringWithTimestamp: string =
             this.#formatTimestamp(timestamp, this.#formatString);
-        const message = this.#formatVariables(formatStringWithTimestamp, fields);
-        return message;
+
+        return this.#formatVariables(formatStringWithTimestamp, fields);
     }
 
     /**
