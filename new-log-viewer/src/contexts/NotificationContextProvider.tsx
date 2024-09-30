@@ -34,7 +34,7 @@ interface NotificationContextProviderProps {
 }
 
 /**
- *
+ * Default values of the notification value object.
  */
 const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
     statusMessage: "",
@@ -50,9 +50,13 @@ interface PopupNotification {
 }
 
 /**
+ * Provides notification management for the application. This provider must be at the outermost
+ * layer to ensure that both direct and indirect child components can publish and subscribe to
+ * notifications.
  *
  * @param props
  * @param props.children
+ * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
     const [popupNotification, setPopupNotification] = useState<Nullable<PopupNotification>>(null);
