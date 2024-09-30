@@ -37,37 +37,10 @@ const APP_THEME = extendTheme({
             },
         },
     },
-    focus: {
-        default: {
-            outlineWidth: "3px",
-        },
-    },
-    fontFamily: {
-        body: "var(--ylv-ui-font-family)",
-    },
     components: {
-        JoyButton: {
-            styleOverrides: {
-                root: {
-                    borderRadius: "2px",
-                },
-            },
-        },
         JoySelect: {
             defaultProps: {
                 indicator: <KeyboardArrowDown/>,
-            },
-            styleOverrides: {
-                root: {
-                    borderRadius: "2px",
-                },
-            },
-        },
-        JoyInput: {
-            styleOverrides: {
-                root: {
-                    borderRadius: "2px",
-                },
             },
         },
         JoyFormControl: {
@@ -82,6 +55,23 @@ const APP_THEME = extendTheme({
                 }),
             },
         },
+    },
+    focus: {
+        default: {
+            outlineWidth: "3px",
+        },
+    },
+    fontFamily: {
+        body: "var(--ylv-ui-font-family)",
+    },
+    radius: {
+        /* eslint-disable sort-keys */
+        xs: "2px",
+        sm: "2px",
+        md: "2px",
+        lg: "2px",
+        xl: "2px",
+        /* eslint-enable sort-keys */
     },
 });
 
