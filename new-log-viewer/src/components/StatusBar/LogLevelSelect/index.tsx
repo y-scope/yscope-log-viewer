@@ -84,7 +84,7 @@ const LogLevelSelect = () => {
             variant={"soft"}
             indicator={0 === selectedLogLevels.length ?
                 <KeyboardArrowUpIcon/> :
-                <Tooltip title={"Show all"}>
+                <Tooltip title={"Clear filters"}>
                     <IconButton
                         variant={"plain"}
                         onClick={handleSelectClearButtonClick}
@@ -114,6 +114,17 @@ const LogLevelSelect = () => {
                     </Tooltip>
                 );
             })}
+            <Tooltip
+                placement={"left"}
+                title={"Clear filters"}
+            >
+                <Option
+                    value={-1}
+                    onClick={handleSelectClearButtonClick}
+                >
+                    ALL
+                </Option>
+            </Tooltip>
         </Select>
     );
 };

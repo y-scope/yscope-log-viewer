@@ -1,5 +1,5 @@
 enum LOG_LEVEL {
-    NONE = 0,
+    UNKNOWN = 0,
     TRACE,
     DEBUG,
     INFO,
