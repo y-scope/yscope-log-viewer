@@ -270,7 +270,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         const cursor = getPageNumCursor(navAction);
-
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
@@ -282,7 +281,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         getPageNumCursor,
         loadPageByCursor,
     ]);
-
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
@@ -329,8 +327,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            cursor = {code: CURSOR_CODE.EVENT_NUM,
-                args: {logEventNum: logEventNumRef.current}};
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {logEventNum: logEventNumRef.current},
+            };
         }
         loadFile(filePath, cursor);
     }, [

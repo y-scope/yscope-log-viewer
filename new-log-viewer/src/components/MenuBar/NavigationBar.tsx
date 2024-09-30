@@ -22,7 +22,7 @@ const NavigationBar = () => {
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
 
-        // Makes sure actionName is a valid navigation action code with no args.
+        // Ensure `actionName` is a valid navigation action code with no args.
         if (
             actionName === ACTION_NAME.FIRST_PAGE ||
             actionName === ACTION_NAME.PREV_PAGE ||

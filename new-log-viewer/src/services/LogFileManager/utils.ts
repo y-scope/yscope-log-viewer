@@ -11,12 +11,15 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
 /**
- * Gets the range of log events to decode based on beginning log event index.
+ * Gets the log event number range [begin, end) of the page that starts at the given log event
+ * index.
  *
  * @param numEvents
  * @param beginLogEventIdx
  * @param pageSize
- * @return Array with beginning log event number and ending log event number.
+ * @return An array:
+ * - beginLogEventNum
+ * - endLogEventNum
  */
 const getRange = (
     numEvents: number,
@@ -61,13 +64,15 @@ const loadFile = async (fileSrc: FileSrcType)
 };
 
 /**
- * Gets range and new log event number using page number cursor
+ * Gets the data for the `PAGE_NUM` cursor.
  *
  * @param pageNum
  * @param eventPosition
  * @param numEvents
  * @param pageSize
- * @return An object containing the range and the new log event number.
+ * @return Log event numbers for:
+ * - the range [begin, end) of page `pageNum`.
+ * - the log event (on the page) indicated by `eventPosition`.
  */
 const getPageNumCursorData = (
     pageNum: number,
@@ -85,12 +90,14 @@ const getPageNumCursorData = (
 };
 
 /**
- * Gets range and new log event number using event number cursor.
+ * Gets the data for the `EVENT_NUM` cursor.
  *
  * @param logEventNum
  * @param numEvents
  * @param pageSize
- * @return An object containing the range and the new log event number.
+ * @return Log event numbers for:
+ * - the range [begin, end) of the page containing `logEventNum`.
+ * - log event `logEventNum`.
  */
 const getEventNumCursorData = (
     logEventNum: number,
@@ -105,11 +112,13 @@ const getEventNumCursorData = (
 };
 
 /**
- * Gets range and new log event number using last event cursor.
+ * Gets the data for the `LAST` cursor.
  *
  * @param numEvents
  * @param pageSize
- * @return An object containing the range and the new log event number.
+ * @return Log event numbers for:
+ * - the range [begin, end) of the last page.
+ * - the last log event on the last page.
  */
 const getLastEventCursorData = (
     numEvents: number,

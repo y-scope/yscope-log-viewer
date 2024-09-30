@@ -7,10 +7,9 @@ import {LOG_LEVEL} from "./logs";
  */
 type FileSrcType = string | File;
 
-
 /**
- * For a page requested by the page number `CURSOR_CODE`, this enum indicates which log event
- * number (e.g., first on page, or last on page) should be returned with the page.
+ * For `CURSOR_CODE.PAGE_NUM`, this enum indicates which log event number (e.g., first/last on page)
+ * should be returned with the page.
  */
 enum EVENT_POSITION {
     TOP,
@@ -107,7 +106,6 @@ type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
 type WorkerResp<T extends WORKER_RESP_CODE> = T extends keyof WorkerRespMap ?
     WorkerRespMap[T] :
     never;
-
 
 type MainWorkerReqMessage = {
     [T in keyof WorkerReqMap]: { code: T, args: WorkerReqMap[T] };

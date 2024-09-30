@@ -227,7 +227,6 @@ class LogFileManager {
         newLogEventNum: number
     } {
         const {code, args} = cursor;
-
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(

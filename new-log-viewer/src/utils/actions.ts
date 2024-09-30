@@ -66,13 +66,10 @@ type NavigationActionsMap = {
     [ACTION_NAME.SPECIFIC_PAGE]: {
         specificPageNum: number,
     },
-    [ACTION_NAME.FIRST_PAGE]: null
-    ,
-    [ACTION_NAME.PREV_PAGE]: null
-    ,
-    [ACTION_NAME.NEXT_PAGE]: null
-    ,
-    [ACTION_NAME.LAST_PAGE]: null
+    [ACTION_NAME.FIRST_PAGE]: null,
+    [ACTION_NAME.PREV_PAGE]: null,
+    [ACTION_NAME.NEXT_PAGE]: null,
+    [ACTION_NAME.LAST_PAGE]: null,
 };
 
 // Some navigation actions supply code and args fields, and others only code field.
