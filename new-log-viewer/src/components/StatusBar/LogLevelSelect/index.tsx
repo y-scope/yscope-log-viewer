@@ -226,7 +226,6 @@ const LogLevelSelect = () => {
     return (
         <Select
             multiple={true}
-            placeholder={"Log Level"}
             renderValue={handleRenderValue}
             size={"sm"}
             value={selectedLogLevels}
@@ -242,6 +241,11 @@ const LogLevelSelect = () => {
                         <CloseIcon/>
                     </IconButton>
                 </Tooltip>}
+            placeholder={
+                <Chip className={"log-level-select-render-value-box-label"}>
+                    Log Level
+                </Chip>
+            }
             slotProps={{
                 listbox: {
                     className: "log-level-select-listbox",

@@ -38,17 +38,18 @@ const StatusBar = () => {
             >
                 Status message
             </Typography>
-            <LogLevelSelect/>
             <Button
+                color={"primary"}
                 size={"sm"}
+                variant={"soft"}
                 onClick={handleCopyLinkButtonClick}
             >
-                Log Event
-                {" "}
+                {"Log Event: "}
                 {logEventNum}
                 {" / "}
                 {numEvents}
             </Button>
+            <LogLevelSelect/>
         </Sheet>
     );
 };
