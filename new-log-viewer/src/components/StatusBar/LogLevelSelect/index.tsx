@@ -11,7 +11,6 @@ import {
     IconButton,
     ListItemContent,
     ListItemDecorator,
-    MenuItem,
     Option,
     Select,
     SelectOption,
@@ -127,8 +126,8 @@ const LogSelectOption = ({
                         alignItems={"center"}
                         direction={"row"}
                     >
-                        <KeyboardArrowUpIcon/>
                         {logLevelName}
+                        {" and below"}
                     </Stack>
                 }
             >
@@ -152,27 +151,15 @@ interface ClearFiltersOptionProps {
  * @return
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
-    <PlacementRightTooltip
-        title={
-            <Stack
-                alignItems={"center"}
-                direction={"row"}
-            >
-                <CloseIcon/>
-                {"Clear filters"}
-            </Stack>
-        }
+    <Option
+        value={-1}
+        onClick={onClick}
     >
-        <Option
-            value={-1}
-            onClick={onClick}
-        >
-            <ListItemDecorator>
-                <CloseIcon/>
-            </ListItemDecorator>
-            ALL
-        </Option>
-    </PlacementRightTooltip>
+        <ListItemDecorator>
+            <CloseIcon/>
+        </ListItemDecorator>
+        Clear filters
+    </Option>
 );
 
 /**
@@ -263,10 +250,8 @@ const LogLevelSelect = () => {
             }}
             onChange={handleSelectChange}
         >
-            {/* Add a dummy MenuItem to avoid the first Option receiving focus. */}
-            <MenuItem className={"log-level-select-dummy-option"}/>
-            {LOG_LEVEL_NAMES.toReversed().map((logLevelName) => {
-                const logLevelValue = LOG_LEVEL[logLevelName];
+            <ClearFiltersOption onClick={handleSelectClearButtonClick}/>
+            {LOG_LEVEL_NAMES.map((logLevelName, logLevelValue) => {
                 const checked = selectedLogLevels.includes(logLevelValue);
                 return (
                     <LogSelectOption
@@ -277,7 +262,6 @@ const LogLevelSelect = () => {
                         onCheckboxClick={handleCheckboxClick}/>
                 );
             })}
-            <ClearFiltersOption onClick={handleSelectClearButtonClick}/>
         </Select>
     );
 };

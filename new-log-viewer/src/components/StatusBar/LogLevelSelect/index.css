@@ -11,7 +11,3 @@
     /* Disallow width auto-resizing with the Select button. */
     max-width: 0;
 }
-
-.log-level-select-dummy-option {
-    display: none !important;
-}
