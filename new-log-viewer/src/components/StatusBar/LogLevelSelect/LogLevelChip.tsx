@@ -49,4 +49,6 @@ const LogLevelChip = ({name, value}: LogLevelChipProps) => (
         </Chip>
     </Tooltip>
 );
+
+
 export default LogLevelChip;

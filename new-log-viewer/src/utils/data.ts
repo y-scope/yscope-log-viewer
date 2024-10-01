@@ -39,16 +39,13 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 };
 
 /**
- * Creates an array of numbers in a specified range [startNum, startNum + steps].
+ * Creates an array of numbers in the range `[start, stop)` with the `i`th element computed as
+ * `range[i - 1] + step`.
  *
- * @param start The value of the start parameter (or `0` if the parameter was not supplied).
- * @param stop The value of the stop parameter.
- * @param step The value of the step parameter (or `1` if the parameter was not supplied).
- * - For a positive step, the contents of a range r are determined by the formula `r[i] = start +
- * step*i` where `i >= 0` and `r[i] < stop`.
- * - For a negative step, the contents of the range are still determined by the formula `r[i] =
- * start + step*i`, but the constraints are `i >= 0` and `r[i] > stop`.
- * @return An array of numbers from `start` to `stop` (exclusive) with a step of `step`.
+ * @param start
+ * @param stop
+ * @param step
+ * @return The computed range.
  * @throws {Error} if `step` is 0.
  */
 const range = (start: number, stop: Nullable<number> = null, step: number = 1): number[] => {

@@ -36,7 +36,7 @@ import "./index.css";
 
 
 /**
- * Renders a `<Tooltip/>` with its placement set to the left of the children element.
+ * Renders a `<Tooltip/>` with its placement set to the left of its children.
  *
  * @param props
  * @param props.children
@@ -53,7 +53,7 @@ const PlacementLeftTooltip = ({children, ...rest}: TooltipProps) => (
 );
 
 /**
- * Renders a `<Tooltip/>` with its placement set to the right of the children element.
+ * Renders a `<Tooltip/>` with its placement set to the right of its children.
  *
  * @param props
  * @param props.children
@@ -77,8 +77,8 @@ interface LogSelectOptionProps {
 }
 
 /**
- * Renders an <Option/> in the <LogLevelSelect/> for selecting some log level and the level above
- * it.
+ * Renders an <Option/> in the <LogLevelSelect/> for selecting some log level and/or the levels
+ * above it.
  *
  * @param props
  * @param props.isChecked
@@ -92,7 +92,7 @@ const LogSelectOption = ({
     logLevelName,
     logLevelValue,
     onCheckboxClick,
-}:LogSelectOptionProps) => {
+}: LogSelectOptionProps) => {
     return (
         <Option
             data-value={logLevelValue}

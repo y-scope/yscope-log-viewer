@@ -24,7 +24,6 @@ const LOG_LEVEL_VALUES = Object.freeze(
 
 const MAX_LOG_LEVEL = Math.max(...LOG_LEVEL_VALUES);
 
-
 const INVALID_TIMESTAMP_VALUE = 0;
 
 export {
