@@ -15,7 +15,7 @@ import {getUint8ArrayFrom} from "../utils/http";
 import {getChunkNum} from "../utils/math";
 import {formatSizeInBytes} from "../utils/units";
 import {getBasenameFromUrlOrDefault} from "../utils/url";
-import ClpIrDecoder from "./decoders/ClpIrDecoder";
+import ClpIrV2Decoder from "./decoders/ClpIrV2Decoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
@@ -130,7 +130,7 @@ class LogFileManager {
         if (fileName.endsWith(".jsonl")) {
             decoder = new JsonlDecoder(fileData, decoderOptions);
         } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData);
+            decoder = await ClpIrV2Decoder.create(fileData, decoderOptions);
         } else {
             throw new Error(`No decoder supports ${fileName}`);
         }
