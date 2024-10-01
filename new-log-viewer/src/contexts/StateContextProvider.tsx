@@ -158,7 +158,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const queryResults: ChunkResults = {};
+    const queryResults = useRef<ChunkResults>({});
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -190,10 +190,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.CHUNK_RESULT:
                 for (const [pageNumStr, results] of Object.entries(args)) {
                     const pageNum = parseInt(pageNumStr, 10);
-                    if (!queryResults[pageNum]) {
-                        queryResults[pageNum] = [];
+                    if (!queryResults.current[pageNum]) {
+                        queryResults.current[pageNum] = [];
                     }
-                    queryResults[pageNum].push(...results);
+                    queryResults.current[pageNum].push(...results);
                 }
                 break;
             default:
