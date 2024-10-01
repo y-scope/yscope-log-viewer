@@ -12,8 +12,8 @@ import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
 import {
     INVALID_TIMESTAMP_VALUE,
-    LogEvent,
     LOG_LEVEL,
+    LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
 import LogbackFormatter from "../../formatters/LogbackFormatter";

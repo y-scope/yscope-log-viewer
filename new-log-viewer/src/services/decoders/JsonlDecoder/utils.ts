@@ -9,6 +9,7 @@ import {
     LOG_LEVEL,
 } from "../../../typings/logs";
 
+
 /**
  * Determines whether the given value is a `JsonObject` and applies a TypeScript narrowing
  * conversion if so.
