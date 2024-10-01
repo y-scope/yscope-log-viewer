@@ -49,8 +49,6 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
  * @throws {Error} if `step` is 0.
  */
 const range = (start: number, stop: Nullable<number> = null, step: number = 1): number[] => {
-    const result: number[] = [];
-
     if (0 === step) {
         throw new Error("Step cannot be zero.");
     }
@@ -62,6 +60,7 @@ const range = (start: number, stop: Nullable<number> = null, step: number = 1): 
         start = 0;
     }
 
+    const result: number[] = [];
     if (0 < step) {
         for (let i = start; i < stop; i += step) {
             result.push(i);
