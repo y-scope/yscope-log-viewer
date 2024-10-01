@@ -283,7 +283,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
