@@ -39,34 +39,34 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 };
 
 /**
- * Creates an array of numbers in the range `[start, stop)` with the `i`th element computed as
+ * Creates an array of numbers in the range `[begin, end)` with the `i`th element computed as
  * `range[i - 1] + step`.
  *
- * @param start
- * @param stop
+ * @param begin
+ * @param end
  * @param step
  * @return The computed range.
  * @throws {Error} if `step` is 0.
  */
-const range = (start: number, stop: Nullable<number> = null, step: number = 1): number[] => {
+const range = (begin: number, end: Nullable<number> = null, step: number = 1): number[] => {
     if (0 === step) {
         throw new Error("Step cannot be zero.");
     }
 
-    // If only one argument is supplied, the argument is interpreted as `stop`, and `start` is set
-    // to `0`.
-    if (null === stop) {
-        stop = start;
-        start = 0;
+    // If only one argument is supplied, the argument is interpreted as `end`, and `begin` is set to
+    // `0`.
+    if (null === end) {
+        end = begin;
+        begin = 0;
     }
 
     const result: number[] = [];
     if (0 < step) {
-        for (let i = start; i < stop; i += step) {
+        for (let i = begin; i < end; i += step) {
             result.push(i);
         }
     } else {
-        for (let i = start; i > stop; i += step) {
+        for (let i = begin; i > end; i += step) {
             result.push(i);
         }
     }
