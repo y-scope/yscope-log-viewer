@@ -218,8 +218,6 @@ const LogLevelSelect = () => {
                     placement: "top-end",
                 },
             }}
-
-            // onChange={handleOptionClick}
         >
             <ClearFiltersOption onClick={handleSelectClearButtonClick}/>
             {LOG_LEVEL_NAMES.map((logLevelName, logLevelValue) => {
