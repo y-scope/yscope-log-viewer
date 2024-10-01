@@ -24,7 +24,6 @@ import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
     EDITOR_ACTIONS,
-    handleAction,
 } from "../../utils/actions";
 import {
     CONFIG_DEFAULT,
@@ -63,7 +62,7 @@ const resetCachedPageSize = () => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, logData, numEvents} = useContext(StateContext);
+    const {beginLineNumToLogEventNum, logData, loadPageByAction} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
@@ -72,23 +71,18 @@ const Editor = () => {
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
     const isMouseDownRef = useRef<boolean>(false);
-    const logEventNumRef = useRef<Nullable<number>>(logEventNum);
-    const numEventsRef = useRef<Nullable<number>>(numEvents);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
 
     const handleEditorCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
         actionName: ACTION_NAME
     ) => {
-        if (null === logEventNumRef.current || null === numEventsRef.current) {
-            return;
-        }
         switch (actionName) {
             case ACTION_NAME.FIRST_PAGE:
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:
             case ACTION_NAME.LAST_PAGE:
-                handleAction(actionName, logEventNumRef.current, numEventsRef.current);
+                loadPageByAction({code: actionName, args: null});
                 break;
             case ACTION_NAME.PAGE_TOP:
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
@@ -104,7 +98,7 @@ const Editor = () => {
             default:
                 break;
         }
-    }, []);
+    }, [loadPageByAction]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -161,16 +155,6 @@ const Editor = () => {
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
-
-    // Synchronize `logEventNumRef` with `logEventNum`.
-    useEffect(() => {
-        logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
-
-    // Synchronize `numEventsRef` with `numEvents`.
-    useEffect(() => {
-        numEventsRef.current = numEvents;
-    }, [numEvents]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {
