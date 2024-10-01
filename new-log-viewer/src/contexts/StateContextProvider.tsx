@@ -329,8 +329,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         // eslint-disable-next-line no-warning-comments
         // TODO: After filter is added, will need to find the largest <= log event number on the
-        // current page. Once found, we update the log event number in the URL instead of sending
-        // a new request since the page has not changed.
+        // current page. Once found, we update the event number in the URL instead of sending a new
+        // request since the page has not changed.
 
         if (logEventNumsOnPage.includes(clampedLogEventNum)) {
             if (clampedLogEventNum !== logEventNum) {
