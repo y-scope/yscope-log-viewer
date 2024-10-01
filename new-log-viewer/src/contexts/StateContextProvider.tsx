@@ -111,7 +111,8 @@ const getPageNumCursor = (
     numPages: number
 ): Nullable<CursorType> => {
     if (STATE_DEFAULT.pageNum === currentPageNum) {
-        // TODO This shouldn't be possible, but currently, the page nav buttons remain enabled
+        // eslint-disable-next-line no-warning-comments
+        // TODO: This shouldn't be possible, but currently, the page nav buttons remain enabled
         // even when a file hasn't been loaded.
         console.error("Page actions cannot be executed if the current page is not set.");
 
@@ -151,6 +152,28 @@ const getPageNumCursor = (
         code: CURSOR_CODE.PAGE_NUM,
         args: {pageNum: newPageNum, eventPositionOnPage: position},
     };
+};
+
+/**
+ * Submits a `LOAD_PAGE` request to a worker.
+ *
+ * @param worker
+ * @param cursor
+ */
+const loadPageByCursor = (
+    worker: Nullable<Worker>,
+    cursor: CursorType,
+) => {
+    if (null === worker) {
+        console.error("Unexpected null worker");
+
+        return;
+    }
+
+    workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
+        cursor: cursor,
+        decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+    });
 };
 
 /**
@@ -266,20 +289,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const loadPageByCursor = useCallback((
-        cursor: CursorType,
-    ) => {
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-            cursor: cursor,
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-        });
-    }, []);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
@@ -288,11 +297,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-
-        loadPageByCursor(cursor);
-    }, [
-        loadPageByCursor,
-    ]);
+        loadPageByCursor(mainWorkerRef.current, cursor);
+    }, []);
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
@@ -339,11 +345,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             args: {eventNum: logEventNum},
         };
 
-        loadPageByCursor(cursor);
+        loadPageByCursor(mainWorkerRef.current, cursor);
     }, [
         numEvents,
         logEventNum,
-        loadPageByCursor,
     ]);
 
     // On `filePath` update, load file.
