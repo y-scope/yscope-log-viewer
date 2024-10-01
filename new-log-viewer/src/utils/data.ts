@@ -54,6 +54,9 @@ const range = (start: number, stop: Nullable<number> = null, step: number = 1): 
     if (0 === step) {
         throw new Error("Step cannot be zero.");
     }
+
+    // If only one argument is supplied, the argument is interpreted as `stop`, and `start` is set
+    // to `0`.
     if (null === stop) {
         stop = start;
         start = 0;
