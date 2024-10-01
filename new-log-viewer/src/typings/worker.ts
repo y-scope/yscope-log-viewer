@@ -49,7 +49,7 @@ enum WORKER_RESP_CODE {
     LOG_FILE_INFO = "fileInfo",
     NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
-    QUERY_RESULT = "queryResult",
+    CHUNK_RESULT = "chunkResult",
 }
 
 type WorkerReqMap = {
@@ -97,9 +97,7 @@ type WorkerRespMap = {
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
     },
-    [WORKER_RESP_CODE.QUERY_RESULT]: {
-        chunkResults: ChunkResults,
-    }
+    [WORKER_RESP_CODE.CHUNK_RESULT]: ChunkResults,
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?

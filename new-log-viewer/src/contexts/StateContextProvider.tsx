@@ -14,6 +14,7 @@ import {CONFIG_KEY} from "../typings/config";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
+    ChunkResults,
     CURSOR_CODE,
     CursorType,
     FileSrcType,
@@ -157,6 +158,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
+    const queryResults: ChunkResults = {};
+
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -184,9 +187,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
                 break;
             }
-            case WORKER_RESP_CODE.QUERY_RESULT:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: Handle query results
+            case WORKER_RESP_CODE.CHUNK_RESULT:
+                for (const [pageNumStr, results] of Object.entries(args)) {
+                    const pageNum = parseInt(pageNumStr, 10);
+                    if (!queryResults[pageNum]) {
+                        queryResults[pageNum] = [];
+                    }
+                    queryResults[pageNum].push(...results);
+                }
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);

@@ -63,6 +63,8 @@ class LogFileManager {
 
     #queryId: number = 0;
 
+    readonly #chunkResultsHandler: (chunkResults: ChunkResults) => void;
+
     #decoder: Decoder;
 
     /**
@@ -72,15 +74,19 @@ class LogFileManager {
      * @param decoder
      * @param fileName
      * @param pageSize Page size for setting up pagination.
+     * @param queryResultHandler
+     * @param chunkResultsHandler
      */
     constructor (
         decoder: Decoder,
         fileName: string,
         pageSize: number,
+        chunkResultsHandler: (chunkResults: ChunkResults) => void,
     ) {
+        this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
-        this.#decoder = decoder;
+        this.#chunkResultsHandler = chunkResultsHandler;
 
         // Build index for the entire file
         const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
@@ -107,17 +113,20 @@ class LogFileManager {
      * File object.
      * @param pageSize Page size for setting up pagination.
      * @param decoderOptions Initial decoder options.
+     * @param queryResultHandler
+     * @param chunkResultsHandler
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptionsType,
+        chunkResultsHandler: (chunkResults: ChunkResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize);
+        return new LogFileManager(decoder, fileName, pageSize, chunkResultsHandler);
     }
 
     /**
@@ -279,9 +288,9 @@ class LogFileManager {
      * @param searchRegex The regular expression to search
      * @return
      */
-    #searchChunk (queryId: number, beginSearchIdx: number, searchRegex: RegExp): ChunkResults | null {
+    #searchChunk (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
         if (queryId !== this.#queryId) {
-            return null;
+            return;
         }
 
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
@@ -312,7 +321,7 @@ class LogFileManager {
             });
         }
 
-        return results;
+        this.#chunkResultsHandler(results);
     }
 
     /**

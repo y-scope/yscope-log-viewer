@@ -4,6 +4,7 @@ import dayjsUtc from "dayjs/plugin/utc";
 
 import {LOG_LEVEL} from "../typings/logs";
 import {
+    ChunkResults,
     MainWorkerReqMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -37,13 +38,13 @@ const postResp = <T extends WORKER_RESP_CODE>(
 };
 
 
-// FIXME: pass this to the constructor / factory function of LogFileManager or the LogFileManager.search(onQueryResult) method?
 /**
+ * Post a response of a query chunk.
  *
- * @param queryResult
+ * @param chunkResults
  */
-const handleQueryResult = (queryResult: string[]) => {
-    postResp(WORKER_RESP_CODE.QUERY_RESULT, queryResult);
+const handleChunkResult = (chunkResults: ChunkResults) => {
+    postResp(WORKER_RESP_CODE.CHUNK_RESULT, chunkResults);
 };
 
 // eslint-disable-next-line no-warning-comments
@@ -77,7 +78,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 LOG_FILE_MANAGER = await LogFileManager.create(
                     args.fileSrc,
                     args.pageSize,
-                    args.decoderOptions
+                    args.decoderOptions,
+                    handleChunkResult
                 );
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
