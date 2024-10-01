@@ -16,7 +16,6 @@ import {
     SelectOption,
     Stack,
     Tooltip,
-    TooltipProps,
 } from "@mui/joy";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -34,40 +33,6 @@ import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
 
-
-/**
- * Renders a `<Tooltip/>` with its placement set to the left of its children.
- *
- * @param props
- * @param props.children
- * @param props.rest
- * @return
- */
-const PlacementLeftTooltip = ({children, ...rest}: TooltipProps) => (
-    <Tooltip
-        {...rest}
-        placement={"left"}
-    >
-        {children}
-    </Tooltip>
-);
-
-/**
- * Renders a `<Tooltip/>` with its placement set to the right of its children.
- *
- * @param props
- * @param props.children
- * @param props.rest
- * @return
- */
-const PlacementRightTooltip = ({children, ...rest}: TooltipProps) => (
-    <Tooltip
-        {...rest}
-        placement={"right"}
-    >
-        {children}
-    </Tooltip>
-);
 
 interface LogSelectOptionProps {
     isChecked: boolean,
@@ -100,7 +65,8 @@ const LogSelectOption = ({
             value={logLevelValue}
         >
             <ListItemDecorator>
-                <PlacementLeftTooltip
+                <Tooltip
+                    placement={"left"}
                     title={
                         <Stack
                             alignItems={"center"}
@@ -118,9 +84,10 @@ const LogSelectOption = ({
                         size={"sm"}
                         value={logLevelValue}
                         onClick={onCheckboxClick}/>
-                </PlacementLeftTooltip>
+                </Tooltip>
             </ListItemDecorator>
-            <PlacementRightTooltip
+            <Tooltip
+                placement={"left"}
                 title={
                     <Stack
                         alignItems={"center"}
@@ -134,7 +101,7 @@ const LogSelectOption = ({
                 <ListItemContent data-value={logLevelValue}>
                     {logLevelName}
                 </ListItemContent>
-            </PlacementRightTooltip>
+            </Tooltip>
         </Option>
     );
 };
