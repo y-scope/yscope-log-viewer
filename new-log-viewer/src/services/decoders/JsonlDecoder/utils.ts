@@ -1,5 +1,4 @@
 import dayjs, {Dayjs} from "dayjs";
-import utc from "dayjs/plugin/utc";
 
 import {
     JsonObject,
@@ -10,15 +9,9 @@ import {
     LOG_LEVEL,
 } from "../../../typings/logs";
 
-
-// eslint-disable-next-line import/no-named-as-default-member
-dayjs.extend(utc);
-
 /**
  * Determines whether the given value is a `JsonObject` and applies a TypeScript narrowing
  * conversion if so.
- *
- * Reference: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
  *
  * @param value
  * @return A TypeScript type predicate indicating whether `value` is a `JsonObject`.
@@ -40,6 +33,8 @@ const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
         return logLevelValue;
     }
 
+    // Json stringify covers edge case where the field is an object with more than one key, e.g.,
+    // `field = { "name": "INFO", "value": 20 }`.
     const logLevelName = "object" === typeof field ?
         JSON.stringify(field) :
         String(field);
@@ -63,11 +58,10 @@ const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
  */
 const convertToDayjsTimestamp = (field: JsonValue | undefined): dayjs.Dayjs => {
     // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
+    // dayjs surprisingly thinks `undefined` is a valid date:
+    // https://day.js.org/docs/en/parse/now#docsNav
     if (("string" !== typeof field &&
         "number" !== typeof field) ||
-
-        // dayjs surprisingly thinks `undefined` is a valid date:
-        // https://day.js.org/docs/en/parse/now#docsNav
         "undefined" === typeof field
     ) {
         // `INVALID_TIMESTAMP_VALUE` is a valid dayjs date. Another potential option is

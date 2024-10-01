@@ -12,7 +12,7 @@ import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
 import {
     INVALID_TIMESTAMP_VALUE,
-    JsonLogEvent,
+    LogEvent,
     LOG_LEVEL,
     LogLevelFilter,
 } from "../../../typings/logs";
@@ -37,7 +37,7 @@ class JsonlDecoder implements Decoder {
 
     #timestampKey: string;
 
-    #logEvents: JsonLogEvent[] = [];
+    #logEvents: LogEvent[] = [];
 
     #filteredLogEventMap: FilteredLogEventMap = null;
 
@@ -225,7 +225,7 @@ class JsonlDecoder implements Decoder {
         } else {
             // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
             // but it shouldn't be since the index comes from a class-internal filter.
-            const logEvent = this.#logEvents[logEventIdx] as JsonLogEvent;
+            const logEvent = this.#logEvents[logEventIdx] as LogEvent;
             logLevel = logEvent.level;
             message = this.#formatter.formatLogEvent(logEvent);
             timestamp = logEvent.timestamp.valueOf();

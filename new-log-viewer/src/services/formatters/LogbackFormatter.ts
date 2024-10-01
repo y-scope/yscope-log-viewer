@@ -6,7 +6,7 @@ import {
     FormatterOptionsType,
 } from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
-import {JsonLogEvent} from "../../typings/logs";
+import {LogEvent} from "../../typings/logs";
 
 
 /**
@@ -57,7 +57,7 @@ class LogbackFormatter implements Formatter {
      * @param logEvent
      * @return The formatted log event.
      */
-    formatLogEvent (logEvent: JsonLogEvent): string {
+    formatLogEvent (logEvent: LogEvent): string {
         const {fields, timestamp} = logEvent;
         const formatStringWithTimestamp: string =
             this.#formatTimestamp(timestamp, this.#formatString);

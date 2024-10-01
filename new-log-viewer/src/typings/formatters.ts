@@ -1,4 +1,4 @@
-import {JsonLogEvent} from "./logs";
+import {LogEvent} from "./logs";
 
 
 /**
@@ -29,7 +29,7 @@ interface LogbackFormatterOptionsType {
 type FormatterOptionsType = LogbackFormatterOptionsType;
 
 interface Formatter {
-    formatLogEvent: (logEvent: JsonLogEvent) => string
+    formatLogEvent: (logEvent: LogEvent) => string
 }
 
 export type {

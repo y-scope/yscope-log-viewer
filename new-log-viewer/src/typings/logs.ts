@@ -18,14 +18,14 @@ type LogLevelFilter = Nullable<LOG_LEVEL[]>;
 
 const INVALID_TIMESTAMP_VALUE = 0;
 
-interface JsonLogEvent {
+interface LogEvent {
     timestamp: Dayjs,
     level: LOG_LEVEL,
     fields: JsonObject
 }
 
 export type {
-    JsonLogEvent,
+    LogEvent,
     LogLevelFilter,
 };
 export {
