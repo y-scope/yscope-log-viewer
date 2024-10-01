@@ -75,8 +75,8 @@ type NavigationActionsMap = {
 
 type NavigationAction = {
     [T in keyof NavigationActionsMap]:
-    {code: T, args: NavigationActionsMap[T]}
-    } [keyof NavigationActionsMap];
+    { code: T, args: NavigationActionsMap[T] }
+} [keyof NavigationActionsMap];
 
 export {
     ACTION_NAME,

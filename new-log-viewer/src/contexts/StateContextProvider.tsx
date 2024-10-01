@@ -111,6 +111,8 @@ const getPageNumCursor = (
     numPages: number
 ): Nullable<CursorType> => {
     if (STATE_DEFAULT.pageNum === currentPageNum) {
+        // TODO This shouldn't be possible, but currently, the page nav buttons remain enabled
+        // even when a file hasn't been loaded.
         console.error("Page actions cannot be executed if the current page is not set.");
 
         return null;
