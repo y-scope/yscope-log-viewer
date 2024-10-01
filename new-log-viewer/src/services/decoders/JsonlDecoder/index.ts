@@ -1,3 +1,5 @@
+import {Dayjs} from "dayjs";
+
 import {Nullable} from "../../../typings/common";
 import {
     Decoder,
@@ -6,12 +8,11 @@ import {
     JsonlDecoderOptionsType,
     LogEventCount,
 } from "../../../typings/decoders";
-import {Dayjs} from "dayjs";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
 import {
-    JsonLogEvent,
     INVALID_TIMESTAMP_VALUE,
+    JsonLogEvent,
     LOG_LEVEL,
     LogLevelFilter,
 } from "../../../typings/logs";
@@ -91,7 +92,7 @@ class JsonlDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean,
     ): Nullable<DecodeResultType[]> {
-        if (null === this.#filteredLogEventMap && useFilter) {
+        if (useFilter && null === this.#filteredLogEventMap) {
             return null;
         }
 
@@ -190,15 +191,17 @@ class JsonlDecoder implements Decoder {
     #filterLogEvents (logLevelFilter: LogLevelFilter) {
         if (null === logLevelFilter) {
             this.#filteredLogEventMap = null;
+
             return;
         }
 
-        this.#filteredLogEventMap = [];
+        const filteredLogEventMap: number[] = [];
         this.#logEvents.forEach((logEvent, index) => {
             if (logLevelFilter.includes(logEvent.level)) {
-                (this.#filteredLogEventMap as number[]).push(index);
+                filteredLogEventMap.push(index);
             }
         });
+        this.#filteredLogEventMap = filteredLogEventMap;
     }
 
     /**

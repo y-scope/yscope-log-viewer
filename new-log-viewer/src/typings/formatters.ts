@@ -1,5 +1,6 @@
 import {JsonLogEvent} from "./logs";
 
+
 /**
  * Options for the LogbackFormatter.
  *
