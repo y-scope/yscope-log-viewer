@@ -44,7 +44,7 @@ const StatusBar = () => {
                 variant={"soft"}
                 onClick={handleCopyLinkButtonClick}
             >
-                {"Log Event: "}
+                {"Log Event "}
                 {logEventNum}
                 {" / "}
                 {numEvents}
