@@ -161,15 +161,9 @@ const getPageNumCursor = (
  * @param cursor
  */
 const loadPageByCursor = (
-    worker: Nullable<Worker>,
+    worker: Worker,
     cursor: CursorType,
 ) => {
-    if (null === worker) {
-        console.error("Unexpected null worker");
-
-        return;
-    }
-
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
         decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
@@ -291,6 +285,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
@@ -316,6 +315,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        
         if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
