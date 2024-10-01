@@ -73,7 +73,7 @@ class JsonlDecoder implements Decoder {
     build (): LogEventCount {
         this.#deserialize();
 
-        const numInvalidEvents = Array.from(this.#invalidLogEventIdxToRawLine.keys()).length;
+        const numInvalidEvents = this.#invalidLogEventIdxToRawLine.size;
 
         return {
             numValidEvents: this.#logEvents.length - numInvalidEvents,
@@ -106,9 +106,8 @@ class JsonlDecoder implements Decoder {
 
         const results: DecodeResultType[] = [];
         for (let i = beginIdx; i < endIdx; i++) {
-            // Explicit cast since typescript thinks `#filteredLogEventMap[i]`
-            // can be undefined, but it shouldn't be since we performed a bounds check at the
-            // beginning of the method.
+            // Explicit cast since typescript thinks `#filteredLogEventMap[i]` can be undefined, but
+            // it shouldn't be since we performed a bounds check at the beginning of the method.
             const logEventIdx: number = (useFilter && null !== this.#filteredLogEventMap) ?
                 (this.#filteredLogEventMap[i] as number) :
                 i;

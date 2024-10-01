@@ -16,13 +16,13 @@ enum LOG_LEVEL {
 
 type LogLevelFilter = Nullable<LOG_LEVEL[]>;
 
-const INVALID_TIMESTAMP_VALUE = 0;
-
 interface JsonLogEvent {
     timestamp: Dayjs,
     level: LOG_LEVEL,
     fields: JsonObject
 }
+
+const INVALID_TIMESTAMP_VALUE = 0;
 
 export type {
     JsonLogEvent,
