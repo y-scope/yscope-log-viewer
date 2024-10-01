@@ -186,10 +186,6 @@ const LogLevelSelect = () => {
         handleSelectChange(null);
     };
 
-    const handleSelectClearButtonMouseDown = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        ev.stopPropagation();
-    };
-
     return (
         <Select
             className={"log-level-select"}
@@ -204,7 +200,6 @@ const LogLevelSelect = () => {
                     <IconButton
                         variant={"plain"}
                         onClick={handleSelectClearButtonClick}
-                        onMouseDown={handleSelectClearButtonMouseDown}
                     >
                         <CloseIcon/>
                     </IconButton>
