@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 400] */
+/* eslint max-lines: ["error", 450] */
 import React, {
     createContext,
     useCallback,
@@ -320,7 +320,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        
+
         if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
