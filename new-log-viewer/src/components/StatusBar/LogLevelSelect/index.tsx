@@ -225,6 +225,7 @@ const LogLevelSelect = () => {
 
     return (
         <Select
+            className={"log-level-select"}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
