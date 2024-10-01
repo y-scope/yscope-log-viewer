@@ -24,6 +24,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 import {
+    INVALID_LOG_LEVEL_VALUE,
     LOG_LEVEL,
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
@@ -123,7 +124,7 @@ interface ClearFiltersOptionProps {
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
     <Option
-        value={null}
+        value={INVALID_LOG_LEVEL_VALUE}
         onClick={onClick}
     >
         <ListItemDecorator>
