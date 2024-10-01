@@ -283,7 +283,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -316,8 +315,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
             return;
         }
 
