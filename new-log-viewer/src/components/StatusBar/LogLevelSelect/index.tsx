@@ -39,6 +39,7 @@ interface LogSelectOptionProps {
     logLevelName: string,
     logLevelValue: LOG_LEVEL,
     onCheckboxClick: React.MouseEventHandler
+    onOptionClick: React.MouseEventHandler
 }
 
 /**
@@ -50,6 +51,7 @@ interface LogSelectOptionProps {
  * @param props.logLevelName
  * @param props.logLevelValue
  * @param props.onCheckboxClick
+ * @param props.onOptionClick
  * @return
  */
 const LogSelectOption = ({
@@ -57,12 +59,14 @@ const LogSelectOption = ({
     logLevelName,
     logLevelValue,
     onCheckboxClick,
+    onOptionClick,
 }: LogSelectOptionProps) => {
     return (
         <Option
             data-value={logLevelValue}
             key={logLevelName}
             value={logLevelValue}
+            onClick={onOptionClick}
         >
             <ListItemDecorator>
                 <Tooltip
@@ -98,7 +102,7 @@ const LogSelectOption = ({
                     </Stack>
                 }
             >
-                <ListItemContent data-value={logLevelValue}>
+                <ListItemContent>
                     {logLevelName}
                 </ListItemContent>
             </Tooltip>
@@ -168,22 +172,14 @@ const LogLevelSelect = () => {
         setSelectedLogLevels(newSelectedLogLevels.sort((a, b) => a - b));
     }, [selectedLogLevels]);
 
-    const handleSelectChange = useCallback((
-        ev: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null
-    ) => {
-        if (null === ev) {
-            setSelectedLogLevels([]);
-
-            return;
-        }
-
-        const target = ev.target as HTMLElement;
-        const selectedValue = Number(target.dataset.value);
+    const handleOptionClick = useCallback((ev: React.MouseEvent) => {
+        const currentTarget = ev.currentTarget as HTMLElement;
+        const selectedValue = Number(currentTarget.dataset.value);
         setSelectedLogLevels(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, []);
 
     const handleSelectClearButtonClick = () => {
-        handleSelectChange(null);
+        setSelectedLogLevels([]);
     };
 
     return (
@@ -215,7 +211,8 @@ const LogLevelSelect = () => {
                     placement: "top-end",
                 },
             }}
-            onChange={handleSelectChange}
+
+            // onChange={handleOptionClick}
         >
             <ClearFiltersOption onClick={handleSelectClearButtonClick}/>
             {LOG_LEVEL_NAMES.map((logLevelName, logLevelValue) => {
@@ -226,7 +223,8 @@ const LogLevelSelect = () => {
                         key={logLevelName}
                         logLevelName={logLevelName}
                         logLevelValue={logLevelValue}
-                        onCheckboxClick={handleCheckboxClick}/>
+                        onCheckboxClick={handleCheckboxClick}
+                        onOptionClick={handleOptionClick}/>
                 );
             })}
         </Select>
