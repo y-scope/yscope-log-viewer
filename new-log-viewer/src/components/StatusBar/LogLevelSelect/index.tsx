@@ -174,6 +174,12 @@ const LogLevelSelect = () => {
 
     const handleOptionClick = useCallback((ev: React.MouseEvent) => {
         const currentTarget = ev.currentTarget as HTMLElement;
+        if ("undefined" === typeof currentTarget.dataset.value) {
+            console.error("Unexpected undefined value for \"data-value\" attribute");
+
+            return;
+        }
+
         const selectedValue = Number(currentTarget.dataset.value);
         setSelectedLogLevels(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, []);
