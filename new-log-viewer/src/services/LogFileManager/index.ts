@@ -183,7 +183,12 @@ class LogFileManager {
             matchingLogEventNum,
         } = this.#getCursorData(cursor);
 
-        const results = this.#decoder.decodeRange(pageBeginLogEventNum - 1, pageEndLogEventNum - 1, false);
+        const results = this.#decoder.decodeRange(
+            pageBeginLogEventNum - 1,
+            pageEndLogEventNum - 1,
+            false
+        );
+
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `pageBeginLogEventNum=${pageBeginLogEventNum}, ` +

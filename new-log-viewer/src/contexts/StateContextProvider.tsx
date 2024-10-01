@@ -186,6 +186,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
@@ -194,7 +195,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
+
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -220,7 +221,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                pageNumRef.current = args.pageNum;
+                setPageNum(args.pageNum)
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
@@ -289,7 +290,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
+        const cursor = getPageNumCursor(navAction, pageNum, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
@@ -381,7 +382,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
-                pageNum: pageNumRef.current,
+                pageNum: pageNum,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
