@@ -42,8 +42,7 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
  * Creates an array of numbers in the range `[begin, end)` with the `i`th element computed as
  * `range[i - 1] + step`.
  *
- * If only one argument is supplied, the argument is interpreted as `end`, and `begin` is set to
- * `0`.
+ * If `args` is a number, it is interpreted as `end`, and `begin` is set to `0`.
  *
  * @param args
  * @param args.begin
@@ -55,7 +54,7 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 const range = (
     args: number | {begin: number, end: number} | {begin: number, end: number, step: number}
 ): number[] => {
-    // If only one argument is supplied, interpret it as `end` with `begin` set to 0.
+    // If `args` is a number, interpret it as `end` with `begin` set to 0.
     if ("number" === typeof args) {
         return range({begin: 0, end: args});
     }
