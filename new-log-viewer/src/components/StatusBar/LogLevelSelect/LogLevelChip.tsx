@@ -14,8 +14,8 @@ import "./LogLevelChip.css";
  */
 const LOG_LEVEL_COLOR_MAP: Record<LOG_LEVEL, DefaultColorPalette> = Object.freeze({
     [LOG_LEVEL.UNKNOWN]: "neutral",
-    [LOG_LEVEL.TRACE]: "neutral",
-    [LOG_LEVEL.DEBUG]: "neutral",
+    [LOG_LEVEL.TRACE]: "success",
+    [LOG_LEVEL.DEBUG]: "success",
     [LOG_LEVEL.INFO]: "primary",
     [LOG_LEVEL.WARN]: "warning",
     [LOG_LEVEL.ERROR]: "danger",
