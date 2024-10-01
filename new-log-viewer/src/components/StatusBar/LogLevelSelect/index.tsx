@@ -119,7 +119,7 @@ interface ClearFiltersOptionProps {
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
     <Option
-        value={-1}
+        value={null}
         onClick={onClick}
     >
         <ListItemDecorator>
