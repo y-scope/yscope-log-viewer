@@ -179,7 +179,7 @@ const LogLevelSelect = () => {
 
         const target = ev.target as HTMLElement;
         const selectedValue = Number(target.dataset.value);
-        setSelectedLogLevels(range(selectedValue, 1 + MAX_LOG_LEVEL));
+        setSelectedLogLevels(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, []);
 
     const handleSelectClearButtonClick = () => {

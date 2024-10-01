@@ -42,24 +42,35 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
  * Creates an array of numbers in the range `[begin, end)` with the `i`th element computed as
  * `range[i - 1] + step`.
  *
- * @param begin
- * @param end
- * @param step
+ * If only one argument is supplied, the argument is interpreted as `end`, and `begin` is set to
+ * `0`.
+ *
+ * @param args
+ * @param args.begin
+ * @param args.end
+ * @param args.step
  * @return The computed range.
  * @throws {Error} if `step` is 0.
  */
-const range = (begin: number, end: Nullable<number> = null, step: number = 1): number[] => {
-    if (0 === step) {
-        throw new Error("Step cannot be zero.");
+const range = (
+    args: number | {begin: number, end: number} | {begin: number, end: number, step: number}
+): number[] => {
+    // If only one argument is supplied, interpret it as `end` with `begin` set to 0.
+    if ("number" === typeof args) {
+        return range({begin: 0, end: args});
     }
 
-    // If only one argument is supplied, the argument is interpreted as `end`, and `begin` is set to
-    // `0`.
-    if (null === end) {
-        end = begin;
-        begin = 0;
+    // Assume `step` is 1 if not provided.
+    let step = 1;
+    if ("step" in args) {
+        ({step} = args);
+        if (0 === step) {
+            throw new Error("Step cannot be zero.");
+        }
     }
 
+    // Generate the range depending on the sign of `step`.
+    const {begin, end} = args;
     const result: number[] = [];
     if (0 < step) {
         for (let i = begin; i < end; i += step) {
