@@ -1,5 +1,6 @@
 import {Nullable} from "../typings/common";
 
+
 /**
  * Checks if 'x' is bounded by the first and last value in a sorted array of numbers.
  *
@@ -118,9 +119,10 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
         map.get(lowerBoundKey) as T;
 };
 
+
 export {
-    isWithinBounds,
     findLargestIdxLte,
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
+    isWithinBounds,
 };
