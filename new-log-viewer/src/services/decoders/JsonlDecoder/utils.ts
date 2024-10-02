@@ -18,7 +18,7 @@ import {
  * @return A TypeScript type predicate indicating whether `value` is a `JsonObject`.
  */
 const isJsonObject = (value: JsonValue): value is JsonObject => {
-    return "object" === typeof value && null !== value && !Array.isArray(value);
+    return "object" === typeof value && null !== value && false === Array.isArray(value);
 };
 
 /**
@@ -30,9 +30,7 @@ const isJsonObject = (value: JsonValue): value is JsonObject => {
 const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
     let logLevelValue = LOG_LEVEL.NONE;
 
-    // If the field is an object , e.g. `field = { "name": "INFO", "value": 20 }`.
-    // Then the user should specify a nested key.
-    if ("undefined" === typeof field || "object" === typeof field) {
+    if ("undefined" === typeof field || isJsonObject(field)) {
         return logLevelValue;
     }
 

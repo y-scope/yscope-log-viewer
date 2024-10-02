@@ -85,7 +85,7 @@ interface Decoder {
      * @param endIdx
      * @param useFilter Whether to decode from the filtered or unfiltered log events collection.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
-     * (e.g., the range exceeds the number of log events in the file).
+     * (e.g., the range exceeds the number of log events in the collection).
      */
     decodeRange(
         beginIdx: number,
