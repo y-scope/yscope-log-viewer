@@ -24,7 +24,7 @@ const binarySearch = (n: number, conditionFn: (index: number) => boolean): numbe
     while (i < j) {
         const mid = Math.floor((i + j) / 2);
 
-        if (!conditionFn(mid)) {
+        if (false === conditionFn(mid)) {
             i = mid + 1;
         } else {
             j = mid;
@@ -49,7 +49,7 @@ const binarySearch = (n: number, conditionFn: (index: number) => boolean): numbe
  * console.log(result); // Output: 3 (since arr[3] is 7).
  */
 const findLargestIdxLte = (data: number[], x: number): Nullable<number> => {
-    const n = data.length;
+    const {length} = data;
 
     if (0 === n) {
         return null;
@@ -62,8 +62,7 @@ const findLargestIdxLte = (data: number[], x: number): Nullable<number> => {
         return 0;
     }
 
-    const largestIdxLte: number = firstGreaterIdx - 1;
-    return largestIdxLte;
+    return firstGreaterIdx - 1;
 };
 
 /**
@@ -103,9 +102,7 @@ const strictFindLargestIdxLte = (data: number[], x: number): Nullable<number> =>
         return null;
     }
 
-    const largestIdxLte = firstGreaterIdx - 1;
-
-    return largestIdxLte;
+    return firstGreaterIdx - 1;
 };
 
 export {
