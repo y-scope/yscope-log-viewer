@@ -2,11 +2,11 @@ import {Nullable} from "../typings/common";
 
 
 /**
- * Checks if 'target' is bounded by the first and last value in a sorted array of numbers.
+ * Checks if `target` is bounded by the first and last value in a sorted array of numbers.
  *
- * @param data A number array sorted in ascending order.
+ * @param data An array sorted in ascending order.
  * @param target
- * @return `true` if is `target` is within bounds; `false` otherwise or when the array is empty.
+ * @return Whether `target` is within the bounds of the array's values.
  */
 const isWithinBounds = (data: number[], target: number): boolean => {
     const {length} = data;
@@ -18,15 +18,13 @@ const isWithinBounds = (data: number[], target: number): boolean => {
 };
 
 /**
- * Performs binary search to find the smallest index `i` in the range [0, length) where the
- * `conditionFn` is true. Assumes that the `conditionFn` is false for some prefix of the input
- * range and true for the remainder. The most common use is to find the index `i` of a target
- * value in a sorted array.
+ * Performs binary search to find the smallest index `i` in the range `[0, length)` where
+ * `conditionFn` is true. `conditionFn` should be false for some prefix of the input range and true
+ * for the remainder.
  *
  * @param length The length of the range to search.
  * @param conditionFn A function that takes an index and returns `true` or `false`.
- * @return The smallest index where `conditionFn(i)` is true. If no such index exists, returns
- * `length`.
+ * @return The smallest index where `conditionFn(i)` is true, or `length` if no such index exists.
  * @example
  * const arr = [1, 3, 5, 7, 10, 15, 20];
  * const result = binarySearch(arr.length, (i) => arr[i] >= 10);
@@ -37,10 +35,8 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
     // Reference: https://pkg.go.dev/sort#Search
     let i = 0;
     let j = length;
-
     while (i < j) {
         const mid = Math.floor((i + j) / 2);
-
         if (false === conditionFn(mid)) {
             i = mid + 1;
         } else {
@@ -55,9 +51,9 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
  * Finds the largest index `i` in a sorted array `data` such that `data[i] <= target`. Uses binary
  * search for efficiency.
  *
- * @param data A number array sorted in ascending order.
+ * @param data An array sorted in ascending order.
  * @param target
- * @return The largest index where `data[i] <= target`. There are 2 edge cases where returns:
+ * @return The largest index where `data[i] <= target` or:
  * - 0 if `target` is less than `data[0]`.
  * - `null` if array is empty.
  * @example
