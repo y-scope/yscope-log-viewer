@@ -54,6 +54,7 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
 /**
  * Finds the largest index `i` in a sorted array `data` such that `data[i] <= target`. Uses binary
  * search for efficiency.
+ *
  * @param data A number array sorted in ascending order.
  * @param target
  * @return The largest index where `data[i] <= target`. There are 2 edge cases where returns:
