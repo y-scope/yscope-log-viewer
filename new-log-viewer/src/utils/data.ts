@@ -2,26 +2,26 @@ import {Nullable} from "../typings/common";
 
 
 /**
- * Checks if 'x' is bounded by the first and last value in a sorted array of numbers.
+ * Checks if 'target' is bounded by the first and last value in a sorted array of numbers.
  *
  * @param data A number array sorted in ascending order.
- * @param x Target value.
- * @return `true` if is `x` is within bounds; `false` otherwise or when the array is empty.
+ * @param target
+ * @return `true` if is `target` is within bounds; `false` otherwise or when the array is empty.
  */
-const isWithinBounds = (data: number[], x: number): boolean => {
+const isWithinBounds = (data: number[], target: number): boolean => {
     const {length} = data;
     if (0 === length) {
         return false;
     }
 
-    return (x >= (data[0] as number)) && (x <= (data[length - 1] as number));
+    return (target >= (data[0] as number)) && (target <= (data[length - 1] as number));
 };
 
 /**
  * Performs binary search to find the smallest index `i` in the range [0, length) where the
- * `conditionFn` is true. Assumes that the `conditionFn` is false for some prefix of the
- * input range and true for the remainder. The most common use is find the index `i` of
- * a value x in a sorted array.
+ * `conditionFn` is true. Assumes that the `conditionFn` is false for some prefix of the input
+ * range and true for the remainder. The most common use is to find the index `i` of a target
+ * value in a sorted array.
  *
  * @param length The length of the range to search.
  * @param conditionFn A function that takes an index and returns `true` or `false`.
@@ -52,27 +52,27 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
 };
 
 /**
- * Finds the largest index `i` in a sorted array `data` such that `data[i] <= x`.
- * Uses binary search for efficiency.
+ * Finds the largest index `i` in a sorted array `data` such that `data[i] <= target`. Uses binary
+ * search for efficiency.
  * @param data A number array sorted in ascending order.
- * @param x Target value.
- * @return The largest index where `data[i] <= x`. There are 2 edge cases where returns:
- * - 0 if `x` is less than `data[0]`.
+ * @param target
+ * @return The largest index where `data[i] <= target`. There are 2 edge cases where returns:
+ * - 0 if `target` is less than `data[0]`.
  * - `null` if array is empty.
  * @example
  * const arr = [2, 3, 5, 7, 10, 15, 20];
  * const result = findLargestIdxLte(arr, 8);
  * console.log(result); // Output: 3 (since arr[3] is 7).
  */
-const getLargestIdxLte = (data: number[], x: number): Nullable<number> => {
+const getLargestIdxLte = (data: number[], target: number): Nullable<number> => {
     const {length} = data;
 
     if (0 === length) {
         return null;
     }
 
-    // Binary search to find the first index where data[i] > x.
-    const firstGreaterIdx: number = binarySearch(length, (i) => data[i] as number > x);
+    // Binary search to find the first index where data[i] > target.
+    const firstGreaterIdx: number = binarySearch(length, (i) => data[i] as number > target);
 
     if (0 === firstGreaterIdx) {
         return 0;
