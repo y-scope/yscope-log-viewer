@@ -55,7 +55,7 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
  * Finds the largest index `i` in a sorted array `data` such that `data[i] <= x`.
  * Uses binary search for efficiency. Returns 0 if `x` is less than `data[0]`.
  *
- * @param data Sorted array.
+ * @param data A number array sorted in ascending order.
  * @param x Target value.
  * @return The largest index where `data[i] <= x`. There are 2 edge cases where returns:
  * - 0 if `x` is less than `data[0]`.
@@ -65,7 +65,7 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
  * const result = findLargestIdxLte(arr, 8);
  * console.log(result); // Output: 3 (since arr[3] is 7).
  */
-const findLargestIdxLte = (data: number[], x: number): Nullable<number> => {
+const getLargestIdxLte = (data: number[], x: number): Nullable<number> => {
     const {length} = data;
 
     if (0 === length) {
@@ -121,7 +121,7 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 
 
 export {
-    findLargestIdxLte,
+    getLargestIdxLte,
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
     isWithinBounds,
