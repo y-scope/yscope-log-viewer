@@ -12,6 +12,7 @@ import {
 
 import DescriptionIcon from "@mui/icons-material/Description";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
+import SearchIcon from "@mui/icons-material/Search";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 import {StateContext} from "../../contexts/StateContextProvider";
@@ -31,7 +32,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile} = useContext(StateContext);
+    const {fileName, loadFile, queryLogs} = useContext(StateContext);
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
@@ -78,6 +79,11 @@ const MenuBar = () => {
                     <SettingsIcon/>
                 </SmallIconButton>
                 <ExportLogsButton/>
+                <SmallIconButton
+                    onClick={() => queryLogs}
+                >
+                    <SearchIcon/>
+                </SmallIconButton>
             </Sheet>
             <SettingsModal
                 isOpen={isSettingsModalOpen}

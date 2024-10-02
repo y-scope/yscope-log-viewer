@@ -52,6 +52,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPage: (newPageNum: number) => void,
+    queryLogs: () => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -70,6 +71,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPage: () => null,
+    queryLogs: () => null,
 });
 
 interface StateContextProviderProps {
@@ -188,6 +190,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.CHUNK_RESULT:
+                console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
                 for (const [pageNumStr, results] of Object.entries(args)) {
                     const pageNum = parseInt(pageNumStr, 10);
                     if (!queryResults.current[pageNum]) {
@@ -200,6 +203,19 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
+    }, []);
+
+    const queryLogs = useCallback(() => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.QUERY_LOG, {
+            searchString: "scheduling",
+            isRegex: false,
+            isCaseSensitive: false,
+        });
     }, []);
 
     const exportLogs = useCallback(() => {
@@ -347,6 +363,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPage: loadPage,
+                queryLogs: queryLogs,
             }}
         >
             {children}

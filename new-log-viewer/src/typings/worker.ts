@@ -67,9 +67,9 @@ type WorkerReqMap = {
         decoderOptions?: DecoderOptionsType
     },
     [WORKER_REQ_CODE.QUERY_LOG]: {
-        isCaseSensitive: boolean,
         searchString: string,
         isRegex: boolean,
+        isCaseSensitive: boolean,
     }
 };
 
