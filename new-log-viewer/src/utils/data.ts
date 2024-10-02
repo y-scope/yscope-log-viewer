@@ -19,25 +19,25 @@ const isWithinBounds = (data: number[], target: number): boolean => {
 
 /**
  * Performs binary search to find the smallest index `i` in the range `[0, length)` where
- * `conditionFn` is true. `conditionFn` should be false for some prefix of the input range and true
+ * `predicate` is true. `predicate` should be false for some prefix of the input range and true
  * for the remainder.
  *
  * @param length The length of the range to search.
- * @param conditionFn A function that takes an index and returns `true` or `false`.
- * @return The smallest index where `conditionFn(i)` is true, or `length` if no such index exists.
+ * @param predicate A function that takes an index and returns `true` or `false`.
+ * @return The smallest index where `predicate(i)` is true, or `length` if no such index exists.
  * @example
  * const arr = [1, 3, 5, 7, 10, 15, 20];
  * const result = binarySearch(arr.length, (i) => arr[i] >= 10);
  * console.log(result); // Output: 4 (since arr[4] is 10).
  */
-const binarySearch = (length: number, conditionFn: (index: number) => boolean): number => {
+const binarySearch = (length: number, predicate: (index: number) => boolean): number => {
     // Generic implementation based on Go standard library implementation.
     // Reference: https://pkg.go.dev/sort#Search
     let i = 0;
     let j = length;
     while (i < j) {
         const mid = Math.floor((i + j) / 2);
-        if (false === conditionFn(mid)) {
+        if (false === predicate(mid)) {
             i = mid + 1;
         } else {
             j = mid;
