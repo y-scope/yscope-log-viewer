@@ -61,7 +61,7 @@ const binarySearch = (length: number, conditionFn: (index: number) => boolean): 
  * - `null` if array is empty.
  * @example
  * const arr = [2, 3, 5, 7, 10, 15, 20];
- * const result = findLargestIdxLte(arr, 8);
+ * const result = getLargestIdxLte(arr, 8);
  * console.log(result); // Output: 3 (since arr[3] is 7).
  */
 const getLargestIdxLte = (data: number[], target: number): Nullable<number> => {
