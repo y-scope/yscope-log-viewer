@@ -18,7 +18,7 @@ import {
  * @return A TypeScript type predicate indicating whether `value` is a `JsonObject`.
  */
 const isJsonObject = (value: JsonValue): value is JsonObject => {
-    return "object" === typeof value && null !== value;
+    return "object" === typeof value && null !== value && !Array.isArray(value);
 };
 
 /**
@@ -30,15 +30,13 @@ const isJsonObject = (value: JsonValue): value is JsonObject => {
 const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
     let logLevelValue = LOG_LEVEL.NONE;
 
-    if ("undefined" === typeof field) {
+    // If the field is an object , e.g. `field = { "name": "INFO", "value": 20 }`.
+    // Then the user should specify a nested key.
+    if ("undefined" === typeof field || "object" === typeof field) {
         return logLevelValue;
     }
 
-    // Json stringify covers edge case where the field is an object with more than one key, e.g.,
-    // `field = { "name": "INFO", "value": 20 }`.
-    const logLevelName = "object" === typeof field ?
-        JSON.stringify(field) :
-        String(field);
+    const logLevelName = String(field);
 
     const uppercaseLogLevelName = logLevelName.toUpperCase();
     if (uppercaseLogLevelName in LOG_LEVEL) {
@@ -59,7 +57,7 @@ const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
  */
 const convertToDayjsTimestamp = (field: JsonValue | undefined): dayjs.Dayjs => {
     // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
-    // dayjs surprisingly thinks `undefined` is a valid date:
+    // NOTE: dayjs surprisingly thinks `undefined` is a valid date. See
     // https://day.js.org/docs/en/parse/now#docsNav
     if (("string" !== typeof field &&
         "number" !== typeof field) ||

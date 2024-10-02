@@ -38,7 +38,7 @@ class ClpIrDecoder implements Decoder {
     getFilteredLogEventMap (): FilteredLogEventMap {
         // eslint-disable-next-line no-warning-comments
         // TODO: Update this after log level filtering is implemented in clp-ffi-js
-        console.error("getFilteredLogEventMap not implemented for IR decoder.");
+        console.error("Not implemented.");
 
         return null;
     }
@@ -47,7 +47,7 @@ class ClpIrDecoder implements Decoder {
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
         // eslint-disable-next-line no-warning-comments
         // TODO: Update this after log level filtering is implemented in clp-ffi-js
-        console.error("setLogLevelFilter not implemented for IR decoder.");
+        console.error("Not implemented.");
 
         return false;
     }
