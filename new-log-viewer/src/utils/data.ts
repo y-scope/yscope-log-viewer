@@ -4,9 +4,9 @@ import {Nullable} from "../typings/common";
 /**
  * Checks if 'x' is bounded by the first and last value in a sorted array of numbers.
  *
- * @param data Sorted array.
+ * @param data A number array sorted in ascending order.
  * @param x Target value.
- * @return True if is `x` is within bounds and false if outside of bounds or array is empty.
+ * @return `true` if is `x` is within bounds; `false` otherwise or when the array is empty.
  */
 const isWithinBounds = (data: number[], x: number): boolean => {
     const {length} = data;
