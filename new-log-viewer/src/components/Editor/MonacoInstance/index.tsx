@@ -5,7 +5,7 @@ import {
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
-import {ActionType} from "../../../utils/actions";
+import {EditorAction} from "../../../utils/actions";
 import {
     BeforeMountCallback,
     BeforeTextUpdateCallback,
@@ -23,7 +23,7 @@ import "./index.css";
 
 
 interface MonacoEditorProps {
-    actions: ActionType[],
+    actions: EditorAction[],
     lineNum: number,
     text: string,
     themeName: "dark" | "light",

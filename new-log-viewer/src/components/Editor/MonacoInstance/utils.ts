@@ -1,6 +1,6 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {ActionType} from "../../../utils/actions";
+import {EditorAction} from "../../../utils/actions";
 import {
     setupCursorExplicitPosChangeCallback,
     setupCustomActions,
@@ -40,7 +40,7 @@ const goToPositionAndCenter = (
  */
 const createMonacoEditor = (
     editorContainer: HTMLDivElement,
-    actions: ActionType[],
+    actions: EditorAction[],
     handlers: CustomMonacoEditorHandlers
 ): monaco.editor.IStandaloneCodeEditor => {
     setupCustomLogLanguage();

@@ -8,21 +8,33 @@ import {LOG_LEVEL} from "./logs";
 type FileSrcType = string | File;
 
 /**
+ * For `CURSOR_CODE.PAGE_NUM`, this enum indicates which log event number (e.g., first/last on page)
+ * should be returned with the page.
+ */
+enum EVENT_POSITION_ON_PAGE {
+    TOP,
+    BOTTOM,
+}
+
+/**
  * Enum of cursors used for locating some log event and navigating across pages.
  * - LAST_EVENT: the last event
+ * - EVENT_NUM: a specific log event
  * - TIMESTAMP: the first event that has a timestamp >= the given value
- * - PAGE_NUM: the first event on the given page
+ * - PAGE_NUM: the first or last event on the given page
  */
 enum CURSOR_CODE {
     LAST_EVENT = "lastEvent",
+    EVENT_NUM = "eventNum",
     TIMESTAMP = "timestamp",
     PAGE_NUM = "pageNum"
 }
 
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
+    [CURSOR_CODE.EVENT_NUM]: { eventNum: number };
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number };
+    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPositionOnPage: EVENT_POSITION_ON_PAGE };
 };
 
 type CursorType = {
@@ -76,9 +88,11 @@ type WorkerRespMap = {
         originalFileSizeInBytes: number,
     },
     [WORKER_RESP_CODE.PAGE_DATA]: {
-        logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
+        logEventNum: number
+        logs: string,
+        pageNum: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,
@@ -104,6 +118,7 @@ type MainWorkerRespMessage = {
 
 export {
     CURSOR_CODE,
+    EVENT_POSITION_ON_PAGE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
