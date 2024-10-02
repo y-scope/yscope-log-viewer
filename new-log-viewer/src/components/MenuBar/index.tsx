@@ -80,7 +80,7 @@ const MenuBar = () => {
                 </SmallIconButton>
                 <ExportLogsButton/>
                 <SmallIconButton
-                    onClick={() => queryLogs}
+                    onClick={queryLogs}
                 >
                     <SearchIcon/>
                 </SmallIconButton>
