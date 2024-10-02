@@ -1,5 +1,20 @@
 import {Nullable} from "../typings/common";
 
+/**
+ * Checks if 'x' is bounded by the first and last value in a sorted array of numbers.
+ *
+ * @param data Sorted array.
+ * @param x Target value.
+ * @return True if is `x` is within bounds and false if outside of bounds or array is empty.
+ */
+const isWithinBounds = (data: number[], x: number): boolean => {
+    const {length} = data;
+    if (0 === length) {
+        return false;
+    }
+
+    return (x >= (data[0] as number)) && (x <= (data[length - 1] as number));
+};
 
 /**
  * Performs binary search to find the smallest index `i` in the range [0, length) where the
@@ -67,22 +82,6 @@ const findLargestIdxLte = (data: number[], x: number): Nullable<number> => {
 };
 
 /**
- * Checks if 'x' is bounded by the first and last value in a sorted array of numbers.
- *
- * @param data Sorted array.
- * @param x Target value.
- * @return True if is `x` is within bounds and false if outside of bounds or array is empty.
- */
-const isWithinBounds = (data: number[], x: number): boolean => {
-    const {length} = data;
-    if (0 === length) {
-        return false;
-    }
-
-    return (x >= (data[0] as number)) && (x <= (data[length - 1] as number));
-};
-
-/**
  * Finds the key in a map based on the provided value.
  *
  * @param map
@@ -120,8 +119,8 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 };
 
 export {
+    isWithinBounds,
     findLargestIdxLte,
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
-    isWithinBounds,
 };
