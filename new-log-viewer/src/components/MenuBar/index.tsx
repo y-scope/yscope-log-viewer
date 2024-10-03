@@ -5,6 +5,7 @@ import {
 
 import {
     Divider,
+    LinearProgress,
     Sheet,
     Stack,
     Typography,
@@ -15,7 +16,10 @@ import FileOpenIcon from "@mui/icons-material/FileOpen";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {CURSOR_CODE} from "../../typings/worker";
+import {
+    CURSOR_CODE,
+    LOAD_STATE,
+} from "../../typings/worker";
 import {openFile} from "../../utils/file";
 import SettingsModal from "../modals/SettingsModal";
 import ExportLogsButton from "./ExportLogsButton";
@@ -31,7 +35,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile} = useContext(StateContext);
+    const {fileName, loadState, loadFile} = useContext(StateContext);
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
@@ -68,17 +72,30 @@ const MenuBar = () => {
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
-                <SmallIconButton onClick={handleOpenFileButtonClick}>
+                <SmallIconButton
+                    disabled={loadState === LOAD_STATE.LOADING}
+                    onClick={handleOpenFileButtonClick}
+                >
                     <FileOpenIcon/>
                 </SmallIconButton>
                 <Divider orientation={"vertical"}/>
                 <SmallIconButton
+                    disabled={loadState === LOAD_STATE.LOADING}
                     onClick={handleSettingsModalOpen}
                 >
                     <SettingsIcon/>
                 </SmallIconButton>
                 <ExportLogsButton/>
             </Sheet>
+            {loadState === LOAD_STATE.LOADING &&
+                <LinearProgress
+                    size={"sm"}
+                    sx={{
+                        "marginBottom": "-2px",
+                        "--LinearProgress-thickness": "2px",
+                        "--LinearProgress-progressThickness": "2px",
+                        "zIndex": 10,
+                    }}/>}
             <SettingsModal
                 isOpen={isSettingsModalOpen}
                 onClose={handleSettingsModalClose}/>

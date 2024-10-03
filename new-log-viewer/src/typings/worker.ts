@@ -2,6 +2,12 @@ import {DecoderOptionsType} from "./decoders";
 import {LOG_LEVEL} from "./logs";
 
 
+enum LOAD_STATE {
+    UNOPENED = "unopened",
+    LOADING = "loading",
+    READY = "ready",
+}
+
 /**
  * Type of input file, which can be either a URL string or a File object.
  */
@@ -118,6 +124,7 @@ type MainWorkerRespMessage = {
 export {
     CURSOR_CODE,
     EVENT_POSITION_ON_PAGE,
+    LOAD_STATE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

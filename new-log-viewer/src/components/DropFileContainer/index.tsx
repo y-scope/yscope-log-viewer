@@ -4,7 +4,10 @@ import React, {
 } from "react";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {CURSOR_CODE} from "../../typings/worker";
+import {
+    CURSOR_CODE,
+    LOAD_STATE,
+} from "../../typings/worker";
 
 import "./index.css";
 
@@ -21,7 +24,7 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const {loadFile} = useContext(StateContext);
+    const {loadFile, loadState} = useContext(StateContext);
     const [isFileHovering, setIsFileHovering] = useState(false);
 
     const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
@@ -52,7 +55,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         ev.stopPropagation();
 
         setIsFileHovering(false);
-
+        if (loadState === LOAD_STATE.LOADING) {
+            return;
+        }
         const [file] = ev.dataTransfer.files;
         if ("undefined" === typeof file) {
             console.warn("No file dropped.");
@@ -77,14 +82,18 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                 {children}
                 {isFileHovering && (
                     <div
-                        className={"hover-mask"}
+                        className={`hover-mask${loadState === LOAD_STATE.LOADING ?
+                            " hover-mask-loading" :
+                            ""}`}
                         onDrop={handleDrop}
                     >
                         <div
                             className={"hover-message"}
                             onDrop={handleDrop}
                         >
-                            Drop file to view
+                            {loadState === LOAD_STATE.LOADING ?
+                                "Loading in progress" :
+                                "Drop file to view"}
                         </div>
                     </div>
                 )}

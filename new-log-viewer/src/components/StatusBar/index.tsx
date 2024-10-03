@@ -9,6 +9,7 @@ import {
     copyPermalinkToClipboard,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
+import {LOAD_STATE} from "../../typings/worker";
 
 import "./index.css";
 
@@ -26,7 +27,7 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {numEvents} = useContext(StateContext);
+    const {loadState, numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     return (
@@ -38,6 +39,7 @@ const StatusBar = () => {
                 Status message
             </Typography>
             <Button
+                disabled={loadState === LOAD_STATE.UNOPENED}
                 size={"sm"}
                 onClick={handleCopyLinkButtonClick}
             >

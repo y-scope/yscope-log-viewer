@@ -9,6 +9,7 @@ import {Typography} from "@mui/joy";
 import Input from "@mui/joy/Input";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {LOAD_STATE} from "../../typings/worker";
 import {ACTION_NAME} from "../../utils/actions";
 
 import "./PageNumInput.css";
@@ -23,7 +24,7 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPageByAction, numPages, pageNum} = useContext(StateContext);
+    const {loadState, loadPageByAction, numPages, pageNum} = useContext(StateContext);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +80,7 @@ const PageNumInput = () => {
         >
             <Input
                 className={"page-num-input"}
+                disabled={loadState !== LOAD_STATE.READY}
                 size={"sm"}
                 slotProps={{input: {ref: inputRef}}}
                 type={"number"}

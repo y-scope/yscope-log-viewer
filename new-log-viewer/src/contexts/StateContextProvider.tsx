@@ -18,6 +18,7 @@ import {
     CursorType,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
+    LOAD_STATE,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -48,6 +49,7 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     exportProgress: Nullable<number>,
+    loadState: LOAD_STATE,
     logData: string,
     numEvents: number,
     numPages: number,
@@ -66,6 +68,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    loadState: LOAD_STATE.UNOPENED,
     logData: "Loading...",
     numEvents: 0,
     numPages: 0,
@@ -184,6 +187,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [loadState, setLoadState] = useState<LOAD_STATE>(STATE_DEFAULT.loadState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const beginLineNumToLogEventNumRef =
@@ -231,6 +235,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
+
+        switch (code) {
+            case WORKER_RESP_CODE.CHUNK_DATA:
+            case WORKER_RESP_CODE.PAGE_DATA:
+                setLoadState(LOAD_STATE.READY);
+                break;
+            default: break;
+        }
     }, []);
 
     const exportLogs = useCallback(() => {
@@ -261,6 +273,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        setLoadState(LOAD_STATE.LOADING);
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
@@ -284,6 +297,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
+        setLoadState(LOAD_STATE.LOADING);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
@@ -378,6 +392,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                loadState: loadState,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPagesRef.current,
