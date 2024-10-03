@@ -6,8 +6,7 @@ import "./index.css";
 
 
 /**
- * Locates in the center of the <Layout/> and wraps the <DropFileContainer/>-contained <Editor/>
- * with a sidebar component on its left.
+ * Located in the center of the <Layout/>.
  *
  * @return
  */
