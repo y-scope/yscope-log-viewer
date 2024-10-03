@@ -1,4 +1,6 @@
 import {Nullable} from "../typings/common";
+import {clamp} from "./math";
+
 
 
 /**
@@ -15,6 +17,22 @@ const isWithinBounds = (data: number[], target: number): boolean => {
     }
 
     return (target >= (data[0] as number)) && (target <= (data[length - 1] as number));
+};
+
+/**
+ * Clamps a number using the first and last value in a sorted array of numbers.
+ *
+ * @param data An array sorted in ascending order.
+ * @param num The number to be clamped.
+ * @return The clamped number.
+ */
+const clampWithinBounds = (data: number[], num: number): number => {
+    const {length} = data;
+    if (0 === length) {
+        return num;
+    }
+
+    return clamp(num, data[0] as number, data[length - 1] as number);
 };
 
 /**
@@ -54,14 +72,14 @@ const binarySearch = (length: number, predicate: (index: number) => boolean): nu
  * @param data An array sorted in ascending order.
  * @param target
  * @return The largest index where `data[i] <= target` or:
- * - 0 if `target` is less than `data[0]`.
+ * - `length` if no such index exists.
  * - `null` if array is empty.
  * @example
  * const arr = [2, 3, 5, 7, 10, 15, 20];
- * const result = getLargestIdxLte(arr, 8);
+ * const result = findNearestLessThanOrEqualElement(arr, 8);
  * console.log(result); // Output: 3 (since arr[3] is 7).
  */
-const getLargestIdxLte = (data: number[], target: number): Nullable<number> => {
+const findNearestLessThanOrEqualElement = (data: number[], target: number): Nullable<number> => {
     const {length} = data;
 
     if (0 === length) {
@@ -72,7 +90,7 @@ const getLargestIdxLte = (data: number[], target: number): Nullable<number> => {
     const firstGreaterIdx: number = binarySearch(length, (i) => data[i] as number > target);
 
     if (0 === firstGreaterIdx) {
-        return 0;
+        return length;
     }
 
     return firstGreaterIdx - 1;
@@ -117,8 +135,9 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 
 
 export {
-    getLargestIdxLte,
+    isWithinBounds,
+    clampWithinBounds,
+    findNearestLessThanOrEqualElement,
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
-    isWithinBounds,
 };
