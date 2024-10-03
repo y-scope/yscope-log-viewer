@@ -2,7 +2,6 @@ import {Nullable} from "../typings/common";
 import {clamp} from "./math";
 
 
-
 /**
  * Checks if `target` is bounded by the first and last value in a sorted array of numbers.
  *
@@ -135,9 +134,9 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
 
 
 export {
-    isWithinBounds,
     clampWithinBounds,
     findNearestLessThanOrEqualElement,
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
+    isWithinBounds,
 };
