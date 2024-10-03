@@ -67,6 +67,8 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
     };
 
+    const isLoading = LOAD_STATE.LOADING === loadState;
+
     return (
         <div
             className={"drop-file-container"}
@@ -82,17 +84,17 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                 {children}
                 {isFileHovering && (
                     <div
-                        className={`hover-mask${loadState === LOAD_STATE.LOADING ?
-                            " hover-mask-loading" :
-                            ""}`}
+                        className={"hover-mask"}
                         onDrop={handleDrop}
                     >
                         <div
-                            className={"hover-message"}
+                            className={`hover-message ${isLoading ?
+                                "hover-message-loading" :
+                                ""}`}
                             onDrop={handleDrop}
                         >
-                            {loadState === LOAD_STATE.LOADING ?
-                                "Loading in progress" :
+                            {isLoading ?
+                                "Drop is disabled during loading" :
                                 "Drop file to view"}
                         </div>
                     </div>

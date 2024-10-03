@@ -22,11 +22,6 @@
     background-color: rgb(2 88 168 / 20%);
 }
 
-.hover-mask-loading {
-    cursor: progress;
-    background-color: rgba(168, 2, 2, 0.2);
-}
-
 .hover-message {
     z-index: var(--ylv-drop-file-container-hover-message-z-index);
 
@@ -37,4 +32,8 @@
     color: #616161;
 
     background-color: #f3f3f3;
+}
+
+.hover-message-loading {
+    background-color: #fce4e4;
 }
