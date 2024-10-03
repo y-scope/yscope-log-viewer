@@ -1,7 +1,7 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {Nullable} from "../../../typings/common";
-import {ActionType} from "../../../utils/actions";
+import {EditorAction} from "../../../utils/actions";
 import {clamp} from "../../../utils/math";
 import type {
     CursorExplicitPosChangeCallback,
@@ -152,7 +152,7 @@ const setupMobileZoom = (
  */
 const setupCustomActions = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    actions: ActionType[],
+    actions: EditorAction[],
     onCustomAction: CustomActionCallback
 ) => {
     actions.forEach(({actionName, label, keyBindings}) => {

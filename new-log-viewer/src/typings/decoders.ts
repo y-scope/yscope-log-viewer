@@ -1,4 +1,5 @@
 import {Nullable} from "./common";
+import {LogLevelFilter} from "./logs";
 
 
 interface LogEventCount {
@@ -32,6 +33,12 @@ type DecoderOptionsType = JsonlDecoderOptionsType;
  */
 type DecodeResultType = [string, number, number, number];
 
+/**
+ * Mapping between an index in the filtered log events collection to an index in the unfiltered log
+ * events collection.
+ */
+type FilteredLogEventMap = Nullable<number[]>;
+
 interface Decoder {
 
     /**
@@ -42,33 +49,49 @@ interface Decoder {
     getEstimatedNumEvents(): number;
 
     /**
-     * When applicable, deserializes log events in the range `[beginIdx, endIdx)`.
-     *
-     * @param beginIdx
-     * @param endIdx End index. To deserialize to the end of the file, use `LOG_EVENT_FILE_END_IDX`.
-     * @return Count of the successfully deserialized ("valid") log events and count of any
-     * un-deserializable ("invalid") log events within the range; or null if any log event in the
-     * range doesn't exist (e.g., the range exceeds the number of log events in the file).
+     * @return The filtered log events map.
      */
-    buildIdx(beginIdx: number, endIdx: number): Nullable<LogEventCount>;
+    getFilteredLogEventMap(): FilteredLogEventMap;
 
     /**
-     * Sets options for the decoder.
+     * Sets the log level filter for the decoder.
+     *
+     * @param logLevelFilter
+     * @return Whether the filter was successfully set.
+     */
+    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
+
+    /**
+     * Deserializes all log events in the file.
+     *
+     * @return Count of the successfully deserialized ("valid") log events and count of any
+     * un-deserializable ("invalid") log events.
+     */
+    build(): LogEventCount;
+
+    /**
+     * Sets any formatter options that exist in the decoder's options.
      *
      * @param options
      * @return Whether the options were successfully set.
      */
-    setDecoderOptions(options: DecoderOptionsType): boolean;
+    setFormatterOptions(options: DecoderOptionsType): boolean;
 
     /**
-     * Decodes the log events in the range `[beginIdx, endIdx)`.
+     * Decodes log events in the range `[beginIdx, endIdx)` of the filtered or unfiltered
+     * (depending on the value of `useFilter`) log events collection.
      *
      * @param beginIdx
      * @param endIdx
+     * @param useFilter Whether to decode from the filtered or unfiltered log events collection.
      * @return The decoded log events on success or null if any log event in the range doesn't exist
-     * (e.g., the range exceeds the number of log events in the file).
+     * (e.g., the range exceeds the number of log events in the collection).
      */
-    decode(beginIdx: number, endIdx: number): Nullable<DecodeResultType[]>;
+    decodeRange(
+        beginIdx: number,
+        endIdx: number,
+        useFilter: boolean
+    ): Nullable<DecodeResultType[]>;
 }
 
 /**
@@ -82,6 +105,7 @@ export type {
     Decoder,
     DecodeResultType,
     DecoderOptionsType,
+    FilteredLogEventMap,
     JsonlDecoderOptionsType,
     LogEventCount,
 };
