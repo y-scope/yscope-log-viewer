@@ -25,13 +25,14 @@ import CustomTabPanel from "./CustomTabPanel";
  */
 const FileInfoTabPanel = () => {
     const {fileName, originalFileSizeInBytes} = useContext(StateContext);
+    const isFileUnloaded = 0 === fileName.length;
 
     return (
         <CustomTabPanel
             tabName={TAB_NAME.FILE_INFO}
             title={TAB_DISPLAY_NAMES[TAB_NAME.FILE_INFO]}
         >
-            {0 === fileName.length ?
+            {isFileUnloaded ?
                 "No file is open." :
                 <List>
                     <CustomListItem
