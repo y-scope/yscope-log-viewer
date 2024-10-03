@@ -1,4 +1,7 @@
-import {useContext} from "react";
+import {
+    useContext,
+    useMemo,
+} from "react";
 
 import {
     Divider,
@@ -25,7 +28,12 @@ import CustomTabPanel from "./CustomTabPanel";
  */
 const FileInfoTabPanel = () => {
     const {fileName, originalFileSizeInBytes} = useContext(StateContext);
+
     const isFileUnloaded = 0 === fileName.length;
+    const formattedOriginalSize = useMemo(
+        () => formatSizeInBytes(originalFileSizeInBytes),
+        [originalFileSizeInBytes]
+    );
 
     return (
         <CustomTabPanel
@@ -42,7 +50,7 @@ const FileInfoTabPanel = () => {
                         title={"Name"}/>
                     <Divider/>
                     <CustomListItem
-                        content={formatSizeInBytes(originalFileSizeInBytes)}
+                        content={formattedOriginalSize}
                         icon={<StorageIcon/>}
                         title={"Original Size"}/>
                 </List>}
