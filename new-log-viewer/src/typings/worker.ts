@@ -2,6 +2,9 @@ import {DecoderOptionsType} from "./decoders";
 import {LOG_LEVEL} from "./logs";
 
 
+/**
+ * Various states of a load process. UI elements may be enabled or disabled based on the state.
+ */
 enum LOAD_STATE {
     UNOPENED = "unopened",
     LOADING = "loading",
