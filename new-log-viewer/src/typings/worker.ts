@@ -1,5 +1,8 @@
 import {DecoderOptionsType} from "./decoders";
-import {LOG_LEVEL} from "./logs";
+import {
+    LogLevelFilter,
+    LOG_LEVEL
+} from "./logs";
 
 
 /**
@@ -53,6 +56,7 @@ enum WORKER_REQ_CODE {
     EXPORT_LOG = "exportLog",
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
+    SET_FILTER = "setFilter",
 }
 
 enum WORKER_RESP_CODE {
@@ -76,6 +80,10 @@ type WorkerReqMap = {
         cursor: CursorType,
         decoderOptions?: DecoderOptionsType
     },
+    [WORKER_REQ_CODE.SET_FILTER]: {
+        cursor: CursorType,
+        logLevelFilter: LogLevelFilter,
+    },
 };
 
 type WorkerRespMap = {
@@ -92,6 +100,7 @@ type WorkerRespMap = {
         logEventNum: number
         logs: string,
         pageNum: number
+        numPages: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,

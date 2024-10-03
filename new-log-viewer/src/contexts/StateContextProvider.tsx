@@ -13,6 +13,9 @@ import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
+    LogLevelFilter,
+} from "../typings/logs";
+import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
@@ -56,6 +59,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
+    setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -74,6 +78,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    setLogLevelFilter: () => null,
 });
 
 interface StateContextProviderProps {
@@ -186,6 +191,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
+    const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
@@ -193,8 +200,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
-    const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
+    const numPagesRef = useRef<number>(pageNum);
+    const pageNumRef = useRef<number>(numPages);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -220,7 +227,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                pageNumRef.current = args.pageNum;
+                setPageNum(args.pageNum);
+                setNumPages(args.numPages);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
@@ -298,14 +306,26 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    // On `numEvents` update, recalculate `numPagesRef`.
-    useEffect(() => {
-        if (STATE_DEFAULT.numEvents === numEvents) {
+    const setLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+        if (null === mainWorkerRef.current) {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
-    }, [numEvents]);
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
+            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current??0}},
+            logLevelFilter: newLogLevelFilter,
+        });
+    };
+
+    // Synchronize `pageNumRef` with `numPages`.
+    useEffect(() => {
+        pageNumRef.current = pageNum;
+    }, [pageNum]);
+
+    // Synchronize `numPagesRef` with `numPages`.
+    useEffect(() => {
+        numPagesRef.current = numPages;
+    }, [numPages]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -380,12 +400,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 fileName: fileName,
                 logData: logData,
                 numEvents: numEvents,
-                numPages: numPagesRef.current,
-                pageNum: pageNumRef.current,
+                numPages: numPages,
+                pageNum: pageNum,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                setLogLevelFilter: setLogLevelFilter,
             }}
         >
             {children}

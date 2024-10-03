@@ -18,6 +18,7 @@ import {
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
+    getNewNumPages,
     loadFile,
 } from "./utils";
 
@@ -174,6 +175,7 @@ class LogFileManager {
         logEventNum: number
         logs: string,
         pageNum: number
+        numPages: number
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
@@ -213,12 +215,19 @@ class LogFileManager {
 
         const newPageNum: number = getChunkNum(pageBeginLogEventNum, this.#pageSize);
 
+        const newNumPages: number = getNewNumPages(
+            this.#decoder.getFilteredLogEventMap(),
+            this.#numEvents,
+            this.#pageSize,
+        );
+
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: matchingLogEventNum,
             logs: messages.join(""),
             pageNum: newPageNum,
+            numPages: newNumPages,
         };
     }
 
@@ -237,26 +246,32 @@ class LogFileManager {
         matchingLogEventNum: number
     } {
         const {code, args} = cursor;
+        const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
+        let numFilteredEvents: number = filteredLogEventMap ?
+            filteredLogEventMap.length :
+            this.#numEvents;
+
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
                     args.pageNum,
                     args.eventPositionOnPage,
-                    this.#numEvents,
+                    numFilteredEvents,
                     this.#pageSize
                 );
 
             case CURSOR_CODE.LAST_EVENT:
                 return getLastEventCursorData(
-                    this.#numEvents,
+                    numFilteredEvents,
                     this.#pageSize
                 );
 
             case CURSOR_CODE.EVENT_NUM:
-                return getEventNumCursorData(
+            return getEventNumCursorData(
                     args.eventNum,
-                    this.#numEvents,
-                    this.#pageSize
+                    numFilteredEvents,
+                    this.#pageSize,
+                    filteredLogEventMap,
                 );
 
             default:

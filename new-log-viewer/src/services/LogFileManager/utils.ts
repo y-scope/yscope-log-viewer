@@ -1,3 +1,8 @@
+import {Nullable} from "../../typings/common";
+
+import {
+    FilteredLogEventMap,
+} from "../../typings/decoders";
 import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
@@ -7,6 +12,10 @@ import {
     clamp,
     getChunkNum,
 } from "../../utils/math";
+import {
+    clampWithinBounds,
+    findNearestLessThanOrEqualElement,
+} from "../../utils/data";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
@@ -80,9 +89,17 @@ const getPageNumCursorData = (
 const getEventNumCursorData = (
     logEventNum: number,
     numEvents: number,
-    pageSize: number
+    pageSize: number,
+    filteredLogEventMap: FilteredLogEventMap
 ): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const validLogEventNum = clamp(logEventNum, 1, numEvents);
+    const validLogEventNum = getValidLogEvenNum(logEventNum, numEvents, filteredLogEventMap);
+
+    // If there are no events, e.g. filter is set to `DEBUG` and there are no `DEBUG` events,
+    // return an empty range.
+    if (null === validLogEventNum) {
+        return {pageBeginLogEventNum:1, pageEndLogEventNum:1, matchingLogEventNum:0}
+    }
+
     const beginLogEventIdx = (getChunkNum(validLogEventNum, pageSize) - 1) * pageSize;
     const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
         beginLogEventIdx,
@@ -117,6 +134,42 @@ const getLastEventCursorData = (
 };
 
 /**
+ * Gets the new number of pages.
+ *
+ * @param filteredLogEventMap
+ * @param numEvents
+ * @return Page count
+ */
+const getValidLogEvenNum = (
+    logEventNum: number,
+    numEvents: number,
+    filteredLogEventMap: FilteredLogEventMap,
+): Nullable<number> => {
+    if (null === filteredLogEventMap) {
+        return clamp(logEventNum, 1, numEvents);
+    } else {
+        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap,logEventNum);
+        return  findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum);
+    }
+};
+
+/**
+ * Gets the new number of pages.
+ *
+ * @param filteredLogEventMap
+ * @param numEvents
+ * @return Page count.
+ */
+const getNewNumPages = (
+    filteredLogEventMap: FilteredLogEventMap,
+    numEvents: number,
+    pageSize: number
+): number => {
+    let numFilteredEvents: number = filteredLogEventMap ? filteredLogEventMap.length : numEvents
+    return getChunkNum(numFilteredEvents,pageSize);
+};
+
+/**
  * Loads a file from a given source.
  *
  * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
@@ -146,5 +199,6 @@ export {
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
+    getNewNumPages,
     loadFile,
 };
