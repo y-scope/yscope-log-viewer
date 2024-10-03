@@ -36,7 +36,6 @@ import {
 } from "../utils/config";
 import {
     clamp,
-    getChunkNum,
 } from "../utils/math";
 import {
     updateWindowUrlHashParams,
