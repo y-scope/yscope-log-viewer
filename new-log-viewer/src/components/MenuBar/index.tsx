@@ -53,6 +53,8 @@ const MenuBar = () => {
         setIsSettingsModalOpen(true);
     };
 
+    const isLoading = LOAD_STATE.LOADING === loadState;
+
     return (
         <>
             <Sheet className={"menu-bar"}>
@@ -73,21 +75,21 @@ const MenuBar = () => {
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
                 <SmallIconButton
-                    disabled={loadState === LOAD_STATE.LOADING}
+                    disabled={isLoading}
                     onClick={handleOpenFileButtonClick}
                 >
                     <FileOpenIcon/>
                 </SmallIconButton>
                 <Divider orientation={"vertical"}/>
                 <SmallIconButton
-                    disabled={loadState === LOAD_STATE.LOADING}
+                    disabled={isLoading}
                     onClick={handleSettingsModalOpen}
                 >
                     <SettingsIcon/>
                 </SmallIconButton>
                 <ExportLogsButton/>
             </Sheet>
-            {loadState === LOAD_STATE.LOADING &&
+            {isLoading &&
                 <LinearProgress
                     size={"sm"}
                     sx={{
