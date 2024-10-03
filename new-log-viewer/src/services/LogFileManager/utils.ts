@@ -87,7 +87,7 @@ const getPageNumCursorData = (
  * - log event `logEventNum`.
  */
 const getEventNumCursorData = (
-    logEventNum: number,
+    logEventNum: Nullable<number>,
     numEvents: number,
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
@@ -141,14 +141,14 @@ const getLastEventCursorData = (
  * @return Page count
  */
 const getValidLogEvenNum = (
-    logEventNum: number,
+    logEventNum: Nullable<number>,
     numEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): Nullable<number> => {
     if (null === filteredLogEventMap) {
-        return clamp(logEventNum, 1, numEvents);
+        return clamp(logEventNum??0, 1, numEvents);
     } else {
-        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap,logEventNum);
+        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap,logEventNum??0);
         return  findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum);
     }
 };

@@ -290,6 +290,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
+    // Synchronize `pageNumRef` with `numPages`.
+    useEffect(() => {
+        pageNumRef.current = pageNum;
+    }, [pageNum]);
+
+    // Synchronize `numPagesRef` with `numPages`.
+    useEffect(() => {
+        numPagesRef.current = numPages;
+    }, [numPages]);
+
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -311,20 +321,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
-            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current??0}},
+            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current}},
             logLevelFilter: newLogLevelFilter,
         });
     };
-
-    // Synchronize `pageNumRef` with `numPages`.
-    useEffect(() => {
-        pageNumRef.current = pageNum;
-    }, [pageNum]);
-
-    // Synchronize `numPagesRef` with `numPages`.
-    useEffect(() => {
-        numPagesRef.current = numPages;
-    }, [numPages]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
