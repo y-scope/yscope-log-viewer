@@ -113,15 +113,6 @@ const getPageNumCursor = (
     currentPageNum: number,
     numPages: number
 ): Nullable<CursorType> => {
-    if (STATE_DEFAULT.pageNum === currentPageNum) {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: This shouldn't be possible, but currently, the page nav buttons remain enabled
-        // even when a file hasn't been loaded.
-        console.error("Page actions cannot be executed if the current page is not set.");
-
-        return null;
-    }
-
     let newPageNum: number;
     let position: EVENT_POSITION_ON_PAGE;
     switch (navAction.code) {
