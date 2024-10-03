@@ -263,7 +263,7 @@ class LogFileManager {
     } {
         const {code, args} = cursor;
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
-        let numFilteredEvents: number = filteredLogEventMap ?
+        let numEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
             this.#numEvents;
 
@@ -272,20 +272,20 @@ class LogFileManager {
                 return getPageNumCursorData(
                     args.pageNum,
                     args.eventPositionOnPage,
-                    numFilteredEvents,
+                    numEvents,
                     this.#pageSize
                 );
 
             case CURSOR_CODE.LAST_EVENT:
                 return getLastEventCursorData(
-                    numFilteredEvents,
+                    numEvents,
                     this.#pageSize
                 );
 
             case CURSOR_CODE.EVENT_NUM:
             return getEventNumCursorData(
                     args.eventNum,
-                    numFilteredEvents,
+                    numEvents,
                     this.#pageSize,
                     filteredLogEventMap,
                 );

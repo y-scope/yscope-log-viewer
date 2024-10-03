@@ -82,6 +82,7 @@ const getPageNumCursorData = (
  * @param logEventNum
  * @param numEvents
  * @param pageSize
+ * @param filteredLogEventMap
  * @return Log event numbers for:
  * - the range [begin, end) of the page containing `logEventNum`.
  * - log event `logEventNum`.
@@ -171,8 +172,8 @@ const getNewNumPages = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): number => {
-    let numFilteredEvents: number = filteredLogEventMap ? filteredLogEventMap.length : numEvents
-    return getChunkNum(numFilteredEvents,pageSize);
+    let numActiveEvents: number = filteredLogEventMap ? filteredLogEventMap.length : numEvents
+    return getChunkNum(numActiveEvents, pageSize);
 };
 
 /**
