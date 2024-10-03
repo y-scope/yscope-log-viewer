@@ -92,10 +92,9 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const validLogEventNum = getValidLogEvenNum(logEventNum, numEvents, filteredLogEventMap);
+    const validLogEventNum = getValidLogEventNum(logEventNum, numEvents, filteredLogEventMap);
 
-    // If there are no events, e.g. filter is set to `DEBUG` and there are no `DEBUG` events,
-    // return an empty range.
+    // If there are no events return an empty range.
     if (null === validLogEventNum) {
         return {pageBeginLogEventNum:1, pageEndLogEventNum:1, matchingLogEventNum:0}
     }
@@ -134,36 +133,43 @@ const getLastEventCursorData = (
 };
 
 /**
- * Gets the new number of pages.
- *
- * @param filteredLogEventMap
+ * Gets a valid log event number. This function is required as input `logEventNum` may be "invalid"
+ * for one of the following reasons:
+ * - Greater than `numEvents`.
+ * - Excluded by the current filter.
+ * If the input is "invalid", the function returns the nearest log event number in place of
+ * `logEventNum`.
+ * @param logEventNum
  * @param numEvents
- * @return Page count
+ * @param filteredLogEventMap
+ * @return Valid log event number or null if no events exists (e.g. filter is set to `DEBUG` and
+ * there are no `DEBUG` events).
  */
-const getValidLogEvenNum = (
+const getValidLogEventNum = (
     logEventNum: Nullable<number>,
     numEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): Nullable<number> => {
     if (null === filteredLogEventMap) {
+        // There is no filter applied.
         return clamp(logEventNum??0, 1, numEvents);
     } else {
         let clampedLogEventNum = clampWithinBounds(filteredLogEventMap,logEventNum??0);
-        return  findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum);
+        return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum);
     }
 };
 
 /**
  * Gets the new number of pages.
- *
- * @param filteredLogEventMap
  * @param numEvents
+ * @param pageSize
+ * @param filteredLogEventMap
  * @return Page count.
  */
 const getNewNumPages = (
-    filteredLogEventMap: FilteredLogEventMap,
     numEvents: number,
-    pageSize: number
+    pageSize: number,
+    filteredLogEventMap: FilteredLogEventMap,
 ): number => {
     let numFilteredEvents: number = filteredLogEventMap ? filteredLogEventMap.length : numEvents
     return getChunkNum(numFilteredEvents,pageSize);

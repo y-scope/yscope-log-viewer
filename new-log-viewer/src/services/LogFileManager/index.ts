@@ -4,6 +4,9 @@ import {
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {
+    LogLevelFilter,
+} from "../../typings/logs";
+import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
@@ -130,6 +133,19 @@ class LogFileManager {
     }
 
     /**
+     * Sets the log level filter.
+     *
+     * @param logLevelFilter
+     * @throws {Error} If changing the log level filter couldn't be set.
+     */
+    setLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result: boolean = this.#decoder.setLogLevelFilter(logLevelFilter);
+        if (false === result) {
+            throw new Error("Failed to set log level filter for current decoder.");
+        }
+    }
+
+    /**
      * Loads log events in the range
      * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
      * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
@@ -216,9 +232,9 @@ class LogFileManager {
         const newPageNum: number = getChunkNum(pageBeginLogEventNum, this.#pageSize);
 
         const newNumPages: number = getNewNumPages(
-            this.#decoder.getFilteredLogEventMap(),
             this.#numEvents,
             this.#pageSize,
+            this.#decoder.getFilteredLogEventMap(),
         );
 
         return {
