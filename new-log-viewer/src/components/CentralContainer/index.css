@@ -8,6 +8,6 @@
     width: 100vw;
 }
 
-.central-container-children-container {
+.central-container-children {
     width: calc(100vw - var(--ylv-panel-width));
 }

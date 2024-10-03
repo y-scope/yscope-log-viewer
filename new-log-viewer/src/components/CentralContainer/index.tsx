@@ -1,27 +1,24 @@
-import React from "react";
-
+import DropFileContainer from "../DropFileContainer";
+import Editor from "../Editor";
 import Sidebar from "./Sidebar";
 
 import "./index.css";
 
 
-interface CentralContainerProps {
-    children: React.ReactNode,
-}
-
 /**
- * Locates in the center of the <Layout/> and wraps a children with a sidebar component on its left.
+ * Locates in the center of the <Layout/> and wraps the <DropFileContainer/>-contained <Editor/>
+ * with a sidebar component on its left.
  *
- * @param props
- * @param props.children
  * @return
  */
-const CentralContainer = ({children}: CentralContainerProps) => {
+const CentralContainer = () => {
     return (
         <div className={"central-container"}>
             <Sidebar/>
-            <div className={"central-container-children-container"}>
-                {children}
+            <div className={"central-container-children"}>
+                <DropFileContainer>
+                    <Editor/>
+                </DropFileContainer>
             </div>
         </div>
     );
