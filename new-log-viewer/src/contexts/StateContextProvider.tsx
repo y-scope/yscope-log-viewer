@@ -179,6 +179,23 @@ const loadPageByCursor = (
 };
 
 
+let nearestLogEventIdx = findNearestLessThanOrEqualElement(logEventNumsOnPage, clampedLogEventNum) as number + 1;
+let nearestLogEventNum = logEventNumsOnPage[nearestLogEventIdx];
+
+/**
+ * If the log event number changed, update the URL.
+ *
+ * @param logEventNum
+ * @param newLogEventNum
+ * @return Whether the log event number changed.
+ */
+function findNearestLessThanOrEqualNumber(LogEventNum: number, logEventNumsOnPage: number[]): number {
+    let nearestLogEventIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        LogEventNum) as number + 1;
+    return logEventNumsOnPage[nearestLogEventIdx];
+}
+
 /**
  * If the log event number changed, update the URL.
  *
@@ -366,6 +383,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNumRef.current.values());
 
+        if (logEventNumsOnPage.length === 0) {
+
+        }
+
         console.log(logEventNumsOnPage);
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
@@ -375,14 +396,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 return;
             }
 
-            let nearestLogEventIdx = findNearestLessThanOrEqualElement(logEventNumsOnPage, clampedLogEventNum) as number + 1;
-            let nearestLogEventNum = logEventNumsOnPage[nearestLogEventIdx];
-
-            console.log(nearestLogEventNum);
-
-            //if (updateUrlIfModified(logEventNum, nearestLogEventNum)) {
-            //    return;
-            //}
+            let nearestIdx = findNearestLessThanOrEqualElement(logEventNumsOnPage, clampedLogEventNum);
+            // First explicit cast since typescript thinks `nearestLogEventIdx` can be null, but
+            // it can't as `clampedLogEventNum` must be inside `logEventNumsOnPage`. Second explicit
+            // cast since typescript thinks `logEventNumsOnPage` can be empty, but it can't as
+            // isWithinBounds would have returned false.
+            let nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number
+            if (updateUrlIfModified(logEventNum, nearestLogEventNum)) {
+                return;
+            }
             return;
         }
 

@@ -83,7 +83,7 @@ const getLastEventCursorData = (
 ): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
     const pageBeginIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
-    const matchingIdx: number = pageBeginIdx - 1;
+    const matchingIdx: number = pageEndIdx - 1;
     return {pageBeginIdx, pageEndIdx, matchingIdx};
 };
 
@@ -107,15 +107,15 @@ const getValidLogEventIdx = (
     let eventNum = logEventNum??1;
     if (null === filteredLogEventMap) {
         // There is no filter applied.
-        return clamp(eventNum - 1, 1, numEvents - 1);
+        return clamp(eventNum, 1, numEvents) - 1;
     } else {
         let clampedLogEventNum = clampWithinBounds(filteredLogEventMap, eventNum);
         // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
         // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds of the array.
         let filteredLogEventIdx = findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum) as number;
         // Explicit cast since typescript thinks `filteredLogEventMap[filteredLogEventIdx]` can be undefined, but it can't
-        // since filteredLogEventMap has a length >= 1
-        return (filteredLogEventMap[filteredLogEventIdx] as number);
+        // since filteredLogEventMap has a length >= 1.
+        return filteredLogEventMap[filteredLogEventIdx] as number;
     }
 };
 
