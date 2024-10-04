@@ -9,6 +9,8 @@ import {
     CURSOR_CODE,
     CursorType,
     FileSrcType,
+    WORKER_RESP_CODE,
+    WorkerResp,
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
@@ -183,16 +185,9 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType): {
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
-        logEventNum: number
-        logs: string,
-        numPages: number,
-        pageNum: number,
-    } {
+    loadPage (cursor: CursorType):
+        WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
-
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
@@ -206,7 +201,6 @@ class LogFileManager {
             pageEndIdx,
             matchingIdx,
         } = this.#getCursorData(cursor, numEvents);
-
         const results = this.#decoder.decodeRange(
             pageBeginIdx,
             pageEndIdx,
@@ -218,7 +212,6 @@ class LogFileManager {
                 `pageBeginIdx=${pageBeginIdx}, ` +
                 `pageEndIdx=${pageEndIdx}`);
         }
-
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
@@ -234,7 +227,6 @@ class LogFileManager {
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;
         });
-
         const newNumPages: number = getChunkNum(numEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBeginIdx + 1, this.#pageSize);
         const matchingLogEventNum = 1 + (
@@ -242,6 +234,7 @@ class LogFileManager {
                 (filteredLogEventMap[matchingIdx] as number) :
                 matchingIdx
         );
+
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,

@@ -1,9 +1,10 @@
 import {Nullable} from "../../typings/common";
 import {FilteredLogEventMap} from "../../typings/decoders";
 import {
-    BeginLineNumToLogEventNumMap,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
+    WORKER_RESP_CODE,
+    WorkerResp,
 } from "../../typings/worker";
 import {
     clampWithinBounds,
@@ -15,6 +16,7 @@ import {
     getChunkNum,
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
+
 
 /**
  * Gets the data for the `PAGE_NUM` cursor.
@@ -61,7 +63,7 @@ const getValidLogEventIdx = (
 ): number => {
     if (null === filteredLogEventMap) {
         // There is no filter applied.
-        return clamp(logEventIdx, 1, numEvents-1);
+        return clamp(logEventIdx, 1, numEvents - 1);
     }
     const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
 
@@ -88,7 +90,7 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
-    const matchingIdx = getValidLogEventIdx(logEventNum??1 - 1, numEvents, filteredLogEventMap);
+    const matchingIdx = getValidLogEventIdx(logEventNum ?? 1 - 1, numEvents, filteredLogEventMap);
     const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
     return {pageBeginIdx, pageEndIdx, matchingIdx};
@@ -114,16 +116,12 @@ const getLastEventCursorData = (
 };
 
 /**
- * @return Empty page.
+ * Gets a response for an empty page.
+ *
+ * @return Empty page data.
  */
-const getEmptyPage = (): {
-    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-    cursorLineNum: number
-    logEventNum: number
-    logs: string,
-    numPages: number
-    pageNum: number
-} => {
+const getEmptyPage = ():
+    WorkerResp<WORKER_RESP_CODE.PAGE_DATA> => {
     return {
         beginLineNumToLogEventNum: new Map(),
         cursorLineNum: 1,
@@ -161,9 +159,9 @@ const loadFile = async (fileSrc: FileSrcType)
 };
 
 export {
+    getEmptyPage,
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
-    getEmptyPage,
     loadFile,
 };
