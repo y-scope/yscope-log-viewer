@@ -235,8 +235,8 @@ class LogFileManager {
         const newPageNum: number = getChunkNum(pageBeginIdx + 1, this.#pageSize);
         const newNumPages: number = getNewNumPages(
             this.#numEvents,
-            this.#pageSize,
             filteredLogEventMap,
+            this.#pageSize,
         );
 
         return {

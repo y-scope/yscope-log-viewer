@@ -143,8 +143,8 @@ const getMatchingLogEventNum = (
  * Gets the new number of pages.
  *
  * @param numEvents
- * @param pageSize
  * @param filteredLogEventMap
+ * @param pageSize
  * @return Page count.
  */
 const getNewNumPages = (
