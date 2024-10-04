@@ -190,6 +190,9 @@ const updateUrlIfEventOnPage = (
     if (!isWithinBounds(logEventNumsOnPage, logEventNum)) {
         return false;
     }
+    // Given `isWithinBounds` returns `true`, then `logEventNumsOnPage` must bound `logEventNum` and
+    // `logEventNumsOnPage` cannot be empty. These assertions justify type casts at end of
+    // function.
 
     const nearestIdx = findNearestLessThanOrEqualElement(
         logEventNumsOnPage,
@@ -197,9 +200,9 @@ const updateUrlIfEventOnPage = (
     );
 
     // First explicit cast since typescript thinks `nearestIdx` can be null, but
-    // it can't as `logEventNum` must be a value in `logEventNumsOnPage` array.
-    // Second explicit cast since typescript thinks `logEventNumsOnPage` can be empty,
-    // but it can't as `isWithinBounds` would have returned false.
+    // it can't as `logEventNum` must be bounded by in `logEventNumsOnPage`.
+    // Second explicit cast since typescript thinks `logEventNumsOnPage` can be empty, but
+    // that's not possible in this branch.
     const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
 
     updateWindowUrlHashParams({
