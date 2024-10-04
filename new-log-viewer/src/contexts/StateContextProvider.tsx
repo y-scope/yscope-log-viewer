@@ -209,8 +209,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
+    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
@@ -218,8 +218,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
-    const numPagesRef = useRef<number>(pageNum);
-    const pageNumRef = useRef<number>(numPages);
+    const numPagesRef = useRef<number>(numPages);
+    const pageNumRef = useRef<number>(pageNum);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -245,8 +245,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                setPageNum(args.pageNum);
                 setNumPages(args.numPages);
+                setPageNum(args.pageNum);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
