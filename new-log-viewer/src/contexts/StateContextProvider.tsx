@@ -179,7 +179,7 @@ const loadPageByCursor = (
  * event and return true. If the new log event number is outside page boundaries, do not update and
  * return false.
  *
- * @param LogEventNum
+ * @param logEventNum
  * @param logEventNumsOnPage
  * @return Whether the log event number is within page boundaries.
  */
@@ -199,7 +199,7 @@ const updateUrlIfEventOnPage = (
     // First explicit cast since typescript thinks `nearestIdx` can be null, but
     // it can't as `logEventNum` must be a value in `logEventNumsOnPage` array.
     // Second explicit cast since typescript thinks `logEventNumsOnPage` can be empty,
-    // but it can't as isWithinBounds would have returned false.
+    // but it can't as `isWithinBounds` would have returned false.
     const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
 
     updateWindowUrlHashParams({
