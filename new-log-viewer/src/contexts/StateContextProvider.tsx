@@ -190,6 +190,7 @@ const updateUrlIfEventOnPage = (
     if (!isWithinBounds(logEventNumsOnPage, logEventNum)) {
         return false;
     }
+
     // Given `isWithinBounds` returns `true`, then `logEventNumsOnPage` must bound `logEventNum` and
     // `logEventNumsOnPage` cannot be empty. These assertions justify type casts at end of
     // function.

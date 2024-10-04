@@ -1,4 +1,3 @@
-import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecoderOptionsType,
@@ -17,12 +16,10 @@ import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 import {
+    getEmptyPage,
     getEventNumCursorData,
     getLastEventCursorData,
-    getMatchingLogEventNum,
-    getNewNumPages,
     getPageNumCursorData,
-    getEmptyPage,
     loadFile,
 } from "./utils";
 
@@ -197,7 +194,6 @@ class LogFileManager {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
-
         const numEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
             this.#numEvents;
@@ -205,7 +201,6 @@ class LogFileManager {
         if (0 === numEvents) {
             return getEmptyPage();
         }
-
         const {
             pageBeginIdx,
             pageEndIdx,

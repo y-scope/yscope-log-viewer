@@ -16,15 +16,6 @@ import {
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
-const emptyPage = {
-    beginLineNumToLogEventNum: new Map();
-    cursorLineNum: 1,
-    logEventNum: matchingLogEventNum,
-    logs: messages.join(""),
-    umPages: newNumPages,
-    pageNum: newPageNum,
-}
-
 /**
  * Gets the data for the `PAGE_NUM` cursor.
  *
