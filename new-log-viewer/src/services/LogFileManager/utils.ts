@@ -131,12 +131,13 @@ const getMatchingLogEventNum = (
         return 0;
     }
 
-    return null !== filteredLogEventMap ?
-
-        // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx]` can be
-        // undefined, but it can't since filteredLogEventMap has a length >= 1.
-        (filteredLogEventMap[matchingIdx] as number) + 1 :
-        matchingIdx + 1;
+    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx]` can be
+    // undefined, but it can't since filteredLogEventMap has a length >= 1.
+    return 1 + (
+        null !== filteredLogEventMap ?
+            (filteredLogEventMap[matchingIdx] as number) :
+            matchingIdx
+    );
 };
 
 
@@ -150,8 +151,8 @@ const getMatchingLogEventNum = (
  */
 const getNewNumPages = (
     numEvents: number,
-    pageSize: number,
     filteredLogEventMap: FilteredLogEventMap,
+    pageSize: number,
 ): number => {
     const numActiveEvents: number = filteredLogEventMap ?
         filteredLogEventMap.length :
