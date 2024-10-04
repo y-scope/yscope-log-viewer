@@ -20,33 +20,6 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
 /**
- * Gets the log event number range [begin, end) of the page that starts at the given log event
- * index.
- *
- * @param beginLogEventIdx
- * @param numEvents
- * @param pageSize
- * @return An array:
- * - pageBeginLogEventNum
- * - pageEndLogEventNum
- */
-const getPageBoundaries = (
-    beginLogEventIdx: number,
-    numEvents: number,
-    pageSize: number
-): [number, number] => {
-    const pageBeginLogEventNum: number = beginLogEventIdx + 1;
-
-    // Clamp ending index using total number of events.
-    const pageEndLogEventNum: number = Math.min(numEvents + 1, pageBeginLogEventNum + pageSize);
-
-    return [
-        pageBeginLogEventNum,
-        pageEndLogEventNum,
-    ];
-};
-
-/**
  * Gets the data for the `PAGE_NUM` cursor.
  *
  * @param pageNum
@@ -61,19 +34,16 @@ const getPageNumCursorData = (
     pageNum: number,
     eventPositionOnPage: EVENT_POSITION_ON_PAGE,
     numEvents: number,
-    pageSize: number
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const beginLogEventIdx = (pageNum - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
-        pageBeginLogEventNum :
-        pageEndLogEventNum - 1;
+    pageSize: number,
+): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+    const pageBeginIdx = (pageNum - 1) * pageSize;
+    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
 
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+    const matchingIdx = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
+        pageBeginIdx :
+        pageEndIdx - 1;
+
+    return {pageBeginIdx, pageEndIdx, matchingIdx};
 };
 
 /**
@@ -82,8 +52,7 @@ const getPageNumCursorData = (
  * @param logEventNum
  * @param numEvents
  * @param pageSize
- * @param filteredLogEventMap
- * @return Log event numbers for:
+ * @return Indexes for:
  * - the range [begin, end) of the page containing `logEventNum`.
  * - log event `logEventNum`.
  */
@@ -92,22 +61,11 @@ const getEventNumCursorData = (
     numEvents: number,
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const validLogEventNum = getValidLogEventNum(logEventNum, numEvents, filteredLogEventMap);
-
-    // If there are no events return an empty range.
-    if (null === validLogEventNum) {
-        return {pageBeginLogEventNum:1, pageEndLogEventNum:1, matchingLogEventNum:0}
-    }
-
-    const beginLogEventIdx = (getChunkNum(validLogEventNum, pageSize) - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum: number = validLogEventNum;
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+    const matchingIdx = getValidLogEventIdx(logEventNum, numEvents, filteredLogEventMap);
+    const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
+    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
+    return {pageBeginIdx, pageEndIdx, matchingIdx};
 };
 
 /**
@@ -115,50 +73,73 @@ const getEventNumCursorData = (
  *
  * @param numEvents
  * @param pageSize
- * @return Log event numbers for:
+ * @return Indexes for:
  * - the range [begin, end) of the last page.
  * - the last log event on the last page.
  */
 const getLastEventCursorData = (
     numEvents: number,
     pageSize: number
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const beginLogEventIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum: number = pageEndLogEventNum - 1;
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+    const pageBeginIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
+    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
+    const matchingIdx: number = pageBeginIdx - 1;
+    return {pageBeginIdx, pageEndIdx, matchingIdx};
 };
 
 /**
  * Gets a valid log event number. This function is required as input `logEventNum` may be "invalid"
- * for one of the following reasons:
- * - Greater than `numEvents`.
- * - Excluded by the current filter.
+ * if:
+ * - `logEventNum >= numEvents`.
+ * - `logEventNum` excluded by the current filter.
  * If the input is "invalid", the function returns the nearest log event number in place of
  * `logEventNum`.
  * @param logEventNum
  * @param numEvents
  * @param filteredLogEventMap
- * @return Valid log event number or null if no events exists (e.g. filter is set to `DEBUG` and
- * there are no `DEBUG` events).
+ * @return Valid log event number.
  */
-const getValidLogEventNum = (
+const getValidLogEventIdx = (
     logEventNum: Nullable<number>,
     numEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
-): Nullable<number> => {
+): number => {
+    let eventNum = logEventNum??1;
     if (null === filteredLogEventMap) {
         // There is no filter applied.
-        return clamp(logEventNum??0, 1, numEvents);
+        return clamp(eventNum - 1, 1, numEvents - 1);
     } else {
-        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap,logEventNum??0);
-        return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum);
+        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap, eventNum);
+        // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
+        // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds of the array.
+        let filteredLogEventIdx = findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum) as number;
+        // Explicit cast since typescript thinks `filteredLogEventMap[filteredLogEventIdx]` can be undefined, but it can't
+        // since filteredLogEventMap has a length >= 1
+        return (filteredLogEventMap[filteredLogEventIdx] as number);
     }
 };
+
+/**
+ * Converts the matching index into log event number.
+ * @param useFilter
+ * @param matchingIdx
+ * @param filteredLogEventMap
+ * @return Log event number;
+ */
+const getMatchingLogEventNum = (
+    matchingIdx: Nullable<number>,
+    filteredLogEventMap: FilteredLogEventMap,
+): number => {
+    if (matchingIdx === null) {
+        return 0;
+    }
+    return null !== filteredLogEventMap ?
+    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx` can be undefined, but it can't
+    // since filteredLogEventMap has a length >= 1.
+    (filteredLogEventMap[matchingIdx] as number) + 1 :
+    matchingIdx + 1;
+};
+
 
 /**
  * Gets the new number of pages.
@@ -206,6 +187,7 @@ export {
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
+    getMatchingLogEventNum,
     getNewNumPages,
     loadFile,
 };

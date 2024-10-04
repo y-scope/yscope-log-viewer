@@ -31,6 +31,10 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {
+    isWithinBounds,
+    findNearestLessThanOrEqualElement,
+} from "../utils/data";
+import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
 } from "../utils/config";
@@ -173,6 +177,24 @@ const loadPageByCursor = (
         decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
     });
 };
+
+
+/**
+ * If the log event number changed, update the URL.
+ *
+ * @param logEventNum
+ * @param newLogEventNum
+ * @return Whether the log event number changed.
+ */
+function updateUrlIfModified(logEventNum: number, newLogEventNum: Nullable<number>): boolean {
+    if (newLogEventNum !== logEventNum) {
+        updateWindowUrlHashParams({
+            logEventNum: newLogEventNum,
+        });
+        return true;
+    }
+    return false;
+}
 
 /**
  * Provides state management for the application. This provider must be wrapped by
@@ -344,20 +366,23 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNumRef.current.values());
 
+        console.log(logEventNumsOnPage);
+
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
-        // eslint-disable-next-line no-warning-comments
-        // TODO: After filter is added, will need to find the largest <= log event number on the
-        // current page. Once found, we update the event number in the URL instead of sending a new
-        // request since the page has not changed.
-
-        if (logEventNumsOnPage.includes(clampedLogEventNum)) {
-            if (clampedLogEventNum !== logEventNum) {
-                updateWindowUrlHashParams({
-                    logEventNum: clampedLogEventNum,
-                });
+        if (isWithinBounds(logEventNumsOnPage, clampedLogEventNum)) {
+            if (updateUrlIfModified(logEventNum, clampedLogEventNum)) {
+                return;
             }
 
+            let nearestLogEventIdx = findNearestLessThanOrEqualElement(logEventNumsOnPage, clampedLogEventNum) as number + 1;
+            let nearestLogEventNum = logEventNumsOnPage[nearestLogEventIdx];
+
+            console.log(nearestLogEventNum);
+
+            //if (updateUrlIfModified(logEventNum, nearestLogEventNum)) {
+            //    return;
+            //}
             return;
         }
 

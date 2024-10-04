@@ -84,6 +84,7 @@ type WorkerReqMap = {
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType,
         logLevelFilter: LogLevelFilter,
+        decoderOptions?: DecoderOptionsType
     },
 };
 
