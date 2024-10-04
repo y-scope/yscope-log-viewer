@@ -1,21 +1,18 @@
 import {Nullable} from "../../typings/common";
-
-import {
-    FilteredLogEventMap,
-} from "../../typings/decoders";
+import {FilteredLogEventMap} from "../../typings/decoders";
 import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
 } from "../../typings/worker";
+import {
+    clampWithinBounds,
+    findNearestLessThanOrEqualElement,
+} from "../../utils/data";
 import {getUint8ArrayFrom} from "../../utils/http";
 import {
     clamp,
     getChunkNum,
 } from "../../utils/math";
-import {
-    clampWithinBounds,
-    findNearestLessThanOrEqualElement,
-} from "../../utils/data";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
@@ -47,11 +44,43 @@ const getPageNumCursorData = (
 };
 
 /**
+ * Gets a valid log event number. This function is required as input `logEventNum` may be "invalid"
+ * if:
+ * - `logEventNum >= numEvents`.
+ * - `logEventNum` excluded by the current filter.
+ * If the input is "invalid", the function returns the nearest log event number in place of
+ * `logEventNum`.
+ *
+ * @param logEventNum
+ * @param numEvents
+ * @param filteredLogEventMap
+ * @return Valid index.
+ */
+const getValidLogEventIdx = (
+    logEventNum: Nullable<number>,
+    numEvents: number,
+    filteredLogEventMap: FilteredLogEventMap,
+): number => {
+    const eventNum = logEventNum ?? 1;
+    if (null === filteredLogEventMap) {
+        // There is no filter applied.
+        return clamp(eventNum, 1, numEvents) - 1;
+    }
+    const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, eventNum - 1);
+
+    // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
+    // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds
+    // of the array.
+    return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
+};
+
+/**
  * Gets the data for the `EVENT_NUM` cursor.
  *
  * @param logEventNum
  * @param numEvents
  * @param pageSize
+ * @param filteredLogEventMap
  * @return Indexes for:
  * - the range [begin, end) of the page containing `logEventNum`.
  * - log event `logEventNum`.
@@ -88,58 +117,32 @@ const getLastEventCursorData = (
 };
 
 /**
- * Gets a valid log event number. This function is required as input `logEventNum` may be "invalid"
- * if:
- * - `logEventNum >= numEvents`.
- * - `logEventNum` excluded by the current filter.
- * If the input is "invalid", the function returns the nearest log event number in place of
- * `logEventNum`.
- * @param logEventNum
- * @param numEvents
- * @param filteredLogEventMap
- * @return Valid index.
- */
-const getValidLogEventIdx = (
-    logEventNum: Nullable<number>,
-    numEvents: number,
-    filteredLogEventMap: FilteredLogEventMap,
-): number => {
-    let eventNum = logEventNum??1;
-    if (null === filteredLogEventMap) {
-        // There is no filter applied.
-        return clamp(eventNum, 1, numEvents) - 1;
-    } else {
-        let clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, eventNum - 1);
-        // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
-        // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds of the array.
-        return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
-    }
-};
-
-/**
  * Converts the matching index into log event number.
- * @param useFilter
+ *
  * @param matchingIdx
  * @param filteredLogEventMap
- * @return Log event number;
+ * @return Log event number.
  */
 const getMatchingLogEventNum = (
     matchingIdx: Nullable<number>,
     filteredLogEventMap: FilteredLogEventMap,
 ): number => {
-    if (matchingIdx === null) {
+    if (null === matchingIdx) {
         return 0;
     }
+
     return null !== filteredLogEventMap ?
-    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx` can be undefined, but it can't
-    // since filteredLogEventMap has a length >= 1.
-    (filteredLogEventMap[matchingIdx] as number) + 1 :
-    matchingIdx + 1;
+
+    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx` can be undefined,
+    // but it can't since filteredLogEventMap has a length >= 1.
+        (filteredLogEventMap[matchingIdx] as number) + 1 :
+        matchingIdx + 1;
 };
 
 
 /**
  * Gets the new number of pages.
+ *
  * @param numEvents
  * @param pageSize
  * @param filteredLogEventMap
@@ -150,7 +153,10 @@ const getNewNumPages = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): number => {
-    let numActiveEvents: number = filteredLogEventMap ? filteredLogEventMap.length : numEvents
+    const numActiveEvents: number = filteredLogEventMap ?
+        filteredLogEventMap.length :
+        numEvents;
+
     return getChunkNum(numActiveEvents, pageSize);
 };
 
@@ -183,8 +189,8 @@ const loadFile = async (fileSrc: FileSrcType)
 export {
     getEventNumCursorData,
     getLastEventCursorData,
-    getPageNumCursorData,
     getMatchingLogEventNum,
     getNewNumPages,
+    getPageNumCursorData,
     loadFile,
 };

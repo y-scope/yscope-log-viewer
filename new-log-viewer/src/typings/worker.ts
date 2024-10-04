@@ -1,9 +1,9 @@
+import {Nullable} from "./common";
 import {DecoderOptionsType} from "./decoders";
 import {
+    LOG_LEVEL,
     LogLevelFilter,
-    LOG_LEVEL
 } from "./logs";
-import {Nullable} from "./common";
 
 
 /**
@@ -101,8 +101,8 @@ type WorkerRespMap = {
         cursorLineNum: number
         logEventNum: number
         logs: string,
-        pageNum: number
         numPages: number
+        pageNum: number
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,
