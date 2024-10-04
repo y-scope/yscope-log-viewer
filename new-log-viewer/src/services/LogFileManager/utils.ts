@@ -121,8 +121,8 @@ const getEmptyPage = (): {
     cursorLineNum: number
     logEventNum: number
     logs: string,
-    pageNum: number
     numPages: number
+    pageNum: number
 } => {
     return {
         beginLineNumToLogEventNum: new Map(),

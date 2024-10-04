@@ -188,8 +188,8 @@ class LogFileManager {
         cursorLineNum: number
         logEventNum: number
         logs: string,
-        pageNum: number
-        numPages: number
+        numPages: number,
+        pageNum: number,
     } {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
 
@@ -235,14 +235,13 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
 
+        const newNumPages: number = getChunkNum(numEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBeginIdx + 1, this.#pageSize);
         const matchingLogEventNum = 1 + (
             null !== filteredLogEventMap ?
                 (filteredLogEventMap[matchingIdx] as number) :
                 matchingIdx
         );
-        const newNumPages: number = getChunkNum(numEvents, this.#pageSize);
-
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
