@@ -175,22 +175,38 @@ const loadPageByCursor = (
 };
 
 /**
- * If the log event number changed, update the URL.
+ * If the new log event number is within the page boundaries, update the url with the nearest log
+ * event and return true. If the new log event number is outside page boundaries, do not update and
+ * return false.
  *
- * @param logEventNum
- * @param newLogEventNum
- * @return Whether the log event number changed.
+ * @param LogEventNum
+ * @param logEventNumsOnPage
+ * @return Whether the log event number is within page boundaries.
  */
-const updateUrlIfNewEventNum = (logEventNum: number, newLogEventNum: Nullable<number>): boolean => {
-    if (newLogEventNum !== logEventNum) {
-        updateWindowUrlHashParams({
-            logEventNum: newLogEventNum,
-        });
-
-        return true;
+const updateUrlIfEventOnPage = (
+    logEventNum: number,
+    logEventNumsOnPage: number[]
+): boolean => {
+    if (!isWithinBounds(logEventNumsOnPage, logEventNum)) {
+        return false;
     }
 
-    return false;
+    const nearestIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        logEventNum
+    );
+
+    // First explicit cast since typescript thinks `nearestIdx` can be null, but
+    // it can't as `logEventNum` must be a value in `logEventNumsOnPage` array.
+    // Second explicit cast since typescript thinks `logEventNumsOnPage` can be empty,
+    // but it can't as isWithinBounds would have returned false.
+    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+
+    updateWindowUrlHashParams({
+        logEventNum: nearestLogEventNum,
+    });
+
+    return true;
 };
 
 /**
@@ -365,25 +381,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
-        if (isWithinBounds(logEventNumsOnPage, clampedLogEventNum)) {
-            if (updateUrlIfNewEventNum(logEventNum, clampedLogEventNum)) {
-                return;
-            }
-
-            const nearestIdx = findNearestLessThanOrEqualElement(
-                logEventNumsOnPage,
-                clampedLogEventNum
-            );
-
-            // First explicit cast since typescript thinks `nearestIdx` can be null, but
-            // it can't as `clampedLogEventNum` must be inside `logEventNumsOnPage`. Second explicit
-            // cast since typescript thinks `logEventNumsOnPage` can be empty, but it can't as
-            // isWithinBounds would have returned false.
-            const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
-            if (updateUrlIfNewEventNum(logEventNum, nearestLogEventNum)) {
-                return;
-            }
-
+        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+            // Do not request a new page, if the log event can be found on the current page.
             return;
         }
 
