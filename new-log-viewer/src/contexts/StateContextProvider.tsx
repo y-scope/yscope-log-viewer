@@ -181,7 +181,7 @@ const loadPageByCursor = (
  * @param newLogEventNum
  * @return Whether the log event number changed.
  */
-const updateUrlIfModified = (logEventNum: number, newLogEventNum: Nullable<number>): boolean => {
+const updateUrlIfNewEventNum = (logEventNum: number, newLogEventNum: Nullable<number>): boolean => {
     if (newLogEventNum !== logEventNum) {
         updateWindowUrlHashParams({
             logEventNum: newLogEventNum,
@@ -366,7 +366,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (isWithinBounds(logEventNumsOnPage, clampedLogEventNum)) {
-            if (updateUrlIfModified(logEventNum, clampedLogEventNum)) {
+            if (updateUrlIfNewEventNum(logEventNum, clampedLogEventNum)) {
                 return;
             }
 
@@ -380,7 +380,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             // cast since typescript thinks `logEventNumsOnPage` can be empty, but it can't as
             // isWithinBounds would have returned false.
             const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
-            if (updateUrlIfModified(logEventNum, nearestLogEventNum)) {
+            if (updateUrlIfNewEventNum(logEventNum, nearestLogEventNum)) {
                 return;
             }
 

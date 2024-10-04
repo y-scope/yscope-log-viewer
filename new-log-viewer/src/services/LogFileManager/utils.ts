@@ -23,7 +23,7 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
  * @param eventPositionOnPage
  * @param numEvents
  * @param pageSize
- * @return Log event numbers for:
+ * @return Indices for:
  * - the range [begin, end) of page `pageNum`.
  * - the log event indicated by `eventPositionOnPage`.
  */
@@ -44,12 +44,10 @@ const getPageNumCursorData = (
 };
 
 /**
- * Gets a valid log event number. This function is required as input `logEventNum` may be "invalid"
- * if:
- * - `logEventNum >= numEvents`.
+ * Converts a potentially "invalid" `logEventNum` into a valid log event index. `logEventNum` may
+ * be "invalid" if:
+ * - `logEventNum > numEvents`.
  * - `logEventNum` excluded by the current filter.
- * If the input is "invalid", the function returns the nearest log event number in place of
- * `logEventNum`.
  *
  * @param logEventNum
  * @param numEvents
@@ -81,7 +79,7 @@ const getValidLogEventIdx = (
  * @param numEvents
  * @param pageSize
  * @param filteredLogEventMap
- * @return Indexes for:
+ * @return Indices for:
  * - the range [begin, end) of the page containing `logEventNum`.
  * - log event `logEventNum`.
  */
@@ -102,7 +100,7 @@ const getEventNumCursorData = (
  *
  * @param numEvents
  * @param pageSize
- * @return Indexes for:
+ * @return Indices for:
  * - the range [begin, end) of the last page.
  * - the last log event on the last page.
  */

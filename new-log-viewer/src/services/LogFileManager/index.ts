@@ -136,7 +136,7 @@ class LogFileManager {
      * Sets the log level filter.
      *
      * @param logLevelFilter
-     * @throws {Error} If changing the log level filter couldn't be set.
+     * @throws {Error} If the log level filter couldn't be set.
      */
     setLogLevelFilter (logLevelFilter: LogLevelFilter) {
         const result: boolean = this.#decoder.setLogLevelFilter(logLevelFilter);
@@ -202,12 +202,11 @@ class LogFileManager {
         } = this.#getCursorData(cursor);
 
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
-        const useFilter: boolean = null !== filteredLogEventMap;
 
         const results = this.#decoder.decodeRange(
             pageBeginIdx,
             pageEndIdx,
-            useFilter
+            null !== filteredLogEventMap,
         );
 
         if (null === results) {
