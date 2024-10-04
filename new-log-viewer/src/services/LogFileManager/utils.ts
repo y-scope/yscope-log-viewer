@@ -123,47 +123,6 @@ const getLastEventCursorData = (
 };
 
 /**
- * Converts the matching index into log event number.
- *
- * @param matchingIdx
- * @param filteredLogEventMap
- * @return Log event number.
- */
-const getMatchingLogEventNum = (
-    matchingIdx: number,
-    filteredLogEventMap: FilteredLogEventMap,
-): number => {
-    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx]` can be
-    // undefined, but it can't since filteredLogEventMap has a length >= 1.
-    return 1 + (
-        null !== filteredLogEventMap ?
-            (filteredLogEventMap[matchingIdx] as number) :
-            matchingIdx
-    );
-};
-
-
-/**
- * Gets the new number of pages.
- *
- * @param numEvents
- * @param filteredLogEventMap
- * @param pageSize
- * @return Page count.
- */
-const getNewNumPages = (
-    numEvents: number,
-    filteredLogEventMap: FilteredLogEventMap,
-    pageSize: number,
-): number => {
-    const numActiveEvents: number = filteredLogEventMap ?
-        filteredLogEventMap.length :
-        numEvents;
-
-    return getChunkNum(numActiveEvents, pageSize);
-};
-
-/**
  * @return Empty page.
  */
 const getEmptyPage = (): {
@@ -213,8 +172,6 @@ const loadFile = async (fileSrc: FileSrcType)
 export {
     getEventNumCursorData,
     getLastEventCursorData,
-    getMatchingLogEventNum,
-    getNewNumPages,
     getPageNumCursorData,
     getEmptyPage,
     loadFile,
