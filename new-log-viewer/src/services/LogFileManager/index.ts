@@ -244,6 +244,8 @@ class LogFileManager {
             filteredLogEventMap,
         );
 
+        console.log(matchingLogEventNum);
+
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,

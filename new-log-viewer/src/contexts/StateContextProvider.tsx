@@ -178,24 +178,6 @@ const loadPageByCursor = (
     });
 };
 
-
-let nearestLogEventIdx = findNearestLessThanOrEqualElement(logEventNumsOnPage, clampedLogEventNum) as number + 1;
-let nearestLogEventNum = logEventNumsOnPage[nearestLogEventIdx];
-
-/**
- * If the log event number changed, update the URL.
- *
- * @param logEventNum
- * @param newLogEventNum
- * @return Whether the log event number changed.
- */
-function findNearestLessThanOrEqualNumber(LogEventNum: number, logEventNumsOnPage: number[]): number {
-    let nearestLogEventIdx = findNearestLessThanOrEqualElement(
-        logEventNumsOnPage,
-        LogEventNum) as number + 1;
-    return logEventNumsOnPage[nearestLogEventIdx];
-}
-
 /**
  * If the log event number changed, update the URL.
  *
@@ -382,12 +364,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNumRef.current.values());
-
-        if (logEventNumsOnPage.length === 0) {
-
-        }
-
-        console.log(logEventNumsOnPage);
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 

@@ -97,7 +97,7 @@ const getLastEventCursorData = (
  * @param logEventNum
  * @param numEvents
  * @param filteredLogEventMap
- * @return Valid log event number.
+ * @return Valid index.
  */
 const getValidLogEventIdx = (
     logEventNum: Nullable<number>,
@@ -109,13 +109,10 @@ const getValidLogEventIdx = (
         // There is no filter applied.
         return clamp(eventNum, 1, numEvents) - 1;
     } else {
-        let clampedLogEventNum = clampWithinBounds(filteredLogEventMap, eventNum);
+        let clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, eventNum - 1);
         // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
         // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds of the array.
-        let filteredLogEventIdx = findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventNum) as number;
-        // Explicit cast since typescript thinks `filteredLogEventMap[filteredLogEventIdx]` can be undefined, but it can't
-        // since filteredLogEventMap has a length >= 1.
-        return filteredLogEventMap[filteredLogEventIdx] as number;
+        return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
     }
 };
 
