@@ -1,6 +1,7 @@
 import {Nullable} from "../../typings/common";
 import {FilteredLogEventMap} from "../../typings/decoders";
 import {
+    BeginLineNumToLogEventNumMap,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
 } from "../../typings/worker";
@@ -15,6 +16,14 @@ import {
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
+const emptyPage = {
+    beginLineNumToLogEventNum: new Map();
+    cursorLineNum: 1,
+    logEventNum: matchingLogEventNum,
+    logs: messages.join(""),
+    umPages: newNumPages,
+    pageNum: newPageNum,
+}
 
 /**
  * Gets the data for the `PAGE_NUM` cursor.
@@ -44,30 +53,29 @@ const getPageNumCursorData = (
 };
 
 /**
- * Converts a potentially "invalid" `logEventNum` into a valid log event index. `logEventNum` may
+ * Converts a potentially "invalid" `logEventIdx` into a valid log event index. `logEventIdx` may
  * be "invalid" if:
- * - `logEventNum > numEvents`.
- * - `logEventNum` excluded by the current filter.
+ * - `logEventIdx >= numEvents`.
+ * - `logEventIdx` excluded by the current filter.
  *
- * @param logEventNum
+ * @param logEventIdx
  * @param numEvents
  * @param filteredLogEventMap
  * @return Valid index.
  */
 const getValidLogEventIdx = (
-    logEventNum: Nullable<number>,
+    logEventIdx: number,
     numEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): number => {
-    const eventNum = logEventNum ?? 1;
     if (null === filteredLogEventMap) {
         // There is no filter applied.
-        return clamp(eventNum, 1, numEvents) - 1;
+        return clamp(logEventIdx, 1, numEvents-1);
     }
-    const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, eventNum - 1);
+    const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
 
-    // Explicit cast since typescript thinks `filteredLogEventIdx` can be null, but it can't
-    // since filteredLogEventMap has a length >= 1 and the input is clamped within the bounds
+    // Explicit cast since typescript thinks result can be null, but it can't since
+    // filteredLogEventMap has a length >= 1 and the input is clamped within the bounds
     // of the array.
     return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
 };
@@ -89,7 +97,7 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
-    const matchingIdx = getValidLogEventIdx(logEventNum, numEvents, filteredLogEventMap);
+    const matchingIdx = getValidLogEventIdx(logEventNum??1 - 1, numEvents, filteredLogEventMap);
     const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
     return {pageBeginIdx, pageEndIdx, matchingIdx};
@@ -122,13 +130,9 @@ const getLastEventCursorData = (
  * @return Log event number.
  */
 const getMatchingLogEventNum = (
-    matchingIdx: Nullable<number>,
+    matchingIdx: number,
     filteredLogEventMap: FilteredLogEventMap,
 ): number => {
-    if (null === matchingIdx) {
-        return 0;
-    }
-
     // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx]` can be
     // undefined, but it can't since filteredLogEventMap has a length >= 1.
     return 1 + (
@@ -157,6 +161,27 @@ const getNewNumPages = (
         numEvents;
 
     return getChunkNum(numActiveEvents, pageSize);
+};
+
+/**
+ * @return Empty page.
+ */
+const getEmptyPage = (): {
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+    cursorLineNum: number
+    logEventNum: number
+    logs: string,
+    pageNum: number
+    numPages: number
+} => {
+    return {
+        beginLineNumToLogEventNum: new Map(),
+        cursorLineNum: 1,
+        logEventNum: 0,
+        logs: "",
+        numPages: 1,
+        pageNum: 1,
+    };
 };
 
 /**
@@ -191,5 +216,6 @@ export {
     getMatchingLogEventNum,
     getNewNumPages,
     getPageNumCursorData,
+    getEmptyPage,
     loadFile,
 };
