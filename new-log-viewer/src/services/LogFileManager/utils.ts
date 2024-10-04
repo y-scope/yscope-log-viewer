@@ -133,8 +133,8 @@ const getMatchingLogEventNum = (
 
     return null !== filteredLogEventMap ?
 
-    // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx` can be undefined,
-    // but it can't since filteredLogEventMap has a length >= 1.
+        // Explicit cast since typescript thinks `filteredLogEventMap[matchingIdx]` can be
+        // undefined, but it can't since filteredLogEventMap has a length >= 1.
         (filteredLogEventMap[matchingIdx] as number) + 1 :
         matchingIdx + 1;
 };
