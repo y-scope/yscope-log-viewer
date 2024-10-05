@@ -7,11 +7,12 @@ import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
+    CursorData,
     CursorType,
+    EMPTY_PAGE_RESP,
     FileSrcType,
     WORKER_RESP_CODE,
     WorkerResp,
-    EMPTY_PAGE_RESP,
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
@@ -250,16 +251,10 @@ class LogFileManager {
      *
      * @param cursor
      * @param numEvents
-     * @return Indices for:
-     * - the range [begin, end) of the page containing the matching log event.
-     * - the log event number that matches the cursor.
+     * @return Cursor data.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorData (cursor: CursorType, numEvents: number): {
-        pageBeginIdx: number,
-        pageEndIdx: number,
-        matchingIdx: number,
-    } {
+    #getCursorData (cursor: CursorType, numEvents: number): CursorData {
         const {code, args} = cursor;
 
         switch (code) {

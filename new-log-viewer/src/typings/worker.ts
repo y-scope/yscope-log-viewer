@@ -45,10 +45,10 @@ type CursorType = {
     [T in keyof CursorArgMap]: { code: T, args: CursorArgMap[T] };
 }[keyof CursorArgMap];
 
-
 /**
-- the range [begin, end) of the page containing the matching log event.
-- the log event number that matches the cursor.
+ * Indices for:
+ * - the range [begin, end) of the page containing the matching log event.
+ * - the log event number that matches the cursor.
  */
 type CursorData = {
     pageBeginIdx: number;
@@ -152,15 +152,15 @@ const EMPTY_PAGE_RESP: WorkerResp<WORKER_RESP_CODE.PAGE_DATA> = Object.freeze({
 
 export {
     CURSOR_CODE,
+    EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
-    EMPTY_PAGE_RESP,
 };
 export type {
     BeginLineNumToLogEventNumMap,
-    CursorType,
     CursorData,
+    CursorType,
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,

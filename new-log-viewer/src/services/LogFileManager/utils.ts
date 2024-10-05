@@ -1,6 +1,7 @@
 import {Nullable} from "../../typings/common";
 import {FilteredLogEventMap} from "../../typings/decoders";
 import {
+    CursorData,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
 } from "../../typings/worker";
@@ -14,6 +15,7 @@ import {
     getChunkNum,
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
+
 
 /**
  * Gets the data for the `PAGE_NUM` cursor.
@@ -31,7 +33,7 @@ const getPageNumCursorData = (
     eventPositionOnPage: EVENT_POSITION_ON_PAGE,
     numEvents: number,
     pageSize: number,
-): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+): CursorData => {
     const pageBeginIdx = (pageNum - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
 
@@ -86,7 +88,7 @@ const getEventNumCursorData = (
     numEvents: number,
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
-): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+): CursorData => {
     const matchingIdx = getValidLogEventIdx(logEventNum ?? 1 - 1, numEvents, filteredLogEventMap);
     const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
@@ -105,7 +107,7 @@ const getEventNumCursorData = (
 const getLastEventCursorData = (
     numEvents: number,
     pageSize: number
-): { pageBeginIdx: number; pageEndIdx: number; matchingIdx: number } => {
+): CursorData => {
     const pageBeginIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
     const matchingIdx: number = pageEndIdx - 1;
