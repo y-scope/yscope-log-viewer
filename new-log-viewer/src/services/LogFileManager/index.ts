@@ -193,7 +193,6 @@ class LogFileManager {
         const numEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
             this.#numEvents;
-
         if (0 === numEvents) {
             return EMPTY_PAGE_RESP;
         }
@@ -256,7 +255,6 @@ class LogFileManager {
      */
     #getCursorData (cursor: CursorType, numEvents: number): CursorData {
         const {code, args} = cursor;
-
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
