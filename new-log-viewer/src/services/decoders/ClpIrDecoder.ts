@@ -4,8 +4,11 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
+    FilteredLogEventMap,
+    LOG_EVENT_FILE_END_IDX,
     LogEventCount,
 } from "../../typings/decoders";
+import {LogLevelFilter} from "../../typings/logs";
 
 
 class ClpIrDecoder implements Decoder {
@@ -31,19 +34,42 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
-    buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
+    // eslint-disable-next-line class-methods-use-this
+    getFilteredLogEventMap (): FilteredLogEventMap {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
+        console.error("Not implemented.");
+
+        return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Update this after log level filtering is implemented in clp-ffi-js
+        console.error("Not implemented.");
+
+        return false;
+    }
+
+    build (): LogEventCount {
         return {
             numInvalidEvents: 0,
-            numValidEvents: this.#streamReader.deserializeRange(beginIdx, endIdx),
+            numValidEvents: this.#streamReader.deserializeRange(0, LOG_EVENT_FILE_END_IDX),
         };
     }
 
     // eslint-disable-next-line class-methods-use-this
-    setDecoderOptions (): boolean {
+    setFormatterOptions (): boolean {
         return true;
     }
 
-    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
+    decodeRange (
+        beginIdx: number,
+        endIdx: number,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        useFilter: boolean
+    ): Nullable<DecodeResultType[]> {
         return this.#streamReader.decodeRange(beginIdx, endIdx);
     }
 }

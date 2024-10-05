@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 400] */
+/* eslint max-lines: ["error", 450] */
 import React, {
     createContext,
     useCallback,
@@ -16,12 +16,17 @@ import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
+    EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
 } from "../typings/worker";
+import {
+    ACTION_NAME,
+    NavigationAction,
+} from "../utils/actions";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
@@ -46,11 +51,11 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
-    pageNum: Nullable<number>,
+    pageNum: number,
 
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPage: (newPageNum: number) => void,
+    loadPageByAction: (navAction: NavigationAction) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -68,49 +73,12 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 
     exportLogs: () => null,
     loadFile: () => null,
-    loadPage: () => null,
+    loadPageByAction: () => null,
 });
 
 interface StateContextProviderProps {
     children: React.ReactNode
 }
-
-/**
- * Updates the log event number in the current window's URL hash parameters.
- *
- * @param lastLogEventNum The last log event number value.
- * @param inputLogEventNum The log event number to set.  If `null`, the hash parameter log event
- * number will be set to `lastLogEventNum`. If it's outside the range `[1, lastLogEventNum]`, the
- * hash parameter log event number will be clamped to that range.
- */
-const updateLogEventNumInUrl = (
-    lastLogEventNum: number,
-    inputLogEventNum: Nullable<number>
-) => {
-    const newLogEventNum = (null === inputLogEventNum) ?
-        lastLogEventNum :
-        clamp(inputLogEventNum, 1, lastLogEventNum);
-
-    updateWindowUrlHashParams({
-        logEventNum: newLogEventNum,
-    });
-};
-
-/**
- * Gets the last log event number from a map of begin line numbers to log event numbers.
- *
- * @param beginLineNumToLogEventNum
- * @return The last log event number.
- */
-const getLastLogEventNum = (beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap) => {
-    const allLogEventNums = Array.from(beginLineNumToLogEventNum.values());
-    let lastLogEventNum = allLogEventNums.at(-1);
-    if ("undefined" === typeof lastLogEventNum) {
-        lastLogEventNum = 1;
-    }
-
-    return lastLogEventNum;
-};
 
 /**
  * Sends a post message to a worker with the given code and arguments. This wrapper around
@@ -130,6 +98,79 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
 };
 
 /**
+ * Returns a `PAGE_NUM` cursor based on a navigation action.
+ *
+ * @param navAction Action to navigate to a new page.
+ * @param currentPageNum
+ * @param numPages
+ * @return `PAGE_NUM` cursor.
+ */
+const getPageNumCursor = (
+    navAction: NavigationAction,
+    currentPageNum: number,
+    numPages: number
+): Nullable<CursorType> => {
+    if (STATE_DEFAULT.pageNum === currentPageNum) {
+        // eslint-disable-next-line no-warning-comments
+        // TODO: This shouldn't be possible, but currently, the page nav buttons remain enabled
+        // even when a file hasn't been loaded.
+        console.error("Page actions cannot be executed if the current page is not set.");
+
+        return null;
+    }
+
+    let newPageNum: number;
+    let position: EVENT_POSITION_ON_PAGE;
+    switch (navAction.code) {
+        case ACTION_NAME.SPECIFIC_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+
+            // Clamp is to prevent someone from requesting non-existent page.
+            newPageNum = clamp(navAction.args.pageNum, 1, numPages);
+            break;
+        case ACTION_NAME.FIRST_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+            newPageNum = 1;
+            break;
+        case ACTION_NAME.PREV_PAGE:
+            position = EVENT_POSITION_ON_PAGE.BOTTOM;
+            newPageNum = clamp(currentPageNum - 1, 1, numPages);
+            break;
+        case ACTION_NAME.NEXT_PAGE:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+            newPageNum = clamp(currentPageNum + 1, 1, numPages);
+            break;
+        case ACTION_NAME.LAST_PAGE:
+            position = EVENT_POSITION_ON_PAGE.BOTTOM;
+            newPageNum = numPages;
+            break;
+        default:
+            return null;
+    }
+
+    return {
+        code: CURSOR_CODE.PAGE_NUM,
+        args: {pageNum: newPageNum, eventPositionOnPage: position},
+    };
+};
+
+/**
+ * Submits a `LOAD_PAGE` request to a worker.
+ *
+ * @param worker
+ * @param cursor
+ */
+const loadPageByCursor = (
+    worker: Worker,
+    cursor: CursorType,
+) => {
+    workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
+        cursor: cursor,
+        decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+    });
+};
+
+/**
  * Provides state management for the application. This provider must be wrapped by
  * UrlContextProvider to function correctly.
  *
@@ -137,7 +178,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
@@ -153,7 +194,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<Nullable<number>>(STATE_DEFAULT.pageNum);
+    const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -179,9 +220,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
+                pageNumRef.current = args.pageNum;
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                const lastLogEventNum = getLastLogEventNum(args.beginLineNumToLogEventNum);
-                updateLogEventNumInUrl(lastLogEventNum, logEventNumRef.current);
+                updateWindowUrlHashParams({
+                    logEventNum: args.logEventNum,
+                });
                 break;
             }
             default:
@@ -240,22 +283,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    const loadPage = (newPageNum: number) => {
+    const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
             return;
         }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_PAGE, {
-            cursor: {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}},
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-        });
-    };
+        const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
+        if (null === cursor) {
+            console.error(`Error with nav action ${navAction.code}.`);
 
-    // Synchronize `logEventNumRef` with `logEventNum`.
-    useEffect(() => {
-        logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
+            return;
+        }
+        loadPageByCursor(mainWorkerRef.current, cursor);
+    }, []);
 
     // On `numEvents` update, recalculate `numPagesRef`.
     useEffect(() => {
@@ -266,32 +307,47 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
     }, [numEvents]);
 
+    // Synchronize `logEventNumRef` with `logEventNum`.
+    useEffect(() => {
+        logEventNumRef.current = logEventNum;
+    }, [logEventNum]);
+
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        if (null === mainWorkerRef.current) {
+            return;
+        }
+
         if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 
-        const newPageNum = clamp(
-            getChunkNum(logEventNum, getConfig(CONFIG_KEY.PAGE_SIZE)),
-            1,
-            numPagesRef.current
-        );
+        const logEventNumsOnPage: number [] =
+            Array.from(beginLineNumToLogEventNumRef.current.values());
 
-        // Request a page switch only if it's not the initial page load.
-        if (STATE_DEFAULT.pageNum !== pageNumRef.current) {
-            if (newPageNum === pageNumRef.current) {
-                // Don't need to switch pages so just update `logEventNum` in the URL.
-                updateLogEventNumInUrl(numEvents, logEventNumRef.current);
-            } else {
-                // NOTE: We don't need to call `updateLogEventNumInUrl()` since it's called when
-                // handling the `WORKER_RESP_CODE.PAGE_DATA` response (the response to
-                // `WORKER_REQ_CODE.LOAD_PAGE` requests) .
-                loadPage(newPageNum);
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
+
+        // eslint-disable-next-line no-warning-comments
+        // TODO: After filter is added, will need to find the largest <= log event number on the
+        // current page. Once found, we update the event number in the URL instead of sending a new
+        // request since the page has not changed.
+
+        if (logEventNumsOnPage.includes(clampedLogEventNum)) {
+            if (clampedLogEventNum !== logEventNum) {
+                updateWindowUrlHashParams({
+                    logEventNum: clampedLogEventNum,
+                });
             }
+
+            return;
         }
 
-        pageNumRef.current = newPageNum;
+        const cursor: CursorType = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: logEventNum},
+        };
+
+        loadPageByCursor(mainWorkerRef.current, cursor);
     }, [
         numEvents,
         logEventNum,
@@ -305,15 +361,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            // Set which page to load since the user specified a specific `logEventNum`.
-            // NOTE: Since we don't know how many pages the log file contains, we only clamp the
-            // minimum of the page number.
-            const newPageNum = Math.max(
-                getChunkNum(logEventNumRef.current, getConfig(CONFIG_KEY.PAGE_SIZE)),
-                1
-            );
-
-            cursor = {code: CURSOR_CODE.PAGE_NUM, args: {pageNum: newPageNum}};
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNumRef.current},
+            };
         }
         loadFile(filePath, cursor);
     }, [
@@ -334,7 +385,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
-                loadPage: loadPage,
+                loadPageByAction: loadPageByAction,
             }}
         >
             {children}
