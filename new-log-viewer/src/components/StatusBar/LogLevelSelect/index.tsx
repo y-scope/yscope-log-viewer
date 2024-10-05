@@ -158,6 +158,7 @@ const LogLevelSelect = () => {
 
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
+        ev.stopPropagation();
 
         const target = ev.target as HTMLInputElement;
         const value = Number(target.value) as LOG_LEVEL;
