@@ -16,7 +16,6 @@ import {
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
-
 /**
  * Gets the data for the `PAGE_NUM` cursor.
  *
@@ -24,9 +23,7 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
  * @param eventPositionOnPage
  * @param numEvents
  * @param pageSize
- * @return Indices for:
- * - the range [begin, end) of page `pageNum`.
- * - the log event indicated by `eventPositionOnPage`.
+ * @return Cursor data.
  */
 const getPageNumCursorData = (
     pageNum: number,
@@ -79,9 +76,7 @@ const getValidLogEventIdx = (
  * @param numEvents
  * @param pageSize
  * @param filteredLogEventMap
- * @return Indices for:
- * - the range [begin, end) of the page containing `logEventNum`.
- * - log event `logEventNum`.
+ * @return Cursor data.
  */
 const getEventNumCursorData = (
     logEventNum: Nullable<number>,
@@ -100,9 +95,7 @@ const getEventNumCursorData = (
  *
  * @param numEvents
  * @param pageSize
- * @return Indices for:
- * - the range [begin, end) of the last page.
- * - the last log event on the last page.
+ * @return Cursor data.
  */
 const getLastEventCursorData = (
     numEvents: number,
