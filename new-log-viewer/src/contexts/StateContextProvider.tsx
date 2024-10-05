@@ -187,7 +187,7 @@ const updateUrlIfEventOnPage = (
     logEventNum: number,
     logEventNumsOnPage: number[]
 ): boolean => {
-    if (!isWithinBounds(logEventNumsOnPage, logEventNum)) {
+    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
         return false;
     }
 

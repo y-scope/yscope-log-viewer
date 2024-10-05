@@ -250,7 +250,7 @@ class LogFileManager {
      *
      * @param cursor
      * @param numEvents
-     * @return Index for:
+     * @return Indices for:
      * - the range [begin, end) of the page containing the matching log event.
      * - the log event number that matches the cursor.
      * @throws {Error} if the type of cursor is not supported.
