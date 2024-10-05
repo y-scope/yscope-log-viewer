@@ -11,6 +11,7 @@ import {
     FileSrcType,
     WORKER_RESP_CODE,
     WorkerResp,
+    EMPTY_PAGE_RESP,
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
@@ -18,7 +19,6 @@ import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 import {
-    getEmptyPage,
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
@@ -194,7 +194,7 @@ class LogFileManager {
             this.#numEvents;
 
         if (0 === numEvents) {
-            return getEmptyPage();
+            return EMPTY_PAGE_RESP;
         }
         const {
             pageBeginIdx,
@@ -250,7 +250,7 @@ class LogFileManager {
      *
      * @param cursor
      * @param numEvents
-     * @return Index for:
+     * @return Indices for:
      * - the range [begin, end) of the page containing the matching log event.
      * - the log event number that matches the cursor.
      * @throws {Error} if the type of cursor is not supported.

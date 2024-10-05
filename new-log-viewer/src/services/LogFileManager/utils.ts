@@ -3,8 +3,6 @@ import {FilteredLogEventMap} from "../../typings/decoders";
 import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
-    WORKER_RESP_CODE,
-    WorkerResp,
 } from "../../typings/worker";
 import {
     clampWithinBounds,
@@ -16,7 +14,6 @@ import {
     getChunkNum,
 } from "../../utils/math";
 import {getBasenameFromUrlOrDefault} from "../../utils/url";
-
 
 /**
  * Gets the data for the `PAGE_NUM` cursor.
@@ -116,23 +113,6 @@ const getLastEventCursorData = (
 };
 
 /**
- * Gets a response for an empty page.
- *
- * @return Empty page data.
- */
-const getEmptyPage = ():
-    WorkerResp<WORKER_RESP_CODE.PAGE_DATA> => {
-    return {
-        beginLineNumToLogEventNum: new Map(),
-        cursorLineNum: 1,
-        logEventNum: 0,
-        logs: "",
-        numPages: 1,
-        pageNum: 1,
-    };
-};
-
-/**
  * Loads a file from a given source.
  *
  * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
@@ -159,7 +139,6 @@ const loadFile = async (fileSrc: FileSrcType)
 };
 
 export {
-    getEmptyPage,
     getEventNumCursorData,
     getLastEventCursorData,
     getPageNumCursorData,
