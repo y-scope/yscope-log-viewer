@@ -43,7 +43,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
  *
  * @param chunkResults
  */
-const handleChunkResult = (chunkResults: ChunkResults) => {
+const chunkResultsHandler = (chunkResults: ChunkResults) => {
     postResp(WORKER_RESP_CODE.CHUNK_RESULT, chunkResults);
 };
 
@@ -79,7 +79,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     args.fileSrc,
                     args.pageSize,
                     args.decoderOptions,
-                    handleChunkResult
+                    chunkResultsHandler
                 );
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {

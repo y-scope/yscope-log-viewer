@@ -74,7 +74,6 @@ class LogFileManager {
      * @param decoder
      * @param fileName
      * @param pageSize Page size for setting up pagination.
-     * @param queryResultHandler
      * @param chunkResultsHandler
      */
     constructor (
@@ -113,7 +112,6 @@ class LogFileManager {
      * File object.
      * @param pageSize Page size for setting up pagination.
      * @param decoderOptions Initial decoder options.
-     * @param queryResultHandler
      * @param chunkResultsHandler
      * @return A Promise that resolves to the created LogFileManager instance.
      */
@@ -298,7 +296,7 @@ class LogFileManager {
 
         for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
             const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
-
+            console.log(`Searching: ${contentString}`);
             const match = contentString.match(searchRegex);
             if (match && match.index) {
                 const logEventNum = eventIdx + 1;

@@ -190,7 +190,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.CHUNK_RESULT:
-                console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
                 for (const [pageNumStr, results] of Object.entries(args)) {
                     const pageNum = parseInt(pageNumStr, 10);
                     if (!queryResults.current[pageNum]) {
@@ -212,7 +211,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.QUERY_LOG, {
-            searchString: "scheduling",
+            searchString: "scheduled",
             isRegex: false,
             isCaseSensitive: false,
         });
