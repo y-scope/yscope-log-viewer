@@ -329,16 +329,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleMainWorkerResp,
     ]);
 
-    // Synchronize `pageNumRef` with `numPages`.
-    useEffect(() => {
-        pageNumRef.current = pageNum;
-    }, [pageNum]);
-
-    // Synchronize `numPagesRef` with `numPages`.
-    useEffect(() => {
-        numPagesRef.current = numPages;
-    }, [numPages]);
-
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -369,6 +359,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    // Synchronize `pageNumRef` with `numPages`.
+    useEffect(() => {
+        pageNumRef.current = pageNum;
+    }, [pageNum]);
+
+    // Synchronize `numPagesRef` with `numPages`.
+    useEffect(() => {
+        numPagesRef.current = numPages;
+    }, [numPages]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
