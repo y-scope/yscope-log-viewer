@@ -175,13 +175,12 @@ const loadPageByCursor = (
 };
 
 /**
- * If the new log event number is within the page boundaries, update the url with the nearest log
- * event and return true. If the new log event number is outside page boundaries, do not update and
- * return false.
+ * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
+ * `logEventNumsOnPage`.
  *
  * @param logEventNum
  * @param logEventNumsOnPage
- * @return Whether the log event number is within page boundaries.
+ * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
  */
 const updateUrlIfEventOnPage = (
     logEventNum: number,
@@ -191,19 +190,19 @@ const updateUrlIfEventOnPage = (
         return false;
     }
 
-    // Given `isWithinBounds` returns `true`, then `logEventNumsOnPage` must bound `logEventNum` and
-    // `logEventNumsOnPage` cannot be empty. These assertions justify type casts at end of
-    // function.
-
     const nearestIdx = findNearestLessThanOrEqualElement(
         logEventNumsOnPage,
         logEventNum
     );
 
-    // First explicit cast since typescript thinks `nearestIdx` can be null, but
-    // it can't as `logEventNum` must be bounded by in `logEventNumsOnPage`.
-    // Second explicit cast since typescript thinks `logEventNumsOnPage` can be empty, but
-    // that's not possible in this branch.
+    // Since `isWithinBounds` returned `true`, then:
+    // - `logEventNumsOnPage` must bound `logEventNum`.
+    // - `logEventNumsOnPage` cannot be empty.
+    // - `nearestIdx` cannot be `null`.
+    //
+    // Therefore, we can safely cast:
+    // - `nearestIdx` from `Nullable<number>` to `number`.
+    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
     const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
 
     updateWindowUrlHashParams({
@@ -387,7 +386,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
-            // Do not request a new page, if the log event can be found on the current page.
+            // No need to request a new page since the log event is on the current page.
             return;
         }
 

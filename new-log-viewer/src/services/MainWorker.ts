@@ -97,8 +97,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
 
+                LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
                 if ("undefined" !== typeof args.decoderOptions) {
                     LOG_FILE_MANAGER.setFormatterOptions(args.decoderOptions);
                 }
