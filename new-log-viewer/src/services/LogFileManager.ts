@@ -296,7 +296,6 @@ class LogFileManager {
 
         for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
             const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
-            console.log(`Searching: ${contentString}`);
             const match = contentString.match(searchRegex);
             if (match && match.index) {
                 const logEventNum = eventIdx + 1;
