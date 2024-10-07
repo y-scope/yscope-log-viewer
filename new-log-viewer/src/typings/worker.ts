@@ -48,7 +48,7 @@ type CursorType = {
 /**
  * Indices for:
  * - the range [begin, end) of the page containing the matching log event.
- * - the log event number that matches the cursor.
+ * - the log event that matches the cursor.
  */
 type CursorData = {
     pageBeginIdx: number;

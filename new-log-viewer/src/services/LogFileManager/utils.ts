@@ -24,7 +24,7 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
  * @param eventPositionOnPage
  * @param numEvents
  * @param pageSize
- * @return Matching page and log event for the cursor (i.e. cursor data.)
+ * @return
  */
 const getPageNumCursorData = (
     pageNum: number,
@@ -64,9 +64,9 @@ const getValidLogEventIdx = (
     }
     const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
 
-    // Explicit cast since typescript thinks result can be null, but it can't since
-    // filteredLogEventMap has a length >= 1 and the input is clamped within the bounds
-    // of the array.
+    // Explicit cast since TypeScript thinks the return value can be null, but it can't be since
+    // filteredLogEventMap is non-empty and `clampedLogEventIdx` is within the bounds of
+    // `filteredLogEventMap`.
     return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
 };
 
@@ -77,7 +77,7 @@ const getValidLogEventIdx = (
  * @param numEvents
  * @param pageSize
  * @param filteredLogEventMap
- * @return Matching page and log event for the cursor (i.e. cursor data.)
+ * @return
  */
 const getEventNumCursorData = (
     logEventNum: Nullable<number>,
@@ -85,7 +85,7 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): CursorData => {
-    const matchingIdx = getValidLogEventIdx(logEventNum ?? 1 - 1, numEvents, filteredLogEventMap);
+    const matchingIdx = getValidLogEventIdx((logEventNum ?? 1) - 1, numEvents, filteredLogEventMap);
     const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
     return {pageBeginIdx, pageEndIdx, matchingIdx};
@@ -96,7 +96,7 @@ const getEventNumCursorData = (
  *
  * @param numEvents
  * @param pageSize
- * @return Matching page and log event for the cursor (i.e. cursor data.)
+ * @return
  */
 const getLastEventCursorData = (
     numEvents: number,
