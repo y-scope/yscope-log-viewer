@@ -70,7 +70,7 @@ type WorkerReqMap = {
         searchString: string,
         isRegex: boolean,
         isCaseSensitive: boolean,
-    }
+    },
 };
 
 type ChunkResultType = {
@@ -90,12 +90,12 @@ type WorkerRespMap = {
     },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,
-        message: string
+        message: string,
     },
     [WORKER_RESP_CODE.PAGE_DATA]: {
         logs: string,
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
+        cursorLineNum: number,
     },
     [WORKER_RESP_CODE.CHUNK_RESULT]: ChunkResults,
 };

@@ -23,7 +23,7 @@ import ClpIrDecoder from "./decoders/ClpIrDecoder";
 import JsonlDecoder from "./decoders/JsonlDecoder";
 
 
-const SEARCH_CHUNK_SIZE = 1000;
+const SEARCH_CHUNK_SIZE = 10000;
 
 /**
  * Loads a file from a given source.
@@ -297,7 +297,7 @@ class LogFileManager {
         for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
             const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
             const match = contentString.match(searchRegex);
-            if (match && match.index) {
+            if (match && "number" === typeof match.index) {
                 const logEventNum = eventIdx + 1;
                 const pageNum = Math.ceil(logEventNum / this.#pageSize);
                 if (!results[pageNum]) {
