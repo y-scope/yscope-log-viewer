@@ -186,8 +186,7 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType):
-        WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const activeNumEvents: number = filteredLogEventMap ?
