@@ -36,6 +36,10 @@ const MenuBar = () => {
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
+    const handleSearchButtonClick = () => {
+        queryLogs("scheduled", false, false);
+    };
+
     const handleOpenFileButtonClick = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
@@ -80,7 +84,7 @@ const MenuBar = () => {
                 </SmallIconButton>
                 <ExportLogsButton/>
                 <SmallIconButton
-                    onClick={queryLogs}
+                    onClick={handleSearchButtonClick}
                 >
                     <SearchIcon/>
                 </SmallIconButton>

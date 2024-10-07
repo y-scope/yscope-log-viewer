@@ -52,7 +52,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPage: (newPageNum: number) => void,
-    queryLogs: () => void,
+    queryLogs: (searchString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -140,7 +140,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line max-lines-per-function,max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
@@ -190,6 +190,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.CHUNK_RESULT:
+                console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
                 for (const [pageNumStr, results] of Object.entries(args)) {
                     const pageNum = parseInt(pageNumStr, 10);
                     if (!queryResults.current[pageNum]) {
@@ -204,16 +205,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, []);
 
-    const queryLogs = useCallback(() => {
+    const queryLogs = useCallback((
+        searchString: string,
+        isRegex: boolean,
+        isCaseSensitive: boolean
+    ) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
             return;
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.QUERY_LOG, {
-            searchString: "scheduled",
-            isRegex: false,
-            isCaseSensitive: false,
+            searchString: searchString,
+            isRegex: isRegex,
+            isCaseSensitive: isCaseSensitive,
         });
     }, []);
 
