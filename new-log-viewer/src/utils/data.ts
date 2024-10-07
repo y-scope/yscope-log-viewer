@@ -132,7 +132,6 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
         map.get(lowerBoundKey) as T;
 };
 
-
 /**
  * Creates an array of numbers in the range `[begin, end)` with the `i`th element computed as
  * `range[i - 1] + step`.
