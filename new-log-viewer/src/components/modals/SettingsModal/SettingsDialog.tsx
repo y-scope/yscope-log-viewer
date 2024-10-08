@@ -22,7 +22,10 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
-import {NotificationContext} from "../../../contexts/NotificationContextProvider";
+import {
+    DO_NOT_TIMEOUT_VALUE,
+    NotificationContext,
+} from "../../../contexts/NotificationContextProvider";
 import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
@@ -107,7 +110,7 @@ const useHandleConfigFormSubmit = () => {
         });
 
         if (null !== error) {
-            postPopup(LOG_LEVEL.ERROR, error, "Unable to apply config.");
+            postPopup(LOG_LEVEL.ERROR, error, "Unable to apply config.", DO_NOT_TIMEOUT_VALUE);
         } else {
             window.location.reload();
         }

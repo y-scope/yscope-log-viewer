@@ -6,26 +6,33 @@ import React, {
 } from "react";
 
 import {
+    Alert,
     Box,
-    ModalClose,
+    IconButton,
     Snackbar,
     Stack,
     Typography,
 } from "@mui/joy";
+
+import CloseIcon from "@mui/icons-material/Close";
 
 import {Nullable} from "../typings/common";
 import {LOG_LEVEL} from "../typings/logs";
 
 
 const AUTO_DISMISS_TIMEOUT_MILLIS = 5000;
+const DO_NOT_TIMEOUT_VALUE = null;
 
 /**
- * Callback for posting a pop-up message with a title and level.
- *
- * When the level is less than or equal to `LOG_LEVEL.INFO`, the message is automatically dismissed
- * after `AUTO_DISMISS_TIMEOUT_MILLIS`.
+ * Callback for posting a pop-up message with a title and level. The message is automatically
+ * dismissed after `timeoutMillis` if it is not {@link DO_NOT_TIMEOUT_VALUE}.
  */
-type PostPopupCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
+type PostPopupCallback = (
+    level: LOG_LEVEL,
+    message: string,
+    title: string,
+    timeoutMillis: Nullable<number>
+) => void;
 
 /**
  * Callback for posting a status message with level.
@@ -58,10 +65,11 @@ const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
     postStatus: () => null,
 });
 
-interface PopupNotification {
+interface PopupMessage {
     level: LOG_LEVEL,
     message: string,
-    title: string
+    title: string,
+    timeout: Nullable<ReturnType<typeof setTimeout>>
 }
 
 /**
@@ -74,29 +82,33 @@ interface PopupNotification {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popupNotification, setPopupNotification] = useState<Nullable<PopupNotification>>(null);
+    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>([]);
     const [statusMessage, setStatusMessage] = useState<string>(NOTIFICATION_DEFAULT.statusMessage);
-    const popupNotificationTimeoutRef = useRef<Nullable<ReturnType<typeof setTimeout>>>(null);
     const statusMsgTimeoutRef = useRef<Nullable<ReturnType<typeof setTimeout>>>(null);
 
-    const postPopup = useCallback((level: LOG_LEVEL, message: string, title: string = "") => {
-        if (null !== popupNotificationTimeoutRef.current) {
-            clearTimeout(popupNotificationTimeoutRef.current);
-        }
-        setPopupNotification(null);
-        setPopupNotification({
+    const postPopup = useCallback((
+        level: LOG_LEVEL,
+        message: string,
+        title: string,
+        timeoutMillis: Nullable<number>
+    ) => {
+        const newMessage = {
             level: level,
             message: message,
             title: "" === title ?
                 LOG_LEVEL[level] :
                 title,
-        });
+            timeout: DO_NOT_TIMEOUT_VALUE === timeoutMillis ?
+                null :
+                setTimeout(() => {
+                    setPopupMessages((v) => v.filter((m) => m !== newMessage));
+                }, timeoutMillis),
+        };
 
-        if (LOG_LEVEL.INFO >= level) {
-            popupNotificationTimeoutRef.current = setTimeout(() => {
-                setPopupNotification(null);
-            }, AUTO_DISMISS_TIMEOUT_MILLIS);
-        }
+        setPopupMessages((v) => ([
+            ...v,
+            newMessage,
+        ]));
     }, []);
 
     const postStatus = useCallback((level: LOG_LEVEL, message: string) => {
@@ -112,7 +124,6 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         }
     }, []);
 
-
     return (
         <NotificationContext.Provider
             value={{
@@ -122,33 +133,57 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
             }}
         >
             {children}
-            {null !== popupNotification &&
-                <Snackbar
-                    open={true}
-                    sx={{right: "14px", bottom: "32px"}}
-                    color={popupNotification.level >= LOG_LEVEL.ERROR ?
-                        "danger" :
-                        "primary"}
-                >
-                    <Stack>
-                        <Box>
-                            <Typography
-                                level={"title-sm"}
-                                color={popupNotification.level >= LOG_LEVEL.ERROR ?
-                                    "danger" :
-                                    "primary"}
-                            >
-                                {popupNotification.title}
-                            </Typography>
-                            <ModalClose
-                                size={"sm"}
-                                onClick={() => { setPopupNotification(null); }}/>
-                        </Box>
-                        <Typography level={"body-sm"}>
-                            {popupNotification.message}
-                        </Typography>
-                    </Stack>
-                </Snackbar>}
+            <Snackbar
+                open={0 < popupMessages.length}
+                sx={{
+                    background: "transparent",
+                    border: "none",
+                    bottom: "32px",
+                    boxShadow: "none",
+                    right: "14px",
+                }}
+            >
+                <Stack gap={1}>
+                    {popupMessages.map((m, index) => (
+                        <Alert
+                            key={index}
+                            sx={{paddingX: "18px"}}
+                            variant={"outlined"}
+                            color={m.level >= LOG_LEVEL.ERROR ?
+                                "danger" :
+                                "primary"}
+                        >
+                            <Stack>
+                                <Box sx={{display: "flex", alignItems: "center"}}>
+                                    <Typography
+                                        level={"title-sm"}
+                                        sx={{flexGrow: 1}}
+                                        color={m.level >= LOG_LEVEL.ERROR ?
+                                            "danger" :
+                                            "primary"}
+                                    >
+                                        {m.title}
+                                    </Typography>
+                                    <IconButton
+                                        size={"sm"}
+                                        color={m.level >= LOG_LEVEL.ERROR ?
+                                            "danger" :
+                                            "primary"}
+                                        onClick={() => {
+                                            setPopupMessages((v) => v.filter((vm) => vm !== m));
+                                        }}
+                                    >
+                                        <CloseIcon/>
+                                    </IconButton>
+                                </Box>
+                                <Typography level={"body-sm"}>
+                                    {m.message}
+                                </Typography>
+                            </Stack>
+                        </Alert>
+                    ))}
+                </Stack>
+            </Snackbar>
         </NotificationContext.Provider>
     );
 };
@@ -157,5 +192,8 @@ export type {
     PostPopupCallback,
     PostStatusCallback,
 };
-export {NotificationContext};
+export {
+    DO_NOT_TIMEOUT_VALUE,
+    NotificationContext,
+};
 export default NotificationContextProvider;
