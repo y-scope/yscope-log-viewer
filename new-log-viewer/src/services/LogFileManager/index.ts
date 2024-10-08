@@ -197,20 +197,20 @@ class LogFileManager {
             return EMPTY_PAGE_RESP;
         }
         const {
-            pageBeginIdx,
-            pageEndIdx,
-            matchingIdx,
+            pageBegin,
+            pageEnd,
+            matching,
         } = this.#getCursorData(cursor, numActiveEvents);
         const results = this.#decoder.decodeRange(
-            pageBeginIdx,
-            pageEndIdx,
+            pageBegin,
+            pageEnd,
             null !== filteredLogEventMap,
         );
 
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
-                `pageBeginIdx=${pageBeginIdx}, ` +
-                `pageEndIdx=${pageEndIdx}`);
+                `pageBeginIdx=${pageBegin}, ` +
+                `pageEndIdx=${pageEnd}`);
         }
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
@@ -228,11 +228,11 @@ class LogFileManager {
             currentLine += msg.split("\n").length - 1;
         });
         const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
-        const newPageNum: number = getChunkNum(pageBeginIdx + 1, this.#pageSize);
+        const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
         const matchingLogEventNum = 1 + (
             null !== filteredLogEventMap ?
-                (filteredLogEventMap[matchingIdx] as number) :
-                matchingIdx
+                (filteredLogEventMap[matching] as number) :
+                matching
         );
 
         return {
@@ -249,26 +249,26 @@ class LogFileManager {
      * Gets the data that corresponds to the cursor.
      *
      * @param cursor
-     * @param numEvents
+     * @param numActiveEvents
      * @return Cursor data.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorData (cursor: CursorType, numEvents: number): CursorData {
+    #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
                     args.pageNum,
                     args.eventPositionOnPage,
-                    numEvents,
+                    numActiveEvents,
                     this.#pageSize,
                 );
             case CURSOR_CODE.LAST_EVENT:
-                return getLastEventCursorData(numEvents, this.#pageSize);
+                return getLastEventCursorData(numActiveEvents, this.#pageSize);
             case CURSOR_CODE.EVENT_NUM:
                 return getEventNumCursorData(
                     args.eventNum,
-                    numEvents,
+                    numActiveEvents,
                     this.#pageSize,
                     this.#decoder.getFilteredLogEventMap(),
                 );

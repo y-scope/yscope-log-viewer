@@ -1,5 +1,7 @@
 import {Nullable} from "./common";
-import {DecoderOptionsType} from "./decoders";
+import {
+    ActiveLogCollectionEventIdx,
+    DecoderOptionsType} from "./decoders";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -46,14 +48,14 @@ type CursorType = {
 }[keyof CursorArgMap];
 
 /**
- * Indices for:
+ * Active log collection indices for:
  * - the range [begin, end) of the page containing the matching log event.
  * - the log event that matches the cursor.
  */
 type CursorData = {
-    pageBeginIdx: number;
-    pageEndIdx: number;
-    matchingIdx: number;
+    pageBegin: ActiveLogCollectionEventIdx;
+    pageEnd: ActiveLogCollectionEventIdx;
+    matching: ActiveLogCollectionEventIdx;
 };
 
 /**

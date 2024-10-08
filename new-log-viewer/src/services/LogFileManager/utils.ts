@@ -1,5 +1,8 @@
 import {Nullable} from "../../typings/common";
-import {FilteredLogEventMap} from "../../typings/decoders";
+import {
+    ActiveLogCollectionEventIdx,
+    FilteredLogEventMap
+} from "../../typings/decoders";
 import {
     CursorData,
     EVENT_POSITION_ON_PAGE,
@@ -22,45 +25,50 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
  *
  * @param pageNum
  * @param eventPositionOnPage
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
  * @return
  */
 const getPageNumCursorData = (
     pageNum: number,
     eventPositionOnPage: EVENT_POSITION_ON_PAGE,
-    numEvents: number,
+    numActiveEvents: number,
     pageSize: number,
 ): CursorData => {
-    const pageBeginIdx = (pageNum - 1) * pageSize;
-    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
+    const pageBegin: ActiveLogCollectionEventIdx = (pageNum - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
 
-    const matchingIdx = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
-        pageBeginIdx :
-        pageEndIdx - 1;
+    const matching: ActiveLogCollectionEventIdx = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
+        pageBegin :
+        pageEnd - 1;
 
-    return {pageBeginIdx, pageEndIdx, matchingIdx};
+    return {pageBegin, pageEnd, matching};
 };
 
 /**
- * Converts a potentially "invalid" `logEventIdx` into a valid log event index. `logEventIdx` may
- * be "invalid" if:
- * - `logEventIdx >= numEvents`.
- * - `logEventIdx` excluded by the current filter.
+ * Gets the index, `i`, into the active log event collection. Behaviour varies
+ * depending on whether the active collection is filtered or unfiltered.
+ *
+ * If the active collection if unfiltered, returned clamped `logEventIdx` :
+ *  - `i` is `logEventIdx` clamped within [0, collection.length).
+ *
+ * If the active collection is filtered, find the "nearest" event:
+ * - `i` is the largest index where `filteredLogEventMap[i]` <= `logEventIdx`, or
+ * - `i` is `0` if `logEventIdx < filteredLogEventMap[0]`.
  *
  * @param logEventIdx
- * @param numEvents
+ * @param numActiveEvents
  * @param filteredLogEventMap
  * @return Valid index.
  */
-const getValidLogEventIdx = (
+const getActiveLogCollectionEventIdx = (
     logEventIdx: number,
-    numEvents: number,
+    numActiveEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
-): number => {
+): ActiveLogCollectionEventIdx => {
     if (null === filteredLogEventMap) {
-        // There is no filter applied.
-        return clamp(logEventIdx, 1, numEvents - 1);
+        // There is no filter applied, so active collection is unfiltered.
+        return clamp(logEventIdx, 0, numActiveEvents - 1);
     }
     const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
 
@@ -74,38 +82,38 @@ const getValidLogEventIdx = (
  * Gets the data for the `EVENT_NUM` cursor.
  *
  * @param logEventNum
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
  * @param filteredLogEventMap
  * @return
  */
 const getEventNumCursorData = (
     logEventNum: number,
-    numEvents: number,
+    numActiveEvents: number,
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): CursorData => {
-    const matchingIdx = getValidLogEventIdx(logEventNum - 1, numEvents, filteredLogEventMap);
-    const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
-    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
-    return {pageBeginIdx, pageEndIdx, matchingIdx};
+    const matching: ActiveLogCollectionEventIdx = getActiveLogCollectionEventIdx(logEventNum - 1, numActiveEvents, filteredLogEventMap);
+    const pageBegin: ActiveLogCollectionEventIdx = (getChunkNum(matching + 1, pageSize) - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
+    return {pageBegin, pageEnd, matching};
 };
 
 /**
  * Gets the data for the `LAST` cursor.
  *
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
  * @return
  */
 const getLastEventCursorData = (
-    numEvents: number,
+    numActiveEvents: number,
     pageSize: number
 ): CursorData => {
-    const pageBeginIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
-    const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
-    const matchingIdx: number = pageEndIdx - 1;
-    return {pageBeginIdx, pageEndIdx, matchingIdx};
+    const pageBegin: ActiveLogCollectionEventIdx = (getChunkNum(numActiveEvents, pageSize) - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
+    const matching: ActiveLogCollectionEventIdx = pageEnd - 1;
+    return {pageBegin, pageEnd, matching};
 };
 
 /**
