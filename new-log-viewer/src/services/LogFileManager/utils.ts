@@ -1,7 +1,6 @@
-import {Nullable} from "../../typings/common";
 import {
     ActiveLogCollectionEventIdx,
-    FilteredLogEventMap
+    FilteredLogEventMap,
 } from "../../typings/decoders";
 import {
     CursorData,
@@ -38,9 +37,10 @@ const getPageNumCursorData = (
     const pageBegin: ActiveLogCollectionEventIdx = (pageNum - 1) * pageSize;
     const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
 
-    const matching: ActiveLogCollectionEventIdx = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
-        pageBegin :
-        pageEnd - 1;
+    const matching: ActiveLogCollectionEventIdx =
+        eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
+            pageBegin :
+            pageEnd - 1;
 
     return {pageBegin, pageEnd, matching};
 };
@@ -93,9 +93,13 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): CursorData => {
-    const matching: ActiveLogCollectionEventIdx = getActiveLogCollectionEventIdx(logEventNum - 1, numActiveEvents, filteredLogEventMap);
-    const pageBegin: ActiveLogCollectionEventIdx = (getChunkNum(matching + 1, pageSize) - 1) * pageSize;
-    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
+    const matching: ActiveLogCollectionEventIdx =
+        getActiveLogCollectionEventIdx(logEventNum - 1, numActiveEvents, filteredLogEventMap);
+    const pageBegin: ActiveLogCollectionEventIdx =
+        (getChunkNum(matching + 1, pageSize) - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx =
+        Math.min(numActiveEvents, pageBegin + pageSize);
+
     return {pageBegin, pageEnd, matching};
 };
 
@@ -110,7 +114,8 @@ const getLastEventCursorData = (
     numActiveEvents: number,
     pageSize: number
 ): CursorData => {
-    const pageBegin: ActiveLogCollectionEventIdx = (getChunkNum(numActiveEvents, pageSize) - 1) * pageSize;
+    const pageBegin: ActiveLogCollectionEventIdx =
+        (getChunkNum(numActiveEvents, pageSize) - 1) * pageSize;
     const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
     const matching: ActiveLogCollectionEventIdx = pageEnd - 1;
     return {pageBegin, pageEnd, matching};

@@ -1,7 +1,8 @@
 import {Nullable} from "./common";
 import {
     ActiveLogCollectionEventIdx,
-    DecoderOptionsType} from "./decoders";
+    DecoderOptionsType,
+} from "./decoders";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -81,8 +82,7 @@ enum WORKER_RESP_CODE {
 }
 
 type WorkerReqMap = {
-    [WORKER_REQ_CODE.EXPORT_LOG]: {
-    }
+    [WORKER_REQ_CODE.EXPORT_LOG]: null
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType,
         pageSize: number,
