@@ -189,18 +189,18 @@ class LogFileManager {
     loadPage (cursor: CursorType): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
-        const activeNumEvents: number = filteredLogEventMap ?
+        const numActiveEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
             this.#numEvents;
 
-        if (0 === activeNumEvents) {
+        if (0 === numActiveEvents) {
             return EMPTY_PAGE_RESP;
         }
         const {
             pageBeginIdx,
             pageEndIdx,
             matchingIdx,
-        } = this.#getCursorData(cursor, activeNumEvents);
+        } = this.#getCursorData(cursor, numActiveEvents);
         const results = this.#decoder.decodeRange(
             pageBeginIdx,
             pageEndIdx,
@@ -227,7 +227,7 @@ class LogFileManager {
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;
         });
-        const newNumPages: number = getChunkNum(activeNumEvents, this.#pageSize);
+        const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBeginIdx + 1, this.#pageSize);
         const matchingLogEventNum = 1 + (
             null !== filteredLogEventMap ?
