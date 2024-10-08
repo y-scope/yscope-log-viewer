@@ -209,8 +209,8 @@ class LogFileManager {
 
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
-                `BeginIdx=${pageBegin}, ` +
-                `EndIdx=${pageEnd}`);
+                `beginIdx=${pageBegin}, ` +
+                `endIdx=${pageEnd}`);
         }
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();

@@ -70,7 +70,6 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     fileName: LOG_FILE_MANAGER.fileName,
                     numEvents: LOG_FILE_MANAGER.numEvents,
                 });
-
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)

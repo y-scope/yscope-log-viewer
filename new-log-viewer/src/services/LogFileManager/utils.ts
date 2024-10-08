@@ -59,7 +59,7 @@ const getPageNumCursorData = (
  * @param logEventIdx
  * @param numActiveEvents
  * @param filteredLogEventMap
- * @return Valid index.
+ * @return Index.
  */
 const getActiveLogCollectionEventIdx = (
     logEventIdx: number,
