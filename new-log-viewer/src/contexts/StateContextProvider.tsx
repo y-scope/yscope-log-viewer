@@ -35,6 +35,7 @@ import {
     clamp,
     getChunkNum,
 } from "../utils/math";
+import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -180,6 +181,7 @@ const loadPageByCursor = (
  */
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
+    const {postStatus, postPopup} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
@@ -213,10 +215,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setNumEvents(args.numEvents);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
+                postStatus(args.logLevel, args.message);
+                postPopup(args.logLevel, args.message, "Worker error", 5000);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -231,7 +231,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, []);
+    }, [postStatus]);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
