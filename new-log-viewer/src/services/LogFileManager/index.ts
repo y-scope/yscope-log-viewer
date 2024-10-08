@@ -142,7 +142,7 @@ class LogFileManager {
     setLogLevelFilter (logLevelFilter: LogLevelFilter) {
         const result = this.#decoder.setLogLevelFilter(logLevelFilter);
         if (false === result) {
-            throw new Error("Failed to set log level filter for current decoder.");
+            throw new Error(`Failed to set log level filter ${logLevelFilter} for the decoder.`);
         }
     }
 

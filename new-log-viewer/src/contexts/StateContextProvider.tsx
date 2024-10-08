@@ -349,7 +349,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
-            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current}},
+            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current??1}},
             logLevelFilter: newLogLevelFilter,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });

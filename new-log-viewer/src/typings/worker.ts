@@ -36,7 +36,7 @@ enum CURSOR_CODE {
 
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
-    [CURSOR_CODE.EVENT_NUM]: { eventNum: Nullable<number> };
+    [CURSOR_CODE.EVENT_NUM]: { eventNum: number };
     [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
     [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPositionOnPage: EVENT_POSITION_ON_PAGE };
 };
@@ -110,7 +110,7 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.PAGE_DATA]: {
         beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
         cursorLineNum: number
-        logEventNum: number
+        logEventNum: Nullable<number>
         logs: string,
         numPages: number
         pageNum: number
@@ -143,7 +143,7 @@ type MainWorkerRespMessage = {
 const EMPTY_PAGE_RESP: WorkerResp<WORKER_RESP_CODE.PAGE_DATA> = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
     cursorLineNum: 1,
-    logEventNum: 0,
+    logEventNum: null,
     logs: "",
     numPages: 1,
     pageNum: 1,

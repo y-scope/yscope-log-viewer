@@ -80,12 +80,12 @@ const getValidLogEventIdx = (
  * @return
  */
 const getEventNumCursorData = (
-    logEventNum: Nullable<number>,
+    logEventNum: number,
     numEvents: number,
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): CursorData => {
-    const matchingIdx = getValidLogEventIdx((logEventNum ?? 1) - 1, numEvents, filteredLogEventMap);
+    const matchingIdx = getValidLogEventIdx(logEventNum - 1, numEvents, filteredLogEventMap);
     const pageBeginIdx = (getChunkNum(matchingIdx + 1, pageSize) - 1) * pageSize;
     const pageEndIdx = Math.min(numEvents, pageBeginIdx + pageSize);
     return {pageBeginIdx, pageEndIdx, matchingIdx};
