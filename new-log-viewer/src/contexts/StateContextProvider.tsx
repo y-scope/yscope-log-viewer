@@ -170,7 +170,6 @@ const loadPageByCursor = (
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
-        decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
     });
 };
 
@@ -298,7 +297,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,
-            {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
+            {}
         );
     }, [
         numEvents,
@@ -351,7 +350,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current??1}},
             logLevelFilter: newLogLevelFilter,
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
     };
 

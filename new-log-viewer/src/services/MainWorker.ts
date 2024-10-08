@@ -49,10 +49,6 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                if ("undefined" !== typeof args.decoderOptions) {
-                    LOG_FILE_MANAGER.setFormatterOptions(args.decoderOptions);
-                }
-
                 let decodedEventIdx = 0;
                 while (decodedEventIdx < LOG_FILE_MANAGER.numEvents) {
                     postResp(
@@ -85,9 +81,6 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                if ("undefined" !== typeof args.decoderOptions) {
-                    LOG_FILE_MANAGER.setFormatterOptions(args.decoderOptions);
-                }
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)
@@ -99,10 +92,6 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 }
 
                 LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
-                if ("undefined" !== typeof args.decoderOptions) {
-                    LOG_FILE_MANAGER.setFormatterOptions(args.decoderOptions);
-                }
-
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)

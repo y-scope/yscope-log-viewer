@@ -82,7 +82,6 @@ enum WORKER_RESP_CODE {
 
 type WorkerReqMap = {
     [WORKER_REQ_CODE.EXPORT_LOG]: {
-        decoderOptions: DecoderOptionsType
     }
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType,
@@ -92,12 +91,10 @@ type WorkerReqMap = {
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
-        decoderOptions?: DecoderOptionsType
     },
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType,
         logLevelFilter: LogLevelFilter,
-        decoderOptions?: DecoderOptionsType
     },
 };
 
