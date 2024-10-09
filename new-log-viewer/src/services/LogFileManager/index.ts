@@ -199,7 +199,7 @@ class LogFileManager {
         const {
             pageBegin,
             pageEnd,
-            matching,
+            matchingEvent,
         } = this.#getCursorData(cursor, numActiveEvents);
         const results = this.#decoder.decodeRange(
             pageBegin,
@@ -231,8 +231,8 @@ class LogFileManager {
         const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
         const matchingLogEventNum = 1 + (
             null !== filteredLogEventMap ?
-                (filteredLogEventMap[matching] as number) :
-                matching
+                (filteredLogEventMap[matchingEvent] as number) :
+                matchingEvent
         );
 
         return {

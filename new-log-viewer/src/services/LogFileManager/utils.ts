@@ -37,31 +37,29 @@ const getPageNumCursorData = (
     const pageBegin: ActiveLogCollectionEventIdx = (pageNum - 1) * pageSize;
     const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
 
-    const matching: ActiveLogCollectionEventIdx =
+    const matchingEvent: ActiveLogCollectionEventIdx =
         eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
             pageBegin :
             pageEnd - 1;
 
-    return {pageBegin, pageEnd, matching};
+    return {pageBegin, pageEnd, matchingEvent};
 };
 
 /**
- * Gets the index, `i`, into the active log event collection. Behaviour varies
- * depending on whether the active collection is filtered or unfiltered.
- *
- * If the active collection if unfiltered, returned clamped `logEventIdx` :
- *  - `i` is `logEventIdx` clamped within [0, collection.length).
- *
- * If the active collection is filtered, find the "nearest" event:
- * - `i` is the largest index where `filteredLogEventMap[i]` <= `logEventIdx`, or
- * - `i` is `0` if `logEventIdx < filteredLogEventMap[0]`.
+ * Gets the `ActiveLogCollectionEventIdx` that's nearest to `logEventIdx`. Specifically:
+ * - If no filter is set, the nearest `ActiveLogCollectionEventIdx` is:
+ *   - `logEventIdx` if it's in the range of the unfiltered log events collection.
+ *   - the bound of the collection nearest to `logEventIdx` if it's not in the collection's range.
+ * - If a filter is set, the nearest `ActiveLogCollectionEventIdx` is:
+ *   - the largest index, `i`, where `filteredLogEventMap[i] <= logEventIdx`; or
+ *   - `0` if `logEventIdx < filteredLogEventMap[0]`.
  *
  * @param logEventIdx
  * @param numActiveEvents
  * @param filteredLogEventMap
  * @return
  */
-const getActiveLogCollectionEventIdx = (
+const getNearestActiveLogCollectionEventIdx = (
     logEventIdx: number,
     numActiveEvents: number,
     filteredLogEventMap: FilteredLogEventMap,
@@ -92,14 +90,18 @@ const getEventNumCursorData = (
     pageSize: number,
     filteredLogEventMap: FilteredLogEventMap
 ): CursorData => {
-    const matching: ActiveLogCollectionEventIdx =
-        getActiveLogCollectionEventIdx(logEventNum - 1, numActiveEvents, filteredLogEventMap);
+    const matchingEvent: ActiveLogCollectionEventIdx =
+        getNearestActiveLogCollectionEventIdx(
+            logEventNum - 1,
+            numActiveEvents,
+            filteredLogEventMap
+        );
     const pageBegin: ActiveLogCollectionEventIdx =
-        (getChunkNum(matching + 1, pageSize) - 1) * pageSize;
+        (getChunkNum(matchingEvent + 1, pageSize) - 1) * pageSize;
     const pageEnd: ActiveLogCollectionEventIdx =
         Math.min(numActiveEvents, pageBegin + pageSize);
 
-    return {pageBegin, pageEnd, matching};
+    return {pageBegin, pageEnd, matchingEvent};
 };
 
 /**
@@ -116,8 +118,8 @@ const getLastEventCursorData = (
     const pageBegin: ActiveLogCollectionEventIdx =
         (getChunkNum(numActiveEvents, pageSize) - 1) * pageSize;
     const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
-    const matching: ActiveLogCollectionEventIdx = pageEnd - 1;
-    return {pageBegin, pageEnd, matching};
+    const matchingEvent: ActiveLogCollectionEventIdx = pageEnd - 1;
+    return {pageBegin, pageEnd, matchingEvent};
 };
 
 /**

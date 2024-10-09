@@ -56,7 +56,7 @@ type CursorType = {
 type CursorData = {
     pageBegin: ActiveLogCollectionEventIdx;
     pageEnd: ActiveLogCollectionEventIdx;
-    matching: ActiveLogCollectionEventIdx;
+    matchingEvent: ActiveLogCollectionEventIdx;
 };
 
 /**
