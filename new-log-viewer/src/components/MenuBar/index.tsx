@@ -32,12 +32,12 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile, queryLogs} = useContext(StateContext);
+    const {fileName, loadFile, startQuery} = useContext(StateContext);
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
     const handleSearchButtonClick = () => {
-        queryLogs("scheduled", false, false);
+        startQuery("scheduled", false, false);
     };
 
     const handleOpenFileButtonClick = () => {

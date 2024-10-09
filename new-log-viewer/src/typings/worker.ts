@@ -41,7 +41,7 @@ enum WORKER_REQ_CODE {
     EXPORT_LOG = "exportLog",
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
-    QUERY_LOG = "queryLog",
+    START_QUERY = "startQuery",
 }
 
 enum WORKER_RESP_CODE {
@@ -66,7 +66,7 @@ type WorkerReqMap = {
         cursor: CursorType,
         decoderOptions?: DecoderOptionsType
     },
-    [WORKER_REQ_CODE.QUERY_LOG]: {
+    [WORKER_REQ_CODE.START_QUERY]: {
         searchString: string,
         isRegex: boolean,
         isCaseSensitive: boolean,
@@ -74,8 +74,8 @@ type WorkerReqMap = {
 };
 
 type ChunkResultType = {
-    logEventNum: number;
-    message: string;
+    logEventNum: number,
+    message: string,
     matchRange: [number, number];
 };
 type ChunkResults = Record<number, ChunkResultType[]>;

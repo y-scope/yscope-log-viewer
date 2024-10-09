@@ -43,7 +43,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
  *
  * @param chunkResults
  */
-const chunkResultsHandler = (chunkResults: ChunkResults) => {
+const onQueryResults = (chunkResults: ChunkResults) => {
     postResp(WORKER_RESP_CODE.CHUNK_RESULT, chunkResults);
 };
 
@@ -79,7 +79,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     args.fileSrc,
                     args.pageSize,
                     args.decoderOptions,
-                    chunkResultsHandler
+                    onQueryResults
                 );
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
@@ -104,7 +104,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     LOG_FILE_MANAGER.loadPage(args.cursor)
                 );
                 break;
-            case WORKER_REQ_CODE.QUERY_LOG:
+            case WORKER_REQ_CODE.START_QUERY:
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }

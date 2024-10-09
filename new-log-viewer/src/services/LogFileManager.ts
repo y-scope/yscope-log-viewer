@@ -63,7 +63,7 @@ class LogFileManager {
 
     #queryId: number = 0;
 
-    readonly #chunkResultsHandler: (chunkResults: ChunkResults) => void;
+    readonly #onQueryResults: (chunkResults: ChunkResults) => void;
 
     #decoder: Decoder;
 
@@ -74,18 +74,18 @@ class LogFileManager {
      * @param decoder
      * @param fileName
      * @param pageSize Page size for setting up pagination.
-     * @param chunkResultsHandler
+     * @param onQueryResults
      */
     constructor (
         decoder: Decoder,
         fileName: string,
         pageSize: number,
-        chunkResultsHandler: (chunkResults: ChunkResults) => void,
+        onQueryResults: (chunkResults: ChunkResults) => void,
     ) {
         this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
-        this.#chunkResultsHandler = chunkResultsHandler;
+        this.#onQueryResults = onQueryResults;
 
         // Build index for the entire file
         const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
@@ -112,19 +112,19 @@ class LogFileManager {
      * File object.
      * @param pageSize Page size for setting up pagination.
      * @param decoderOptions Initial decoder options.
-     * @param chunkResultsHandler
+     * @param onQueryResults
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
         decoderOptions: DecoderOptionsType,
-        chunkResultsHandler: (chunkResults: ChunkResults) => void,
+        onQueryResults: (chunkResults: ChunkResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize, chunkResultsHandler);
+        return new LogFileManager(decoder, fileName, pageSize, onQueryResults);
     }
 
     /**
@@ -166,10 +166,6 @@ class LogFileManager {
      */
     setDecoderOptions (options: DecoderOptionsType) {
         this.#decoder.setDecoderOptions(options);
-    }
-
-    incrementQueryId () {
-        this.#queryId++;
     }
 
     /**
@@ -258,7 +254,7 @@ class LogFileManager {
      * @return An object containing the search results.
      */
     startQuery (searchString: string, isRegex: boolean, matchCase: boolean): void {
-        this.incrementQueryId();
+        this.#queryId++;
 
         // If the search string is empty, or there are no logs, return
         if ("" === searchString) {
@@ -275,18 +271,18 @@ class LogFileManager {
             "" :
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
-        this.#searchChunk(this.#queryId, 0, searchRegex);
+        this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
     }
 
     /**
-     * Searches for log events in the given range.
+     * Searches for log events in the given range, then schedules itself to search the next chunk.
      *
      * @param queryId
      * @param beginSearchIdx The beginning index of the search range.
      * @param searchRegex The regular expression to search
      * @return
      */
-    #searchChunk (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
+    #searchChunkAndScheduleNext (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
         if (queryId !== this.#queryId) {
             return;
         }
@@ -314,11 +310,11 @@ class LogFileManager {
 
         if (endSearchIdx < this.#numEvents) {
             defer(() => {
-                this.#searchChunk(queryId, endSearchIdx, searchRegex);
+                this.#searchChunkAndScheduleNext(queryId, endSearchIdx, searchRegex);
             });
         }
 
-        this.#chunkResultsHandler(results);
+        this.#onQueryResults(results);
     }
 
     /**

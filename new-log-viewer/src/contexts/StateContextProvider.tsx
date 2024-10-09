@@ -52,7 +52,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPage: (newPageNum: number) => void,
-    queryLogs: (searchString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
+    startQuery: (searchString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -71,7 +71,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPage: () => null,
-    queryLogs: () => null,
+    startQuery: () => null,
 });
 
 interface StateContextProviderProps {
@@ -160,7 +160,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const queryResults = useRef<ChunkResults>({});
+    const [queryResults, setQueryResults] = useState<ChunkResults>({});
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -191,13 +191,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.CHUNK_RESULT:
                 console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
-                for (const [pageNumStr, results] of Object.entries(args)) {
-                    const pageNum = parseInt(pageNumStr, 10);
-                    if (!queryResults.current[pageNum]) {
-                        queryResults.current[pageNum] = [];
-                    }
-                    queryResults.current[pageNum].push(...results);
-                }
+                setQueryResults((prevQueryResults) => {
+                    const newQueryResults = {...prevQueryResults};
+                    Object.entries(args).forEach(([pageNumStr, results]) => {
+                        const pageNum = parseInt(pageNumStr, 10);
+                        if (!newQueryResults[pageNum]) {
+                            newQueryResults[pageNum] = [];
+                        }
+                        newQueryResults[pageNum].push(...results);
+                    });
+
+                    return newQueryResults;
+                });
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -205,7 +210,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, []);
 
-    const queryLogs = useCallback((
+    const startQuery = useCallback((
         searchString: string,
         isRegex: boolean,
         isCaseSensitive: boolean
@@ -215,7 +220,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.QUERY_LOG, {
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, {
             searchString: searchString,
             isRegex: isRegex,
             isCaseSensitive: isCaseSensitive,
@@ -367,7 +372,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPage: loadPage,
-                queryLogs: queryLogs,
+                startQuery: startQuery,
             }}
         >
             {children}
