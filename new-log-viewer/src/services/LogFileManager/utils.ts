@@ -59,7 +59,7 @@ const getPageNumCursorData = (
  * @param logEventIdx
  * @param numActiveEvents
  * @param filteredLogEventMap
- * @return Index.
+ * @return
  */
 const getActiveLogCollectionEventIdx = (
     logEventIdx: number,
@@ -67,7 +67,6 @@ const getActiveLogCollectionEventIdx = (
     filteredLogEventMap: FilteredLogEventMap,
 ): ActiveLogCollectionEventIdx => {
     if (null === filteredLogEventMap) {
-        // There is no filter applied, so active collection is unfiltered.
         return clamp(logEventIdx, 0, numActiveEvents - 1);
     }
     const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
