@@ -13,7 +13,7 @@ html {
 :root {
     /* font-family globals */
     --ylv-ui-font-family: -apple-system, "BlinkMacSystemFont", system-ui, "Ubuntu", "Droid Sans",
-        "Roboto";
+        "Inter";
 
     /* size globals */
     --ylv-status-bar-height: 32px;
