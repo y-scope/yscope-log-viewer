@@ -1,0 +1,8 @@
+.log-level-chip {
+    /* stylelint-disable-next-line custom-property-pattern */
+    --Chip-radius: 0;
+}
+
+.log-level-chip span {
+    width: 1.4ch;
+}

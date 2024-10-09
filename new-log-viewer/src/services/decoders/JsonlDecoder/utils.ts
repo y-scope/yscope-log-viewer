@@ -25,10 +25,10 @@ const isJsonObject = (value: JsonValue): value is JsonObject => {
  * Converts a field into a log level if possible.
  *
  * @param field
- * @return The log level or `LOG_LEVEL.NONE` if the field couldn't be converted.
+ * @return The log level or `LOG_LEVEL.UNKNOWN` if the field couldn't be converted.
  */
 const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
-    let logLevelValue = LOG_LEVEL.NONE;
+    let logLevelValue = LOG_LEVEL.UNKNOWN;
 
     if ("undefined" === typeof field || isJsonObject(field)) {
         return logLevelValue;

@@ -171,7 +171,7 @@ class JsonlDecoder implements Decoder {
             const currentLogEventIdx = this.#logEvents.length;
             this.#invalidLogEventIdxToRawLine.set(currentLogEventIdx, line);
             fields = {};
-            level = LOG_LEVEL.NONE;
+            level = LOG_LEVEL.UNKNOWN;
             timestamp = convertToDayjsTimestamp(INVALID_TIMESTAMP_VALUE);
         }
         this.#logEvents.push({
@@ -220,7 +220,7 @@ class JsonlDecoder implements Decoder {
         if (this.#invalidLogEventIdxToRawLine.has(logEventIdx)) {
             timestamp = INVALID_TIMESTAMP_VALUE;
             message = `${this.#invalidLogEventIdxToRawLine.get(logEventIdx)}\n`;
-            logLevel = LOG_LEVEL.NONE;
+            logLevel = LOG_LEVEL.UNKNOWN;
         } else {
             // Explicit cast since typescript thinks `#logEvents[logEventIdx]` can be undefined,
             // but it shouldn't be since the index comes from a class-internal filter.
