@@ -73,10 +73,12 @@ type WorkerReqMap = {
     },
 };
 
+type TextRange = [number, number];
+
 type ChunkResultType = {
     logEventNum: number,
     message: string,
-    matchRange: [number, number];
+    matchRange: TextRange;
 };
 type ChunkResults = Record<number, ChunkResultType[]>;
 

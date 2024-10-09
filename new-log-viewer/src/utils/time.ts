@@ -1,9 +1,10 @@
 /**
  *
  * @param callback
+ * @param callbackFn
  */
-const defer = (callback: ()=>void) => {
-    setTimeout(callback, 0);
+const defer = (callbackFn: () => void) => {
+    setTimeout(callbackFn, 0);
 };
 
 export {defer};
