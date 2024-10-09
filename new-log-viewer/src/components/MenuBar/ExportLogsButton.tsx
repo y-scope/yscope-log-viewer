@@ -12,6 +12,7 @@ import {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
+import {LOAD_STATE} from "../../typings/worker";
 import SmallIconButton from "./SmallIconButton";
 
 
@@ -21,16 +22,13 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress, fileName} = useContext(StateContext);
+    const {exportLogs, exportProgress, loadState} = useContext(StateContext);
 
     return (
         <SmallIconButton
             disabled={
-                // eslint-disable-next-line no-warning-comments
-                // TODO: Replace `"" === fileName` with a more specific context variable that
-                // indicates whether the file has been loaded.
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
-                    "" === fileName
+                loadState === LOAD_STATE.UNOPENED || loadState === LOAD_STATE.LOADING
             }
             onClick={exportLogs}
         >

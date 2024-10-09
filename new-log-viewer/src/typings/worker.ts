@@ -10,6 +10,27 @@ import {
 
 
 /**
+ * Various states of a load process. UI elements may be enabled or disabled based on the state.
+ */
+enum LOAD_STATE {
+
+    /**
+     * When there is no file opened in the viewer.
+     */
+    UNOPENED = "unopened",
+
+    /**
+     * When a request is pending response.
+     */
+    LOADING = "loading",
+
+    /**
+     * When there is no pending response from any request.
+     */
+    READY = "ready",
+}
+
+/**
  * Type of input file, which can be either a URL string or a File object.
  */
 type FileSrcType = string | File;
@@ -153,6 +174,7 @@ export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
+    LOAD_STATE,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
