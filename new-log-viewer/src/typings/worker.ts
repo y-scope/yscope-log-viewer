@@ -107,11 +107,12 @@ type WorkerReqMap = {
 
 type TextRange = [number, number];
 
-type ChunkResultType = {
+interface ChunkResultType {
     logEventNum: number,
     message: string,
-    matchRange: TextRange;
-};
+    matchRange: TextRange,
+}
+
 type ChunkResults = Record<number, ChunkResultType[]>;
 
 type WorkerRespMap = {

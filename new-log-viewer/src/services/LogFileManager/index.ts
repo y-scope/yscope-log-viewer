@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {
     Decoder,
     DecoderOptionsType,
@@ -17,7 +18,7 @@ import {
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
-import {defer} from "../utils/time";
+import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
@@ -27,6 +28,7 @@ import {
     getPageNumCursorData,
     loadFile,
 } from "./utils";
+
 
 const SEARCH_CHUNK_SIZE = 10000;
 
@@ -263,7 +265,6 @@ class LogFileManager {
      * @param searchString The search string.
      * @param isRegex Whether the search string is a regular expression.
      * @param matchCase Whether the search is case-sensitive.
-     * @return An object containing the search results.
      */
     startQuery (searchString: string, isRegex: boolean, matchCase: boolean): void {
         this.#queryId++;
@@ -291,8 +292,7 @@ class LogFileManager {
      *
      * @param queryId
      * @param beginSearchIdx The beginning index of the search range.
-     * @param searchRegex The regular expression to search
-     * @return
+     * @param searchRegex The regular expression to search.
      */
     #searchChunkAndScheduleNext (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
         if (queryId !== this.#queryId) {
@@ -303,7 +303,7 @@ class LogFileManager {
         const results: ChunkResults = {};
 
         for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
-            const contentString = this.#decoder.decode(eventIdx, eventIdx + 1)?.[0]?.[0] || "";
+            const contentString = this.#decoder.decodeRange(eventIdx, eventIdx + 1, false)?.[0]?.[0] || "";
             const match = contentString.match(searchRegex);
             if (match && "number" === typeof match.index) {
                 const logEventNum = eventIdx + 1;

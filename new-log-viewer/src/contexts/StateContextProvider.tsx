@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 450] */
+/* eslint max-lines: ["error", 500] */
 import React, {
     createContext,
     useCallback,
@@ -278,14 +278,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.CHUNK_RESULT:
                 console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
-                setQueryResults((prevQueryResults) => {
-                    const newQueryResults = {...prevQueryResults};
+                setQueryResults(() => {
+                    const newQueryResults = {...queryResults};
                     Object.entries(args).forEach(([pageNumStr, results]) => {
-                        const pageNum = parseInt(pageNumStr, 10);
-                        if (!newQueryResults[pageNum]) {
-                            newQueryResults[pageNum] = [];
+                        const chunkPageNum = parseInt(pageNumStr, 10);
+                        if (!newQueryResults[chunkPageNum]) {
+                            newQueryResults[chunkPageNum] = [];
                         }
-                        newQueryResults[pageNum].push(...results);
+                        newQueryResults[chunkPageNum].push(...results);
                     });
 
                     return newQueryResults;
