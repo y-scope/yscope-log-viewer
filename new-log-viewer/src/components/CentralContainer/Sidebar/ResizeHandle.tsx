@@ -49,28 +49,22 @@ const ResizeHandle = ({
         onHandleRelease();
     }, [onHandleRelease]);
 
-    // Register the event listener for mouse up.
+    // On `isMouseDown` change, add / remove event listeners.
     useEffect(() => {
-        window.addEventListener("mouseup", handleMouseUp);
-
-        return () => {
-            window.removeEventListener("mouseup", handleMouseUp);
-        };
-    }, [handleMouseUp]);
-
-    // On mouse down, register the event listener for mouse move.
-    useEffect(() => {
-        if (false === isMouseDown) {
-            return () => null;
+        if (isMouseDown) {
+            window.addEventListener("mousemove", handleMouseMove);
+            window.addEventListener("mouseup", handleMouseUp);
         }
 
-        window.addEventListener("mousemove", handleMouseMove);
-
         return () => {
+            // Always clean up the event listeners before the hook is re-run due to `isMouseDown`
+            // changes / when the component is unmounted.
             window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
         };
     }, [
         handleMouseMove,
+        handleMouseUp,
         isMouseDown,
     ]);
 
