@@ -11,6 +11,7 @@ import React, {
 import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {LogLevelFilter} from "../typings/logs";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -32,9 +33,10 @@ import {
     getConfig,
 } from "../utils/config";
 import {
-    clamp,
-    getChunkNum,
-} from "../utils/math";
+    findNearestLessThanOrEqualElement,
+    isWithinBounds,
+} from "../utils/data";
+import {clamp} from "../utils/math";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -57,6 +59,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
+    setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -76,6 +79,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    setLogLevelFilter: () => null,
 });
 
 interface StateContextProviderProps {
@@ -168,8 +172,45 @@ const loadPageByCursor = (
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
-        decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
     });
+};
+
+/**
+ * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
+ * `logEventNumsOnPage`.
+ *
+ * @param logEventNum
+ * @param logEventNumsOnPage
+ * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
+ */
+const updateUrlIfEventOnPage = (
+    logEventNum: number,
+    logEventNumsOnPage: number[]
+): boolean => {
+    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
+        return false;
+    }
+
+    const nearestIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        logEventNum
+    );
+
+    // Since `isWithinBounds` returned `true`, then:
+    // - `logEventNumsOnPage` must bound `logEventNum`.
+    // - `logEventNumsOnPage` cannot be empty.
+    // - `nearestIdx` cannot be `null`.
+    //
+    // Therefore, we can safely cast:
+    // - `nearestIdx` from `Nullable<number>` to `number`.
+    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
+    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+
+    updateWindowUrlHashParams({
+        logEventNum: nearestLogEventNum,
+    });
+
+    return true;
 };
 
 /**
@@ -188,8 +229,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
+    const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
     const [originalFileSizeInBytes, setOriginalFileSizeInBytes] =
         useState(STATE_DEFAULT.originalFileSizeInBytes);
+    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
@@ -197,8 +240,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
-    const numPagesRef = useRef<number>(STATE_DEFAULT.numPages);
-    const pageNumRef = useRef<number>(STATE_DEFAULT.pageNum);
+    const numPagesRef = useRef<number>(numPages);
+    const pageNumRef = useRef<number>(pageNum);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -225,7 +268,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
-                pageNumRef.current = args.pageNum;
+                setNumPages(args.numPages);
+                setPageNum(args.pageNum);
                 beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
@@ -258,7 +302,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOG,
-            {decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS)}
+            null
         );
     }, [
         numEvents,
@@ -306,19 +350,31 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    // On `numEvents` update, recalculate `numPagesRef`.
-    useEffect(() => {
-        if (STATE_DEFAULT.numEvents === numEvents) {
+    const setLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+        if (null === mainWorkerRef.current) {
             return;
         }
 
-        numPagesRef.current = getChunkNum(numEvents, getConfig(CONFIG_KEY.PAGE_SIZE));
-    }, [numEvents]);
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
+            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
+            logLevelFilter: newLogLevelFilter,
+        });
+    };
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    // Synchronize `pageNumRef` with `numPages`.
+    useEffect(() => {
+        pageNumRef.current = pageNum;
+    }, [pageNum]);
+
+    // Synchronize `numPagesRef` with `numPages`.
+    useEffect(() => {
+        numPagesRef.current = numPages;
+    }, [numPages]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -335,18 +391,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
-        // eslint-disable-next-line no-warning-comments
-        // TODO: After filter is added, will need to find the largest <= log event number on the
-        // current page. Once found, we update the event number in the URL instead of sending a new
-        // request since the page has not changed.
-
-        if (logEventNumsOnPage.includes(clampedLogEventNum)) {
-            if (clampedLogEventNum !== logEventNum) {
-                updateWindowUrlHashParams({
-                    logEventNum: clampedLogEventNum,
-                });
-            }
-
+        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+            // No need to request a new page since the log event is on the current page.
             return;
         }
 
@@ -388,13 +434,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 fileName: fileName,
                 logData: logData,
                 numEvents: numEvents,
-                numPages: numPagesRef.current,
+                numPages: numPages,
                 originalFileSizeInBytes: originalFileSizeInBytes,
-                pageNum: pageNumRef.current,
+                pageNum: pageNum,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                setLogLevelFilter: setLogLevelFilter,
             }}
         >
             {children}
