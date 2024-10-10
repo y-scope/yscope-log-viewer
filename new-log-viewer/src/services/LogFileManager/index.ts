@@ -35,6 +35,8 @@ class LogFileManager {
 
     readonly #fileName: string;
 
+    readonly #originalFileSizeInBytes: number;
+
     #decoder: Decoder;
 
     #numEvents: number = 0;
@@ -45,14 +47,17 @@ class LogFileManager {
      *
      * @param decoder
      * @param fileName
+     * @param originalFileSizeInBytes
      * @param pageSize Page size for setting up pagination.
      */
     constructor (
         decoder: Decoder,
         fileName: string,
+        originalFileSizeInBytes: number,
         pageSize: number,
     ) {
         this.#fileName = fileName;
+        this.#originalFileSizeInBytes = originalFileSizeInBytes;
         this.#pageSize = pageSize;
         this.#decoder = decoder;
 
@@ -74,6 +79,10 @@ class LogFileManager {
         return this.#numEvents;
     }
 
+    get originalFileSizeInBytes () {
+        return this.#originalFileSizeInBytes;
+    }
+
     /**
      * Creates a new LogFileManager.
      *
@@ -91,7 +100,7 @@ class LogFileManager {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize);
+        return new LogFileManager(decoder, fileName, fileData.length, pageSize);
     }
 
     /**
