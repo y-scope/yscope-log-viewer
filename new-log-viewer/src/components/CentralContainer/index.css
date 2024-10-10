@@ -4,10 +4,6 @@
 
 .central-container {
     display: grid;
-    grid-template-columns: var(--ylv-panel-width) 1fr;
+    grid-template-columns: var(--ylv-panel-width) calc(100vw - var(--ylv-panel-width));
     width: 100vw;
-}
-
-.central-container-children {
-    width: calc(100vw - var(--ylv-panel-width));
 }

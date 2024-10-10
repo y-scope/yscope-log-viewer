@@ -14,11 +14,9 @@ const CentralContainer = () => {
     return (
         <div className={"central-container"}>
             <Sidebar/>
-            <div className={"central-container-children"}>
-                <DropFileContainer>
-                    <Editor/>
-                </DropFileContainer>
-            </div>
+            <DropFileContainer>
+                <Editor/>
+            </DropFileContainer>
         </div>
     );
 };
