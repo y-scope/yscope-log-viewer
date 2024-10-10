@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {
     Decoder,
     DecoderOptionsType,
@@ -6,6 +7,7 @@ import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
+    ChunkResults,
     CURSOR_CODE,
     CursorData,
     CursorType,
@@ -16,6 +18,7 @@ import {
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
+import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
@@ -27,17 +30,23 @@ import {
 } from "./utils";
 
 
+const SEARCH_CHUNK_SIZE = 10000;
+
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
-    readonly #pageSize: number;
-
     readonly #fileName: string;
 
-    #decoder: Decoder;
+    readonly #numEvents: number = 0;
 
-    #numEvents: number = 0;
+    readonly #pageSize: number;
+
+    #queryId: number = 0;
+
+    readonly #onQueryResults: (chunkResults: ChunkResults) => void;
+
+    #decoder: Decoder;
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -46,15 +55,18 @@ class LogFileManager {
      * @param decoder
      * @param fileName
      * @param pageSize Page size for setting up pagination.
+     * @param onQueryResults
      */
     constructor (
         decoder: Decoder,
         fileName: string,
         pageSize: number,
+        onQueryResults: (chunkResults: ChunkResults) => void,
     ) {
+        this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
-        this.#decoder = decoder;
+        this.#onQueryResults = onQueryResults;
 
         // Build index for the entire file.
         const buildResult = decoder.build();
@@ -81,17 +93,19 @@ class LogFileManager {
      * File object.
      * @param pageSize Page size for setting up pagination.
      * @param decoderOptions Initial decoder options.
+     * @param onQueryResults
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptionsType,
+        onQueryResults: (chunkResults: ChunkResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize);
+        return new LogFileManager(decoder, fileName, pageSize, onQueryResults);
     }
 
     /**
@@ -243,6 +257,76 @@ class LogFileManager {
             numPages: newNumPages,
             pageNum: newPageNum,
         };
+    }
+
+    /**
+     * Searches for log events based on the given search string.
+     *
+     * @param searchString The search string.
+     * @param isRegex Whether the search string is a regular expression.
+     * @param matchCase Whether the search is case-sensitive.
+     */
+    startQuery (searchString: string, isRegex: boolean, matchCase: boolean): void {
+        this.#queryId++;
+
+        // If the search string is empty, or there are no logs, return
+        if ("" === searchString) {
+            return;
+        } else if (0 === this.#numEvents) {
+            return;
+        }
+
+        // Construct search RegExp
+        const regexPattern = isRegex ?
+            searchString :
+            searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regexFlags = matchCase ?
+            "" :
+            "i";
+        const searchRegex = new RegExp(regexPattern, regexFlags);
+        this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
+    }
+
+    /**
+     * Searches for log events in the given range, then schedules itself to search the next chunk.
+     *
+     * @param queryId
+     * @param beginSearchIdx The beginning index of the search range.
+     * @param searchRegex The regular expression to search.
+     */
+    #searchChunkAndScheduleNext (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
+        if (queryId !== this.#queryId) {
+            return;
+        }
+
+        const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
+        const results: ChunkResults = {};
+
+        for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
+            const contentString = this.#decoder.decodeRange(eventIdx, eventIdx + 1, false)?.[0]?.[0] || "";
+            const match = contentString.match(searchRegex);
+            if (match && "number" === typeof match.index) {
+                const logEventNum = eventIdx + 1;
+                const pageNum = Math.ceil(logEventNum / this.#pageSize);
+                if (!results[pageNum]) {
+                    results[pageNum] = [];
+                }
+                results[pageNum].push({
+                    logEventNum: logEventNum,
+                    message: contentString,
+                    matchRange: [match.index,
+                        (match.index + match[0].length)],
+                });
+            }
+        }
+
+        if (endSearchIdx < this.#numEvents) {
+            defer(() => {
+                this.#searchChunkAndScheduleNext(queryId, endSearchIdx, searchRegex);
+            });
+        }
+
+        this.#onQueryResults(results);
     }
 
     /**

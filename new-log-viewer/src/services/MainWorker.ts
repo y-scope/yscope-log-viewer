@@ -4,6 +4,7 @@ import dayjsUtc from "dayjs/plugin/utc";
 
 import {LOG_LEVEL} from "../typings/logs";
 import {
+    ChunkResults,
     MainWorkerReqMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -36,6 +37,16 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+
+/**
+ * Post a response of a query chunk.
+ *
+ * @param chunkResults
+ */
+const onQueryResults = (chunkResults: ChunkResults) => {
+    postResp(WORKER_RESP_CODE.CHUNK_RESULT, chunkResults);
+};
+
 // eslint-disable-next-line no-warning-comments
 // TODO: Break this function up into smaller functions.
 // eslint-disable-next-line max-lines-per-function,max-statements
@@ -63,7 +74,8 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 LOG_FILE_MANAGER = await LogFileManager.create(
                     args.fileSrc,
                     args.pageSize,
-                    args.decoderOptions
+                    args.decoderOptions,
+                    onQueryResults
                 );
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
@@ -94,6 +106,23 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)
+                );
+                break;
+            case WORKER_REQ_CODE.START_QUERY:
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+                if (
+                    "string" !== typeof args.searchString ||
+                    "boolean" !== typeof args.isRegex ||
+                    "boolean" !== typeof args.isCaseSensitive
+                ) {
+                    throw new Error("Invalid arguments for QUERY_LOG");
+                }
+                LOG_FILE_MANAGER.startQuery(
+                    args.searchString,
+                    args.isRegex,
+                    args.isCaseSensitive
                 );
                 break;
             default:

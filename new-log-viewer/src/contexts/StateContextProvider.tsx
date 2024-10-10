@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 450] */
+/* eslint max-lines: ["error", 500] */
 import React, {
     createContext,
     useCallback,
@@ -15,6 +15,7 @@ import {LogLevelFilter} from "../typings/logs";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
+    ChunkResults,
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
@@ -59,6 +60,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    startQuery: (searchString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -78,6 +80,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     loadFile: () => null,
     loadPageByAction: () => null,
     setLogLevelFilter: () => null,
+    startQuery: () => null,
 });
 
 interface StateContextProviderProps {
@@ -241,6 +244,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
+    const [queryResults, setQueryResults] = useState<ChunkResults>({});
+
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -271,10 +276,42 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 });
                 break;
             }
+            case WORKER_RESP_CODE.CHUNK_RESULT:
+                console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
+                setQueryResults(() => {
+                    const newQueryResults = {...queryResults};
+                    Object.entries(args).forEach(([pageNumStr, results]) => {
+                        const chunkPageNum = parseInt(pageNumStr, 10);
+                        if (!newQueryResults[chunkPageNum]) {
+                            newQueryResults[chunkPageNum] = [];
+                        }
+                        newQueryResults[chunkPageNum].push(...results);
+                    });
+
+                    return newQueryResults;
+                });
+                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
+    }, []);
+
+    const startQuery = useCallback((
+        searchString: string,
+        isRegex: boolean,
+        isCaseSensitive: boolean
+    ) => {
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, {
+            searchString: searchString,
+            isRegex: isRegex,
+            isCaseSensitive: isCaseSensitive,
+        });
     }, []);
 
     const exportLogs = useCallback(() => {
@@ -433,6 +470,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setLogLevelFilter: setLogLevelFilter,
+                startQuery: startQuery,
             }}
         >
             {children}
