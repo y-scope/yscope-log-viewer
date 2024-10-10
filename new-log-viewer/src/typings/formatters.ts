@@ -1,4 +1,4 @@
-import {JsonObject} from "./js";
+import {LogEvent} from "./logs";
 
 
 /**
@@ -21,28 +21,19 @@ import {JsonObject} from "./js";
  * inserts a newline as the last character.
  * - `<key>` - Any specifier besides those above indicate a key for a kv-pair, if said kv-pair
  * exists in a given log event.
- * @property timestampKey The key of the kv-pair that contains the authoritative timestamp for
- * every log event.
  */
 interface LogbackFormatterOptionsType {
     formatString: string,
-    timestampKey: string,
 }
 
 type FormatterOptionsType = LogbackFormatterOptionsType;
 
-interface TimestampAndMessageType {
-    timestamp: number,
-    message: string,
-}
-
 interface Formatter {
-    formatLogEvent: (jsonObject: JsonObject) => TimestampAndMessageType
+    formatLogEvent: (logEvent: LogEvent) => string
 }
 
 export type {
     Formatter,
     FormatterOptionsType,
     LogbackFormatterOptionsType,
-    TimestampAndMessageType,
 };

@@ -1,3 +1,9 @@
+import {Dayjs} from "dayjs";
+
+import {Nullable} from "./common";
+import {JsonObject} from "./js";
+
+
 enum LOG_LEVEL {
     NONE = 0,
     TRACE,
@@ -8,8 +14,20 @@ enum LOG_LEVEL {
     FATAL
 }
 
+type LogLevelFilter = Nullable<LOG_LEVEL[]>;
+
+interface LogEvent {
+    timestamp: Dayjs,
+    level: LOG_LEVEL,
+    fields: JsonObject
+}
+
 const INVALID_TIMESTAMP_VALUE = 0;
 
+export type {
+    LogEvent,
+    LogLevelFilter,
+};
 export {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,

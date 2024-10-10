@@ -1,55 +1,34 @@
-/* eslint-disable max-lines */
-// TODO: either increase max-lines or refactor the code
 import {
     Decoder,
     DecoderOptionsType,
-    LOG_EVENT_FILE_END_IDX,
-} from "../typings/decoders";
-import {MAX_V8_STRING_LENGTH} from "../typings/js";
+} from "../../typings/decoders";
+import {MAX_V8_STRING_LENGTH} from "../../typings/js";
+import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     ChunkResults,
     CURSOR_CODE,
+    CursorData,
     CursorType,
+    EMPTY_PAGE_RESP,
     FileSrcType,
-} from "../typings/worker";
-import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
-import {getUint8ArrayFrom} from "../utils/http";
-import {getChunkNum} from "../utils/math";
+    WORKER_RESP_CODE,
+    WorkerResp,
+} from "../../typings/worker";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
+import {getChunkNum} from "../../utils/math";
 import {defer} from "../utils/time";
-import {formatSizeInBytes} from "../utils/units";
-import {getBasenameFromUrlOrDefault} from "../utils/url";
-import ClpIrDecoder from "./decoders/ClpIrDecoder";
-import JsonlDecoder from "./decoders/JsonlDecoder";
-
+import {formatSizeInBytes} from "../../utils/units";
+import ClpIrDecoder from "../decoders/ClpIrDecoder";
+import JsonlDecoder from "../decoders/JsonlDecoder";
+import {
+    getEventNumCursorData,
+    getLastEventCursorData,
+    getPageNumCursorData,
+    loadFile,
+} from "./utils";
 
 const SEARCH_CHUNK_SIZE = 10000;
-
-/**
- * Loads a file from a given source.
- *
- * @param fileSrc The source of the file to load. This can be a string representing a URL, or a File
- * object.
- * @return A promise that resolves with an object containing the file name and file data.
- * @throws {Error} If the file source type is not supported.
- */
-const loadFile = async (fileSrc: FileSrcType)
-    : Promise<{ fileName: string, fileData: Uint8Array }> => {
-    let fileName: string;
-    let fileData: Uint8Array;
-    if ("string" === typeof fileSrc) {
-        fileName = getBasenameFromUrlOrDefault(fileSrc);
-        fileData = await getUint8ArrayFrom(fileSrc, () => null);
-    } else {
-        fileName = fileSrc.name;
-        fileData = new Uint8Array(await fileSrc.arrayBuffer());
-    }
-
-    return {
-        fileName,
-        fileData,
-    };
-};
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -87,10 +66,10 @@ class LogFileManager {
         this.#pageSize = pageSize;
         this.#onQueryResults = onQueryResults;
 
-        // Build index for the entire file
-        const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
-        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
-            console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
+        // Build index for the entire file.
+        const buildResult = decoder.build();
+        if (0 < buildResult.numInvalidEvents) {
+            console.error("Invalid events found in decoder.build():", buildResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
@@ -159,13 +138,24 @@ class LogFileManager {
         return decoder;
     }
 
-    /**
-     * Sets options for the decoder.
-     *
+    /* Sets any formatter options that exist in the decoder's options.
      * @param options
      */
-    setDecoderOptions (options: DecoderOptionsType) {
-        this.#decoder.setDecoderOptions(options);
+    setFormatterOptions (options: DecoderOptionsType) {
+        this.#decoder.setFormatterOptions(options);
+    }
+
+    /**
+     * Sets the log level filter.
+     *
+     * @param logLevelFilter
+     * @throws {Error} If the log level filter couldn't be set.
+     */
+    setLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result = this.#decoder.setLogLevelFilter(logLevelFilter);
+        if (false === result) {
+            throw new Error("Failed to set log level filter for the decoder.");
+        }
     }
 
     /**
@@ -181,9 +171,10 @@ class LogFileManager {
         logs: string,
     } {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
-        const results = this.#decoder.decode(
+        const results = this.#decoder.decodeRange(
             beginLogEventIdx,
-            endLogEventIdx
+            endLogEventIdx,
+            false,
         );
 
         if (null === results) {
@@ -207,21 +198,32 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType): {
-        logs: string,
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
-    } {
+    loadPage (cursor: CursorType): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
+        const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
+        const numActiveEvents: number = filteredLogEventMap ?
+            filteredLogEventMap.length :
+            this.#numEvents;
 
-        const {beginLogEventNum, endLogEventNum} = this.#getCursorRange(cursor);
-        const results = this.#decoder.decode(beginLogEventNum - 1, endLogEventNum);
+        if (0 === numActiveEvents) {
+            return EMPTY_PAGE_RESP;
+        }
+        const {
+            pageBegin,
+            pageEnd,
+            matchingEvent,
+        } = this.#getCursorData(cursor, numActiveEvents);
+        const results = this.#decoder.decodeRange(
+            pageBegin,
+            pageEnd,
+            null !== filteredLogEventMap,
+        );
+
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
-                `beginLogEventNum=${beginLogEventNum}, ` +
-                `endLogEventNum=${endLogEventNum}`);
+                `pageBegin=${pageBegin}, ` +
+                `pageEnd=${pageEnd}`);
         }
-
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
@@ -237,11 +239,21 @@ class LogFileManager {
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;
         });
+        const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
+        const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
+        const matchingLogEventNum = 1 + (
+            null !== filteredLogEventMap ?
+                (filteredLogEventMap[matchingEvent] as number) :
+                matchingEvent
+        );
 
         return {
-            logs: messages.join(""),
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
+            logEventNum: matchingLogEventNum,
+            logs: messages.join(""),
+            numPages: newNumPages,
+            pageNum: newPageNum,
         };
     }
 
@@ -318,34 +330,35 @@ class LogFileManager {
     }
 
     /**
-     * Gets the range of log event numbers for the page containing the given cursor.
+     * Gets the data that corresponds to the cursor.
      *
-     * @param cursor The cursor object containing the code and arguments.
-     * @return The range.
+     * @param cursor
+     * @param numActiveEvents
+     * @return Cursor data.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorRange (cursor: CursorType): { beginLogEventNum: number, endLogEventNum: number } {
-        if (0 === this.#numEvents) {
-            return {
-                beginLogEventNum: 1,
-                endLogEventNum: 0,
-            };
-        }
-
-        let beginLogEventIdx: number = 0;
+    #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
-        if (CURSOR_CODE.PAGE_NUM === code) {
-            beginLogEventIdx = ((args.pageNum - 1) * this.#pageSize);
+        switch (code) {
+            case CURSOR_CODE.PAGE_NUM:
+                return getPageNumCursorData(
+                    args.pageNum,
+                    args.eventPositionOnPage,
+                    numActiveEvents,
+                    this.#pageSize,
+                );
+            case CURSOR_CODE.LAST_EVENT:
+                return getLastEventCursorData(numActiveEvents, this.#pageSize);
+            case CURSOR_CODE.EVENT_NUM:
+                return getEventNumCursorData(
+                    args.eventNum,
+                    numActiveEvents,
+                    this.#pageSize,
+                    this.#decoder.getFilteredLogEventMap(),
+                );
+            default:
+                throw new Error(`Unsupported cursor type: ${code}`);
         }
-        if (CURSOR_CODE.LAST_EVENT === code || beginLogEventIdx > this.#numEvents) {
-            // Set to the first event of the last page
-            beginLogEventIdx = (getChunkNum(this.#numEvents, this.#pageSize) - 1) * this.#pageSize;
-        } else if (CURSOR_CODE.TIMESTAMP === code) {
-            throw new Error(`Unsupported cursor type: ${code}`);
-        }
-        const beginLogEventNum = beginLogEventIdx + 1;
-        const endLogEventNum = Math.min(this.#numEvents, beginLogEventNum + this.#pageSize - 1);
-        return {beginLogEventNum, endLogEventNum};
     }
 }
 

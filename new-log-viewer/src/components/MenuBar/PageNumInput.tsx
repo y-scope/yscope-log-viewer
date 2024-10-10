@@ -9,6 +9,7 @@ import {Typography} from "@mui/joy";
 import Input from "@mui/joy/Input";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {ACTION_NAME} from "../../utils/actions";
 
 import "./PageNumInput.css";
 
@@ -22,10 +23,7 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPage, numPages, pageNum} = useContext(StateContext);
-    const adjustedPageNum = (null === pageNum) ?
-        0 :
-        pageNum;
+    const {loadPageByAction, numPages, pageNum} = useContext(StateContext);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +36,10 @@ const PageNumInput = () => {
             return;
         }
 
-        loadPage(Number(inputRef.current.value));
+        loadPageByAction({
+            code: ACTION_NAME.SPECIFIC_PAGE,
+            args: {pageNum: Number(inputRef.current.value)},
+        });
         setIsEditing(false);
     };
 
@@ -68,9 +69,9 @@ const PageNumInput = () => {
         if (null === inputRef.current) {
             return;
         }
-        inputRef.current.value = adjustedPageNum.toString();
+        inputRef.current.value = pageNum.toString();
         adjustInputWidth();
-    }, [adjustedPageNum]);
+    }, [pageNum]);
 
     return (
         <form
