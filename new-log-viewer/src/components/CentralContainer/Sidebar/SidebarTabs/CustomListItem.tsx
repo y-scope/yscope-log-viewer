@@ -24,8 +24,8 @@ interface CustomListItemProps {
  * @param props
  * @param props.content
  * @param props.icon
- * @param props.title
  * @param props.slotProps
+ * @param props.title
  * @return
  */
 const CustomListItem = ({content, icon, slotProps, title}: CustomListItemProps) => (
