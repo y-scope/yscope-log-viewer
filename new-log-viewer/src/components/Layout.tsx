@@ -1,5 +1,4 @@
-import DropFileContainer from "./DropFileContainer";
-import Editor from "./Editor";
+import CentralContainer from "./CentralContainer";
 import MenuBar from "./MenuBar";
 import StatusBar from "./StatusBar";
 
@@ -11,13 +10,11 @@ import StatusBar from "./StatusBar";
  */
 const Layout = () => {
     return (
-        <div className={"layout"}>
+        <>
             <MenuBar/>
-            <DropFileContainer>
-                <Editor/>
-            </DropFileContainer>
+            <CentralContainer/>
             <StatusBar/>
-        </div>
+        </>
     );
 };
 

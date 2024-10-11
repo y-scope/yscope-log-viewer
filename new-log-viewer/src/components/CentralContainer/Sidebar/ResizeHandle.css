@@ -1,0 +1,23 @@
+.resize-handle {
+    cursor: ew-resize;
+
+    z-index: var(--ylv-resize-handle-z-index);
+
+    box-sizing: border-box;
+    width: var(--ylv-panel-resize-handle-width);
+    height: 100%;
+
+    /* stylelint-disable-next-line custom-property-pattern */
+    background-color: var(--joy-palette-background-surface, #fbfcfe);
+    /* stylelint-disable-next-line custom-property-pattern */
+    border-right: 1px solid var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
+}
+
+.resize-handle-holding,
+.resize-handle:hover {
+    box-sizing: initial;
+
+    /* stylelint-disable-next-line custom-property-pattern */
+    background-color: var(--joy-palette-primary-solidHoverBg, #0258a8);
+    border-right: initial;
+}

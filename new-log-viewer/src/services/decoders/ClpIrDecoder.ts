@@ -4,8 +4,10 @@ import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecodeResultType,
+    FilteredLogEventMap,
     LogEventCount,
 } from "../../typings/decoders";
+import {LogLevelFilter} from "../../typings/logs";
 
 
 class ClpIrDecoder implements Decoder {
@@ -31,20 +33,34 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getNumEventsBuffered();
     }
 
-    buildIdx (beginIdx: number, endIdx: number): Nullable<LogEventCount> {
+    getFilteredLogEventMap (): FilteredLogEventMap {
+        return this.#streamReader.getFilteredLogEventMap();
+    }
+
+    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+        this.#streamReader.filterLogEvents(logLevelFilter);
+
+        return true;
+    }
+
+    build (): LogEventCount {
         return {
             numInvalidEvents: 0,
-            numValidEvents: this.#streamReader.deserializeRange(beginIdx, endIdx),
+            numValidEvents: this.#streamReader.deserializeStream(),
         };
     }
 
     // eslint-disable-next-line class-methods-use-this
-    setDecoderOptions (): boolean {
+    setFormatterOptions (): boolean {
         return true;
     }
 
-    decode (beginIdx: number, endIdx: number): Nullable<DecodeResultType[]> {
-        return this.#streamReader.decodeRange(beginIdx, endIdx);
+    decodeRange (
+        beginIdx: number,
+        endIdx: number,
+        useFilter: boolean
+    ): Nullable<DecodeResultType[]> {
+        return this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
     }
 }
 
