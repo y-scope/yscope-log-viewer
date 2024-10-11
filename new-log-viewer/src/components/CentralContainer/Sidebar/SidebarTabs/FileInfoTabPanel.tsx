@@ -27,12 +27,12 @@ import CustomTabPanel from "./CustomTabPanel";
  * @return
  */
 const FileInfoTabPanel = () => {
-    const {fileName, originalFileSizeInBytes} = useContext(StateContext);
+    const {fileName, onDiskFileSizeInBytes} = useContext(StateContext);
 
     const isFileUnloaded = 0 === fileName.length;
     const formattedOriginalSize = useMemo(
-        () => formatSizeInBytes(originalFileSizeInBytes, false),
-        [originalFileSizeInBytes]
+        () => formatSizeInBytes(onDiskFileSizeInBytes, false),
+        [onDiskFileSizeInBytes]
     );
 
     return (

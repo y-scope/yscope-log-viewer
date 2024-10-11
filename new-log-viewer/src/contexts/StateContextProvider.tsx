@@ -53,7 +53,7 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
-    originalFileSizeInBytes: number,
+    onDiskFileSizeInBytes: number,
     pageNum: number,
 
     exportLogs: () => void,
@@ -73,7 +73,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
-    originalFileSizeInBytes: 0,
+    onDiskFileSizeInBytes: 0,
     pageNum: 0,
 
     exportLogs: () => null,
@@ -230,8 +230,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
-    const [originalFileSizeInBytes, setOriginalFileSizeInBytes] =
-        useState(STATE_DEFAULT.originalFileSizeInBytes);
+    const [onDiskFileSizeInBytes, setonDiskFileSizeInBytes] =
+        useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
@@ -258,7 +258,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
-                setOriginalFileSizeInBytes(args.originalFileSizeInBytes);
+                setonDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -329,7 +329,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setFileName("Loading...");
         setLogData("Loading...");
-        setOriginalFileSizeInBytes(STATE_DEFAULT.originalFileSizeInBytes);
+        setonDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
@@ -435,7 +435,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
-                originalFileSizeInBytes: originalFileSizeInBytes,
+                onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
 
                 exportLogs: exportLogs,
