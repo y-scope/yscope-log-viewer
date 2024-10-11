@@ -19,7 +19,7 @@ import {Nullable} from "../typings/common";
 import {LOG_LEVEL} from "../typings/logs";
 
 
-const AUTO_DISMISS_TIMEOUT_MILLIS = 5000;
+const AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
 const DO_NOT_TIMEOUT_VALUE = null;
 
 interface NotificationContextType {
