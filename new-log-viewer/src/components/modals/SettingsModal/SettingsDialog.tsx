@@ -9,18 +9,11 @@ import {
     DialogContent,
     DialogTitle,
     ModalDialog,
-    ToggleButtonGroup,
-    useColorScheme,
 } from "@mui/joy";
 import FormControl from "@mui/joy/FormControl/FormControl";
 import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel/FormLabel";
 import Input from "@mui/joy/Input";
-import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
-
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
 import {
     DO_NOT_TIMEOUT_VALUE,
@@ -30,13 +23,13 @@ import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
-    THEME_NAME,
 } from "../../../typings/config";
 import {LOG_LEVEL} from "../../../typings/logs";
 import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
+import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 
 const CONFIG_FORM_FIELDS = [
@@ -123,7 +116,6 @@ const useHandleConfigFormSubmit = () => {
  * @return
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
-    const {setMode, mode} = useColorScheme();
     const handleConfigFormSubmit = useHandleConfigFormSubmit();
 
     return (
@@ -141,32 +133,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                     <span className={"settings-dialog-title-text"}>
                         Settings
                     </span>
-                    <ToggleButtonGroup
-                        size={"sm"}
-                        value={mode as string}
-                        onChange={(__, newValue) => {
-                            setMode(newValue as Mode);
-                        }}
-                    >
-                        <Button
-                            startDecorator={<LightModeIcon/>}
-                            value={THEME_NAME.LIGHT}
-                        >
-                            Light
-                        </Button>
-                        <Button
-                            startDecorator={<SettingsBrightnessIcon/>}
-                            value={THEME_NAME.SYSTEM}
-                        >
-                            System
-                        </Button>
-                        <Button
-                            startDecorator={<DarkModeIcon/>}
-                            value={THEME_NAME.DARK}
-                        >
-                            Dark
-                        </Button>
-                    </ToggleButtonGroup>
+                    <ThemeSwitchToggle/>
                 </DialogTitle>
                 <DialogContent>
                     {CONFIG_FORM_FIELDS.map((field, index) => (
