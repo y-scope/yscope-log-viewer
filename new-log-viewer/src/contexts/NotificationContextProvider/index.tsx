@@ -40,7 +40,6 @@ interface PopupMessage {
     level: LOG_LEVEL,
     message: string,
     title: string,
-    timeout: Nullable<ReturnType<typeof setTimeout>>
 }
 
 /**
@@ -66,12 +65,13 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
             title: "" === title ?
                 LOG_LEVEL[level] :
                 title,
-            timeout: null === timeoutMillis ?
-                null :
-                setTimeout(() => {
-                    setPopupMessages((v) => v.filter((m) => m !== newMessage));
-                }, timeoutMillis),
         };
+
+        if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
+            setTimeout(() => {
+                setPopupMessages((v) => v.filter((m) => m !== newMessage));
+            }, timeoutMillis);
+        }
 
         setPopupMessages((v) => ([
             ...v,
