@@ -104,13 +104,6 @@ interface Decoder {
     ): Nullable<DecodeResultType[]>;
 }
 
-/**
- * Index for specifying the end of the file when the exact number of log events it contains is
- *  unknown.
- */
-const LOG_EVENT_FILE_END_IDX: number = 0;
-
-export {LOG_EVENT_FILE_END_IDX};
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,

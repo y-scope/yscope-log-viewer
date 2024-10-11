@@ -5,7 +5,6 @@ import {
     Decoder,
     DecodeResultType,
     FilteredLogEventMap,
-    LOG_EVENT_FILE_END_IDX,
     LogEventCount,
 } from "../../typings/decoders";
 import {LogLevelFilter} from "../../typings/logs";
@@ -39,7 +38,8 @@ class ClpIrDecoder implements Decoder {
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        this.#streamReader.filterLogEvents(logLevelFilter)
+        this.#streamReader.filterLogEvents(logLevelFilter);
+
         return true;
     }
 

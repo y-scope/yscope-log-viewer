@@ -6,7 +6,6 @@ import React, {
 } from "react";
 
 import {SelectValue} from "@mui/base/useSelect";
-import {StateContext} from "../../../contexts/StateContextProvider";
 import {
     Box,
     Checkbox,
@@ -26,6 +25,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
+import {StateContext} from "../../../contexts/StateContextProvider";
 import {
     INVALID_LOG_LEVEL_VALUE,
     LOG_LEVEL,
@@ -195,8 +195,13 @@ const LogLevelSelect = () => {
     };
 
     useEffect(() => {
-        setLogLevelFilter((selectedLogLevels.length === 0 ? null : selectedLogLevels))
-    }, [selectedLogLevels]);
+        setLogLevelFilter((0 === selectedLogLevels.length ?
+            null :
+            selectedLogLevels));
+    }, [
+        setLogLevelFilter,
+        selectedLogLevels,
+    ]);
 
     return (
         <Select
