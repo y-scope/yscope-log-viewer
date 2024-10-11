@@ -33,18 +33,17 @@ interface PopupMessageProps {
  */
 const PopupMessageBox = ({message}: PopupMessageProps) => {
     const {handlePopupMessageClose} = useContext(NotificationContext);
+
     const color = message.level >= LOG_LEVEL.ERROR ?
         "danger" :
         "primary";
 
+
     useEffect(() => {
         if (DO_NOT_TIMEOUT_VALUE !== message.timeoutMillis) {
-            setTimeout(
-                () => {
-                    handlePopupMessageClose(message);
-                },
-                message.timeoutMillis
-            );
+            setTimeout(() => {
+                handlePopupMessageClose(message);
+            }, message.timeoutMillis);
         }
     }, [
         message,

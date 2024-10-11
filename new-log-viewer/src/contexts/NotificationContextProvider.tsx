@@ -78,7 +78,8 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
     }, []);
 
     const handlePopupMessageClose = useCallback((message: PopupMessage) => {
-        setPopupMessages((v) => v.filter((m) => m !== message));
+        // Keep everything but except input message.
+        setPopupMessages((popups) => popups.filter((m) => m !== message));
     }, []);
 
     return (
