@@ -3,11 +3,16 @@ import {
     DecoderOptionsType,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
+import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
+    CursorData,
     CursorType,
+    EMPTY_PAGE_RESP,
     FileSrcType,
+    WORKER_RESP_CODE,
+    WorkerResp,
 } from "../../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
@@ -30,6 +35,8 @@ class LogFileManager {
 
     readonly #fileName: string;
 
+    readonly #onDiskFileSizeInBytes: number;
+
     #decoder: Decoder;
 
     #numEvents: number = 0;
@@ -40,14 +47,17 @@ class LogFileManager {
      *
      * @param decoder
      * @param fileName
+     * @param onDiskFileSizeInBytes
      * @param pageSize Page size for setting up pagination.
      */
     constructor (
         decoder: Decoder,
         fileName: string,
+        onDiskFileSizeInBytes: number,
         pageSize: number,
     ) {
         this.#fileName = fileName;
+        this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
         this.#pageSize = pageSize;
         this.#decoder = decoder;
 
@@ -63,6 +73,10 @@ class LogFileManager {
 
     get fileName () {
         return this.#fileName;
+    }
+
+    get onDiskFileSizeInBytes () {
+        return this.#onDiskFileSizeInBytes;
     }
 
     get numEvents () {
@@ -86,7 +100,7 @@ class LogFileManager {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize);
+        return new LogFileManager(decoder, fileName, fileData.length, pageSize);
     }
 
     /**
@@ -129,6 +143,19 @@ class LogFileManager {
     }
 
     /**
+     * Sets the log level filter.
+     *
+     * @param logLevelFilter
+     * @throws {Error} If the log level filter couldn't be set.
+     */
+    setLogLevelFilter (logLevelFilter: LogLevelFilter) {
+        const result = this.#decoder.setLogLevelFilter(logLevelFilter);
+        if (false === result) {
+            throw new Error("Failed to set log level filter for the decoder.");
+        }
+    }
+
+    /**
      * Loads log events in the range
      * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
      * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
@@ -168,33 +195,32 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType): {
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
-        logEventNum: number
-        logs: string,
-        pageNum: number
-    } {
+    loadPage (cursor: CursorType): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
+        const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
+        const numActiveEvents: number = filteredLogEventMap ?
+            filteredLogEventMap.length :
+            this.#numEvents;
 
+        if (0 === numActiveEvents) {
+            return EMPTY_PAGE_RESP;
+        }
         const {
-            pageBeginLogEventNum,
-            pageEndLogEventNum,
-            matchingLogEventNum,
-        } = this.#getCursorData(cursor);
-
+            pageBegin,
+            pageEnd,
+            matchingEvent,
+        } = this.#getCursorData(cursor, numActiveEvents);
         const results = this.#decoder.decodeRange(
-            pageBeginLogEventNum - 1,
-            pageEndLogEventNum - 1,
-            false
+            pageBegin,
+            pageEnd,
+            null !== filteredLogEventMap,
         );
 
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
-                `pageBeginLogEventNum=${pageBeginLogEventNum}, ` +
-                `pageEndLogEventNum=${pageEndLogEventNum}`);
+                `pageBegin=${pageBegin}, ` +
+                `pageEnd=${pageEnd}`);
         }
-
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
@@ -210,14 +236,20 @@ class LogFileManager {
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;
         });
-
-        const newPageNum: number = getChunkNum(pageBeginLogEventNum, this.#pageSize);
+        const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
+        const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
+        const matchingLogEventNum = 1 + (
+            null !== filteredLogEventMap ?
+                (filteredLogEventMap[matchingEvent] as number) :
+                matchingEvent
+        );
 
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: matchingLogEventNum,
             logs: messages.join(""),
+            numPages: newNumPages,
             pageNum: newPageNum,
         };
     }
@@ -226,39 +258,29 @@ class LogFileManager {
      * Gets the data that corresponds to the cursor.
      *
      * @param cursor
-     * @return Log event numbers for:
-     * - the range [begin, end) of the page containing the matching log event.
-     * - the log event number that matches the cursor.
+     * @param numActiveEvents
+     * @return Cursor data.
      * @throws {Error} if the type of cursor is not supported.
      */
-    #getCursorData (cursor: CursorType): {
-        pageBeginLogEventNum: number,
-        pageEndLogEventNum: number,
-        matchingLogEventNum: number
-    } {
+    #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
                     args.pageNum,
                     args.eventPositionOnPage,
-                    this.#numEvents,
-                    this.#pageSize
+                    numActiveEvents,
+                    this.#pageSize,
                 );
-
             case CURSOR_CODE.LAST_EVENT:
-                return getLastEventCursorData(
-                    this.#numEvents,
-                    this.#pageSize
-                );
-
+                return getLastEventCursorData(numActiveEvents, this.#pageSize);
             case CURSOR_CODE.EVENT_NUM:
                 return getEventNumCursorData(
                     args.eventNum,
-                    this.#numEvents,
-                    this.#pageSize
+                    numActiveEvents,
+                    this.#pageSize,
+                    this.#decoder.getFilteredLogEventMap(),
                 );
-
             default:
                 throw new Error(`Unsupported cursor type: ${code}`);
         }

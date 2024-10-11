@@ -6,7 +6,6 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "start": "webpack serve --open --config webpack.dev.js",
-
     "lint": "npm run lint:check",
     "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
     "lint:check:css": "stylelint src/**/*.css",
@@ -30,7 +29,7 @@
     "@mui/icons-material": "^6.1.0",
     "@mui/joy": "^5.0.0-beta.48",
     "axios": "^1.7.2",
-    "clp-ffi-js": "^0.1.0",
+    "clp-ffi-js": "^0.2.0",
     "dayjs": "^1.11.11",
     "monaco-editor": "^0.50.0",
     "react": "^18.3.1",

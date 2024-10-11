@@ -77,10 +77,7 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
             onDragOver={handleDrag}
             onDrop={handleDrop}
         >
-            <div
-                className={"drop-file-children"}
-                onDrop={handleDrop}
-            >
+            <div onDrop={handleDrop}>
                 {children}
                 {isFileHovering && (
                     <div

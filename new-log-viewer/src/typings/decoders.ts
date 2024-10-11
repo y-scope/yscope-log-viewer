@@ -39,6 +39,16 @@ type DecodeResultType = [string, number, number, number];
  */
 type FilteredLogEventMap = Nullable<number[]>;
 
+/**
+ * Index into the active log events collection. The active log events collection is either:
+ * - the filtered log events collection, if the log level filter is set; or
+ * - the unfiltered log events collection.
+ *
+ * NOTE: The filtered log events collection is currently represented using a `FilteredLogEventMap`
+ * (so the index goes through a layer of indirection).
+ */
+type ActiveLogCollectionEventIdx = number;
+
 interface Decoder {
 
     /**
@@ -94,14 +104,8 @@ interface Decoder {
     ): Nullable<DecodeResultType[]>;
 }
 
-/**
- * Index for specifying the end of the file when the exact number of log events it contains is
- *  unknown.
- */
-const LOG_EVENT_FILE_END_IDX: number = 0;
-
-export {LOG_EVENT_FILE_END_IDX};
 export type {
+    ActiveLogCollectionEventIdx,
     Decoder,
     DecodeResultType,
     DecoderOptionsType,

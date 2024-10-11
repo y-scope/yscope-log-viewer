@@ -10,6 +10,7 @@ import {
     UrlContext,
 } from "../../contexts/UrlContextProvider";
 import {LOAD_STATE} from "../../typings/worker";
+import LogLevelSelect from "./LogLevelSelect";
 
 import "./index.css";
 
@@ -39,16 +40,18 @@ const StatusBar = () => {
                 Status message
             </Typography>
             <Button
+                color={"primary"}
                 disabled={loadState === LOAD_STATE.UNOPENED}
                 size={"sm"}
+                variant={"soft"}
                 onClick={handleCopyLinkButtonClick}
             >
-                Log Event
-                {" "}
+                {"Log Event "}
                 {logEventNum}
                 {" / "}
                 {numEvents}
             </Button>
+            <LogLevelSelect/>
         </Sheet>
     );
 };
