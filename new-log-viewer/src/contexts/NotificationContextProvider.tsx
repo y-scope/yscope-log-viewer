@@ -117,7 +117,7 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                             >
                                 <Box sx={{display: "flex", alignItems: "center"}}>
                                     <Typography
-                                        level={"title-sm"}
+                                        level={"title-md"}
                                         sx={{flexGrow: 1}}
                                         color={m.level >= LOG_LEVEL.ERROR ?
                                             "danger" :
