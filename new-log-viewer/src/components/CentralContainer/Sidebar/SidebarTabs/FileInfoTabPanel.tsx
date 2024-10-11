@@ -30,7 +30,7 @@ const FileInfoTabPanel = () => {
     const {fileName, onDiskFileSizeInBytes} = useContext(StateContext);
 
     const isFileUnloaded = 0 === fileName.length;
-    const formattedOriginalSize = useMemo(
+    const formattedOnDiskSize = useMemo(
         () => formatSizeInBytes(onDiskFileSizeInBytes, false),
         [onDiskFileSizeInBytes]
     );
@@ -50,9 +50,9 @@ const FileInfoTabPanel = () => {
                         title={"Name"}/>
                     <Divider/>
                     <CustomListItem
-                        content={formattedOriginalSize}
+                        content={formattedOnDiskSize}
                         icon={<StorageIcon/>}
-                        title={"Original Size"}/>
+                        title={"On-disk Size"}/>
                 </List>}
         </CustomTabPanel>
     );
