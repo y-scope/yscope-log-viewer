@@ -38,7 +38,7 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {
-    AUTO_DISMISS_TIMEOUT_MILLIS,
+    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
     NotificationContext,
 } from "./NotificationContextProvider";
 import {
@@ -270,7 +270,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     args.logLevel,
                     args.message,
                     "Action failed",
-                    AUTO_DISMISS_TIMEOUT_MILLIS
+                    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS
                 );
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
