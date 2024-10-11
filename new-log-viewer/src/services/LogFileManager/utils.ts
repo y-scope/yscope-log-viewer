@@ -1,7 +1,16 @@
 import {
+    ActiveLogCollectionEventIdx,
+    FilteredLogEventMap,
+} from "../../typings/decoders";
+import {
+    CursorData,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
 } from "../../typings/worker";
+import {
+    clampWithinBounds,
+    findNearestLessThanOrEqualElement,
+} from "../../utils/data";
 import {getUint8ArrayFrom} from "../../utils/http";
 import {
     clamp,
@@ -11,109 +20,106 @@ import {getBasenameFromUrlOrDefault} from "../../utils/url";
 
 
 /**
- * Gets the log event number range [begin, end) of the page that starts at the given log event
- * index.
- *
- * @param beginLogEventIdx
- * @param numEvents
- * @param pageSize
- * @return An array:
- * - pageBeginLogEventNum
- * - pageEndLogEventNum
- */
-const getPageBoundaries = (
-    beginLogEventIdx: number,
-    numEvents: number,
-    pageSize: number
-): [number, number] => {
-    const pageBeginLogEventNum: number = beginLogEventIdx + 1;
-
-    // Clamp ending index using total number of events.
-    const pageEndLogEventNum: number = Math.min(numEvents + 1, pageBeginLogEventNum + pageSize);
-
-    return [
-        pageBeginLogEventNum,
-        pageEndLogEventNum,
-    ];
-};
-
-/**
  * Gets the data for the `PAGE_NUM` cursor.
  *
  * @param pageNum
  * @param eventPositionOnPage
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of page `pageNum`.
- * - the log event indicated by `eventPositionOnPage`.
+ * @return
  */
 const getPageNumCursorData = (
     pageNum: number,
     eventPositionOnPage: EVENT_POSITION_ON_PAGE,
-    numEvents: number,
-    pageSize: number
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const beginLogEventIdx = (pageNum - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum = eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
-        pageBeginLogEventNum :
-        pageEndLogEventNum - 1;
+    numActiveEvents: number,
+    pageSize: number,
+): CursorData => {
+    const pageBegin: ActiveLogCollectionEventIdx = (pageNum - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
 
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+    const matchingEvent: ActiveLogCollectionEventIdx =
+        eventPositionOnPage === EVENT_POSITION_ON_PAGE.TOP ?
+            pageBegin :
+            pageEnd - 1;
+
+    return {pageBegin, pageEnd, matchingEvent};
+};
+
+/**
+ * Gets the `ActiveLogCollectionEventIdx` that's nearest to `logEventIdx`. Specifically:
+ * - If no filter is set, the nearest `ActiveLogCollectionEventIdx` is:
+ *   - `logEventIdx` if it's in the range of the unfiltered log events collection.
+ *   - the bound of the collection nearest to `logEventIdx` if it's not in the collection's range.
+ * - If a filter is set, the nearest `ActiveLogCollectionEventIdx` is:
+ *   - the largest index, `i`, where `filteredLogEventMap[i] <= logEventIdx`; or
+ *   - `0` if `logEventIdx < filteredLogEventMap[0]`.
+ *
+ * @param logEventIdx
+ * @param numActiveEvents
+ * @param filteredLogEventMap
+ * @return
+ */
+const getNearestActiveLogCollectionEventIdx = (
+    logEventIdx: number,
+    numActiveEvents: number,
+    filteredLogEventMap: FilteredLogEventMap,
+): ActiveLogCollectionEventIdx => {
+    if (null === filteredLogEventMap) {
+        return clamp(logEventIdx, 0, numActiveEvents - 1);
+    }
+    const clampedLogEventIdx = clampWithinBounds(filteredLogEventMap, logEventIdx);
+
+    // Explicit cast since TypeScript thinks the return value can be null, but it can't be since
+    // filteredLogEventMap is non-empty and `clampedLogEventIdx` is within the bounds of
+    // `filteredLogEventMap`.
+    return findNearestLessThanOrEqualElement(filteredLogEventMap, clampedLogEventIdx) as number;
 };
 
 /**
  * Gets the data for the `EVENT_NUM` cursor.
  *
  * @param logEventNum
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of the page containing `logEventNum`.
- * - log event `logEventNum`.
+ * @param filteredLogEventMap
+ * @return
  */
 const getEventNumCursorData = (
     logEventNum: number,
-    numEvents: number,
-    pageSize: number
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const validLogEventNum = clamp(logEventNum, 1, numEvents);
-    const beginLogEventIdx = (getChunkNum(validLogEventNum, pageSize) - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum: number = validLogEventNum;
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+    numActiveEvents: number,
+    pageSize: number,
+    filteredLogEventMap: FilteredLogEventMap
+): CursorData => {
+    const matchingEvent: ActiveLogCollectionEventIdx =
+        getNearestActiveLogCollectionEventIdx(
+            logEventNum - 1,
+            numActiveEvents,
+            filteredLogEventMap
+        );
+    const pageBegin: ActiveLogCollectionEventIdx =
+        (getChunkNum(matchingEvent + 1, pageSize) - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx =
+        Math.min(numActiveEvents, pageBegin + pageSize);
+
+    return {pageBegin, pageEnd, matchingEvent};
 };
 
 /**
  * Gets the data for the `LAST` cursor.
  *
- * @param numEvents
+ * @param numActiveEvents
  * @param pageSize
- * @return Log event numbers for:
- * - the range [begin, end) of the last page.
- * - the last log event on the last page.
+ * @return
  */
 const getLastEventCursorData = (
-    numEvents: number,
+    numActiveEvents: number,
     pageSize: number
-): { pageBeginLogEventNum: number; pageEndLogEventNum: number; matchingLogEventNum: number } => {
-    const beginLogEventIdx = (getChunkNum(numEvents, pageSize) - 1) * pageSize;
-    const [pageBeginLogEventNum, pageEndLogEventNum] = getPageBoundaries(
-        beginLogEventIdx,
-        numEvents,
-        pageSize
-    );
-    const matchingLogEventNum: number = pageEndLogEventNum - 1;
-    return {pageBeginLogEventNum, pageEndLogEventNum, matchingLogEventNum};
+): CursorData => {
+    const pageBegin: ActiveLogCollectionEventIdx =
+        (getChunkNum(numActiveEvents, pageSize) - 1) * pageSize;
+    const pageEnd: ActiveLogCollectionEventIdx = Math.min(numActiveEvents, pageBegin + pageSize);
+    const matchingEvent: ActiveLogCollectionEventIdx = pageEnd - 1;
+    return {pageBegin, pageEnd, matchingEvent};
 };
 
 /**
