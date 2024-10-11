@@ -1,7 +1,6 @@
 import {
     Decoder,
     DecoderOptionsType,
-    LOG_EVENT_FILE_END_IDX,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {
@@ -52,10 +51,10 @@ class LogFileManager {
         this.#pageSize = pageSize;
         this.#decoder = decoder;
 
-        // Build index for the entire file
-        const buildIdxResult = decoder.buildIdx(0, LOG_EVENT_FILE_END_IDX);
-        if (null !== buildIdxResult && 0 < buildIdxResult.numInvalidEvents) {
-            console.error("Invalid events found in decoder.buildIdx():", buildIdxResult);
+        // Build index for the entire file.
+        const buildResult = decoder.build();
+        if (0 < buildResult.numInvalidEvents) {
+            console.error("Invalid events found in decoder.build():", buildResult);
         }
 
         this.#numEvents = decoder.getEstimatedNumEvents();
@@ -122,13 +121,11 @@ class LogFileManager {
         return decoder;
     }
 
-    /**
-     * Sets options for the decoder.
-     *
+    /* Sets any formatter options that exist in the decoder's options.
      * @param options
      */
-    setDecoderOptions (options: DecoderOptionsType) {
-        this.#decoder.setDecoderOptions(options);
+    setFormatterOptions (options: DecoderOptionsType) {
+        this.#decoder.setFormatterOptions(options);
     }
 
     /**
@@ -144,9 +141,10 @@ class LogFileManager {
         logs: string,
     } {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
-        const results = this.#decoder.decode(
+        const results = this.#decoder.decodeRange(
             beginLogEventIdx,
-            endLogEventIdx
+            endLogEventIdx,
+            false,
         );
 
         if (null === results) {
@@ -185,7 +183,12 @@ class LogFileManager {
             matchingLogEventNum,
         } = this.#getCursorData(cursor);
 
-        const results = this.#decoder.decode(pageBeginLogEventNum - 1, pageEndLogEventNum - 1);
+        const results = this.#decoder.decodeRange(
+            pageBeginLogEventNum - 1,
+            pageEndLogEventNum - 1,
+            false
+        );
+
         if (null === results) {
             throw new Error("Error occurred during decoding. " +
                 `pageBeginLogEventNum=${pageBeginLogEventNum}, ` +
