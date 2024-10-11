@@ -1,13 +1,11 @@
-import {useContext} from "react";
 
 import {CssVarsProvider} from "@mui/joy";
 
-import {NotificationContext} from "../contexts/NotificationContextProvider";
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
 import CentralContainer from "./CentralContainer";
 import MenuBar from "./MenuBar";
-import PopUpMessagesContainer from "./PopUpMessagesContainer";
+import PopUpMessages from "./PopUpMessages";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
@@ -18,7 +16,6 @@ import APP_THEME from "./theme";
  * @return
  */
 const Layout = () => {
-    const {popupMessages, onPopupMessagesChange} = useContext(NotificationContext);
 
     return (
         <CssVarsProvider
@@ -29,9 +26,7 @@ const Layout = () => {
             <MenuBar/>
             <CentralContainer/>
             <StatusBar/>
-            <PopUpMessagesContainer
-                popupMessages={popupMessages}
-                onPopupMessagesChange={onPopupMessagesChange}/>
+            <PopUpMessages/>
         </CssVarsProvider>
     );
 };

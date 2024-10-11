@@ -16,9 +16,9 @@ interface PopupMessage {
 }
 
 interface NotificationContextType {
-    popupMessages: PopupMessage[],
+    popUpMessages: PopupMessage[],
 
-    onPopupMessagesChange: (callback: (value: PopupMessage[]) => PopupMessage[]) => void,
+    handlePopUpMessageClose: (message: PopupMessage) => void;
     postPopup: (message: PopupMessage) => void,
 }
 
@@ -28,9 +28,9 @@ const NotificationContext = createContext<NotificationContextType>({} as Notific
  * Default values of the Notification context value object.
  */
 const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
-    popupMessages: [],
+    popUpMessages: [],
 
-    onPopupMessagesChange: () => {},
+    handlePopUpMessageClose: () => {},
     postPopup: () => {},
 });
 
@@ -57,8 +57,8 @@ interface NotificationContextProviderProps {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>(
-        NOTIFICATION_DEFAULT.popupMessages
+    const [popUpMessages, setPopUpMessages] = useState<PopupMessage[]>(
+        NOTIFICATION_DEFAULT.popUpMessages
     );
 
     const postPopup = useCallback(({level, message, timeoutMillis, title}:PopupMessage) => {
@@ -71,17 +71,21 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                 title,
         };
 
-        setPopupMessages((v) => ([
+        setPopUpMessages((v) => ([
             ...v,
             newMessage,
         ]));
     }, []);
 
+    const handlePopUpMessageClose = useCallback((message: PopupMessage) => {
+        setPopUpMessages((v) => v.filter((m) => m !== message));
+    }, []);
+
     return (
         <NotificationContext.Provider
             value={{
-                popupMessages: popupMessages,
-                onPopupMessagesChange: setPopupMessages,
+                popUpMessages: popUpMessages,
+                handlePopUpMessageClose: handlePopUpMessageClose,
                 postPopup: postPopup,
             }}
         >
