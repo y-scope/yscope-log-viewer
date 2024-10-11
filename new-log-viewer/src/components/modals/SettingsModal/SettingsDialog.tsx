@@ -1,5 +1,6 @@
 import React, {
     forwardRef,
+    useCallback,
     useContext,
 } from "react";
 
@@ -75,14 +76,14 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 };
 
 /**
- * Generates a handler for the submit event for the configuration form.
+ * Renders a settings dialog for configurations.
  *
- * @return the generated handler.
+ * @return
  */
-const useHandleConfigFormSubmit = () => {
+const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
     const {postPopup} = useContext(NotificationContext);
 
-    return (ev: React.FormEvent) => {
+    const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
         const formData = new FormData(ev.target as HTMLFormElement);
         const getFormDataValue = (key: string) => formData.get(key) as string;
@@ -107,16 +108,7 @@ const useHandleConfigFormSubmit = () => {
         } else {
             window.location.reload();
         }
-    };
-};
-
-/**
- * Renders a settings dialog for configurations.
- *
- * @return
- */
-const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
-    const handleConfigFormSubmit = useHandleConfigFormSubmit();
+    }, [postPopup]);
 
     return (
         <form
