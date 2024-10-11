@@ -342,7 +342,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+    const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -351,7 +351,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: newLogLevelFilter,
         });
-    };
+    }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
