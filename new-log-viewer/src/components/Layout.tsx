@@ -1,11 +1,10 @@
-
 import {CssVarsProvider} from "@mui/joy";
 
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
 import CentralContainer from "./CentralContainer";
 import MenuBar from "./MenuBar";
-import PopUpMessages from "./PopUpMessages";
+import Popups from "./Popups";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
@@ -16,7 +15,6 @@ import APP_THEME from "./theme";
  * @return
  */
 const Layout = () => {
-
     return (
         <CssVarsProvider
             defaultMode={CONFIG_DEFAULT[CONFIG_KEY.THEME]}
@@ -26,7 +24,7 @@ const Layout = () => {
             <MenuBar/>
             <CentralContainer/>
             <StatusBar/>
-            <PopUpMessages/>
+            <Popups/>
         </CssVarsProvider>
     );
 };

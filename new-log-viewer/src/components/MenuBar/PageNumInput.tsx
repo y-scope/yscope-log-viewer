@@ -86,7 +86,6 @@ const PageNumInput = () => {
                     <Typography
                         className={"page-num-input-num-pages-text"}
                         level={"body-md"}
-                        sx = {{color: `neutral.plainDisabledColor`}}
                     >
                         {"/ "}
                         {numPages}

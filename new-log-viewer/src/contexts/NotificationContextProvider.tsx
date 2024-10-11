@@ -16,9 +16,9 @@ interface PopupMessage {
 }
 
 interface NotificationContextType {
-    popUpMessages: PopupMessage[],
+    popupMessages: PopupMessage[],
 
-    handlePopUpMessageClose: (message: PopupMessage) => void;
+    handlePopupMessageClose: (message: PopupMessage) => void;
     postPopup: (message: PopupMessage) => void,
 }
 
@@ -28,9 +28,9 @@ const NotificationContext = createContext<NotificationContextType>({} as Notific
  * Default values of the Notification context value object.
  */
 const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
-    popUpMessages: [],
+    popupMessages: [],
 
-    handlePopUpMessageClose: () => {},
+    handlePopupMessageClose: () => {},
     postPopup: () => {},
 });
 
@@ -57,8 +57,8 @@ interface NotificationContextProviderProps {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popUpMessages, setPopUpMessages] = useState<PopupMessage[]>(
-        NOTIFICATION_DEFAULT.popUpMessages
+    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>(
+        NOTIFICATION_DEFAULT.popupMessages
     );
 
     const postPopup = useCallback(({level, message, timeoutMillis, title}:PopupMessage) => {
@@ -71,21 +71,21 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                 title,
         };
 
-        setPopUpMessages((v) => ([
+        setPopupMessages((v) => ([
             ...v,
             newMessage,
         ]));
     }, []);
 
-    const handlePopUpMessageClose = useCallback((message: PopupMessage) => {
-        setPopUpMessages((v) => v.filter((m) => m !== message));
+    const handlePopupMessageClose = useCallback((message: PopupMessage) => {
+        setPopupMessages((v) => v.filter((m) => m !== message));
     }, []);
 
     return (
         <NotificationContext.Provider
             value={{
-                popUpMessages: popUpMessages,
-                handlePopUpMessageClose: handlePopUpMessageClose,
+                popupMessages: popupMessages,
+                handlePopupMessageClose: handlePopupMessageClose,
                 postPopup: postPopup,
             }}
         >
