@@ -81,13 +81,8 @@ const MenuBar = () => {
             </Sheet>
             {isLoading &&
                 <LinearProgress
-                    size={"sm"}
-                    sx={{
-                        "marginBottom": "-2px",
-                        "--LinearProgress-thickness": "2px",
-                        "--LinearProgress-progressThickness": "2px",
-                        "zIndex": 10,
-                    }}/>}
+                    className={"menu-bar-loading-progress"}
+                    size={"sm"}/>}
         </>
     );
 };
