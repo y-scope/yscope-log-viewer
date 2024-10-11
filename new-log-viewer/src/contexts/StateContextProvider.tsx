@@ -356,6 +356,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
+        setLoadState(LOAD_STATE.LOADING);
         if (null === mainWorkerRef.current) {
             return;
         }

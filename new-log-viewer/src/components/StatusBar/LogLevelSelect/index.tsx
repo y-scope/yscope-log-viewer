@@ -32,6 +32,7 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
+import {LOAD_STATE} from "../../../typings/worker";
 import {range} from "../../../utils/data";
 import LogLevelChip from "./LogLevelChip";
 
@@ -65,9 +66,12 @@ const LogSelectOption = ({
     onCheckboxClick,
     onOptionClick,
 }: LogSelectOptionProps) => {
+    const {loadState} = useContext(StateContext);
+
     return (
         <Option
             data-value={logLevelValue}
+            disabled={loadState === LOAD_STATE.LOADING}
             key={logLevelName}
             value={logLevelValue}
             onClick={onOptionClick}
@@ -125,17 +129,22 @@ interface ClearFiltersOptionProps {
  * @param props.onClick
  * @return
  */
-const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
-    <Option
-        value={INVALID_LOG_LEVEL_VALUE}
-        onClick={onClick}
-    >
-        <ListItemDecorator>
-            <CloseIcon/>
-        </ListItemDecorator>
-        Clear filters
-    </Option>
-);
+const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
+    const {loadState} = useContext(StateContext);
+
+    return (
+        <Option
+            disabled={LOAD_STATE.LOADING === loadState}
+            value={INVALID_LOG_LEVEL_VALUE}
+            onClick={onClick}
+        >
+            <ListItemDecorator>
+                <CloseIcon/>
+            </ListItemDecorator>
+            Clear filters
+        </Option>
+    );
+};
 
 /**
  * Renders a dropdown box for selecting log levels.
@@ -143,8 +152,9 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
  * @return
  */
 const LogLevelSelect = () => {
+    const {loadState, setLogLevelFilter} = useContext(StateContext);
+
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
-    const {setLogLevelFilter} = useContext(StateContext);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
@@ -206,6 +216,7 @@ const LogLevelSelect = () => {
     return (
         <Select
             className={"log-level-select"}
+            disabled={loadState === LOAD_STATE.LOADING}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
