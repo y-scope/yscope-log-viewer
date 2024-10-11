@@ -71,7 +71,7 @@ const LogSelectOption = ({
     return (
         <Option
             data-value={logLevelValue}
-            disabled={loadState === LOAD_STATE.LOADING}
+            disabled={LOAD_STATE.LOADING === loadState || LOAD_STATE.UNOPENED === loadState}
             key={logLevelName}
             value={logLevelValue}
             onClick={onOptionClick}
@@ -134,7 +134,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
 
     return (
         <Option
-            disabled={LOAD_STATE.LOADING === loadState}
+            disabled={LOAD_STATE.LOADING === loadState || LOAD_STATE.UNOPENED === loadState}
             value={INVALID_LOG_LEVEL_VALUE}
             onClick={onClick}
         >
@@ -216,7 +216,6 @@ const LogLevelSelect = () => {
     return (
         <Select
             className={"log-level-select"}
-            disabled={loadState === LOAD_STATE.LOADING}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
@@ -226,6 +225,7 @@ const LogLevelSelect = () => {
                 <KeyboardArrowUpIcon/> :
                 <Tooltip title={"Clear filters"}>
                     <IconButton
+                        disabled={LOAD_STATE.LOADING === loadState}
                         variant={"plain"}
                         onClick={handleSelectClearButtonClick}
                     >
