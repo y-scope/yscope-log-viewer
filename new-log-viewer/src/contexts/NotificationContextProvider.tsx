@@ -95,6 +95,8 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                     border: "none",
                     bottom: "32px",
                     boxShadow: "none",
+                    paddingX: 0,
+                    paddingY: 0,
                     right: "14px",
                 }}
             >
@@ -108,7 +110,11 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                                 "danger" :
                                 "primary"}
                         >
-                            <Stack>
+                            <Stack
+                                sx={{
+                                    width: "300px",
+                                }}
+                            >
                                 <Box sx={{display: "flex", alignItems: "center"}}>
                                     <Typography
                                         level={"title-sm"}
@@ -121,6 +127,7 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
                                     </Typography>
                                     <IconButton
                                         size={"sm"}
+                                        sx={{"--IconButton-size": "1.5rem"}}
                                         color={m.level >= LOG_LEVEL.ERROR ?
                                             "danger" :
                                             "primary"}
