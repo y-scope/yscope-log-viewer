@@ -11,8 +11,8 @@ import SidebarTabs from "./SidebarTabs";
 import "./index.css";
 
 
-const PANEL_DEFAULT_WIDTH_IN_PIXEL = 360;
-const PANEL_CLIP_THRESHOLD_IN_PIXEL = 250;
+const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
+const PANEL_CLIP_THRESHOLD_IN_PIXELS = 250;
 const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
 
 /**
@@ -60,7 +60,7 @@ const Sidebar = () => {
             return;
         }
         setActiveTabName(tabName);
-        setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXEL);
+        setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXELS);
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -75,7 +75,7 @@ const Sidebar = () => {
 
             return;
         }
-        if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXEL > resizeHandlePosition) {
+        if (tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXELS > resizeHandlePosition) {
             // If the resize handle is positioned to the right of the <TabList/>'s right edge
             // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);

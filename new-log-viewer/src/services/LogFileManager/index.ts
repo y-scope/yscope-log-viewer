@@ -75,12 +75,12 @@ class LogFileManager {
         return this.#fileName;
     }
 
-    get numEvents () {
-        return this.#numEvents;
-    }
-
     get onDiskFileSizeInBytes () {
         return this.#onDiskFileSizeInBytes;
+    }
+
+    get numEvents () {
+        return this.#numEvents;
     }
 
     /**
