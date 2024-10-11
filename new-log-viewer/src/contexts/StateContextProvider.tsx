@@ -175,7 +175,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postStatus(args.logLevel, args.message);
-                postPopup(args.logLevel, args.message, "Worker error", 5000);
+                postPopup(args.logLevel, args.message, "Action failed", 5000);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
