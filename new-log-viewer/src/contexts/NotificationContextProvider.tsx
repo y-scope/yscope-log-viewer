@@ -50,7 +50,7 @@ const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
 const DO_NOT_TIMEOUT_VALUE = null;
 
 interface NotificationContextProviderProps {
-    children: React.ReactNode;
+    children: React.ReactNode,
 }
 
 /**
