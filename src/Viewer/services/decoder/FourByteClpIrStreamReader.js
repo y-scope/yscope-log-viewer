@@ -28,12 +28,12 @@ class FourByteClpIrStreamReader {
     static textEncoder = new TextEncoder();
     static textDecoder = new TextDecoder();
     static VERBOSITIES = [
-        {label: "≤ TRACE", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("TRACE")},
-        {label: "≤ DEBUG", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("DEBUG")},
-        {label: "≤ INFO", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("INFO")},
-        {label: "≤ WARN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("WARN")},
-        {label: "≤ ERROR", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("ERROR")},
-        {label: "≤ FATAL", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("FATAL")},
+        {label: "TRACE", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("TRACE")},
+        {label: "DEBUG", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("DEBUG")},
+        {label: "INFO", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("INFO")},
+        {label: "WARN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("WARN")},
+        {label: "ERROR", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("ERROR")},
+        {label: "FATAL", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("FATAL")},
         {label: "UNKNOWN", uint8Array: FourByteClpIrStreamReader.textEncoder.encode("UNKNOWN")},
     ];
 
