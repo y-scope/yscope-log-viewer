@@ -4,7 +4,6 @@ import Button from "@mui/joy/Button";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 
-import {NotificationContext} from "../../contexts/NotificationContextProvider";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
     copyPermalinkToClipboard,
@@ -27,17 +26,13 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {statusMessage} = useContext(NotificationContext);
     const {numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     return (
         <Sheet className={"status-bar"}>
-            <Typography
-                className={"status-message"}
-                level={"body-sm"}
-            >
-                {statusMessage}
+            <Typography className={"status-message"}>
+                {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
             <Button
                 size={"sm"}

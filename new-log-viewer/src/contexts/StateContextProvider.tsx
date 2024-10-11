@@ -30,7 +30,10 @@ import {
     clamp,
     getChunkNum,
 } from "../utils/math";
-import {NotificationContext} from "./NotificationContextProvider";
+import {
+    AUTO_DISMISS_TIMEOUT_MILLIS,
+    NotificationContext,
+} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -140,7 +143,7 @@ const workerPostReq = <T extends WORKER_REQ_CODE>(
  */
 // eslint-disable-next-line max-lines-per-function
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const {postStatus, postPopup} = useContext(NotificationContext);
+    const {postPopup} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
@@ -174,8 +177,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setNumEvents(args.numEvents);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                postStatus(args.logLevel, args.message);
-                postPopup(args.logLevel, args.message, "Action failed", 5000);
+                postPopup(
+                    args.logLevel,
+                    args.message,
+                    "Action failed",
+                    AUTO_DISMISS_TIMEOUT_MILLIS
+                );
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -188,7 +195,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, [postStatus]);
+    }, [postPopup]);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {

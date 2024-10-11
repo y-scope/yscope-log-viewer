@@ -1,7 +1,6 @@
 import React, {
     createContext,
     useCallback,
-    useRef,
     useState,
 } from "react";
 
@@ -23,30 +22,13 @@ import {LOG_LEVEL} from "../typings/logs";
 const AUTO_DISMISS_TIMEOUT_MILLIS = 5000;
 const DO_NOT_TIMEOUT_VALUE = null;
 
-/**
- * Callback for posting a pop-up message with a title and level. The message is automatically
- * dismissed after `timeoutMillis` if it is not {@link DO_NOT_TIMEOUT_VALUE}.
- */
-type PostPopupCallback = (
-    level: LOG_LEVEL,
-    message: string,
-    title: string,
-    timeoutMillis: Nullable<number>
-) => void;
-
-/**
- * Callback for posting a status message with level.
- *
- * When the level is less than or equal to `LOG_LEVEL.INFO`, the message is automatically dismissed
- * after `AUTO_DISMISS_TIMEOUT_MILLIS`.
- */
-type PostStatusCallback = (level: LOG_LEVEL, message: string, title?: string) => void;
-
 interface NotificationContextType {
-    statusMessage: string,
-
-    postPopup: PostPopupCallback,
-    postStatus: PostStatusCallback,
+    postPopup: (
+        level: LOG_LEVEL,
+        message: string,
+        title: string,
+        timeoutMillis: Nullable<number>
+    ) => void,
 }
 
 const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
@@ -54,16 +36,6 @@ const NotificationContext = createContext<NotificationContextType>({} as Notific
 interface NotificationContextProviderProps {
     children: React.ReactNode;
 }
-
-/**
- * Default values of the notification value object.
- */
-const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
-    statusMessage: "",
-
-    postPopup: () => null,
-    postStatus: () => null,
-});
 
 interface PopupMessage {
     level: LOG_LEVEL,
@@ -83,8 +55,6 @@ interface PopupMessage {
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
     const [popupMessages, setPopupMessages] = useState<PopupMessage[]>([]);
-    const [statusMessage, setStatusMessage] = useState<string>(NOTIFICATION_DEFAULT.statusMessage);
-    const statusMsgTimeoutRef = useRef<Nullable<ReturnType<typeof setTimeout>>>(null);
 
     const postPopup = useCallback((
         level: LOG_LEVEL,
@@ -98,7 +68,7 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
             title: "" === title ?
                 LOG_LEVEL[level] :
                 title,
-            timeout: DO_NOT_TIMEOUT_VALUE === timeoutMillis ?
+            timeout: null === timeoutMillis ?
                 null :
                 setTimeout(() => {
                     setPopupMessages((v) => v.filter((m) => m !== newMessage));
@@ -111,25 +81,10 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         ]));
     }, []);
 
-    const postStatus = useCallback((level: LOG_LEVEL, message: string) => {
-        if (null !== statusMsgTimeoutRef.current) {
-            clearTimeout(statusMsgTimeoutRef.current);
-        }
-        setStatusMessage(message);
-
-        if (LOG_LEVEL.INFO >= level) {
-            statusMsgTimeoutRef.current = setTimeout(() => {
-                setStatusMessage(NOTIFICATION_DEFAULT.statusMessage);
-            }, AUTO_DISMISS_TIMEOUT_MILLIS);
-        }
-    }, []);
-
     return (
         <NotificationContext.Provider
             value={{
-                statusMessage: statusMessage,
                 postPopup: postPopup,
-                postStatus: postStatus,
             }}
         >
             {children}
@@ -188,11 +143,8 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
     );
 };
 
-export type {
-    PostPopupCallback,
-    PostStatusCallback,
-};
 export {
+    AUTO_DISMISS_TIMEOUT_MILLIS,
     DO_NOT_TIMEOUT_VALUE,
     NotificationContext,
 };
