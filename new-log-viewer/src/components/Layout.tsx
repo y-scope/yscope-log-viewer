@@ -3,11 +3,11 @@ import {useContext} from "react";
 import {CssVarsProvider} from "@mui/joy";
 
 import {NotificationContext} from "../contexts/NotificationContextProvider";
-import PopUpMessagesContainer from "../contexts/NotificationContextProvider/PopUpMessagesContainer";
 import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
 import CentralContainer from "./CentralContainer";
 import MenuBar from "./MenuBar";
+import PopUpMessagesContainer from "./PopUpMessagesContainer";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 

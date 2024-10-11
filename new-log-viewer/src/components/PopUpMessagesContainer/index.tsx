@@ -3,8 +3,10 @@ import {
     Stack,
 } from "@mui/joy";
 
-import {PopupMessage} from "./index";
+import {PopupMessage} from "../../contexts/NotificationContextProvider";
 import PopUpMessageBox from "./PopUpMessageBox";
+
+import "./index.css";
 
 
 interface PopUpMessagesContainerProps {

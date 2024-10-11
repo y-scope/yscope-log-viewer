@@ -12,11 +12,11 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import {LOG_LEVEL} from "../../typings/logs";
 import {
     DO_NOT_TIMEOUT_VALUE,
     PopupMessage,
-} from "./index";
+} from "../../contexts/NotificationContextProvider";
+import {LOG_LEVEL} from "../../typings/logs";
 
 
 interface PopUpMessageProps {

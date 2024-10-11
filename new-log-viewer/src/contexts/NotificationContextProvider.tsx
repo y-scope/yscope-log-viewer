@@ -4,10 +4,8 @@ import React, {
     useState,
 } from "react";
 
-import {Nullable} from "../../typings/common";
-import {LOG_LEVEL} from "../../typings/logs";
-
-import "./index.css";
+import {Nullable} from "../typings/common";
+import {LOG_LEVEL} from "../typings/logs";
 
 
 interface PopupMessage {
