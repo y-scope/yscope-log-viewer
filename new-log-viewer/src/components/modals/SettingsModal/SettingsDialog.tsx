@@ -104,7 +104,12 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
         });
 
         if (null !== error) {
-            postPopup(LOG_LEVEL.ERROR, error, "Unable to apply config.", DO_NOT_TIMEOUT_VALUE);
+            postPopup({
+                level: LOG_LEVEL.ERROR,
+                message: error,
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Unable to apply config.",
+            });
         } else {
             window.location.reload();
         }

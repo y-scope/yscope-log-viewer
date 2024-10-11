@@ -11,20 +11,15 @@ import {LOG_LEVEL} from "../typings/logs";
 interface PopupMessage {
     level: LOG_LEVEL,
     message: string,
-    title: string,
     timeoutMillis: Nullable<number>,
+    title: string,
 }
 
 interface NotificationContextType {
     popupMessages: PopupMessage[],
 
     onPopupMessagesChange: (callback: (value: PopupMessage[]) => PopupMessage[]) => void,
-    postPopup: (
-        level: LOG_LEVEL,
-        message: string,
-        title: string,
-        timeoutMillis: Nullable<number>
-    ) => void,
+    postPopup: (message: PopupMessage) => void,
 }
 
 const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
@@ -66,19 +61,14 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         NOTIFICATION_DEFAULT.popupMessages
     );
 
-    const postPopup = useCallback((
-        level: LOG_LEVEL,
-        message: string,
-        title: string,
-        timeoutMillis: Nullable<number>
-    ) => {
+    const postPopup = useCallback(({level, message, timeoutMillis, title}:PopupMessage) => {
         const newMessage = {
             level: level,
             message: message,
+            timeoutMillis: timeoutMillis,
             title: "" === title ?
                 LOG_LEVEL[level] :
                 title,
-            timeoutMillis: timeoutMillis,
         };
 
         setPopupMessages((v) => ([

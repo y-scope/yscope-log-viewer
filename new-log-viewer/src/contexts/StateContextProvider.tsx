@@ -266,12 +266,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                postPopup(
-                    args.logLevel,
-                    args.message,
-                    "Action failed",
-                    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS
-                );
+                postPopup({
+                    level: args.logLevel,
+                    message: args.message,
+                    timeoutMillis: DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+                    title: "Action failed",
+                });
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
