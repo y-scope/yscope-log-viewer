@@ -340,12 +340,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
-        setLoadState(LOAD_STATE.LOADING);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
             return;
         }
+        setLoadState(LOAD_STATE.LOADING);
+
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
@@ -356,10 +357,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
-        setLoadState(LOAD_STATE.LOADING);
         if (null === mainWorkerRef.current) {
             return;
         }
+        setLoadState(LOAD_STATE.LOADING);
 
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
