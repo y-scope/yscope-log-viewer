@@ -22,7 +22,7 @@ import CustomTabPanel from "./CustomTabPanel";
 
 
 /**
- * Displays a panel containing the file name and original size of the selected file.
+ * Displays a panel containing the file name and on-disk size of the selected file.
  *
  * @return
  */
@@ -31,7 +31,7 @@ const FileInfoTabPanel = () => {
 
     const isFileUnloaded = 0 === fileName.length;
     const formattedOriginalSize = useMemo(
-        () => formatSizeInBytes(originalFileSizeInBytes),
+        () => formatSizeInBytes(originalFileSizeInBytes, false),
         [originalFileSizeInBytes]
     );
 
