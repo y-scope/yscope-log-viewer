@@ -6,10 +6,40 @@ import React, {
 
 import {Nullable} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
-import PopUpMessagesContainer from "./PopUpMessagesContainer";
 
 import "./index.css";
 
+
+interface PopupMessage {
+    level: LOG_LEVEL,
+    message: string,
+    title: string,
+    timeoutMillis: Nullable<number>,
+}
+
+interface NotificationContextType {
+    popupMessages: PopupMessage[],
+
+    onPopupMessagesChange: (callback: (value: PopupMessage[]) => PopupMessage[]) => void,
+    postPopup: (
+        level: LOG_LEVEL,
+        message: string,
+        title: string,
+        timeoutMillis: Nullable<number>
+    ) => void,
+}
+
+const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
+
+/**
+ * Default values of the Notification context value object.
+ */
+const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
+    popupMessages: [],
+
+    onPopupMessagesChange: () => {},
+    postPopup: () => {},
+});
 
 /**
  * The default duration in milliseconds after which an automatic dismissal will occur.
@@ -21,26 +51,8 @@ const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
  */
 const DO_NOT_TIMEOUT_VALUE = null;
 
-interface NotificationContextType {
-    postPopup: (
-        level: LOG_LEVEL,
-        message: string,
-        title: string,
-        timeoutMillis: Nullable<number>
-    ) => void,
-}
-
-const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
-
 interface NotificationContextProviderProps {
     children: React.ReactNode;
-}
-
-interface PopupMessage {
-    level: LOG_LEVEL,
-    message: string,
-    title: string,
-    timeoutMillis: Nullable<number>,
 }
 
 /**
@@ -52,7 +64,9 @@ interface PopupMessage {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>([]);
+    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>(
+        NOTIFICATION_DEFAULT.popupMessages
+    );
 
     const postPopup = useCallback((
         level: LOG_LEVEL,
@@ -78,13 +92,12 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
     return (
         <NotificationContext.Provider
             value={{
+                popupMessages: popupMessages,
+                onPopupMessagesChange: setPopupMessages,
                 postPopup: postPopup,
             }}
         >
             {children}
-            <PopUpMessagesContainer
-                popupMessages={popupMessages}
-                onPopupMessagesChange={setPopupMessages}/>
         </NotificationContext.Provider>
     );
 };
