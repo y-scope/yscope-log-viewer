@@ -230,7 +230,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
-    const [onDiskFileSizeInBytes, setonDiskFileSizeInBytes] =
+    const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
         useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
@@ -258,7 +258,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
-                setonDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
+                setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -329,7 +329,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setFileName("Loading...");
         setLogData("Loading...");
-        setonDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
+        setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
