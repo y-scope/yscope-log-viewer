@@ -1,4 +1,9 @@
 import {
+    useCallback,
+    useEffect,
+} from "react";
+
+import {
     Alert,
     Box,
     IconButton,
@@ -8,7 +13,10 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import {LOG_LEVEL} from "../../typings/logs";
-import {PopupMessage} from "./index";
+import {
+    DO_NOT_TIMEOUT_VALUE,
+    PopupMessage,
+} from "./index";
 
 
 interface PopUpMessageProps {
@@ -29,6 +37,22 @@ const PopUpMessageBox = ({message, onPopupMessagesChange}: PopUpMessageProps) =>
         "danger" :
         "primary";
 
+    const handlePopUpMessageClose = useCallback(() => {
+        onPopupMessagesChange((v) => v.filter((m) => m !== message));
+    }, [
+        message,
+        onPopupMessagesChange,
+    ]);
+
+    useEffect(() => {
+        if (DO_NOT_TIMEOUT_VALUE !== message.timeoutMillis) {
+            setTimeout(handlePopUpMessageClose, message.timeoutMillis);
+        }
+    }, [
+        handlePopUpMessageClose,
+        message.timeoutMillis,
+    ]);
+
     return (
         <Alert
             className={"pop-up-message-box-alert"}
@@ -48,9 +72,7 @@ const PopUpMessageBox = ({message, onPopupMessagesChange}: PopUpMessageProps) =>
                         className={"pop-up-message-box-close-button"}
                         color={color}
                         size={"sm"}
-                        onClick={() => {
-                            onPopupMessagesChange((v) => v.filter((vm) => vm !== message));
-                        }}
+                        onClick={handlePopUpMessageClose}
                     >
                         <CloseIcon/>
                     </IconButton>
