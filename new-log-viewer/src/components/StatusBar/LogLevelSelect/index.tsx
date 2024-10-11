@@ -1,9 +1,12 @@
 import React, {
     useCallback,
+    useContext,
+    useEffect,
     useState,
 } from "react";
 
 import {SelectValue} from "@mui/base/useSelect";
+import {StateContext} from "../../../contexts/StateContextProvider";
 import {
     Box,
     Checkbox,
@@ -141,6 +144,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
  */
 const LogLevelSelect = () => {
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
+    const {setLogLevelFilter} = useContext(StateContext);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
@@ -189,6 +193,10 @@ const LogLevelSelect = () => {
     const handleSelectClearButtonClick = () => {
         setSelectedLogLevels([]);
     };
+
+    useEffect(() => {
+        setLogLevelFilter((selectedLogLevels.length === 0 ? null : selectedLogLevels))
+    }, [selectedLogLevels]);
 
     return (
         <Select
