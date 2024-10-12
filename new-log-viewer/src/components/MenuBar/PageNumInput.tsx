@@ -88,7 +88,9 @@ const PageNumInput = () => {
                     <Typography
                         className={"page-num-input-num-pages-text"}
                         level={"body-md"}
-                        sx={loadState !== LOAD_STATE.READY ? { color: 'neutral.plainDisabledColor' } : {}}
+                        sx={loadState !== LOAD_STATE.READY ?
+                            {color: "neutral.plainDisabledColor"} :
+                            {}}
                     >
                         {"/ "}
                         {numPages}

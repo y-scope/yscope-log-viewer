@@ -52,6 +52,7 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         ev.stopPropagation();
 
         setIsFileHovering(false);
+
         const [file] = ev.dataTransfer.files;
         if ("undefined" === typeof file) {
             console.warn("No file dropped.");

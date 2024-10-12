@@ -127,7 +127,6 @@ interface ClearFiltersOptionProps {
  * @return
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
-
     return (
         <Option
             value={INVALID_LOG_LEVEL_VALUE}
@@ -211,12 +210,12 @@ const LogLevelSelect = () => {
     return (
         <Select
             className={"log-level-select"}
+            disabled={LOAD_STATE.READY !== loadState}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
             value={selectedLogLevels}
             variant={"soft"}
-            disabled = {LOAD_STATE.READY !== loadState}
             indicator={0 === selectedLogLevels.length ?
                 <KeyboardArrowUpIcon/> :
                 <Tooltip title={"Clear filters"}>
@@ -230,7 +229,9 @@ const LogLevelSelect = () => {
             placeholder={
                 <Chip
                     className={"log-level-select-render-value-box-label"}
-                    sx={loadState !== LOAD_STATE.READY ? { color: 'neutral.plainDisabledColor' } : {}}
+                    sx={loadState !== LOAD_STATE.READY ?
+                        {color: "neutral.plainDisabledColor"} :
+                        {}}
                 >
                     Log Level
                 </Chip>
