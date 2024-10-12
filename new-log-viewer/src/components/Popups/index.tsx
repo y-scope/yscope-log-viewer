@@ -24,9 +24,9 @@ const Popups = () => {
             open={0 < popupMessages.length}
         >
             <Stack gap={1}>
-                {popupMessages.map((message, index) => (
+                {popupMessages.map((message) => (
                     <PopupMessageBox
-                        key={index}
+                        key={message.id}
                         message={message}/>
                 ))}
             </Stack>

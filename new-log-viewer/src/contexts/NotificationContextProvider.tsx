@@ -1,10 +1,14 @@
 import React, {
     createContext,
     useCallback,
+    useRef,
     useState,
 } from "react";
 
-import {Nullable} from "../typings/common";
+import {
+    Nullable,
+    WithId,
+} from "../typings/common";
 import {LOG_LEVEL} from "../typings/logs";
 
 
@@ -16,9 +20,9 @@ interface PopupMessage {
 }
 
 interface NotificationContextType {
-    popupMessages: PopupMessage[],
+    popupMessages: WithId<PopupMessage>[],
 
-    handlePopupMessageClose: (message: PopupMessage) => void;
+    handlePopupMessageClose: (messageId: number) => void;
     postPopup: (message: PopupMessage) => void,
 }
 
@@ -57,19 +61,18 @@ interface NotificationContextProviderProps {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popupMessages, setPopupMessages] = useState<PopupMessage[]>(
+    const [popupMessages, setPopupMessages] = useState<WithId<PopupMessage>[]>(
         NOTIFICATION_DEFAULT.popupMessages
     );
+    const nextPopUpMessageIdRef = useRef<number>(0);
 
-    const postPopup = useCallback(({level, message, timeoutMillis, title}:PopupMessage) => {
+    const postPopup = useCallback((message:PopupMessage) => {
         const newMessage = {
-            level: level,
-            message: message,
-            timeoutMillis: timeoutMillis,
-            title: "" === title ?
-                LOG_LEVEL[level] :
-                title,
+            id: nextPopUpMessageIdRef.current,
+            ...message,
         };
+
+        nextPopUpMessageIdRef.current++;
 
         setPopupMessages((v) => ([
             ...v,
@@ -77,9 +80,9 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         ]));
     }, []);
 
-    const handlePopupMessageClose = useCallback((message: PopupMessage) => {
+    const handlePopupMessageClose = useCallback((messageId: number) => {
         // Keep everything but except input message.
-        setPopupMessages((popups) => popups.filter((m) => m !== message));
+        setPopupMessages((popups) => popups.filter((m) => m.id !== messageId));
     }, []);
 
     return (
