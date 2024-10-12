@@ -269,19 +269,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
+                setLoadState(LOAD_STATE.READY);
                 break;
             }
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
-        }
-
-        switch (code) {
-            case WORKER_RESP_CODE.CHUNK_DATA:
-            case WORKER_RESP_CODE.PAGE_DATA:
-                setLoadState(LOAD_STATE.READY);
-                break;
-            default: break;
         }
     }, []);
 

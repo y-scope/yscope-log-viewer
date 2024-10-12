@@ -4,9 +4,7 @@ import React, {
 } from "react";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {
-    CURSOR_CODE,
-} from "../../typings/worker";
+import {CURSOR_CODE} from "../../typings/worker";
 
 import "./index.css";
 
@@ -23,7 +21,7 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const {loadFile, loadState} = useContext(StateContext);
+    const {loadFile} = useContext(StateContext);
     const [isFileHovering, setIsFileHovering] = useState(false);
 
     const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
@@ -78,6 +76,12 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                         className={"hover-mask"}
                         onDrop={handleDrop}
                     >
+                        <div
+                            className={"hover-message"}
+                            onDrop={handleDrop}
+                        >
+                            Drop file to view
+                        </div>
                     </div>
                 )}
             </div>

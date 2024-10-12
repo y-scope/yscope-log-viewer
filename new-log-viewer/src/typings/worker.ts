@@ -20,12 +20,12 @@ enum LOAD_STATE {
     UNOPENED = "unopened",
 
     /**
-     * When a request is pending response.
+     * When a file load request is pending response.
      */
     LOADING = "loading",
 
     /**
-     * When there is no pending response from any request.
+     * When the file is loaded from any request.
      */
     READY = "ready",
 }
