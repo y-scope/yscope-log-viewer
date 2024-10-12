@@ -66,12 +66,9 @@ const LogSelectOption = ({
     onCheckboxClick,
     onOptionClick,
 }: LogSelectOptionProps) => {
-    const {loadState} = useContext(StateContext);
-
     return (
         <Option
             data-value={logLevelValue}
-            disabled={LOAD_STATE.LOADING === loadState || LOAD_STATE.UNOPENED === loadState}
             key={logLevelName}
             value={logLevelValue}
             onClick={onOptionClick}
@@ -130,11 +127,9 @@ interface ClearFiltersOptionProps {
  * @return
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
-    const {loadState} = useContext(StateContext);
 
     return (
         <Option
-            disabled={LOAD_STATE.LOADING === loadState || LOAD_STATE.UNOPENED === loadState}
             value={INVALID_LOG_LEVEL_VALUE}
             onClick={onClick}
         >
@@ -221,11 +216,11 @@ const LogLevelSelect = () => {
             size={"sm"}
             value={selectedLogLevels}
             variant={"soft"}
+            disabled = {LOAD_STATE.READY !== loadState}
             indicator={0 === selectedLogLevels.length ?
                 <KeyboardArrowUpIcon/> :
                 <Tooltip title={"Clear filters"}>
                     <IconButton
-                        disabled={LOAD_STATE.LOADING === loadState}
                         variant={"plain"}
                         onClick={handleSelectClearButtonClick}
                     >
@@ -233,7 +228,10 @@ const LogLevelSelect = () => {
                     </IconButton>
                 </Tooltip>}
             placeholder={
-                <Chip className={"log-level-select-render-value-box-label"}>
+                <Chip
+                    className={"log-level-select-render-value-box-label"}
+                    sx={loadState !== LOAD_STATE.READY ? { color: 'neutral.plainDisabledColor' } : {}}
+                >
                     Log Level
                 </Chip>
             }

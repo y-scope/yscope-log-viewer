@@ -41,11 +41,11 @@ const StatusBar = () => {
             </Typography>
             <Button
                 color={"primary"}
-                disabled={loadState === LOAD_STATE.UNOPENED}
+                disabled={loadState !== LOAD_STATE.READY}
                 size={"sm"}
                 variant={"soft"}
                 onClick={handleCopyLinkButtonClick}
-            >
+            > 
                 {"Log Event "}
                 {logEventNum}
                 {" / "}

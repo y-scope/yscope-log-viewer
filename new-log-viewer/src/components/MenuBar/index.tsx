@@ -57,7 +57,6 @@ const MenuBar = () => {
                     variant={"outlined"}
                 >
                     <IconButton
-                        disabled={isLoading}
                         size={"sm"}
                         onClick={handleOpenFile}
                     >

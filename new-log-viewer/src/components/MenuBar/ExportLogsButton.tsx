@@ -28,7 +28,7 @@ const ExportLogsButton = () => {
         <SmallIconButton
             disabled={
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
-                loadState === LOAD_STATE.UNOPENED || loadState === LOAD_STATE.LOADING
+                loadState !== LOAD_STATE.READY
             }
             onClick={exportLogs}
         >

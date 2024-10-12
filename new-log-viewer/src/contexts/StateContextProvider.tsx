@@ -345,7 +345,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        setLoadState(LOAD_STATE.LOADING);
 
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
@@ -360,7 +359,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-        setLoadState(LOAD_STATE.LOADING);
 
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
