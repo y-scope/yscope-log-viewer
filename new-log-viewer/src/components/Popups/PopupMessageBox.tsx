@@ -1,11 +1,14 @@
 import {
     useContext,
     useEffect,
+    useRef,
+    useState,
 } from "react";
 
 import {
     Alert,
     Box,
+    CircularProgress,
     IconButton,
     Typography,
 } from "@mui/joy";
@@ -17,11 +20,17 @@ import {
     NotificationContext,
     PopupMessage,
 } from "../../contexts/NotificationContextProvider";
+import {
+    Nullable,
+    WithId,
+} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
 
 
+const AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS = 50;
+
 interface PopupMessageProps {
-    message: PopupMessage,
+    message: WithId<PopupMessage>,
 }
 
 /**
@@ -33,22 +42,43 @@ interface PopupMessageProps {
  */
 const PopupMessageBox = ({message}: PopupMessageProps) => {
     const {handlePopupMessageClose} = useContext(NotificationContext);
+    const [timeoutPercent, setTimeoutPercent] = useState<number>(0);
+    const startTimeMillisRef = useRef<number>(Date.now());
 
-    const color = message.level >= LOG_LEVEL.ERROR ?
-        "danger" :
-        "primary";
-
+    const handleCloseButtonClick = () => {
+        handlePopupMessageClose(message.id);
+    };
 
     useEffect(() => {
-        if (DO_NOT_TIMEOUT_VALUE !== message.timeoutMillis) {
-            setTimeout(() => {
-                handlePopupMessageClose(message);
-            }, message.timeoutMillis);
+        const {timeoutMillis} = message;
+        let timeoutId: Nullable<ReturnType<typeof setTimeout>> = null;
+        let intervalId: Nullable<ReturnType<typeof setInterval>> = null;
+        if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
+            timeoutId = setTimeout(() => {
+                handlePopupMessageClose(message.id);
+            }, timeoutMillis);
+            intervalId = setInterval(() => {
+                const fraction = (Date.now() - startTimeMillisRef.current) / timeoutMillis;
+                setTimeoutPercent(100 - (100 * fraction));
+            }, AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
         }
+
+        return () => {
+            if (null !== timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            if (null !== intervalId) {
+                clearInterval(intervalId);
+            }
+        };
     }, [
         message,
         handlePopupMessageClose,
     ]);
+
+    const color = message.level >= LOG_LEVEL.ERROR ?
+        "danger" :
+        "primary";
 
     return (
         <Alert
@@ -65,14 +95,22 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
                     >
                         {message.title}
                     </Typography>
-                    <IconButton
-                        className={"pop-up-message-box-close-button"}
+                    <CircularProgress
                         color={color}
+                        determinate={true}
                         size={"sm"}
-                        onClick={() => { handlePopupMessageClose(message); }}
+                        thickness={2}
+                        value={timeoutPercent}
                     >
-                        <CloseIcon/>
-                    </IconButton>
+                        <IconButton
+                            className={"pop-up-message-box-close-button"}
+                            color={color}
+                            size={"sm"}
+                            onClick={handleCloseButtonClick}
+                        >
+                            <CloseIcon/>
+                        </IconButton>
+                    </CircularProgress>
                 </Box>
                 <Typography level={"body-sm"}>
                     {message.message}

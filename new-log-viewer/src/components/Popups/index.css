@@ -25,3 +25,10 @@
 .pop-up-message-box-title-text {
     flex-grow: 1;
 }
+
+.pop-up-message-box-close-button {
+    /* stylelint-disable-next-line custom-property-pattern */
+    --IconButton-size: 18px !important;
+
+    border-radius: 18px !important;
+}
