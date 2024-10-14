@@ -306,7 +306,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
-        setLoadState(LOAD_STATE.LOADING);
+        setLoadState(LOAD_STATE.LOADING_FILE);
         setFileName("Loading...");
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);

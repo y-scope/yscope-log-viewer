@@ -4,7 +4,10 @@ import React, {
 } from "react";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {CURSOR_CODE} from "../../typings/worker";
+import {
+    LOAD_STATE,
+    CURSOR_CODE
+} from "../../typings/worker";
 
 import "./index.css";
 
@@ -21,8 +24,9 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const {loadFile} = useContext(StateContext);
+    const {loadFile, loadState} = useContext(StateContext);
     const [isFileHovering, setIsFileHovering] = useState(false);
+    const isLoading = LOAD_STATE.LOADING_FILE === loadState || LOAD_STATE.EXPORTING === loadState;
 
     const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
@@ -52,6 +56,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         ev.stopPropagation();
 
         setIsFileHovering(false);
+        if (isLoading) {
+            return;
+        }
 
         const [file] = ev.dataTransfer.files;
         if ("undefined" === typeof file) {
@@ -78,10 +85,14 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                         onDrop={handleDrop}
                     >
                         <div
-                            className={"hover-message"}
+                            className={`hover-message ${isLoading ?
+                                "hover-message-loading" :
+                                ""}`}
                             onDrop={handleDrop}
                         >
-                            Drop file to view
+                            {isLoading ?
+                                "Drop is disabled during loading" :
+                                "Drop file to view"}
                         </div>
                     </div>
                 )}

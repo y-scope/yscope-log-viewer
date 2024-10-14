@@ -37,7 +37,7 @@ const MenuBar = () => {
         });
     };
 
-    const isLoading = LOAD_STATE.LOADING === loadState;
+    const isLoading = LOAD_STATE.LOADING_FILE === loadState;
 
     return (
         <>
@@ -59,6 +59,7 @@ const MenuBar = () => {
                     <IconButton
                         size={"sm"}
                         onClick={handleOpenFile}
+                        disabled={loadState === LOAD_STATE.LOADING_FILE || loadState === LOAD_STATE.EXPORTING}
                     >
                         <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
                     </IconButton>

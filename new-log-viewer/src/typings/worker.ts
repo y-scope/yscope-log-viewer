@@ -22,12 +22,17 @@ enum LOAD_STATE {
     /**
      * When a file load request is pending response.
      */
-    LOADING = "loading",
+    LOADING_FILE = "loading",
 
     /**
      * When the file is loaded from any request.
      */
     READY = "ready",
+
+    /**
+     * When the file is being exported.
+     */
+    EXPORTING = "exporting",
 }
 
 /**
