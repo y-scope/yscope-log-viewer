@@ -5,8 +5,8 @@ import React, {
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
+    CURSOR_CODE,
     LOAD_STATE,
-    CURSOR_CODE
 } from "../../typings/worker";
 
 import "./index.css";

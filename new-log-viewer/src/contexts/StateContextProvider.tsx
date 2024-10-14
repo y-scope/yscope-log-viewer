@@ -248,7 +248,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
-                    if (progress === 1) {
+                    if (1 === progress) {
                         setLoadState(LOAD_STATE.READY);
                     }
                 }
