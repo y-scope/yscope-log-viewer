@@ -18,4 +18,11 @@
 .log-level-select-listbox {
     /* Disallow width auto-resizing with the `Select` button. */
     max-width: 0;
+    margin-bottom: -3px !important;
+}
+
+.log-level-select-option-text-tooltip {
+    /* Disable pointer events to prevent tooltips from blocking interaction with underlying
+      elements. */
+    pointer-events: none;
 }
