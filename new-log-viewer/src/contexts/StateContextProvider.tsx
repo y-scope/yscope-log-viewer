@@ -248,6 +248,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
+                    if (progress === 1) {
+                        setLoadState(LOAD_STATE.READY);
+                    }
                 }
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
@@ -290,6 +293,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        setLoadState(LOAD_STATE.EXPORTING);
         setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),

@@ -41,7 +41,7 @@ const StatusBar = () => {
             </Typography>
             <Button
                 color={"primary"}
-                disabled={loadState === LOAD_STATE.UNOPENED || loadState !== LOAD_STATE.LOADING_FILE }
+                disabled={loadState === LOAD_STATE.UNOPENED || loadState === LOAD_STATE.LOADING_FILE }
                 size={"sm"}
                 variant={"soft"}
                 onClick={handleCopyLinkButtonClick}
