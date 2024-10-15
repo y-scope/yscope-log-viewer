@@ -15,12 +15,12 @@ import {LogLevelFilter} from "../typings/logs";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
-    ChunkResults,
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
+    QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
@@ -77,6 +77,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    queryResults: new Map(),
 
     exportLogs: () => null,
     loadFile: () => null,
@@ -248,7 +249,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const [queryResults, setQueryResults] = useState<ChunkResults>({});
+    const [queryResults, setQueryResults] = useState<QueryResults>(new Map());
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -281,16 +282,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 });
                 break;
             }
-            case WORKER_RESP_CODE.CHUNK_RESULT:
+            case WORKER_RESP_CODE.QUERY_RESULT:
                 console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
                 setQueryResults(() => {
                     const newQueryResults = {...queryResults};
-                    Object.entries(args).forEach(([pageNumStr, results]) => {
-                        const chunkPageNum = parseInt(pageNumStr, 10);
-                        if (!newQueryResults[chunkPageNum]) {
-                            newQueryResults[chunkPageNum] = [];
+                    args.forEach((results, queryPageNum) => {
+                        if (false === newQueryResults.has(queryPageNum)) {
+                            newQueryResults.set(queryPageNum, []);
                         }
-                        newQueryResults[chunkPageNum].push(...results);
+                        newQueryResults.get(queryPageNum)?.push(...results);
                     });
 
                     return newQueryResults;

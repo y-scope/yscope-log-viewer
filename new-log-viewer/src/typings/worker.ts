@@ -80,7 +80,7 @@ enum WORKER_RESP_CODE {
     LOG_FILE_INFO = "fileInfo",
     NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
-    CHUNK_RESULT = "chunkResult",
+    QUERY_RESULT = "queryResult",
 }
 
 type WorkerReqMap = {
@@ -107,13 +107,13 @@ type WorkerReqMap = {
 
 type TextRange = [number, number];
 
-interface ChunkResultType {
-    logEventNum: number,
-    message: string,
-    matchRange: TextRange,
+interface QueryResultsType {
+    logEventNum: number;
+    message: string;
+    matchRange: TextRange;
 }
 
-type ChunkResults = Record<number, ChunkResultType[]>;
+type QueryResults = Map<number, QueryResultsType[]>;
 
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
@@ -136,7 +136,7 @@ type WorkerRespMap = {
         numPages: number,
         pageNum: number,
     },
-    [WORKER_RESP_CODE.CHUNK_RESULT]: ChunkResults,
+    [WORKER_RESP_CODE.QUERY_RESULT]: QueryResults,
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
@@ -177,12 +177,12 @@ export {
 };
 export type {
     BeginLineNumToLogEventNumMap,
-    ChunkResults,
     CursorData,
     CursorType,
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
+    QueryResults,
     WorkerReq,
     WorkerResp,
 };

@@ -4,8 +4,8 @@ import dayjsUtc from "dayjs/plugin/utc";
 
 import {LOG_LEVEL} from "../typings/logs";
 import {
-    ChunkResults,
     MainWorkerReqMessage,
+    QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerResp,
@@ -41,10 +41,10 @@ const postResp = <T extends WORKER_RESP_CODE>(
 /**
  * Post a response of a query chunk.
  *
- * @param chunkResults
+ * @param queryResults
  */
-const onQueryResults = (chunkResults: ChunkResults) => {
-    postResp(WORKER_RESP_CODE.CHUNK_RESULT, chunkResults);
+const onQueryResults = (queryResults: QueryResults) => {
+    postResp(WORKER_RESP_CODE.QUERY_RESULT, queryResults);
 };
 
 // eslint-disable-next-line no-warning-comments

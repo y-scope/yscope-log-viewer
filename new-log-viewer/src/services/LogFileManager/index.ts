@@ -7,12 +7,12 @@ import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
-    ChunkResults,
     CURSOR_CODE,
     CursorData,
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
+    QueryResults,
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
@@ -46,7 +46,7 @@ class LogFileManager {
 
     readonly #onDiskFileSizeInBytes: number;
 
-    readonly #onQueryResults: (chunkResults: ChunkResults) => void;
+    readonly #onQueryResults: (queryResults: QueryResults) => void;
 
     #decoder: Decoder;
 
@@ -65,7 +65,7 @@ class LogFileManager {
         fileName: string,
         onDiskFileSizeInBytes: number,
         pageSize: number,
-        onQueryResults: (chunkResults: ChunkResults) => void,
+        onQueryResults: (queryResults: QueryResults) => void,
     ) {
         this.#decoder = decoder;
         this.#fileName = fileName;
@@ -109,7 +109,7 @@ class LogFileManager {
         fileSrc: FileSrcType,
         pageSize: number,
         decoderOptions: DecoderOptionsType,
-        onQueryResults: (chunkResults: ChunkResults) => void,
+        onQueryResults: (queryResults: QueryResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
@@ -309,25 +309,24 @@ class LogFileManager {
         }
 
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
-        const results: ChunkResults = {};
+        const results: QueryResults = new Map();
+        const decodedEvents = this.#decoder.decodeRange(beginSearchIdx, endSearchIdx, true);
 
-        for (let eventIdx = beginSearchIdx; eventIdx < endSearchIdx; eventIdx++) {
-            const contentString = this.#decoder.decodeRange(eventIdx, eventIdx + 1, false)?.[0]?.[0] || "";
-            const match = contentString.match(searchRegex);
+        decodedEvents?.forEach(([message, , , logEventNum]) => {
+            const match = message.match(searchRegex);
             if (match && "number" === typeof match.index) {
-                const logEventNum = eventIdx + 1;
                 const pageNum = Math.ceil(logEventNum / this.#pageSize);
-                if (!results[pageNum]) {
-                    results[pageNum] = [];
+                if (false === results.has(pageNum)) {
+                    results.set(pageNum, []);
                 }
-                results[pageNum].push({
+                results.get(pageNum)?.push({
                     logEventNum: logEventNum,
-                    message: contentString,
+                    message: message,
                     matchRange: [match.index,
                         (match.index + match[0].length)],
                 });
             }
-        }
+        });
 
         if (endSearchIdx < this.#numEvents) {
             defer(() => {
