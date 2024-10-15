@@ -1,7 +1,7 @@
 /**
+ * Defers the execution of a callback function until the call stack is clear.
  *
- * @param callback
- * @param callbackFn
+ * @param callbackFn The callback function to be deferred.
  */
 const defer = (callbackFn: () => void) => {
     setTimeout(callbackFn, 0);

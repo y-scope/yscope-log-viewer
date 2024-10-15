@@ -58,8 +58,8 @@ class LogFileManager {
      * @param decoder
      * @param fileName
      * @param onDiskFileSizeInBytes
-     * @param onQueryResults
      * @param pageSize Page size for setting up pagination.
+     * @param onQueryResults
      * @param decoder.fileName
      * @param decoder.onDiskFileSizeInBytes
      * @param decoder.pageSize
@@ -283,11 +283,11 @@ class LogFileManager {
     /**
      * Searches for log events based on the given search string.
      *
-     * @param searchString The search string.
-     * @param isRegex Whether the search string is a regular expression.
-     * @param matchCase Whether the search is case-sensitive.
+     * @param searchString
+     * @param isRegex
+     * @param isCaseSensitive
      */
-    startQuery (searchString: string, isRegex: boolean, matchCase: boolean): void {
+    startQuery (searchString: string, isRegex: boolean, isCaseSensitive: boolean): void {
         this.#queryId++;
 
         // If the search string is empty, or there are no logs, return
@@ -301,7 +301,7 @@ class LogFileManager {
         const regexPattern = isRegex ?
             searchString :
             searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const regexFlags = matchCase ?
+        const regexFlags = isCaseSensitive ?
             "" :
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
@@ -315,14 +315,22 @@ class LogFileManager {
      * @param beginSearchIdx The beginning index of the search range.
      * @param searchRegex The regular expression to search.
      */
-    #searchChunkAndScheduleNext (queryId: number, beginSearchIdx: number, searchRegex: RegExp): void {
+    #searchChunkAndScheduleNext (
+        queryId: number,
+        beginSearchIdx: number,
+        searchRegex: RegExp
+    ): void {
         if (queryId !== this.#queryId) {
             return;
         }
         console.log("in #searchChunkAndScheduleNext");
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
         const results: QueryResults = new Map();
-        const decodedEvents = this.#decoder.decodeRange(beginSearchIdx, endSearchIdx, null !== this.#decoder.getFilteredLogEventMap());
+        const decodedEvents = this.#decoder.decodeRange(
+            beginSearchIdx,
+            endSearchIdx,
+            null !== this.#decoder.getFilteredLogEventMap()
+        );
 
         decodedEvents?.forEach(([message, , , logEventNum]) => {
             const match = message.match(searchRegex);
