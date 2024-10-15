@@ -54,16 +54,12 @@ class LogFileManager {
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
      *
-     * @param decoder.decoder
-     * @param decoder
-     * @param fileName
-     * @param onDiskFileSizeInBytes
-     * @param pageSize Page size for setting up pagination.
-     * @param onQueryResults
-     * @param decoder.fileName
-     * @param decoder.onDiskFileSizeInBytes
-     * @param decoder.pageSize
-     * @param decoder.onQueryResults
+     * @param params
+     * @param params.decoder
+     * @param params.fileName
+     * @param params.onDiskFileSizeInBytes
+     * @param params.pageSize Page size for setting up pagination.
+     * @param params.onQueryResults The callback function to handle query results.
      */
     constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
         decoder: Decoder,
