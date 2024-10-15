@@ -1,4 +1,5 @@
 import {JsonlDecoderOptionsType} from "./decoders";
+import {TAB_NAME} from "./tab";
 
 
 enum THEME_NAME {
@@ -9,6 +10,7 @@ enum THEME_NAME {
 
 enum CONFIG_KEY {
     DECODER_OPTIONS = "decoderOptions",
+    INITIAL_TAB_NAME = "initialTabName",
     THEME = "theme",
     PAGE_SIZE = "pageSize",
 }
@@ -18,6 +20,7 @@ enum LOCAL_STORAGE_KEY {
     DECODER_OPTIONS_FORMAT_STRING = `${CONFIG_KEY.DECODER_OPTIONS}/formatString`,
     DECODER_OPTIONS_LOG_LEVEL_KEY = `${CONFIG_KEY.DECODER_OPTIONS}/logLevelKey`,
     DECODER_OPTIONS_TIMESTAMP_KEY = `${CONFIG_KEY.DECODER_OPTIONS}/timestampKey`,
+    INITIAL_TAB_NAME = CONFIG_KEY.INITIAL_TAB_NAME,
     THEME = CONFIG_KEY.THEME,
     PAGE_SIZE = CONFIG_KEY.PAGE_SIZE,
 }
@@ -25,6 +28,7 @@ enum LOCAL_STORAGE_KEY {
 
 type ConfigMap = {
     [CONFIG_KEY.DECODER_OPTIONS]: JsonlDecoderOptionsType,
+    [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME,
     [CONFIG_KEY.THEME]: THEME_NAME,
     [CONFIG_KEY.PAGE_SIZE]: number,
 };

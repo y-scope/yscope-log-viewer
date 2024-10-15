@@ -7,6 +7,7 @@ import {
     THEME_NAME,
 } from "../typings/config";
 import {DecoderOptionsType} from "../typings/decoders";
+import {TAB_NAME} from "../typings/tab";
 
 
 const MAX_PAGE_SIZE = 1_000_000;
@@ -21,6 +22,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },
+    [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
     [CONFIG_KEY.PAGE_SIZE]: 10_000,
 });
@@ -88,6 +90,9 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 value.timestampKey
             );
             break;
+        case CONFIG_KEY.INITIAL_TAB_NAME:
+            window.localStorage.setItem(CONFIG_KEY.INITIAL_TAB_NAME, value.toString());
+            break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
@@ -123,6 +128,9 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
             } as DecoderOptionsType;
+            break;
+        case CONFIG_KEY.INITIAL_TAB_NAME:
+            value = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);
             break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);
