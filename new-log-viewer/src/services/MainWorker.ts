@@ -44,7 +44,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
  * @param queryResults
  */
 const onQueryResults = (queryResults: QueryResults) => {
-    postResp(WORKER_RESP_CODE.QUERY_RESULT, queryResults);
+    postResp(WORKER_RESP_CODE.QUERY_RESULT, {results: queryResults});
 };
 
 // eslint-disable-next-line no-warning-comments

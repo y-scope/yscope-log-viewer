@@ -283,17 +283,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
-                console.log(`[MainWorker -> Renderer] CHUNK_RESULT: ${JSON.stringify(args)}`);
-                setQueryResults(() => {
-                    const newQueryResults = {...queryResults};
-                    args.forEach((results, queryPageNum) => {
-                        if (false === newQueryResults.has(queryPageNum)) {
-                            newQueryResults.set(queryPageNum, []);
+                setQueryResults((v) => {
+                    args.results.forEach((results, queryPageNum) => {
+                        if (false === v.has(queryPageNum)) {
+                            v.set(queryPageNum, []);
                         }
-                        newQueryResults.get(queryPageNum)?.push(...results);
+                        v.get(queryPageNum)?.push(...results);
                     });
+                    console.log(v);
 
-                    return newQueryResults;
+                    return v;
                 });
                 break;
             default:

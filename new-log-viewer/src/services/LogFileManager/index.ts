@@ -307,10 +307,10 @@ class LogFileManager {
         if (queryId !== this.#queryId) {
             return;
         }
-
+        console.log("in #searchChunkAndScheduleNext");
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
         const results: QueryResults = new Map();
-        const decodedEvents = this.#decoder.decodeRange(beginSearchIdx, endSearchIdx, true);
+        const decodedEvents = this.#decoder.decodeRange(beginSearchIdx, endSearchIdx, null !== this.#decoder.getFilteredLogEventMap());
 
         decodedEvents?.forEach(([message, , , logEventNum]) => {
             const match = message.match(searchRegex);
@@ -327,6 +327,7 @@ class LogFileManager {
                 });
             }
         });
+        console.log(decodedEvents, results);
 
         if (endSearchIdx < this.#numEvents) {
             defer(() => {
