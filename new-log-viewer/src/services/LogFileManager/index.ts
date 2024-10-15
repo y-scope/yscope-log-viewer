@@ -54,19 +54,24 @@ class LogFileManager {
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
      *
+     * @param decoder.decoder
      * @param decoder
      * @param fileName
      * @param onDiskFileSizeInBytes
      * @param onQueryResults
      * @param pageSize Page size for setting up pagination.
+     * @param decoder.fileName
+     * @param decoder.onDiskFileSizeInBytes
+     * @param decoder.pageSize
+     * @param decoder.onQueryResults
      */
-    constructor (
+    constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
         decoder: Decoder,
         fileName: string,
         onDiskFileSizeInBytes: number,
         pageSize: number,
         onQueryResults: (queryResults: QueryResults) => void,
-    ) {
+    }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
@@ -114,7 +119,14 @@ class LogFileManager {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, fileData.length, pageSize, onQueryResults);
+        return new LogFileManager({
+            decoder: decoder,
+            fileName: fileName,
+            onDiskFileSizeInBytes: fileData.length,
+            pageSize: pageSize,
+
+            onQueryResults: onQueryResults,
+        });
     }
 
     /**

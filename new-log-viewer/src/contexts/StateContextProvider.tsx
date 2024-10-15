@@ -56,6 +56,7 @@ interface StateContextType {
     numPages: number,
     onDiskFileSizeInBytes: number,
     pageNum: number,
+    queryResults: QueryResults,
 
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
@@ -230,6 +231,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [exportProgress, setExportProgress] =
+        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -237,10 +240,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
         useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
+    const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
-    const [exportProgress, setExportProgress] =
-        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
@@ -249,7 +251,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-    const [queryResults, setQueryResults] = useState<QueryResults>(new Map());
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -473,6 +474,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                queryResults: queryResults,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
