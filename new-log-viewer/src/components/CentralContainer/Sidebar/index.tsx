@@ -22,7 +22,7 @@ const EDITOR_MIN_WIDTH_IN_PIXELS = 250;
  * @return the width in pixels as a number.
  */
 const getPanelWidth = () => parseInt(
-    document.body.style.getPropertyValue("--ylv-panel-width"),
+    getComputedStyle(document.documentElement).getPropertyValue("--ylv-panel-width"),
     10
 );
 
@@ -32,7 +32,7 @@ const getPanelWidth = () => parseInt(
  * @param newValue in pixels.
  */
 const setPanelWidth = (newValue: number) => {
-    document.body.style.setProperty("--ylv-panel-width", `${newValue}px`);
+    document.documentElement.style.setProperty("--ylv-panel-width", `${newValue}px`);
 };
 
 
