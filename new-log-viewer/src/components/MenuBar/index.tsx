@@ -1,27 +1,20 @@
-import {
-    useContext,
-    useState,
-} from "react";
+import {useContext} from "react";
 
 import {
     Divider,
+    IconButton,
     Sheet,
-    Stack,
+    Tooltip,
     Typography,
 } from "@mui/joy";
 
-import DescriptionIcon from "@mui/icons-material/Description";
-import FileOpenIcon from "@mui/icons-material/FileOpen";
-import SearchIcon from "@mui/icons-material/Search";
-import SettingsIcon from "@mui/icons-material/Settings";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
-import SettingsModal from "../modals/SettingsModal";
 import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
-import SmallIconButton from "./SmallIconButton";
 
 import "./index.css";
 
@@ -32,66 +25,53 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile, startQuery} = useContext(StateContext);
+    const {fileName, loadFile} = useContext(StateContext);
 
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-
-    const handleSearchButtonClick = () => {
-        startQuery("scheduled", false, false);
-    };
-
-    const handleOpenFileButtonClick = () => {
+    const handleOpenFile = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
     };
 
-    const handleSettingsModalClose = () => {
-        setIsSettingsModalOpen(false);
-    };
-
-    const handleSettingsModalOpen = () => {
-        setIsSettingsModalOpen(true);
-    };
-
     return (
         <>
             <Sheet className={"menu-bar"}>
-                <Stack
-                    alignItems={"center"}
-                    className={"menu-bar-filename"}
-                    direction={"row"}
-                    flexGrow={1}
-                    gap={0.5}
+                <div className={"menu-bar-logo-container"}>
+                    <img
+                        alt={"yscope-small-logo"}
+                        src={"./favicon.svg"}
+                        width={20}/>
+                </div>
+
+                <Divider orientation={"vertical"}/>
+                <Tooltip
+                    arrow={true}
+                    placement={"right"}
+                    title={"Open file"}
+                    variant={"outlined"}
                 >
-                    <DescriptionIcon/>
-                    <Typography level={"body-md"}>
-                        {fileName}
-                    </Typography>
-                </Stack>
+                    <IconButton
+                        size={"sm"}
+                        onClick={handleOpenFile}
+                    >
+                        <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
+                    </IconButton>
+                </Tooltip>
+                <Divider orientation={"vertical"}/>
+
+                <Typography
+                    className={"menu-bar-filename"}
+                    level={"body-md"}
+                >
+                    {fileName}
+                </Typography>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
-                <SmallIconButton onClick={handleOpenFileButtonClick}>
-                    <FileOpenIcon/>
-                </SmallIconButton>
-                <Divider orientation={"vertical"}/>
-                <SmallIconButton
-                    onClick={handleSettingsModalOpen}
-                >
-                    <SettingsIcon/>
-                </SmallIconButton>
+
                 <ExportLogsButton/>
-                <SmallIconButton
-                    onClick={handleSearchButtonClick}
-                >
-                    <SearchIcon/>
-                </SmallIconButton>
             </Sheet>
-            <SettingsModal
-                isOpen={isSettingsModalOpen}
-                onClose={handleSettingsModalClose}/>
         </>
     );
 };

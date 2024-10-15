@@ -54,6 +54,7 @@ interface StateContextType {
     logData: string,
     numEvents: number,
     numPages: number,
+    onDiskFileSizeInBytes: number,
     pageNum: number,
 
     exportLogs: () => void,
@@ -71,9 +72,10 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    logData: "Loading...",
+    logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
+    onDiskFileSizeInBytes: 0,
     pageNum: 0,
 
     exportLogs: () => null,
@@ -231,6 +233,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
+    const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
+        useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
@@ -259,6 +263,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
+                setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 // eslint-disable-next-line no-warning-comments
@@ -359,6 +364,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
 
+        setFileName("Loading...");
+        setLogData("Loading...");
+        setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
@@ -379,7 +387,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = (newLogLevelFilter: LogLevelFilter) => {
+    const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -388,7 +396,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: newLogLevelFilter,
         });
-    };
+    }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -464,6 +472,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
+                onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
 
                 exportLogs: exportLogs,

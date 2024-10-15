@@ -44,6 +44,8 @@ class LogFileManager {
 
     #queryId: number = 0;
 
+    readonly #onDiskFileSizeInBytes: number;
+
     readonly #onQueryResults: (chunkResults: ChunkResults) => void;
 
     #decoder: Decoder;
@@ -54,18 +56,21 @@ class LogFileManager {
      *
      * @param decoder
      * @param fileName
-     * @param pageSize Page size for setting up pagination.
+     * @param onDiskFileSizeInBytes
      * @param onQueryResults
+     * @param pageSize Page size for setting up pagination.
      */
     constructor (
         decoder: Decoder,
         fileName: string,
+        onDiskFileSizeInBytes: number,
         pageSize: number,
         onQueryResults: (chunkResults: ChunkResults) => void,
     ) {
         this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
+        this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
         this.#onQueryResults = onQueryResults;
 
         // Build index for the entire file.
@@ -80,6 +85,10 @@ class LogFileManager {
 
     get fileName () {
         return this.#fileName;
+    }
+
+    get onDiskFileSizeInBytes () {
+        return this.#onDiskFileSizeInBytes;
     }
 
     get numEvents () {
@@ -105,7 +114,7 @@ class LogFileManager {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, pageSize, onQueryResults);
+        return new LogFileManager(decoder, fileName, fileData.length, pageSize, onQueryResults);
     }
 
     /**

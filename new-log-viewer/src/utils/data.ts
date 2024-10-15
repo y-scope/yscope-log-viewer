@@ -132,6 +132,51 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
         map.get(lowerBoundKey) as T;
 };
 
+/**
+ * Creates an array of numbers in the range `[begin, end)` with the `i`th element computed as
+ * `range[i - 1] + step`.
+ *
+ * If `args` is a number, it is interpreted as `end`, and `begin` is set to `0`.
+ *
+ * @param args
+ * @param args.begin
+ * @param args.end
+ * @param args.step
+ * @return The computed range.
+ * @throws {Error} if `step` is 0.
+ */
+const range = (
+    args: number | {begin: number, end: number} | {begin: number, end: number, step: number}
+): number[] => {
+    // If `args` is a number, interpret it as `end` with `begin` set to 0.
+    if ("number" === typeof args) {
+        return range({begin: 0, end: args});
+    }
+
+    // Assume `step` is 1 if not provided.
+    let step = 1;
+    if ("step" in args) {
+        ({step} = args);
+        if (0 === step) {
+            throw new Error("Step cannot be zero.");
+        }
+    }
+
+    // Generate the range depending on the sign of `step`.
+    const {begin, end} = args;
+    const result: number[] = [];
+    if (0 < step) {
+        for (let i = begin; i < end; i += step) {
+            result.push(i);
+        }
+    } else {
+        for (let i = begin; i > end; i += step) {
+            result.push(i);
+        }
+    }
+
+    return result;
+};
 
 export {
     clampWithinBounds,
@@ -139,4 +184,5 @@ export {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
     isWithinBounds,
+    range,
 };
