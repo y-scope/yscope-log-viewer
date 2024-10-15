@@ -1,5 +1,6 @@
 import {
     useCallback,
+    useEffect,
     useRef,
     useState,
 } from "react";
@@ -13,7 +14,7 @@ import "./index.css";
 
 const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
 const PANEL_CLIP_THRESHOLD_IN_PIXELS = 250;
-const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
+const EDITOR_MIN_WIDTH_IN_PIXELS = 250;
 
 /**
  * Gets width of the panel from body style properties.
@@ -21,7 +22,7 @@ const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
  * @return the width in pixels as a number.
  */
 const getPanelWidth = () => parseInt(
-    document.body.style.getPropertyValue("--ylv-panel-width"),
+    getComputedStyle(document.documentElement).getPropertyValue("--ylv-panel-width"),
     10
 );
 
@@ -31,7 +32,7 @@ const getPanelWidth = () => parseInt(
  * @param newValue in pixels.
  */
 const setPanelWidth = (newValue: number) => {
-    document.body.style.setProperty("--ylv-panel-width", `${newValue}px`);
+    document.documentElement.style.setProperty("--ylv-panel-width", `${newValue}px`);
 };
 
 
@@ -82,14 +83,37 @@ const Sidebar = () => {
             // If the resize handle is positioned to the right of the <TabList/>'s right edge
             // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);
-        } else if (
-            resizeHandlePosition < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO
-        ) {
-            // If the resize handle is positioned to the left of 80% of the window's width,
-            // update the panel width with the distance between the mouse pointer and the
-            // window's left edge.
-            setPanelWidth(resizeHandlePosition);
+        } else {
+            // If the resize handle is positioned within the area where the editor width can be
+            // resized, update the panel width with the distance between the mouse pointer and the
+            // window's left edge; otherwise, set the panel width as the available width.
+            const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
+            if (resizeHandlePosition < availableWidth) {
+                setPanelWidth(resizeHandlePosition);
+            } else {
+                setPanelWidth(availableWidth);
+            }
         }
+    }, []);
+
+    // On initialization, register window resize event handler to resize panel width when necessary.
+    useEffect(() => {
+        const handleWindowResize = () => {
+            const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
+            if (
+                getPanelWidth() > availableWidth &&
+                tabListRef.current &&
+                tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth
+            ) {
+                setPanelWidth(availableWidth);
+            }
+        };
+
+        window.addEventListener("resize", handleWindowResize);
+
+        return () => {
+            window.removeEventListener("resize", handleWindowResize);
+        };
     }, []);
 
     return (
