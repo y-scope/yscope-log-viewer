@@ -251,7 +251,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
-
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -285,13 +284,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
                 setQueryResults((v) => {
-                    args.results.forEach((results, queryPageNum) => {
+                    args.results.forEach((resultsPerPage, queryPageNum) => {
                         if (false === v.has(queryPageNum)) {
                             v.set(queryPageNum, []);
                         }
-                        v.get(queryPageNum)?.push(...results);
+                        v.get(queryPageNum)?.push(...resultsPerPage);
                     });
-                    console.log(v);
 
                     return v;
                 });
