@@ -16,7 +16,10 @@ import {
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
-import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    SEARCH_CHUNK_SIZE,
+} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
@@ -29,8 +32,6 @@ import {
     loadFile,
 } from "./utils";
 
-
-const SEARCH_CHUNK_SIZE = 10000;
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -284,8 +285,6 @@ class LogFileManager {
      * @param isCaseSensitive
      */
     startQuery (searchString: string, isRegex: boolean, isCaseSensitive: boolean): void {
-        this.#queryId++;
-
         // If the search string is empty, or there are no logs, return
         if ("" === searchString || 0 === this.#numEvents) {
             return;
@@ -300,7 +299,7 @@ class LogFileManager {
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
+        this.#searchChunkAndScheduleNext(this.#queryId++, 0, searchRegex);
     }
 
     /**
@@ -343,13 +342,13 @@ class LogFileManager {
             }
         });
 
+        this.#onQueryResults(results);
+
         if (endSearchIdx < this.#numEvents) {
             defer(() => {
                 this.#searchChunkAndScheduleNext(queryId, endSearchIdx, searchRegex);
             });
         }
-
-        this.#onQueryResults(results);
     }
 
     /**
