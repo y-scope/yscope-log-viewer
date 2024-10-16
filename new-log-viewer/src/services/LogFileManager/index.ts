@@ -287,9 +287,7 @@ class LogFileManager {
         this.#queryId++;
 
         // If the search string is empty, or there are no logs, return
-        if ("" === searchString) {
-            return;
-        } else if (0 === this.#numEvents) {
+        if ("" === searchString || 0 === this.#numEvents) {
             return;
         }
 
@@ -301,6 +299,7 @@ class LogFileManager {
             "" :
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
+
         this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
     }
 
@@ -317,9 +316,9 @@ class LogFileManager {
         searchRegex: RegExp
     ): void {
         if (queryId !== this.#queryId) {
+            // Return directly if this search task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
-        console.log("in #searchChunkAndScheduleNext");
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
         const results: QueryResults = new Map();
         const decodedEvents = this.#decoder.decodeRange(
@@ -343,7 +342,6 @@ class LogFileManager {
                 });
             }
         });
-        console.log(decodedEvents, results);
 
         if (endSearchIdx < this.#numEvents) {
             defer(() => {
