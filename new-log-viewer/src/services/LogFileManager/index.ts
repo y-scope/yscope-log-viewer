@@ -315,7 +315,7 @@ class LogFileManager {
         searchRegex: RegExp
     ): void {
         if (queryId !== this.#queryId) {
-            // Return directly if this search task no longer corresponds to the latest query in the LogFileManager.
+            // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
         const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
