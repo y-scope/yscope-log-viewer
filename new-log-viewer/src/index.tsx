@@ -13,3 +13,4 @@ root.render(
         <App/>
     </StrictMode>
 );
+export {SEARCH_CHUNK_SIZE} from "./utils/config";
