@@ -1,4 +1,8 @@
-import {useContext} from "react";
+import {
+    useContext,
+    useEffect,
+    useRef,
+} from "react";
 
 import {
     Snackbar,
@@ -18,12 +22,30 @@ import "./index.css";
  */
 const Popups = () => {
     const {popupMessages} = useContext(NotificationContext);
+    const containerStackRef = useRef<HTMLDivElement>(null);
+
+    // On `popupMessages` update, scroll to the very top of the container.
+    useEffect(() => {
+        if (null === containerStackRef.current) {
+            // The component is mounted yet.
+            return;
+        }
+
+        // The negative sign is necessary because the Stack is in "column-reverse" direction.
+        containerStackRef.current.scrollTo({top: -containerStackRef.current.scrollHeight});
+    }, [popupMessages]);
+
     return (
         <Snackbar
             className={"pop-up-messages-container-snackbar"}
             open={0 < popupMessages.length}
         >
-            <Stack gap={1}>
+            <Stack
+                className={"pop-up-messages-container-stack"}
+                direction={"column-reverse"}
+                gap={1}
+                ref={containerStackRef}
+            >
                 {popupMessages.map((message) => (
                     <PopupMessageBox
                         key={message.id}
