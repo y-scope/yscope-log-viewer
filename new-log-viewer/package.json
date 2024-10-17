@@ -95,7 +95,7 @@
           ],
           "patterns": [
             {
-              "group": ["@mui/joy/*"],
+              "group": ["@mui/joy/*", "!@mui/joy/styles"],
               "message": "Please use the default import from \"@mui/joy\" instead."
             }
           ]
