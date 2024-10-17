@@ -42,34 +42,38 @@ interface PopupMessageProps {
  */
 const PopupMessageBox = ({message}: PopupMessageProps) => {
     const {handlePopupMessageClose} = useContext(NotificationContext);
-    const [timeoutPercent, setTimeoutPercent] = useState<number>(0);
-    const startTimeMillisRef = useRef<number>(Date.now());
+    const [intervalCount, setIntervalCount] = useState<number>(0);
+
+    const {timeoutMillis} = message;
+    let percentRemaining: number = 100;
+
+    if (timeoutMillis) {
+        // If timeout is not 0 or null.
+        const totalIntervals =
+            Math.ceil(timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
+
+        percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
+    }
 
     const handleCloseButtonClick = () => {
         handlePopupMessageClose(message.id);
     };
 
     useEffect(() => {
-        const {timeoutMillis} = message;
-        let timeoutId: Nullable<ReturnType<typeof setTimeout>> = null;
-        let intervalId: Nullable<ReturnType<typeof setInterval>> = null;
-        if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
-            timeoutId = setTimeout(() => {
-                handlePopupMessageClose(message.id);
-            }, timeoutMillis);
-            intervalId = setInterval(() => {
-                const fraction = (Date.now() - startTimeMillisRef.current) / timeoutMillis;
-                setTimeoutPercent(100 - (100 * fraction));
-            }, AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
+        if (DO_NOT_TIMEOUT_VALUE === message.timeoutMillis) {
+            return () => {};
         }
+        const timeoutId = setTimeout(() => {
+            handlePopupMessageClose(message.id);
+        }, message.timeoutMillis);
+
+        const intervalId = setInterval(() => {
+            setIntervalCount((c) => c + 1);
+        }, AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
 
         return () => {
-            if (null !== timeoutId) {
-                clearTimeout(timeoutId);
-            }
-            if (null !== intervalId) {
-                clearInterval(intervalId);
-            }
+            clearTimeout(timeoutId);
+            clearInterval(intervalId);
         };
     }, [
         message,
