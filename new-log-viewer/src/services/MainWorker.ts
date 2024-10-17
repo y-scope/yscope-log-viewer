@@ -9,6 +9,7 @@ import {
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../typings/worker";
+import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import LogFileManager from "./LogFileManager";
 
 
@@ -35,12 +36,29 @@ const postResp = <T extends WORKER_RESP_CODE>(
     postMessage({code, args});
 };
 
+// eslint-disable-next-line no-warning-comments
+// TODO: Break this function up into smaller functions.
+// eslint-disable-next-line max-lines-per-function,max-statements
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
 
     try {
         switch (code) {
+            case WORKER_REQ_CODE.EXPORT_LOG: {
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+                let decodedEventIdx = 0;
+                while (decodedEventIdx < LOG_FILE_MANAGER.numEvents) {
+                    postResp(
+                        WORKER_RESP_CODE.CHUNK_DATA,
+                        LOG_FILE_MANAGER.loadChunk(decodedEventIdx)
+                    );
+                    decodedEventIdx += EXPORT_LOGS_CHUNK_SIZE;
+                }
+                break;
+            }
             case WORKER_REQ_CODE.LOAD_FILE: {
                 LOG_FILE_MANAGER = await LogFileManager.create(
                     args.fileSrc,
@@ -51,6 +69,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
                     fileName: LOG_FILE_MANAGER.fileName,
                     numEvents: LOG_FILE_MANAGER.numEvents,
+                    onDiskFileSizeInBytes: LOG_FILE_MANAGER.onDiskFileSizeInBytes,
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
@@ -62,9 +81,17 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                if ("undefined" !== typeof args.decoderOptions) {
-                    LOG_FILE_MANAGER.setDecoderOptions(args.decoderOptions);
+                postResp(
+                    WORKER_RESP_CODE.PAGE_DATA,
+                    LOG_FILE_MANAGER.loadPage(args.cursor)
+                );
+                break;
+            case WORKER_REQ_CODE.SET_FILTER:
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
                 }
+
+                LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
                     LOG_FILE_MANAGER.loadPage(args.cursor)

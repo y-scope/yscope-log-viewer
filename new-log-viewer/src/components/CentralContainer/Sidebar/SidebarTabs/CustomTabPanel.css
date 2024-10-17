@@ -1,0 +1,14 @@
+.sidebar-tab-panel {
+    padding: 0.75rem;
+}
+
+.sidebar-tab-panel-title-container {
+    user-select: none;
+    margin-bottom: 0.5rem !important;
+}
+
+.sidebar-tab-panel-title {
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    text-transform: uppercase;
+}

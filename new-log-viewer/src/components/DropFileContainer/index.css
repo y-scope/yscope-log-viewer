@@ -2,28 +2,29 @@
     position: relative;
 }
 
-.drop-file-children {
-    width: 100%;
-    height: 100%;
-}
-
 .hover-mask {
     position: absolute;
+    z-index: var(--ylv-drop-file-container-hover-mask-z-index);
     top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(2, 88, 168, 0.2);
+
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: var(--ylv-drop-file-container-hover-mask-z-index);
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgb(2 88 168 / 20%);
 }
 
 .hover-message {
-    padding: 8px;
-    color: #616161;
-    font-size: 0.875rem;
-    font-family: var(--ylv-ui-font-family), sans-serif;
-    background-color: #f3f3f3;
     z-index: var(--ylv-drop-file-container-hover-message-z-index);
+
+    padding: 8px;
+
+    font-family: var(--ylv-ui-font-family), sans-serif;
+    font-size: 0.875rem;
+    color: #616161;
+
+    background-color: #f3f3f3;
 }

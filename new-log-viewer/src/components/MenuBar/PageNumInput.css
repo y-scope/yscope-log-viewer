@@ -1,7 +1,7 @@
 .page-num-input input::-webkit-outer-spin-button,
 .page-num-input input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
     margin: 0;
+    appearance: none;
 }
 
 .page-num-input-num-pages-text {

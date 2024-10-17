@@ -20,36 +20,7 @@ const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, 
 const getChunkNum =
     (itemNum: number, chunkSize: number) => Math.max(1, Math.ceil(itemNum / chunkSize));
 
-/**
- * Calculates the last item number in the previous chunk.
- *
- * @param itemNum
- * @param chunkSize
- * @return The last item number in the previous chunk. If the input item belongs
- * to the first chunk, returns 1.
- */
-const getLastItemNumInPrevChunk = (itemNum: number, chunkSize: number) => {
-    if (itemNum < chunkSize) {
-        return 1;
-    }
-    const prevChunkNum = getChunkNum(itemNum - chunkSize, chunkSize);
-    return prevChunkNum * chunkSize;
-};
-
-/**
- * Calculates the first item number in the next chunk.
- *
- * @param itemNum
- * @param chunkSize
- * @return The first item number in the next chunk.
- */
-const getFirstItemNumInNextChunk = (itemNum: number, chunkSize: number) => (
-    (getChunkNum(itemNum, chunkSize) * chunkSize) + 1
-);
-
 export {
     clamp,
     getChunkNum,
-    getFirstItemNumInNextChunk,
-    getLastItemNumInPrevChunk,
 };

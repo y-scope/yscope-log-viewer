@@ -1,7 +1,9 @@
-html, body, #root {
-    margin: 0;
-    height: 100%;
+html,
+body,
+#root {
     width: 100%;
+    height: 100%;
+    margin: 0;
 }
 
 html {
@@ -10,12 +12,13 @@ html {
 
 :root {
     /* font-family globals */
-    --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, Ubuntu, "Droid Sans",
-    Roboto;
+    --ylv-ui-font-family: -apple-system, "BlinkMacSystemFont", system-ui, "Ubuntu", "Droid Sans",
+        "Roboto";
 
     /* size globals */
     --ylv-status-bar-height: 32px;
     --ylv-menu-bar-height: 32px;
+    --ylv-panel-resize-handle-width: 4px;
 
     /* z-index globals
      *
@@ -24,6 +27,9 @@ html {
      * .monaco-editor .minimap { z-index: 5; }
      * ```
      */
+    --ylv-resize-handle-z-index: 1;
+    --ylv-menu-bar-z-index: 6;
+    --ylv-status-bar-z-index: 6;
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;
 }
