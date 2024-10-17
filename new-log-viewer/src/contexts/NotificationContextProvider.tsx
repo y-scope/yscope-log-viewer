@@ -5,19 +5,9 @@ import React, {
     useState,
 } from "react";
 
-import {
-    Nullable,
-    WithId,
-} from "../typings/common";
-import {LOG_LEVEL} from "../typings/logs";
+import {WithId} from "../typings/common";
+import {PopupMessage} from "../typings/notifications";
 
-
-interface PopupMessage {
-    level: LOG_LEVEL,
-    message: string,
-    timeoutMillis: Nullable<number>,
-    title: string,
-}
 
 interface NotificationContextType {
     popupMessages: WithId<PopupMessage>[],
