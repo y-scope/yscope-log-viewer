@@ -15,8 +15,9 @@
     background-color: initial !important;
 }
 
+/* stylelint-disable-next-line custom-property-pattern */
 .log-level-select-render-value-box-label-disabled {
-    color: "neutral.plainDisabledColor";
+    color: var(--joy-palette-neutral-plainDisabledColor) !important;
 }
 
 .log-level-select-listbox {

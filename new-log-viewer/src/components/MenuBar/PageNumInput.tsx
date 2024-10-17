@@ -92,6 +92,7 @@ const PageNumInput = () => {
                 endDecorator={
                     <Typography
                         level={"body-md"}
+
                         className={`page-num-input-num-pages-text ${disabled ?
                             "page-num-input-num-pages-text-disabled" :
                             ""}`}
