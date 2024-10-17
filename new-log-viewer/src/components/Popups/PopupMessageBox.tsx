@@ -70,6 +70,11 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
     if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
         const totalIntervals = timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS;
         percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
+        if (0 >= percentRemaining) {
+            setTimeout(() => {
+                handlePopupMessageClose(id);
+            }, 0);
+        }
     }
 
     return (
