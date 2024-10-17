@@ -19,7 +19,6 @@ import {
     CursorType,
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
-    LOAD_STATE,
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -38,6 +37,7 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
+import {UI_STATE} from "../utils/states";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -51,7 +51,7 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     exportProgress: Nullable<number>,
-    loadState: LOAD_STATE,
+    uiState: UI_STATE,
     logData: string,
     numEvents: number,
     numPages: number,
@@ -72,12 +72,12 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    loadState: LOAD_STATE.UNOPENED,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     loadFile: () => null,
@@ -221,7 +221,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [loadState, setLoadState] = useState<LOAD_STATE>(STATE_DEFAULT.loadState);
+    const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -249,7 +249,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
                     if (1 === progress) {
-                        setLoadState(LOAD_STATE.READY);
+                        setUiState(UI_STATE.READY);
                     }
                 }
                 break;
@@ -272,7 +272,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
-                setLoadState(LOAD_STATE.READY);
+                setUiState(UI_STATE.READY);
                 break;
             }
             default:
@@ -293,7 +293,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        setLoadState(LOAD_STATE.EXPORTING);
+        setUiState(UI_STATE.SLOW_LOADING);
         setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
@@ -310,7 +310,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
-        setLoadState(LOAD_STATE.LOADING_FILE);
+        setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
@@ -434,12 +434,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                loadState: loadState,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                uiState: uiState,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,

@@ -9,7 +9,10 @@ import {
     copyPermalinkToClipboard,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
-import {LOAD_STATE} from "../../typings/worker";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import LogLevelSelect from "./LogLevelSelect";
 
 import "./index.css";
@@ -28,7 +31,7 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {loadState, numEvents} = useContext(StateContext);
+    const {uiState, numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     return (
@@ -41,12 +44,9 @@ const StatusBar = () => {
             </Typography>
             <Button
                 color={"primary"}
+                disabled={isDisabled(uiState, UI_ELEMENT.LOG_EVENT_NUM_DISPLAY)}
                 size={"sm"}
                 variant={"soft"}
-                disabled={
-                    loadState === LOAD_STATE.UNOPENED ||
-                    loadState === LOAD_STATE.LOADING_FILE
-                }
                 onClick={handleCopyLinkButtonClick}
             >
                 {"Log Event "}

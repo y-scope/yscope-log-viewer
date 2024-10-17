@@ -15,6 +15,10 @@
     background-color: initial !important;
 }
 
+.log-level-select-render-value-box-label-disabled {
+    color: "neutral.plainDisabledColor";
+}
+
 .log-level-select-listbox {
     /* Disallow width auto-resizing with the `Select` button. */
     max-width: 0;

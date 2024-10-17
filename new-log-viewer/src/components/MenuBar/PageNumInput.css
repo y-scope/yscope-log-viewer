@@ -7,3 +7,7 @@
 .page-num-input-num-pages-text {
     font-size: inherit !important;
 }
+
+.page-num-input-num-pages-text-disabled {
+    color: "neutral.plainDisabledColor";
+}

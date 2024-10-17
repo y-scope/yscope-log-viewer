@@ -12,11 +12,12 @@ import {
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {
-    CURSOR_CODE,
-    LOAD_STATE,
-} from "../../typings/worker";
+import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
 
@@ -29,15 +30,13 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadState, loadFile} = useContext(StateContext);
+    const {fileName, uiState, loadFile} = useContext(StateContext);
 
     const handleOpenFile = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
     };
-
-    const isLoading = LOAD_STATE.LOADING_FILE === loadState;
 
     return (
         <>
@@ -57,11 +56,8 @@ const MenuBar = () => {
                     variant={"outlined"}
                 >
                     <IconButton
+                        disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
                         size={"sm"}
-                        disabled={
-                            loadState === LOAD_STATE.LOADING_FILE ||
-                            loadState === LOAD_STATE.EXPORTING
-                        }
                         onClick={handleOpenFile}
                     >
                         <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
@@ -82,7 +78,7 @@ const MenuBar = () => {
 
                 <ExportLogsButton/>
             </Sheet>
-            {isLoading &&
+            {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
                 <LinearProgress
                     className={"menu-bar-loading-progress"}
                     size={"sm"}/>}

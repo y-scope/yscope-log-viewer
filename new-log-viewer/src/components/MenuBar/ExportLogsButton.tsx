@@ -12,7 +12,10 @@ import {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
-import {LOAD_STATE} from "../../typings/worker";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import SmallIconButton from "./SmallIconButton";
 
 
@@ -22,13 +25,13 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress, loadState} = useContext(StateContext);
+    const {exportLogs, exportProgress, uiState} = useContext(StateContext);
 
     return (
         <SmallIconButton
             disabled={
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
-                loadState !== LOAD_STATE.READY
+                isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
             onClick={exportLogs}
         >

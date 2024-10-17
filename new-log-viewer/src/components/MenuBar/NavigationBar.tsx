@@ -11,8 +11,11 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {LOAD_STATE} from "../../typings/worker";
 import {ACTION_NAME} from "../../utils/actions";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import PageNumInput from "./PageNumInput";
 
 
@@ -22,7 +25,7 @@ import PageNumInput from "./PageNumInput";
  * @return
  */
 const NavigationBar = () => {
-    const {loadState, loadPageByAction} = useContext(StateContext);
+    const {uiState, loadPageByAction} = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
@@ -40,7 +43,7 @@ const NavigationBar = () => {
 
     return (
         <ButtonGroup
-            disabled={loadState !== LOAD_STATE.READY}
+            disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
             size={"sm"}
             spacing={0.01}
             variant={"plain"}

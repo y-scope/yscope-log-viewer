@@ -32,8 +32,11 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
-import {LOAD_STATE} from "../../../typings/worker";
 import {range} from "../../../utils/data";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../../utils/states";
 import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
@@ -146,9 +149,11 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {loadState, setLogLevelFilter} = useContext(StateContext);
+    const {uiState, setLogLevelFilter} = useContext(StateContext);
 
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
+
+    const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
@@ -210,7 +215,7 @@ const LogLevelSelect = () => {
     return (
         <Select
             className={"log-level-select"}
-            disabled={LOAD_STATE.READY !== loadState}
+            disabled={disabled}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
@@ -228,10 +233,9 @@ const LogLevelSelect = () => {
                 </Tooltip>}
             placeholder={
                 <Chip
-                    className={"log-level-select-render-value-box-label"}
-                    sx={loadState !== LOAD_STATE.READY ?
-                        {color: "neutral.plainDisabledColor"} :
-                        {}}
+                    className={`log-level-select-render-value-box-label ${disabled ?
+                        "log-level-select-render-value-box-label-disabled" :
+                        ""}`}
                 >
                     Log Level
                 </Chip>
