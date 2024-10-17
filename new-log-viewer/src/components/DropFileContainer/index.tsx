@@ -87,7 +87,7 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                     >
                         <div
                             className={`hover-message ${disabled ?
-                                "hover-message-loading" :
+                                "hover-message-disabled" :
                                 ""}`}
                             onDrop={handleDrop}
                         >

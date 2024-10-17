@@ -32,7 +32,7 @@ const PageNumInput = () => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);
+    const disabled = isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR);
 
     const handleSubmit = (ev?: React.FormEvent<HTMLFormElement>) => {
         if ("undefined" !== typeof ev) {

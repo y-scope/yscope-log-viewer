@@ -30,7 +30,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, uiState, loadFile} = useContext(StateContext);
+    const {fileName, loadFile, uiState} = useContext(StateContext);
 
     const handleOpenFile = () => {
         openFile((file) => {

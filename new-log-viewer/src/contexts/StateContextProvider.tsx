@@ -8,7 +8,10 @@ import React, {
     useState,
 } from "react";
 
-import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
+import LogExportManager, {
+    EXPORT_LOG_PROGRESS_VALUE_MAX,
+    EXPORT_LOG_PROGRESS_VALUE_MIN,
+} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
@@ -248,7 +251,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
-                    if (1 === progress) {
+                    if (EXPORT_LOG_PROGRESS_VALUE_MAX === progress) {
                         setUiState(UI_STATE.READY);
                     }
                 }
@@ -284,11 +287,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        if (STATE_DEFAULT.numEvents === numEvents && STATE_DEFAULT.fileName === fileName) {
-            console.error("numEvents and fileName not initialized yet");
 
             return;
         }
