@@ -8,7 +8,7 @@
     font-size: inherit !important;
 }
 
-/* stylelint-disable-next-line custom-property-pattern */
 .page-num-input-num-pages-text-disabled {
+    /* stylelint-disable-next-line custom-property-pattern */
     color: var(--joy-palette-neutral-plainDisabledColor) !important;
 }

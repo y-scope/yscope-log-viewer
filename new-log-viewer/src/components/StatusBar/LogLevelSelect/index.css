@@ -15,8 +15,8 @@
     background-color: initial !important;
 }
 
-/* stylelint-disable-next-line custom-property-pattern */
 .log-level-select-render-value-box-label-disabled {
+    /* stylelint-disable-next-line custom-property-pattern */
     color: var(--joy-palette-neutral-plainDisabledColor) !important;
 }
 
