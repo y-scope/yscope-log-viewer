@@ -37,59 +37,58 @@ enum UI_ELEMENT {
     DRAG_AND_DROP,
 }
 
-type StateRowType = [boolean, boolean, boolean, boolean, boolean, boolean, boolean];
-type uiStateGridType = readonly [
-    StateRowType,
-    StateRowType,
-    StateRowType,
-    StateRowType,
-];
+type uiElementRow = {
+    [key in UI_ELEMENT]: boolean;
+};
+
+type uiStateGrid = {
+    [key in UI_STATE]: uiElementRow;
+};
 
 /**
  * Grid describing whether a `UI_ELEMENT` is enabled or disabled for every `UI_STATE`. Each
- * `UI_STATE` has its own row with a boolean for each `UI_ELEMENT`. States and elements are
- * listed in the order of their corresponding enum.
+ * `UI_STATE` has its own row with a boolean for each `UI_ELEMENT`. Boolean is `true` if the
+ * element is enabled, or `false` if disabled.
  */
-const uiStateGrid: uiStateGridType = Object.freeze(
-    [
-        [
-            false,
-            false,
-            true,
-            false,
-            false,
-            false,
-            true,
-        ],
-        [
-            true,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-        ],
-        [
-            false,
-            false,
-            false,
-            false,
-            false,
-            true,
-            false,
-        ],
-        [
-            false,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-        ],
-    ]
-);
+const uiStateGrid: uiStateGrid = Object.freeze({
+    [UI_STATE.UNOPENED]: {
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
+        [UI_ELEMENT.DRAG_AND_DROP]: true,
+    },
+    [UI_STATE.FILE_LOADING]: {
+        [UI_ELEMENT.PROGRESS_BAR]: true,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
+    },
+    [UI_STATE.SLOW_LOADING]: {
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
+    },
+    [UI_STATE.READY]: {
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: true,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.DRAG_AND_DROP]: true,
+    },
+});
+
 
 /**
  * Whether a UI element is disabled based on provided state.
