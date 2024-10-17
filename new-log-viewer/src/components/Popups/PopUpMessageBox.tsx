@@ -16,7 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import {
     NotificationContext,
-    PopupMessage,
+    PopUpMessage,
 } from "../../contexts/NotificationContextProvider";
 import {WithId} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
@@ -25,8 +25,8 @@ import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 
 const AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS = 50;
 
-interface PopupMessageProps {
-    message: WithId<PopupMessage>,
+interface PopUpMessageProps {
+    message: WithId<PopUpMessage>,
 }
 
 /**
@@ -36,14 +36,14 @@ interface PopupMessageProps {
  * @param props.message
  * @return
  */
-const PopupMessageBox = ({message}: PopupMessageProps) => {
+const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     const {id, level, message: messageStr, title, timeoutMillis} = message;
 
-    const {handlePopupMessageClose} = useContext(NotificationContext);
+    const {handlePopUpMessageClose} = useContext(NotificationContext);
     const [intervalCount, setIntervalCount] = useState<number>(0);
 
     const handleCloseButtonClick = () => {
-        handlePopupMessageClose(id);
+        handlePopUpMessageClose(id);
     };
 
     useEffect(() => {
@@ -59,7 +59,7 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
         };
     }, [
         timeoutMillis,
-        handlePopupMessageClose,
+        handlePopUpMessageClose,
     ]);
 
     const color = level >= LOG_LEVEL.ERROR ?
@@ -72,7 +72,7 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
         percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
         if (0 >= percentRemaining) {
             setTimeout(() => {
-                handlePopupMessageClose(id);
+                handlePopUpMessageClose(id);
             }, 0);
         }
     }
@@ -117,4 +117,4 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
     );
 };
 
-export default PopupMessageBox;
+export default PopUpMessageBox;

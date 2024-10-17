@@ -2,9 +2,9 @@ import {LOG_LEVEL} from "./logs";
 
 
 /**
- * Contents of popup messages and its associated auto dismiss timeout.
+ * Contents of pop-up messages and its associated auto dismiss timeout.
  */
-interface PopupMessage {
+interface PopUpMessage {
     level: LOG_LEVEL,
     message: string,
     timeoutMillis: number,
@@ -22,7 +22,7 @@ const DO_NOT_TIMEOUT_VALUE = 0;
 const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
 
 
-export type {PopupMessage};
+export type {PopUpMessage};
 export {
     DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
     DO_NOT_TIMEOUT_VALUE,

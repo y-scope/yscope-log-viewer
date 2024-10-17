@@ -79,7 +79,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  * @return
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
-    const {postPopup} = useContext(NotificationContext);
+    const {postPopUp} = useContext(NotificationContext);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -102,7 +102,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
         });
 
         if (null !== error) {
-            postPopup({
+            postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: error,
                 timeoutMillis: DO_NOT_TIMEOUT_VALUE,
@@ -111,7 +111,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
         } else {
             window.location.reload();
         }
-    }, [postPopup]);
+    }, [postPopUp]);
 
     return (
         <form

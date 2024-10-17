@@ -4,7 +4,7 @@ import {CONFIG_KEY} from "../typings/config";
 import {CONFIG_DEFAULT} from "../utils/config";
 import CentralContainer from "./CentralContainer";
 import MenuBar from "./MenuBar";
-import Popups from "./Popups";
+import PopUps from "./PopUps";
 import StatusBar from "./StatusBar";
 import APP_THEME from "./theme";
 
@@ -24,7 +24,7 @@ const Layout = () => {
             <MenuBar/>
             <CentralContainer/>
             <StatusBar/>
-            <Popups/>
+            <PopUps/>
         </CssVarsProvider>
     );
 };

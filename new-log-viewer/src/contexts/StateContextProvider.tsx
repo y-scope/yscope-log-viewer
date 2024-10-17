@@ -225,7 +225,7 @@ const updateUrlIfEventOnPage = (
  */
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
-    const {postPopup} = useContext(NotificationContext);
+    const {postPopUp} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
@@ -264,7 +264,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                postPopup({
+                postPopUp({
                     level: args.logLevel,
                     message: args.message,
                     timeoutMillis: DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -285,7 +285,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, [postPopup]);
+    }, [postPopUp]);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {

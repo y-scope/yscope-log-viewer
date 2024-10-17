@@ -6,14 +6,14 @@ import React, {
 } from "react";
 
 import {WithId} from "../typings/common";
-import {PopupMessage} from "../typings/notifications";
+import {PopUpMessage} from "../typings/notifications";
 
 
 interface NotificationContextType {
-    popupMessages: WithId<PopupMessage>[],
+    popUpMessages: WithId<PopUpMessage>[],
 
-    handlePopupMessageClose: (messageId: number) => void;
-    postPopup: (message: PopupMessage) => void,
+    handlePopUpMessageClose: (messageId: number) => void;
+    postPopUp: (message: PopUpMessage) => void,
 }
 
 const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
@@ -22,10 +22,10 @@ const NotificationContext = createContext<NotificationContextType>({} as Notific
  * Default values of the Notification context value object.
  */
 const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
-    popupMessages: [],
+    popUpMessages: [],
 
-    handlePopupMessageClose: () => {},
-    postPopup: () => {},
+    handlePopUpMessageClose: () => {},
+    postPopUp: () => {},
 });
 
 
@@ -42,12 +42,12 @@ interface NotificationContextProviderProps {
  * @return
  */
 const NotificationContextProvider = ({children}: NotificationContextProviderProps) => {
-    const [popupMessages, setPopupMessages] = useState<WithId<PopupMessage>[]>(
-        NOTIFICATION_DEFAULT.popupMessages
+    const [popUpMessages, setPopUpMessages] = useState<WithId<PopUpMessage>[]>(
+        NOTIFICATION_DEFAULT.popUpMessages
     );
     const nextPopUpMessageIdRef = useRef<number>(0);
 
-    const postPopup = useCallback((message:PopupMessage) => {
+    const postPopUp = useCallback((message:PopUpMessage) => {
         const newMessage = {
             id: nextPopUpMessageIdRef.current,
             ...message,
@@ -55,23 +55,23 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
 
         nextPopUpMessageIdRef.current++;
 
-        setPopupMessages((v) => ([
+        setPopUpMessages((v) => ([
             newMessage,
             ...v,
         ]));
     }, []);
 
-    const handlePopupMessageClose = useCallback((messageId: number) => {
+    const handlePopUpMessageClose = useCallback((messageId: number) => {
         // Keep everything but except input message.
-        setPopupMessages((popups) => popups.filter((m) => m.id !== messageId));
+        setPopUpMessages((v) => v.filter((m) => m.id !== messageId));
     }, []);
 
     return (
         <NotificationContext.Provider
             value={{
-                popupMessages: popupMessages,
-                handlePopupMessageClose: handlePopupMessageClose,
-                postPopup: postPopup,
+                popUpMessages: popUpMessages,
+                handlePopUpMessageClose: handlePopUpMessageClose,
+                postPopUp: postPopUp,
             }}
         >
             {children}
@@ -80,5 +80,5 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
 };
 
 export {NotificationContext};
-export type {PopupMessage};
+export type {PopUpMessage};
 export default NotificationContextProvider;

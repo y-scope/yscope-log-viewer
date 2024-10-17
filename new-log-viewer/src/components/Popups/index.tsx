@@ -6,31 +6,31 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../contexts/NotificationContextProvider";
-import PopupMessageBox from "./PopupMessageBox";
+import PopUpMessageBox from "./PopUpMessageBox";
 
 import "./index.css";
 
 
 /**
- * Displays popups.
+ * Displays pop-ups in a transparent container positioned on the right side of the viewport.
  *
  * @return
  */
-const Popups = () => {
-    const {popupMessages} = useContext(NotificationContext);
+const PopUps = () => {
+    const {popUpMessages} = useContext(NotificationContext);
 
     return (
         <Snackbar
             className={"pop-up-messages-container-snackbar"}
-            open={0 < popupMessages.length}
+            open={0 < popUpMessages.length}
         >
             <Stack
                 className={"pop-up-messages-container-stack"}
                 direction={"column-reverse"}
                 gap={1}
             >
-                {popupMessages.map((message) => (
-                    <PopupMessageBox
+                {popUpMessages.map((message) => (
+                    <PopUpMessageBox
                         key={message.id}
                         message={message}/>
                 ))}
@@ -39,4 +39,4 @@ const Popups = () => {
     );
 };
 
-export default Popups;
+export default PopUps;
