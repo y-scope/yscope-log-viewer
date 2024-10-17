@@ -5,8 +5,10 @@ import React, {
     useState,
 } from "react";
 
-import {Typography} from "@mui/joy";
-import Input from "@mui/joy/Input";
+import {
+    Input,
+    Typography,
+} from "@mui/joy";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {ACTION_NAME} from "../../utils/actions";

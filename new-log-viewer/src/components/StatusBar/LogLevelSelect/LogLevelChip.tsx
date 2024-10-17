@@ -2,7 +2,7 @@ import {
     Chip,
     Tooltip,
 } from "@mui/joy";
-import {DefaultColorPalette} from "@mui/joy/styles/types/colorSystem";
+import type {DefaultColorPalette} from "@mui/joy/styles/types";
 
 import {LOG_LEVEL} from "../../../typings/logs";
 
