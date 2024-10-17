@@ -41,7 +41,7 @@ const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
 /**
  * The default duration in milliseconds after which an automatic dismissal will occur.
  */
-const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_0000;
+const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
 
 /**
  * A value that indicates that a pop-up message should not be automatically dismissed.
@@ -75,8 +75,8 @@ const NotificationContextProvider = ({children}: NotificationContextProviderProp
         nextPopUpMessageIdRef.current++;
 
         setPopupMessages((v) => ([
-            ...v,
             newMessage,
+            ...v,
         ]));
     }, []);
 
