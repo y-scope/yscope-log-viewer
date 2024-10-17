@@ -1,7 +1,6 @@
 import {
     useContext,
     useEffect,
-    useRef,
     useState,
 } from "react";
 
@@ -16,15 +15,12 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 
 import {
-    DO_NOT_TIMEOUT_VALUE,
     NotificationContext,
     PopupMessage,
 } from "../../contexts/NotificationContextProvider";
-import {
-    Nullable,
-    WithId,
-} from "../../typings/common";
+import {WithId} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 
 
 const AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS = 50;
@@ -41,48 +37,40 @@ interface PopupMessageProps {
  * @return
  */
 const PopupMessageBox = ({message}: PopupMessageProps) => {
+    const {id, level, message: messageStr, title, timeoutMillis} = message;
+
     const {handlePopupMessageClose} = useContext(NotificationContext);
     const [intervalCount, setIntervalCount] = useState<number>(0);
 
-    const {timeoutMillis} = message;
-    let percentRemaining: number = 100;
-
-    if (timeoutMillis) {
-        // If timeout is not 0 or null.
-        const totalIntervals =
-            Math.ceil(timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
-
-        percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
-    }
-
     const handleCloseButtonClick = () => {
-        handlePopupMessageClose(message.id);
+        handlePopupMessageClose(id);
     };
 
     useEffect(() => {
-        if (DO_NOT_TIMEOUT_VALUE === message.timeoutMillis) {
+        if (DO_NOT_TIMEOUT_VALUE === timeoutMillis) {
             return () => {};
         }
-        const timeoutId = setTimeout(() => {
-            handlePopupMessageClose(message.id);
-        }, message.timeoutMillis);
-
         const intervalId = setInterval(() => {
             setIntervalCount((c) => c + 1);
         }, AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
 
         return () => {
-            clearTimeout(timeoutId);
             clearInterval(intervalId);
         };
     }, [
-        message,
+        timeoutMillis,
         handlePopupMessageClose,
     ]);
 
-    const color = message.level >= LOG_LEVEL.ERROR ?
+    const color = level >= LOG_LEVEL.ERROR ?
         "danger" :
         "primary";
+
+    let percentRemaining = 100;
+    if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
+        const totalIntervals = timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS;
+        percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
+    }
 
     return (
         <Alert
@@ -97,14 +85,14 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
                         color={color}
                         level={"title-md"}
                     >
-                        {message.title}
+                        {title}
                     </Typography>
                     <CircularProgress
                         color={color}
                         determinate={true}
                         size={"sm"}
                         thickness={2}
-                        value={timeoutPercent}
+                        value={percentRemaining}
                     >
                         <IconButton
                             className={"pop-up-message-box-close-button"}
@@ -117,7 +105,7 @@ const PopupMessageBox = ({message}: PopupMessageProps) => {
                     </CircularProgress>
                 </Box>
                 <Typography level={"body-sm"}>
-                    {message.message}
+                    {messageStr}
                 </Typography>
             </div>
         </Alert>

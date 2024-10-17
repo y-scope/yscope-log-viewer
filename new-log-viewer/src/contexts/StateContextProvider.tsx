@@ -12,6 +12,7 @@ import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogEx
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
+import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -37,10 +38,7 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
-import {
-    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-    NotificationContext,
-} from "./NotificationContextProvider";
+import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,

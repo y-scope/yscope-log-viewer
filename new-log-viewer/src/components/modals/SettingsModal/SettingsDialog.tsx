@@ -16,16 +16,14 @@ import FormHelperText from "@mui/joy/FormHelperText";
 import FormLabel from "@mui/joy/FormLabel/FormLabel";
 import Input from "@mui/joy/Input";
 
-import {
-    DO_NOT_TIMEOUT_VALUE,
-    NotificationContext,
-} from "../../../contexts/NotificationContextProvider";
+import {NotificationContext} from "../../../contexts/NotificationContextProvider";
 import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
 } from "../../../typings/config";
 import {LOG_LEVEL} from "../../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
 import {
     getConfig,
     setConfig,
