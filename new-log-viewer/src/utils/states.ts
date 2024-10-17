@@ -93,12 +93,12 @@ const uiStateGrid: uiStateGrid = Object.freeze({
 /**
  * Whether a UI element is disabled based on provided state.
  *
- * @param state
- * @param UiComponent
+ * @param uiState
+ * @param uiElement
  * @return `true` if the element is disabled, `false` otherwise.
  */
-const isDisabled = (state: UI_STATE, UiComponent: UI_ELEMENT): boolean => {
-    return false === uiStateGrid[state][UiComponent];
+const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => {
+    return false === uiStateGrid[uiState][uiElement];
 };
 
 export {
