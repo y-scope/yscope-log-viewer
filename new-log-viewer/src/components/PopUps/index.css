@@ -1,0 +1,47 @@
+.pop-up-messages-container-snackbar {
+    /* Disable pointer events on the transparent container to allow components underneath to be
+      accessed. */
+    pointer-events: none;
+
+    right: 14px !important;
+    bottom: var(--ylv-status-bar-height) !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.pop-up-messages-container-stack {
+    scrollbar-width: none;
+    overflow-y: auto;
+    height: calc(100vh - var(--ylv-status-bar-height) - var(--ylv-menu-bar-height));
+}
+
+.pop-up-message-box-alert {
+    /* Restore pointer events on the pop-up messages. See above `pointer-events: none` in
+      `.pop-up-messages-container-snackbar`. */
+    pointer-events: initial;
+    padding-inline: 18px !important;
+}
+
+.pop-up-message-box-alert-layout {
+    width: 300px;
+}
+
+.pop-up-message-box-title-container {
+    display: flex;
+    align-items: center;
+}
+
+.pop-up-message-box-title-text {
+    flex-grow: 1;
+}
+
+.pop-up-message-box-close-button {
+    /* stylelint-disable-next-line custom-property-pattern */
+    --IconButton-size: 18px !important;
+
+    border-radius: 18px !important;
+}
