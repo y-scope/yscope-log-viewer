@@ -97,7 +97,7 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                         color={color}
                         determinate={true}
                         size={"sm"}
-                        thickness={2}
+                        thickness={3}
                         value={percentRemaining}
                     >
                         <IconButton
