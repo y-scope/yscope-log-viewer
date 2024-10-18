@@ -111,9 +111,9 @@ const uiStateGrid: uiStateGrid = Object.freeze({
  * @param uiElement
  * @return `true` if the element is disabled, `false` otherwise.
  */
-const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => {
-    return false === uiStateGrid[uiState][uiElement];
-};
+const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => (
+    false === uiStateGrid[uiState][uiElement]
+);
 
 /**
  * Returns a css class that ignores pointer events if in fast loading state.
@@ -121,11 +121,11 @@ const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => {
  * @param uiState
  * @return Ignore pointer class name or an empty string.
  */
-const ignorePointerIfFastLoading = (uiState: UI_STATE): string => {
-    return (uiState === UI_STATE.FAST_LOADING ?
+const ignorePointerIfFastLoading = (uiState: UI_STATE): string => (
+    uiState === UI_STATE.FAST_LOADING ?
         "disable-pointer-events" :
-        "");
-};
+        ""
+);
 
 export {
     ignorePointerIfFastLoading,
