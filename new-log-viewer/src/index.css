@@ -34,3 +34,7 @@ html {
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;
 }
+
+.disable-pointer-events {
+    pointer-events: none !important;
+}

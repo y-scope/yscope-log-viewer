@@ -13,6 +13,7 @@ import SkipPrevious from "@mui/icons-material/SkipPrevious";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {ACTION_NAME} from "../../utils/actions";
 import {
+    ignoreClicksIfFastLoading,
     isDisabled,
     UI_ELEMENT,
 } from "../../utils/states";
@@ -43,6 +44,7 @@ const NavigationBar = () => {
 
     return (
         <ButtonGroup
+            className={ignoreClicksIfFastLoading(uiState)}
             disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
             size={"sm"}
             spacing={0.01}

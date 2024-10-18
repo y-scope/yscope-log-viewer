@@ -13,6 +13,7 @@ import {
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
 import {
+    ignoreClicksIfFastLoading,
     isDisabled,
     UI_ELEMENT,
 } from "../../utils/states";
@@ -29,6 +30,7 @@ const ExportLogsButton = () => {
 
     return (
         <SmallIconButton
+            className={ignoreClicksIfFastLoading(uiState)}
             disabled={
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)

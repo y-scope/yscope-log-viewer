@@ -11,6 +11,7 @@ import Input from "@mui/joy/Input";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {ACTION_NAME} from "../../utils/actions";
 import {
+    ignoreClicksIfFastLoading,
     isDisabled,
     UI_ELEMENT,
 } from "../../utils/states";
@@ -84,7 +85,7 @@ const PageNumInput = () => {
             onSubmit={handleSubmit}
         >
             <Input
-                className={"page-num-input"}
+                className={`page-num-input ${ignoreClicksIfFastLoading(uiState)}`}
                 disabled={disabled}
                 size={"sm"}
                 slotProps={{input: {ref: inputRef}}}

@@ -240,6 +240,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
+    const uiStateRef = useRef<number>(uiState);
+    const prevUiStateRef = useRef<number>(uiState);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -266,6 +268,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // TODO: notifications should be shown in the UI when the NotificationProvider
                 //  is added
                 console.error(args.logLevel, args.message);
+                setUiState(prevUiStateRef.current);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -290,7 +293,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-
+        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.SLOW_LOADING);
         setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
@@ -308,6 +311,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
@@ -347,6 +351,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
@@ -354,7 +360,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: newLogLevelFilter,
@@ -366,7 +373,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `pageNumRef` with `numPages`.
+    // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
         pageNumRef.current = pageNum;
     }, [pageNum]);
@@ -375,6 +382,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         numPagesRef.current = numPages;
     }, [numPages]);
+
+    // Synchronize `uiStateRef` with `uiState`.
+    useEffect(() => {
+        uiStateRef.current = uiState;
+    }, [uiState]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -401,6 +413,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             args: {eventNum: logEventNum},
         };
 
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [
         numEvents,

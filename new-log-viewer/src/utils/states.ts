@@ -14,7 +14,12 @@ enum UI_STATE {
     FILE_LOADING,
 
     /**
-     * When a slow request is pending pending response.
+     * When a fast request is pending response.
+     */
+    FAST_LOADING,
+
+    /**
+     * When a slow request is pending response.
      */
     SLOW_LOADING,
 
@@ -69,6 +74,15 @@ const uiStateGrid: uiStateGrid = Object.freeze({
         [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
         [UI_ELEMENT.DRAG_AND_DROP]: false,
     },
+    [UI_STATE.FAST_LOADING]: {
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: true,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
+    },
     [UI_STATE.SLOW_LOADING]: {
         [UI_ELEMENT.PROGRESS_BAR]: false,
         [UI_ELEMENT.NAVIGATION_BAR]: false,
@@ -101,7 +115,20 @@ const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => {
     return false === uiStateGrid[uiState][uiElement];
 };
 
+/**
+ * Returns a css class that ignores pointer events if in fast loading state.
+ *
+ * @param uiState
+ * @return The class name or an empty string.
+ */
+const ignoreClicksIfFastLoading = (uiState: UI_STATE): string => {
+    return (uiState === UI_STATE.FAST_LOADING ?
+        "disable-pointer-events" :
+        "");
+};
+
 export {
+    ignoreClicksIfFastLoading,
     isDisabled,
     UI_ELEMENT,
     UI_STATE,
