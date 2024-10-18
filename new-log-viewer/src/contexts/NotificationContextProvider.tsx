@@ -16,7 +16,7 @@ interface NotificationContextType {
     postPopUp: (message: PopUpMessage) => void,
 }
 
-const NotificationContext = createContext<NotificationContextType>({} as NotificationContextType);
+const NotificationContext = createContext({} as NotificationContextType);
 
 /**
  * Default values of the Notification context value object.
