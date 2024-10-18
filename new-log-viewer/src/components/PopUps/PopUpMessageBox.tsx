@@ -53,7 +53,9 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
             return () => {};
         }
 
-        const totalIntervals = timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS;
+        const totalIntervals = Math.ceil(
+            timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS
+        );
         const intervalId = setInterval(() => {
             intervalCountRef.current++;
             const newPercentRemaining = 100 - (100 * (intervalCountRef.current / totalIntervals));
