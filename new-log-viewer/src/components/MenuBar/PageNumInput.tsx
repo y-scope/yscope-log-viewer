@@ -11,7 +11,7 @@ import Input from "@mui/joy/Input";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {ACTION_NAME} from "../../utils/actions";
 import {
-    ignoreClicksIfFastLoading,
+    ignorePointerIfFastLoading,
     isDisabled,
     UI_ELEMENT,
 } from "../../utils/states";
@@ -28,7 +28,7 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {uiState, loadPageByAction, numPages, pageNum} = useContext(StateContext);
+    const {loadPageByAction, numPages, pageNum, uiState} = useContext(StateContext);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +85,7 @@ const PageNumInput = () => {
             onSubmit={handleSubmit}
         >
             <Input
-                className={`page-num-input ${ignoreClicksIfFastLoading(uiState)}`}
+                className={`page-num-input ${ignorePointerIfFastLoading(uiState)}`}
                 disabled={disabled}
                 size={"sm"}
                 slotProps={{input: {ref: inputRef}}}

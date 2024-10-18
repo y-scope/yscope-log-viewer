@@ -34,7 +34,7 @@ import {
 } from "../../../typings/logs";
 import {range} from "../../../utils/data";
 import {
-    ignoreClicksIfFastLoading,
+    ignorePointerIfFastLoading,
     isDisabled,
     UI_ELEMENT,
 } from "../../../utils/states";
@@ -70,10 +70,8 @@ const LogSelectOption = ({
     onCheckboxClick,
     onOptionClick,
 }: LogSelectOptionProps) => {
-    const {uiState} = useContext(StateContext);
     return (
         <Option
-            className={ignoreClicksIfFastLoading(uiState)}
             data-value={logLevelValue}
             key={logLevelName}
             value={logLevelValue}
@@ -133,10 +131,8 @@ interface ClearFiltersOptionProps {
  * @return
  */
 const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
-    const {uiState} = useContext(StateContext);
     return (
         <Option
-            className={ignoreClicksIfFastLoading(uiState)}
             value={INVALID_LOG_LEVEL_VALUE}
             onClick={onClick}
         >
@@ -217,7 +213,7 @@ const LogLevelSelect = () => {
 
     return (
         <Select
-            className={`log-level-select ${ignoreClicksIfFastLoading(uiState)}`}
+            className={`log-level-select ${ignorePointerIfFastLoading(uiState)}`}
             disabled={disabled}
             multiple={true}
             renderValue={handleRenderValue}
