@@ -121,11 +121,11 @@ const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => (
  * @param uiState
  * @return The class name or an empty string.
  */
-const ignoreClicksIfFastLoading = (uiState: UI_STATE): string => {
-    return (uiState === UI_STATE.FAST_LOADING ?
+const ignoreClicksIfFastLoading = (uiState: UI_STATE): string => (
+    uiState === UI_STATE.FAST_LOADING ?
         "disable-pointer-events" :
-        "");
-};
+        ""
+);
 
 export {
     ignoreClicksIfFastLoading,
