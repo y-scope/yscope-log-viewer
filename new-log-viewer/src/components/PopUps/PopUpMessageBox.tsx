@@ -1,6 +1,7 @@
 import {
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 
@@ -40,7 +41,8 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     const {id, level, message: messageStr, title, timeoutMillis} = message;
 
     const {handlePopUpMessageClose} = useContext(NotificationContext);
-    const [intervalCount, setIntervalCount] = useState<number>(0);
+    const [percentRemaining, setPercentRemaining] = useState<number>(100);
+    const intervalCountRef = useRef<number>(0);
 
     const handleCloseButtonClick = () => {
         handlePopUpMessageClose(id);
@@ -50,8 +52,15 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
         if (DO_NOT_TIMEOUT_VALUE === timeoutMillis) {
             return () => {};
         }
+
+        const totalIntervals = timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS;
         const intervalId = setInterval(() => {
-            setIntervalCount((c) => c + 1);
+            intervalCountRef.current++;
+            const newPercentRemaining = 100 - (100 * (intervalCountRef.current / totalIntervals));
+            if (0 >= newPercentRemaining) {
+                handlePopUpMessageClose(id);
+            }
+            setPercentRemaining(newPercentRemaining);
         }, AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS);
 
         return () => {
@@ -60,22 +69,12 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     }, [
         timeoutMillis,
         handlePopUpMessageClose,
+        id,
     ]);
 
     const color = level >= LOG_LEVEL.ERROR ?
         "danger" :
         "primary";
-
-    let percentRemaining = 100;
-    if (DO_NOT_TIMEOUT_VALUE !== timeoutMillis) {
-        const totalIntervals = timeoutMillis / AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS;
-        percentRemaining = 100 - (100 * (intervalCount / totalIntervals));
-        if (0 >= percentRemaining) {
-            setTimeout(() => {
-                handlePopUpMessageClose(id);
-            }, 0);
-        }
-    }
 
     return (
         <Alert
