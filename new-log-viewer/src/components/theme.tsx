@@ -57,9 +57,7 @@ const APP_THEME = extendTheme({
         },
     },
     focus: {
-        default: {
-            outlineWidth: "3px",
-        },
+        thickness: "1px",
     },
     fontFamily: {
         body: "var(--ylv-ui-font-family)",
