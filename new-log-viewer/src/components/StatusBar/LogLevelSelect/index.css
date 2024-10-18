@@ -15,6 +15,11 @@
     background-color: initial !important;
 }
 
+.log-level-select-render-value-box-label-disabled {
+    /* stylelint-disable-next-line custom-property-pattern */
+    color: var(--joy-palette-neutral-plainDisabledColor) !important;
+}
+
 .log-level-select-listbox {
     /* Disallow width auto-resizing with the `Select` button. */
     max-width: 0;

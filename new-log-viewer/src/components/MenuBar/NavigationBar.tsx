@@ -1,5 +1,10 @@
 import React, {useContext} from "react";
 
+import {
+    ButtonGroup,
+    IconButton,
+} from "@mui/joy";
+
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
@@ -7,8 +12,12 @@ import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {ACTION_NAME} from "../../utils/actions";
+import {
+    ignorePointerIfFastLoading,
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import PageNumInput from "./PageNumInput";
-import SmallIconButton from "./SmallIconButton";
 
 
 /**
@@ -17,7 +26,7 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const NavigationBar = () => {
-    const {loadPageByAction} = useContext(StateContext);
+    const {uiState, loadPageByAction} = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
@@ -34,35 +43,41 @@ const NavigationBar = () => {
     };
 
     return (
-        <>
-            <SmallIconButton
+        <ButtonGroup
+            className={ignorePointerIfFastLoading(uiState)}
+            disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+            size={"sm"}
+            spacing={0.01}
+            variant={"plain"}
+        >
+            <IconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
                 onClick={handleNavButtonClick}
             >
                 <SkipPrevious/>
-            </SmallIconButton>
-            <SmallIconButton
+            </IconButton>
+            <IconButton
                 data-action-name={ACTION_NAME.PREV_PAGE}
                 onClick={handleNavButtonClick}
             >
                 <NavigateBefore/>
-            </SmallIconButton>
+            </IconButton>
 
             <PageNumInput/>
 
-            <SmallIconButton
+            <IconButton
                 data-action-name={ACTION_NAME.NEXT_PAGE}
                 onClick={handleNavButtonClick}
             >
                 <NavigateNext/>
-            </SmallIconButton>
-            <SmallIconButton
+            </IconButton>
+            <IconButton
                 data-action-name={ACTION_NAME.LAST_PAGE}
                 onClick={handleNavButtonClick}
             >
                 <SkipNext/>
-            </SmallIconButton>
-        </>
+            </IconButton>
+        </ButtonGroup>
     );
 };
 

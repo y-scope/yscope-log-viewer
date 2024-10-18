@@ -30,6 +30,11 @@ html {
     --ylv-resize-handle-z-index: 1;
     --ylv-menu-bar-z-index: 6;
     --ylv-status-bar-z-index: 6;
+    --ylv-loading-progress-z-index: 9;
     --ylv-drop-file-container-hover-mask-z-index: 10;
     --ylv-drop-file-container-hover-message-z-index: 11;
+}
+
+.disable-pointer-events {
+    pointer-events: none !important;
 }

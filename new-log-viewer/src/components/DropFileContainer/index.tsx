@@ -5,6 +5,10 @@ import React, {
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 
 import "./index.css";
 
@@ -21,8 +25,9 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const {loadFile} = useContext(StateContext);
+    const {loadFile, uiState} = useContext(StateContext);
     const [isFileHovering, setIsFileHovering] = useState(false);
+    const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);
 
     const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
@@ -52,6 +57,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
         ev.stopPropagation();
 
         setIsFileHovering(false);
+        if (disabled) {
+            return;
+        }
 
         const [file] = ev.dataTransfer.files;
         if ("undefined" === typeof file) {
@@ -78,10 +86,14 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
                         onDrop={handleDrop}
                     >
                         <div
-                            className={"hover-message"}
+                            className={`hover-message ${disabled ?
+                                "hover-message-disabled" :
+                                ""}`}
                             onDrop={handleDrop}
                         >
-                            Drop file to view
+                            {disabled ?
+                                "Drop is disabled during loading" :
+                                "Drop file to view"}
                         </div>
                     </div>
                 )}

@@ -8,7 +8,10 @@ import React, {
     useState,
 } from "react";
 
-import LogExportManager, {EXPORT_LOG_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
+import LogExportManager, {
+    EXPORT_LOG_PROGRESS_VALUE_MAX,
+    EXPORT_LOG_PROGRESS_VALUE_MIN,
+} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
@@ -37,6 +40,7 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
+import {UI_STATE} from "../utils/states";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -50,6 +54,7 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     fileName: string,
     exportProgress: Nullable<number>,
+    uiState: UI_STATE,
     logData: string,
     numEvents: number,
     numPages: number,
@@ -75,6 +80,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     loadFile: () => null,
@@ -116,15 +122,6 @@ const getPageNumCursor = (
     currentPageNum: number,
     numPages: number
 ): Nullable<CursorType> => {
-    if (STATE_DEFAULT.pageNum === currentPageNum) {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: This shouldn't be possible, but currently, the page nav buttons remain enabled
-        // even when a file hasn't been loaded.
-        console.error("Page actions cannot be executed if the current page is not set.");
-
-        return null;
-    }
-
     let newPageNum: number;
     let position: EVENT_POSITION_ON_PAGE;
     switch (navAction.code) {
@@ -227,6 +224,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -242,6 +240,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
+    const uiStateRef = useRef<number>(uiState);
+    const prevUiStateRef = useRef<number>(uiState);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -253,6 +253,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
+                    if (EXPORT_LOG_PROGRESS_VALUE_MAX === progress) {
+                        setUiState(UI_STATE.READY);
+                    }
                 }
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
@@ -265,6 +268,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 // TODO: notifications should be shown in the UI when the NotificationProvider
                 //  is added
                 console.error(args.logLevel, args.message);
+                setUiState(prevUiStateRef.current);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -274,6 +278,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 updateWindowUrlHashParams({
                     logEventNum: args.logEventNum,
                 });
+                setUiState(UI_STATE.READY);
                 break;
             }
             default:
@@ -288,12 +293,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        if (STATE_DEFAULT.numEvents === numEvents && STATE_DEFAULT.fileName === fileName) {
-            console.error("numEvents and fileName not initialized yet");
-
-            return;
-        }
-
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.SLOW_LOADING);
         setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
@@ -310,6 +311,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FILE_LOADING);
+        setFileName("Loading...");
+        setLogData("Loading...");
+        setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
+        setExportProgress(STATE_DEFAULT.exportProgress);
+
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
@@ -326,11 +334,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
-
-        setFileName("Loading...");
-        setLogData("Loading...");
-        setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
-        setExportProgress(STATE_DEFAULT.exportProgress);
     }, [
         handleMainWorkerResp,
     ]);
@@ -341,12 +344,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
+
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
             return;
         }
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
@@ -354,7 +360,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: newLogLevelFilter,
@@ -366,7 +373,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `pageNumRef` with `numPages`.
+    // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
         pageNumRef.current = pageNum;
     }, [pageNum]);
@@ -375,6 +382,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         numPagesRef.current = numPages;
     }, [numPages]);
+
+    // Synchronize `uiStateRef` with `uiState`.
+    useEffect(() => {
+        uiStateRef.current = uiState;
+    }, [uiState]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -401,6 +413,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             args: {eventNum: logEventNum},
         };
 
+        prevUiStateRef.current = uiStateRef.current;
+        setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [
         numEvents,
@@ -437,6 +451,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                uiState: uiState,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,

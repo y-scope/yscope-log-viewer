@@ -3,6 +3,7 @@ import {useContext} from "react";
 import {
     Divider,
     IconButton,
+    LinearProgress,
     Sheet,
     Tooltip,
     Typography,
@@ -13,6 +14,10 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
+import {
+    isDisabled,
+    UI_ELEMENT,
+} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
 
@@ -25,7 +30,7 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile} = useContext(StateContext);
+    const {fileName, loadFile, uiState} = useContext(StateContext);
 
     const handleOpenFile = () => {
         openFile((file) => {
@@ -51,6 +56,7 @@ const MenuBar = () => {
                     variant={"outlined"}
                 >
                     <IconButton
+                        disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
                         size={"sm"}
                         onClick={handleOpenFile}
                     >
@@ -72,6 +78,10 @@ const MenuBar = () => {
 
                 <ExportLogsButton/>
             </Sheet>
+            {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
+                <LinearProgress
+                    className={"menu-bar-loading-progress"}
+                    size={"sm"}/>}
         </>
     );
 };
