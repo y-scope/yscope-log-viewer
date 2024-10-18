@@ -20,7 +20,7 @@
 }
 
 .pop-up-message-box-alert {
-    /* Restore pointer events on the pou-up messages. See above `pointer-events: none` in
+    /* Restore pointer events on the pop-up messages. See above `pointer-events: none` in
       `.pop-up-messages-container-snackbar`. */
     pointer-events: initial;
     padding-inline: 18px !important;
