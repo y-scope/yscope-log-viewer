@@ -13,4 +13,3 @@ root.render(
         <App/>
     </StrictMode>
 );
-export {QUERY_CHUNK_SIZE} from "./utils/config";

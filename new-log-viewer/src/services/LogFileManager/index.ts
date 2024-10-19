@@ -278,8 +278,8 @@ class LogFileManager {
     }
 
     /**
-     * Creates a RegExp object based on the given query string and options,
-     * and starts querying the first log chunk.
+     * Creates a RegExp object based on the given query string and options, and starts querying the
+     * first log chunk.
      *
      * @param queryString
      * @param isRegex
@@ -306,8 +306,8 @@ class LogFileManager {
     }
 
     /**
-     * Queries a chunk of log events, sends the results,
-     * and schedules the next chunk query if more log events remain.
+     * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
+     * log events remain.
      *
      * @param queryId
      * @param chunkBeginIdx
@@ -340,8 +340,10 @@ class LogFileManager {
                 results.get(pageNum)?.push({
                     logEventNum: logEventNum,
                     message: message,
-                    matchRange: [matchResult.index,
-                        (matchResult.index + matchResult[0].length)],
+                    matchRange: [
+                        matchResult.index,
+                        (matchResult.index + matchResult[0].length),
+                    ],
                 });
             }
         });

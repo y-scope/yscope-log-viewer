@@ -305,6 +305,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         isRegex: boolean,
         isCaseSensitive: boolean
     ) => {
+        setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
