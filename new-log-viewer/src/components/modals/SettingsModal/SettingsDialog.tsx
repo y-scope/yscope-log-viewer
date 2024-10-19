@@ -1,4 +1,8 @@
-import React, {forwardRef} from "react";
+import React, {
+    forwardRef,
+    useCallback,
+    useContext,
+} from "react";
 
 import {
     Button,
@@ -10,25 +14,21 @@ import {
     FormLabel,
     Input,
     ModalDialog,
-    ToggleButtonGroup,
-    useColorScheme,
 } from "@mui/joy";
-import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
-
+import {NotificationContext} from "../../../contexts/NotificationContextProvider";
 import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
-    THEME_NAME,
 } from "../../../typings/config";
+import {LOG_LEVEL} from "../../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
 import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
+import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 
 const CONFIG_FORM_FIELDS = [
@@ -74,47 +74,44 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 };
 
 /**
- * Handles the submit event for the configuration form.
- *
- * @param ev
- */
-const handleConfigFormSubmit = (ev: React.FormEvent) => {
-    ev.preventDefault();
-    const formData = new FormData(ev.target as HTMLFormElement);
-    const getFormDataValue = (key: string) => formData.get(key) as string;
-
-    const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-    const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-    const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-    const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
-
-    let error: Nullable<string> = null;
-    error ||= setConfig({
-        key: CONFIG_KEY.DECODER_OPTIONS,
-        value: {formatString, logLevelKey, timestampKey},
-    });
-    error ||= setConfig({
-        key: CONFIG_KEY.PAGE_SIZE,
-        value: Number(pageSize),
-    });
-
-    if (null !== error) {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: Show an error pop-up once NotificationProvider is implemented.
-        // eslint-disable-next-line no-alert
-        window.alert(error);
-    } else {
-        window.location.reload();
-    }
-};
-
-/**
  * Renders a settings dialog for configurations.
  *
  * @return
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
-    const {setMode, mode} = useColorScheme();
+    const {postPopUp} = useContext(NotificationContext);
+
+    const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
+        ev.preventDefault();
+        const formData = new FormData(ev.target as HTMLFormElement);
+        const getFormDataValue = (key: string) => formData.get(key) as string;
+
+        const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+        const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
+
+        let error: Nullable<string> = null;
+        error ||= setConfig({
+            key: CONFIG_KEY.DECODER_OPTIONS,
+            value: {formatString, logLevelKey, timestampKey},
+        });
+        error ||= setConfig({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: Number(pageSize),
+        });
+
+        if (null !== error) {
+            postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: error,
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Unable to apply config.",
+            });
+        } else {
+            window.location.reload();
+        }
+    }, [postPopUp]);
 
     return (
         <form
@@ -131,32 +128,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                     <span className={"settings-dialog-title-text"}>
                         Settings
                     </span>
-                    <ToggleButtonGroup
-                        size={"sm"}
-                        value={mode as string}
-                        onChange={(__, newValue) => {
-                            setMode(newValue as Mode);
-                        }}
-                    >
-                        <Button
-                            startDecorator={<LightModeIcon/>}
-                            value={THEME_NAME.LIGHT}
-                        >
-                            Light
-                        </Button>
-                        <Button
-                            startDecorator={<SettingsBrightnessIcon/>}
-                            value={THEME_NAME.SYSTEM}
-                        >
-                            System
-                        </Button>
-                        <Button
-                            startDecorator={<DarkModeIcon/>}
-                            value={THEME_NAME.DARK}
-                        >
-                            Dark
-                        </Button>
-                    </ToggleButtonGroup>
+                    <ThemeSwitchToggle/>
                 </DialogTitle>
                 <DialogContent>
                     {CONFIG_FORM_FIELDS.map((field, index) => (
