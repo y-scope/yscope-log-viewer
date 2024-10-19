@@ -1,4 +1,4 @@
-import Modal from "@mui/joy/Modal";
+import {Modal} from "@mui/joy";
 
 import SettingsDialog from "./SettingsDialog";
 

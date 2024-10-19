@@ -9,12 +9,12 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
+    FormHelperText,
+    FormLabel,
+    Input,
     ModalDialog,
 } from "@mui/joy";
-import FormControl from "@mui/joy/FormControl/FormControl";
-import FormHelperText from "@mui/joy/FormHelperText";
-import FormLabel from "@mui/joy/FormLabel/FormLabel";
-import Input from "@mui/joy/Input";
 
 import {NotificationContext} from "../../../contexts/NotificationContextProvider";
 import {Nullable} from "../../../typings/common";
