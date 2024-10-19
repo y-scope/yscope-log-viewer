@@ -60,7 +60,6 @@ class LogFileManager {
      * @param params.fileName
      * @param params.onDiskFileSizeInBytes
      * @param params.pageSize Page size for setting up pagination.
-     * @param params.onQueryResults The callback function to handle query results.
      */
     constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
         decoder: Decoder,
@@ -278,13 +277,16 @@ class LogFileManager {
     }
 
     /**
-     * Searches for log events based on the given search string.
+     * Creates a RegExp object based on the given search string and options,
+     * and starts querying the first log chunk.
      *
      * @param searchString
      * @param isRegex
      * @param isCaseSensitive
      */
     startQuery (searchString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+        this.#queryId++;
+
         // If the search string is empty, or there are no logs, return
         if ("" === searchString || 0 === this.#numEvents) {
             return;
@@ -299,15 +301,16 @@ class LogFileManager {
             "i";
         const searchRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#searchChunkAndScheduleNext(this.#queryId++, 0, searchRegex);
+        this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
     }
 
     /**
-     * Searches for log events in the given range, then schedules itself to search the next chunk.
+     * Queries a chunk of log events, sends the results,
+     * and schedules the next chunk query if more log events remain.
      *
      * @param queryId
      * @param beginSearchIdx The beginning index of the search range.
-     * @param searchRegex The regular expression to search.
+     * @param searchRegex
      */
     #searchChunkAndScheduleNext (
         queryId: number,

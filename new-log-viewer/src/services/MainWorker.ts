@@ -39,7 +39,7 @@ const postResp = <T extends WORKER_RESP_CODE>(
 
 
 /**
- * Post a response of a query chunk.
+ * Post a response for a chunk of query results.
  *
  * @param queryResults
  */
