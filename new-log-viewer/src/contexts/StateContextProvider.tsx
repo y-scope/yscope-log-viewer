@@ -15,6 +15,7 @@ import LogExportManager, {
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
+import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -41,6 +42,7 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {UI_STATE} from "../utils/states";
+import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -220,6 +222,7 @@ const updateUrlIfEventOnPage = (
  */
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
+    const {postPopUp} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
@@ -264,10 +267,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
-                // eslint-disable-next-line no-warning-comments
-                // TODO: notifications should be shown in the UI when the NotificationProvider
-                //  is added
-                console.error(args.logLevel, args.message);
+                postPopUp({
+                    level: args.logLevel,
+                    message: args.message,
+                    timeoutMillis: DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+                    title: "Action failed",
+                });
                 setUiState(prevUiStateRef.current);
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
@@ -285,7 +290,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, []);
+    }, [postPopUp]);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {

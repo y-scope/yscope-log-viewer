@@ -36,11 +36,8 @@ const StatusBar = () => {
 
     return (
         <Sheet className={"status-bar"}>
-            <Typography
-                className={"status-message"}
-                level={"body-sm"}
-            >
-                Status message
+            <Typography className={"status-message"}>
+                {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
             <Button
                 color={"primary"}
