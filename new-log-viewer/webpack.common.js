@@ -73,8 +73,8 @@ module.exports = {
                     from: publicPath,
                     globOptions: {
                         ignore: [
-                            // The `replaceAll()` is needed because the plugin does not convert
-                            // Windows paths to POSIX paths for `ignore` patterns.
+                            // `replaceAll()` is needed because the plugin does not convert Windows
+                            // paths to POSIX paths for `ignore` patterns.
                             indexHtmlPath.replaceAll("\\", "/"),
                         ],
                     },
