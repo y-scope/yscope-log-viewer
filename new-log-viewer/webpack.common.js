@@ -2,9 +2,14 @@
 
 const path = require("path");
 
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
+
+const distPath = path.resolve(__dirname, "dist");
+const publicPath = path.resolve(__dirname, "public");
+const indexHtmlPath = path.resolve(publicPath, "index.html");
 
 module.exports = {
     entry: path.resolve(__dirname, "src", "index.tsx"),
@@ -56,14 +61,28 @@ module.exports = {
         },
     },
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: distPath,
         filename: "[name].[contenthash].bundle.js",
         clean: true,
         publicPath: "auto",
     },
     plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: publicPath,
+                    globOptions: {
+                        ignore: [
+                            // `replaceAll()` is needed because the plugin does not convert Windows
+                            // paths to POSIX paths for `ignore` patterns.
+                            indexHtmlPath.replaceAll("\\", "/"),
+                        ],
+                    },
+                },
+            ],
+        }),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "public", "index.html"),
+            template: indexHtmlPath,
         }),
         new MonacoWebpackPlugin({
             features: [
