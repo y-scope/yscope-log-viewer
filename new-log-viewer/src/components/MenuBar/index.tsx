@@ -81,7 +81,8 @@ const MenuBar = () => {
             {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
                 <LinearProgress
                     className={"menu-bar-loading-progress"}
-                    size={"sm"}/>}
+                    size={"sm"}
+                    thickness={2}/>}
         </>
     );
 };

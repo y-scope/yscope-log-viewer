@@ -28,11 +28,6 @@
 }
 
 .menu-bar-loading-progress {
-    /* stylelint-disable-next-line custom-property-pattern */
-    --LinearProgress-thickness: 2px !important;
-    /* stylelint-disable-next-line custom-property-pattern */
-    --LinearProgress-progressThickness: 2px !important;
-
     z-index: var(--ylv-loading-progress-z-index);
     margin-bottom: -2px;
 }
