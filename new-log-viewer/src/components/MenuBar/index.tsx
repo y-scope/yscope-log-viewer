@@ -64,10 +64,16 @@ const MenuBar = () => {
                     className={"menu-bar-filename-container"}
                     title={fileName}
                 >
-                    <Typography className={"menu-bar-filename-left-split"}>
+                    <Typography
+                        className={"menu-bar-filename-left-split"}
+                        level={"body-md"}
+                    >
                         {fileName.slice(0, fileName.length / 2)}
                     </Typography>
-                    <Typography className={"menu-bar-filename-right-split"}>
+                    <Typography
+                        className={"menu-bar-filename-right-split"}
+                        level={"body-md"}
+                    >
                         {fileName.slice(fileName.length / 2)}
                     </Typography>
                 </Box>
