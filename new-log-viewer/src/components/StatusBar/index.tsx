@@ -1,8 +1,10 @@
 import {useContext} from "react";
 
-import Button from "@mui/joy/Button";
-import Sheet from "@mui/joy/Sheet";
-import Typography from "@mui/joy/Typography";
+import {
+    Button,
+    Sheet,
+    Typography,
+} from "@mui/joy";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
@@ -32,11 +34,8 @@ const StatusBar = () => {
 
     return (
         <Sheet className={"status-bar"}>
-            <Typography
-                className={"status-message"}
-                level={"body-sm"}
-            >
-                Status message
+            <Typography className={"status-message"}>
+                {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
             <Button
                 color={"primary"}
