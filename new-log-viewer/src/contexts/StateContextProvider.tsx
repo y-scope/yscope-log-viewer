@@ -21,6 +21,7 @@ import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
+    QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
@@ -57,11 +58,13 @@ interface StateContextType {
     numPages: number,
     onDiskFileSizeInBytes: number,
     pageNum: number,
+    queryResults: QueryResults,
 
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -77,11 +80,13 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    queryResults: new Map(),
 
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
     setLogLevelFilter: () => null,
+    startQuery: () => null,
 });
 
 interface StateContextProviderProps {
@@ -229,6 +234,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [exportProgress, setExportProgress] =
+        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -236,10 +243,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
         useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
+    const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
     const beginLineNumToLogEventNumRef =
         useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
-    const [exportProgress, setExportProgress] =
-        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
@@ -281,11 +287,41 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 });
                 break;
             }
+            case WORKER_RESP_CODE.QUERY_RESULT:
+                setQueryResults((v) => {
+                    args.results.forEach((resultsPerPage, queryPageNum) => {
+                        if (false === v.has(queryPageNum)) {
+                            v.set(queryPageNum, []);
+                        }
+                        v.get(queryPageNum)?.push(...resultsPerPage);
+                    });
+
+                    return v;
+                });
+                break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
     }, [postPopUp]);
+
+    const startQuery = useCallback((
+        queryString: string,
+        isRegex: boolean,
+        isCaseSensitive: boolean
+    ) => {
+        setQueryResults(STATE_DEFAULT.queryResults);
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, {
+            queryString: queryString,
+            isRegex: isRegex,
+            isCaseSensitive: isCaseSensitive,
+        });
+    }, []);
 
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
@@ -442,11 +478,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                queryResults: queryResults,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setLogLevelFilter: setLogLevelFilter,
+                startQuery: startQuery,
             }}
         >
             {children}

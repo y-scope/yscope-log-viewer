@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {
     Decoder,
     DecoderOptionsType,
@@ -11,11 +12,16 @@ import {
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
+    QueryResults,
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
-import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    QUERY_CHUNK_SIZE,
+} from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
+import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
@@ -31,35 +37,43 @@ import {
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
+    readonly #fileName: string;
+
+    readonly #numEvents: number = 0;
+
     readonly #pageSize: number;
 
-    readonly #fileName: string;
+    #queryId: number = 0;
 
     readonly #onDiskFileSizeInBytes: number;
 
-    #decoder: Decoder;
+    readonly #onQueryResults: (queryResults: QueryResults) => void;
 
-    #numEvents: number = 0;
+    #decoder: Decoder;
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
      *
-     * @param decoder
-     * @param fileName
-     * @param onDiskFileSizeInBytes
-     * @param pageSize Page size for setting up pagination.
+     * @param params
+     * @param params.decoder
+     * @param params.fileName
+     * @param params.onDiskFileSizeInBytes
+     * @param params.pageSize Page size for setting up pagination.
+     * @param params.onQueryResults
      */
-    constructor (
+    constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
         decoder: Decoder,
         fileName: string,
         onDiskFileSizeInBytes: number,
         pageSize: number,
-    ) {
-        this.#fileName = fileName;
-        this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
-        this.#pageSize = pageSize;
+        onQueryResults: (queryResults: QueryResults) => void,
+    }) {
         this.#decoder = decoder;
+        this.#fileName = fileName;
+        this.#pageSize = pageSize;
+        this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
+        this.#onQueryResults = onQueryResults;
 
         // Build index for the entire file.
         const buildResult = decoder.build();
@@ -90,17 +104,26 @@ class LogFileManager {
      * File object.
      * @param pageSize Page size for setting up pagination.
      * @param decoderOptions Initial decoder options.
+     * @param onQueryResults
      * @return A Promise that resolves to the created LogFileManager instance.
      */
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptionsType,
+        onQueryResults: (queryResults: QueryResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
-        return new LogFileManager(decoder, fileName, fileData.length, pageSize);
+        return new LogFileManager({
+            decoder: decoder,
+            fileName: fileName,
+            onDiskFileSizeInBytes: fileData.length,
+            pageSize: pageSize,
+
+            onQueryResults: onQueryResults,
+        });
     }
 
     /**
@@ -252,6 +275,86 @@ class LogFileManager {
             numPages: newNumPages,
             pageNum: newPageNum,
         };
+    }
+
+    /**
+     * Creates a RegExp object based on the given query string and options, and starts querying the
+     * first log chunk.
+     *
+     * @param queryString
+     * @param isRegex
+     * @param isCaseSensitive
+     */
+    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+        this.#queryId++;
+
+        // If the query string is empty, or there are no logs, return
+        if ("" === queryString || 0 === this.#numEvents) {
+            return;
+        }
+
+        // Construct query RegExp
+        const regexPattern = isRegex ?
+            queryString :
+            queryString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regexFlags = isCaseSensitive ?
+            "" :
+            "i";
+        const queryRegex = new RegExp(regexPattern, regexFlags);
+
+        this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+    }
+
+    /**
+     * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
+     * log events remain.
+     *
+     * @param queryId
+     * @param chunkBeginIdx
+     * @param queryRegex
+     */
+    #queryChunkAndScheduleNext (
+        queryId: number,
+        chunkBeginIdx: number,
+        queryRegex: RegExp
+    ): void {
+        if (queryId !== this.#queryId) {
+            // Current task no longer corresponds to the latest query in the LogFileManager.
+            return;
+        }
+        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, this.#numEvents);
+        const results: QueryResults = new Map();
+        const decodedEvents = this.#decoder.decodeRange(
+            chunkBeginIdx,
+            chunkEndIdx,
+            null !== this.#decoder.getFilteredLogEventMap()
+        );
+
+        decodedEvents?.forEach(([message, , , logEventNum]) => {
+            const matchResult = message.match(queryRegex);
+            if (null !== matchResult && "number" === typeof matchResult.index) {
+                const pageNum = Math.ceil(logEventNum / this.#pageSize);
+                if (false === results.has(pageNum)) {
+                    results.set(pageNum, []);
+                }
+                results.get(pageNum)?.push({
+                    logEventNum: logEventNum,
+                    message: message,
+                    matchRange: [
+                        matchResult.index,
+                        (matchResult.index + matchResult[0].length),
+                    ],
+                });
+            }
+        });
+
+        this.#onQueryResults(results);
+
+        if (chunkEndIdx < this.#numEvents) {
+            defer(() => {
+                this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
+            });
+        }
     }
 
     /**
