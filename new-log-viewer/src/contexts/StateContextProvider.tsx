@@ -62,7 +62,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
-    startQuery: (searchString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
+    startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -301,7 +301,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     const startQuery = useCallback((
-        searchString: string,
+        queryString: string,
         isRegex: boolean,
         isCaseSensitive: boolean
     ) => {
@@ -311,7 +311,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, {
-            searchString: searchString,
+            queryString: queryString,
             isRegex: isRegex,
             isCaseSensitive: isCaseSensitive,
         });

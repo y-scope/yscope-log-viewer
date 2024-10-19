@@ -18,7 +18,7 @@ import {
 } from "../../typings/worker";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
-    SEARCH_CHUNK_SIZE,
+    QUERY_CHUNK_SIZE,
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
@@ -60,6 +60,7 @@ class LogFileManager {
      * @param params.fileName
      * @param params.onDiskFileSizeInBytes
      * @param params.pageSize Page size for setting up pagination.
+     * @param params.onQueryResults
      */
     constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
         decoder: Decoder,
@@ -277,31 +278,31 @@ class LogFileManager {
     }
 
     /**
-     * Creates a RegExp object based on the given search string and options,
+     * Creates a RegExp object based on the given query string and options,
      * and starts querying the first log chunk.
      *
-     * @param searchString
+     * @param queryString
      * @param isRegex
      * @param isCaseSensitive
      */
-    startQuery (searchString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
         this.#queryId++;
 
-        // If the search string is empty, or there are no logs, return
-        if ("" === searchString || 0 === this.#numEvents) {
+        // If the query string is empty, or there are no logs, return
+        if ("" === queryString || 0 === this.#numEvents) {
             return;
         }
 
-        // Construct search RegExp
+        // Construct query RegExp
         const regexPattern = isRegex ?
-            searchString :
-            searchString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            queryString :
+            queryString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const regexFlags = isCaseSensitive ?
             "" :
             "i";
-        const searchRegex = new RegExp(regexPattern, regexFlags);
+        const queryRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#searchChunkAndScheduleNext(this.#queryId, 0, searchRegex);
+        this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
     }
 
     /**
@@ -309,29 +310,29 @@ class LogFileManager {
      * and schedules the next chunk query if more log events remain.
      *
      * @param queryId
-     * @param beginSearchIdx The beginning index of the search range.
-     * @param searchRegex
+     * @param chunkBeginIdx
+     * @param queryRegex
      */
-    #searchChunkAndScheduleNext (
+    #queryChunkAndScheduleNext (
         queryId: number,
-        beginSearchIdx: number,
-        searchRegex: RegExp
+        chunkBeginIdx: number,
+        queryRegex: RegExp
     ): void {
         if (queryId !== this.#queryId) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
-        const endSearchIdx = Math.min(beginSearchIdx + SEARCH_CHUNK_SIZE, this.#numEvents);
+        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, this.#numEvents);
         const results: QueryResults = new Map();
         const decodedEvents = this.#decoder.decodeRange(
-            beginSearchIdx,
-            endSearchIdx,
+            chunkBeginIdx,
+            chunkEndIdx,
             null !== this.#decoder.getFilteredLogEventMap()
         );
 
         decodedEvents?.forEach(([message, , , logEventNum]) => {
-            const match = message.match(searchRegex);
-            if (match && "number" === typeof match.index) {
+            const matchResult = message.match(queryRegex);
+            if (null !== matchResult && "number" === typeof matchResult.index) {
                 const pageNum = Math.ceil(logEventNum / this.#pageSize);
                 if (false === results.has(pageNum)) {
                     results.set(pageNum, []);
@@ -339,17 +340,17 @@ class LogFileManager {
                 results.get(pageNum)?.push({
                     logEventNum: logEventNum,
                     message: message,
-                    matchRange: [match.index,
-                        (match.index + match[0].length)],
+                    matchRange: [matchResult.index,
+                        (matchResult.index + matchResult[0].length)],
                 });
             }
         });
 
         this.#onQueryResults(results);
 
-        if (endSearchIdx < this.#numEvents) {
+        if (chunkEndIdx < this.#numEvents) {
             defer(() => {
-                this.#searchChunkAndScheduleNext(queryId, endSearchIdx, searchRegex);
+                this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });
         }
     }

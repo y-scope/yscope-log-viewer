@@ -9,7 +9,6 @@ import {
 } from "@mui/joy";
 
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import SearchIcon from "@mui/icons-material/Search";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {CURSOR_CODE} from "../../typings/worker";
@@ -26,16 +25,12 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile, startQuery} = useContext(StateContext);
+    const {fileName, loadFile} = useContext(StateContext);
 
     const handleOpenFile = () => {
         openFile((file) => {
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
-    };
-
-    const handleQueryClick = () => {
-        startQuery("ERROR", false, false);
     };
 
     return (
@@ -76,12 +71,6 @@ const MenuBar = () => {
                 <Divider orientation={"vertical"}/>
 
                 <ExportLogsButton/>
-                <IconButton
-                    size={"sm"}
-                    onClick={handleQueryClick}
-                >
-                    <SearchIcon/>
-                </IconButton>
             </Sheet>
         </>
     );

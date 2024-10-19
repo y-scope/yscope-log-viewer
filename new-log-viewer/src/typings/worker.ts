@@ -99,7 +99,7 @@ type WorkerReqMap = {
         logLevelFilter: LogLevelFilter,
     },
     [WORKER_REQ_CODE.START_QUERY]: {
-        searchString: string,
+        queryString: string,
         isRegex: boolean,
         isCaseSensitive: boolean,
     },

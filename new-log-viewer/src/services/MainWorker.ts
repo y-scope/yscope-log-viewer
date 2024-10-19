@@ -114,14 +114,14 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     throw new Error("Log file manager hasn't been initialized");
                 }
                 if (
-                    "string" !== typeof args.searchString ||
+                    "string" !== typeof args.queryString ||
                     "boolean" !== typeof args.isRegex ||
                     "boolean" !== typeof args.isCaseSensitive
                 ) {
                     throw new Error("Invalid arguments for QUERY_LOG");
                 }
                 LOG_FILE_MANAGER.startQuery(
-                    args.searchString,
+                    args.queryString,
                     args.isRegex,
                     args.isCaseSensitive
                 );
