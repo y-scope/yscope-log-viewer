@@ -1,11 +1,17 @@
 import {
     useCallback,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from "react";
 
+import {CONFIG_KEY} from "../../../typings/config";
 import {TAB_NAME} from "../../../typings/tab";
+import {
+    getConfig,
+    setConfig,
+} from "../../../utils/config";
 import ResizeHandle from "./ResizeHandle";
 import SidebarTabs from "./SidebarTabs";
 
@@ -43,8 +49,8 @@ const setPanelWidth = (newValue: number) => {
  * @return
  */
 const Sidebar = () => {
-    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(TAB_NAME.FILE_INFO);
-
+    const initialTabName = useMemo(() => getConfig(CONFIG_KEY.INITIAL_TAB_NAME), []);
+    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(initialTabName);
     const tabListRef = useRef<HTMLDivElement>(null);
 
     const handleActiveTabNameChange = useCallback((tabName: TAB_NAME) => {
@@ -54,14 +60,15 @@ const Sidebar = () => {
             return;
         }
 
+        let newTabName = tabName;
+        let newPanelWidth = PANEL_DEFAULT_WIDTH_IN_PIXELS;
         if (activeTabName === tabName) {
-            setActiveTabName(TAB_NAME.NONE);
-            setPanelWidth(tabListRef.current.clientWidth);
-
-            return;
+            newTabName = TAB_NAME.NONE;
+            newPanelWidth = tabListRef.current.clientWidth;
         }
-        setActiveTabName(tabName);
-        setPanelWidth(PANEL_DEFAULT_WIDTH_IN_PIXELS);
+        setActiveTabName(newTabName);
+        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: newTabName});
+        setPanelWidth(newPanelWidth);
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -115,6 +122,18 @@ const Sidebar = () => {
             window.removeEventListener("resize", handleWindowResize);
         };
     }, []);
+
+    // On initialization, do not show panel if there is no active tab.
+    useEffect(() => {
+        if (null === tabListRef.current) {
+            console.error("Unexpected null tabListRef.current");
+
+            return;
+        }
+        if (TAB_NAME.NONE === initialTabName) {
+            setPanelWidth(tabListRef.current.clientWidth);
+        }
+    }, [initialTabName]);
 
     return (
         <div className={"sidebar-tabs-container"}>

@@ -7,8 +7,8 @@ import {
     TabList,
     Tabs,
 } from "@mui/joy";
+import SvgIcon from "@mui/material/SvgIcon";
 
-import {SvgIconComponent} from "@mui/icons-material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
@@ -25,7 +25,7 @@ import "./index.css";
  */
 const TABS_INFO_LIST: Readonly<Array<{
     tabName: TAB_NAME,
-    Icon: SvgIconComponent
+    Icon: typeof SvgIcon,
 }>> = Object.freeze([
     {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
 ]);

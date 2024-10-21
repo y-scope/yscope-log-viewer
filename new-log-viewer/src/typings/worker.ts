@@ -72,13 +72,15 @@ enum WORKER_REQ_CODE {
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
     SET_FILTER = "setFilter",
+    START_QUERY = "startQuery",
 }
 
 enum WORKER_RESP_CODE {
     CHUNK_DATA = "chunkData",
     LOG_FILE_INFO = "fileInfo",
-    PAGE_DATA = "pageData",
     NOTIFICATION = "notification",
+    PAGE_DATA = "pageData",
+    QUERY_RESULT = "queryResult",
 }
 
 type WorkerReqMap = {
@@ -96,7 +98,22 @@ type WorkerReqMap = {
         cursor: CursorType,
         logLevelFilter: LogLevelFilter,
     },
+    [WORKER_REQ_CODE.START_QUERY]: {
+        queryString: string,
+        isRegex: boolean,
+        isCaseSensitive: boolean,
+    },
 };
+
+type TextRange = [number, number];
+
+interface QueryResultsType {
+    logEventNum: number;
+    message: string;
+    matchRange: TextRange;
+}
+
+type QueryResults = Map<number, QueryResultsType[]>;
 
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
@@ -107,18 +124,19 @@ type WorkerRespMap = {
         numEvents: number,
         onDiskFileSizeInBytes: number,
     },
-    [WORKER_RESP_CODE.PAGE_DATA]: {
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number
-        logEventNum: Nullable<number>
-        logs: string,
-        numPages: number
-        pageNum: number
-    },
     [WORKER_RESP_CODE.NOTIFICATION]: {
         logLevel: LOG_LEVEL,
-        message: string
+        message: string,
     },
+    [WORKER_RESP_CODE.PAGE_DATA]: {
+        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+        cursorLineNum: number,
+        logEventNum: Nullable<number>,
+        logs: string,
+        numPages: number,
+        pageNum: number,
+    },
+    [WORKER_RESP_CODE.QUERY_RESULT]: { results: QueryResults },
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
@@ -164,6 +182,7 @@ export type {
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
+    QueryResults,
     WorkerReq,
     WorkerResp,
 };
