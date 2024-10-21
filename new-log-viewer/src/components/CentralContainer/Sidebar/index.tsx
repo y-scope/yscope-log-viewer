@@ -13,8 +13,8 @@ import "./index.css";
 
 
 const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
-const PANEL_CLIP_THRESHOLD_IN_PIXELS = 250;
-const EDITOR_MIN_WIDTH_IN_PIXELS = 250;
+const PANEL_CLIP_THRESHOLD_IN_PIXELS = 360;
+const EDITOR_MIN_WIDTH_IN_PIXELS = 140;
 
 /**
  * Gets width of the panel from body style properties.
