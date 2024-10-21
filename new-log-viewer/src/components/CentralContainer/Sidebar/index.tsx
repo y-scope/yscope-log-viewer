@@ -104,11 +104,12 @@ const Sidebar = () => {
     useEffect(() => {
         const handleWindowResize = () => {
             const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
-            if (
-                getPanelWidth() > availableWidth &&
-                PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth
-            ) {
-                setPanelWidth(availableWidth);
+            if (getPanelWidth() > availableWidth) {
+                if (PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth) {
+                    setPanelWidth(availableWidth);
+                } else {
+                    setPanelWidth(PANEL_CLIP_THRESHOLD_IN_PIXELS);
+                }
             }
         };
 
