@@ -44,12 +44,12 @@ enum UI_ELEMENT {
     PROGRESS_BAR,
 }
 
-type UiElementRowType = {
+type UiElementRow = {
     [key in UI_ELEMENT]: boolean;
 };
 
-type UiStateGridType = {
-    [key in UI_STATE]: UiElementRowType;
+type UiStateGrid = {
+    [key in UI_STATE]: UiElementRow;
 };
 
 /**
@@ -57,7 +57,7 @@ type UiStateGridType = {
  * `UI_STATE` has its own row with a boolean for each `UI_ELEMENT`. Boolean is `true` if the
  * element is enabled, or `false` if disabled.
  */
-const UI_STATE_GRID: UiStateGridType = Object.freeze({
+const UI_STATE_GRID: UiStateGrid = Object.freeze({
     [UI_STATE.UNOPENED]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
