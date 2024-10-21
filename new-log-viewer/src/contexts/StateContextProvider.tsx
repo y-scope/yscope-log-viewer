@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 500] */
+/* eslint max-lines: ["error", 600] */
 import React, {
     createContext,
     useCallback,
@@ -85,8 +85,8 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
-    uiState: UI_STATE.UNOPENED,
     queryResults: new Map(),
+    uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     loadFile: () => null,
@@ -496,8 +496,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
-                uiState: uiState,
                 queryResults: queryResults,
+                uiState: uiState,
 
                 exportLogs: exportLogs,
                 loadFile: loadFile,

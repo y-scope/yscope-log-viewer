@@ -14,7 +14,9 @@ enum UI_STATE {
     FILE_LOADING,
 
     /**
-     * When a fast request is pending response. In this state, UI elements are not visually disabled but instead ignore pointer events. Rapidly disabling/enabling UI elements is jarring to the user. 
+     * When a fast request is pending response. In this state, UI elements are not visually
+     * disabled but instead ignore pointer events. Rapidly disabling/enabling UI elements is
+     * jarring to the user.
      */
     FAST_LOADING,
 
