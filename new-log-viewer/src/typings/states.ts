@@ -77,7 +77,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.PROGRESS_BAR]: true,
     },
     [UI_STATE.FAST_LOADING]: {
-        [UI_ELEMENT.DRAG_AND_DROP]: true,
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
         [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
         [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
