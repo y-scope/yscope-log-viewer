@@ -18,9 +18,9 @@ import SidebarTabs from "./SidebarTabs";
 import "./index.css";
 
 
-const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
-const PANEL_CLIP_THRESHOLD_IN_PIXELS = 360;
-const EDITOR_MIN_WIDTH_IN_PIXELS = 140;
+const PANEL_DEFAULT_WIDTH_IN_PIXELS = 336;
+const PANEL_CLIP_THRESHOLD_IN_PIXELS = 336;
+const EDITOR_MIN_WIDTH_IN_PIXELS = 100;
 
 /**
  * Gets width of the panel from body style properties.
