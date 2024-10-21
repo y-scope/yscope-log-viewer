@@ -427,6 +427,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Synchronize `uiStateRef` with `uiState`.
     useEffect(() => {
         uiStateRef.current = uiState;
+        if (uiState === UI_STATE.UNOPENED) {
+            setFileName(STATE_DEFAULT.fileName);
+            setLogData(STATE_DEFAULT.logData);
+        }
     }, [uiState]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
