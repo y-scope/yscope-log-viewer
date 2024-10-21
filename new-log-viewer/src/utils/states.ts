@@ -17,7 +17,7 @@ const isDisabled = (uiState: UI_STATE, uiElement: UI_ELEMENT): boolean => (
 );
 
 /**
- * Returns a css class that ignores pointer events if in fast loading state.
+ * Returns a CSS class that ignores pointer events if in fast loading state.
  *
  * @param uiState
  * @return Ignore pointer class name or an empty string.

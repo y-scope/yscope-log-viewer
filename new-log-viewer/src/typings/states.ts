@@ -35,13 +35,13 @@ enum UI_STATE {
  * Stateful elements in the UI.
  */
 enum UI_ELEMENT {
-    PROGRESS_BAR,
-    NAVIGATION_BAR,
-    OPEN_FILE_BUTTON,
-    LOG_LEVEL_FILTER,
+    DRAG_AND_DROP,
     EXPORT_LOGS_BUTTON,
     LOG_EVENT_NUM_DISPLAY,
-    DRAG_AND_DROP,
+    LOG_LEVEL_FILTER,
+    NAVIGATION_BAR,
+    OPEN_FILE_BUTTON,
+    PROGRESS_BAR,
 }
 
 type UiElementRowType = {
@@ -59,49 +59,49 @@ type UiStateGridType = {
  */
 const UI_STATE_GRID: UiStateGridType = Object.freeze({
     [UI_STATE.UNOPENED]: {
-        [UI_ELEMENT.PROGRESS_BAR]: false,
-        [UI_ELEMENT.NAVIGATION_BAR]: false,
-        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
-        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.DRAG_AND_DROP]: true,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
         [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
-        [UI_ELEMENT.DRAG_AND_DROP]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.PROGRESS_BAR]: false,
     },
     [UI_STATE.FILE_LOADING]: {
-        [UI_ELEMENT.PROGRESS_BAR]: true,
-        [UI_ELEMENT.NAVIGATION_BAR]: false,
-        [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
-        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
         [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
-        [UI_ELEMENT.DRAG_AND_DROP]: false,
-    },
-    [UI_STATE.FAST_LOADING]: {
-        [UI_ELEMENT.PROGRESS_BAR]: true,
-        [UI_ELEMENT.NAVIGATION_BAR]: true,
-        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
-        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
-        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
-        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
-        [UI_ELEMENT.DRAG_AND_DROP]: false,
-    },
-    [UI_STATE.SLOW_LOADING]: {
-        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
         [UI_ELEMENT.NAVIGATION_BAR]: false,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
-        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
-        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
-        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
-        [UI_ELEMENT.DRAG_AND_DROP]: false,
+        [UI_ELEMENT.PROGRESS_BAR]: true,
     },
-    [UI_STATE.READY]: {
-        [UI_ELEMENT.PROGRESS_BAR]: false,
-        [UI_ELEMENT.NAVIGATION_BAR]: true,
-        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
-        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
+    [UI_STATE.FAST_LOADING]: {
+        [UI_ELEMENT.DRAG_AND_DROP]: true,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
         [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
+        [UI_ELEMENT.NAVIGATION_BAR]: true,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.PROGRESS_BAR]: true,
+    },
+    [UI_STATE.SLOW_LOADING]: {
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+    },
+    [UI_STATE.READY]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
+        [UI_ELEMENT.NAVIGATION_BAR]: true,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
+        [UI_ELEMENT.PROGRESS_BAR]: false,
     },
 });
 
