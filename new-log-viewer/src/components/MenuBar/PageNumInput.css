@@ -1,3 +1,9 @@
+.page-num-input {
+    /* Ensures the content within the element does not wrap, preventing visual overflow when
+      adjacent elements under the same parent container attempt to take up space. */
+    white-space: nowrap;
+}
+
 .page-num-input input::-webkit-outer-spin-button,
 .page-num-input input::-webkit-inner-spin-button {
     margin: 0;

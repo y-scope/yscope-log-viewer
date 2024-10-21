@@ -14,7 +14,7 @@
 .menu-bar-logo-container {
     display: flex;
     justify-content: center;
-    width: 48px;
+    min-width: 48px;
     height: var(--ylv-status-bar-height);
 }
 
@@ -22,9 +22,22 @@
     font-size: 24px !important;
 }
 
-.menu-bar-filename {
+.menu-bar-filename-container {
+    overflow-x: hidden;
+    display: flex;
     flex-grow: 1;
-    padding-left: 10px;
+    padding-inline: 0.75rem !important;
+}
+
+.menu-bar-filename-left-split {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-bar-filename-right-split {
+    overflow-x: hidden;
+    display: flex !important;
+    justify-content: flex-end;
 }
 
 .menu-bar-loading-progress {

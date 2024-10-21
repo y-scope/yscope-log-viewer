@@ -9,8 +9,9 @@ import {
 import {DecoderOptionsType} from "../typings/decoders";
 
 
-const MAX_PAGE_SIZE = 1_000_000;
 const EXPORT_LOGS_CHUNK_SIZE = 10_000;
+const MAX_PAGE_SIZE = 1_000_000;
+const QUERY_CHUNK_SIZE = 10_000;
 
 /**
  * The default configuration values.
@@ -154,6 +155,7 @@ export {
     CONFIG_DEFAULT,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    QUERY_CHUNK_SIZE,
     setConfig,
     testConfig,
 };

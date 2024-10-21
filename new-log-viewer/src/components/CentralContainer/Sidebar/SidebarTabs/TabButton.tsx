@@ -2,8 +2,7 @@ import {
     Tab,
     Tooltip,
 } from "@mui/joy";
-
-import {SvgIconComponent} from "@mui/icons-material";
+import SvgIcon from "@mui/material/SvgIcon";
 
 import {
     TAB_DISPLAY_NAMES,
@@ -15,7 +14,7 @@ import "./TabButton.css";
 
 interface TabButtonProps {
     tabName: TAB_NAME,
-    Icon: SvgIconComponent,
+    Icon: typeof SvgIcon,
     onTabButtonClick: (tabName: TAB_NAME) => void
 }
 
