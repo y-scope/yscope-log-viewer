@@ -11,11 +11,11 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
     ignorePointerIfFastLoading,
     isDisabled,
-    UI_ELEMENT,
 } from "../../utils/states";
 import PageNumInput from "./PageNumInput";
 

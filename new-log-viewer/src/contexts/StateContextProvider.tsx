@@ -16,6 +16,7 @@ import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
 import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
+import {UI_STATE} from "../typings/states";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -42,7 +43,6 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
-import {UI_STATE} from "../utils/states";
 import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
@@ -249,8 +249,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const logEventNumRef = useRef(logEventNum);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
-    const uiStateRef = useRef<number>(uiState);
-    const prevUiStateRef = useRef<number>(uiState);
+    const uiStateRef = useRef<UI_STATE>(uiState);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
 
@@ -279,7 +278,21 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     timeoutMillis: DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
                     title: "Action failed",
                 });
-                setUiState(prevUiStateRef.current);
+
+                switch (uiStateRef.current) {
+                    case UI_STATE.FAST_LOADING:
+                        setUiState(UI_STATE.READY);
+                        break;
+                    case UI_STATE.SLOW_LOADING:
+                        setUiState(UI_STATE.READY);
+                        break;
+                    case UI_STATE.FILE_LOADING:
+                        setUiState(UI_STATE.UNOPENED);
+                        break;
+                    default:
+                        break;
+                }
+
                 break;
             case WORKER_RESP_CODE.PAGE_DATA: {
                 setLogData(args.logs);
@@ -334,7 +347,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.SLOW_LOADING);
         setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
@@ -352,7 +364,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
-        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
@@ -392,7 +403,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        prevUiStateRef.current = uiStateRef.current;
+
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
@@ -401,7 +412,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (null === mainWorkerRef.current) {
             return;
         }
-        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
@@ -458,7 +468,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             args: {eventNum: logEventNum},
         };
 
-        prevUiStateRef.current = uiStateRef.current;
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [

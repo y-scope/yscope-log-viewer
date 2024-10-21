@@ -12,10 +12,10 @@ import {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
+import {UI_ELEMENT} from "../../typings/states";
 import {
     ignorePointerIfFastLoading,
     isDisabled,
-    UI_ELEMENT,
 } from "../../utils/states";
 import SmallIconButton from "./SmallIconButton";
 

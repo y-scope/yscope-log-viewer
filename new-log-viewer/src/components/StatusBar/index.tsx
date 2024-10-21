@@ -11,10 +11,8 @@ import {
     copyPermalinkToClipboard,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
-import {
-    isDisabled,
-    UI_ELEMENT,
-} from "../../utils/states";
+import {UI_ELEMENT} from "../../typings/states";
+import {isDisabled} from "../../utils/states";
 import LogLevelSelect from "./LogLevelSelect";
 
 import "./index.css";

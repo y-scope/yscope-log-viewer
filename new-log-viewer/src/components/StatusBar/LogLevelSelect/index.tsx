@@ -32,11 +32,11 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
+import {UI_ELEMENT} from "../../../typings/states";
 import {range} from "../../../utils/data";
 import {
     ignorePointerIfFastLoading,
     isDisabled,
-    UI_ELEMENT,
 } from "../../../utils/states";
 import LogLevelChip from "./LogLevelChip";
 

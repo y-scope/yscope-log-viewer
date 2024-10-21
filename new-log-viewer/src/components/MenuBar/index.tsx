@@ -13,12 +13,10 @@ import {
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
-import {
-    isDisabled,
-    UI_ELEMENT,
-} from "../../utils/states";
+import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import NavigationBar from "./NavigationBar";
 

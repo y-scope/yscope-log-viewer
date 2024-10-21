@@ -4,11 +4,9 @@ import React, {
 } from "react";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
-import {
-    isDisabled,
-    UI_ELEMENT,
-} from "../../utils/states";
+import {isDisabled} from "../../utils/states";
 
 import "./index.css";
 
