@@ -1,6 +1,7 @@
 import {useContext} from "react";
 
 import {
+    Box,
     Divider,
     IconButton,
     Sheet,
@@ -59,12 +60,23 @@ const MenuBar = () => {
                 </Tooltip>
                 <Divider orientation={"vertical"}/>
 
-                <Typography
-                    className={"menu-bar-filename"}
-                    level={"body-md"}
+                <Box
+                    className={"menu-bar-filename-container"}
+                    title={fileName}
                 >
-                    {fileName}
-                </Typography>
+                    <Typography
+                        className={"menu-bar-filename-left-split"}
+                        level={"body-md"}
+                    >
+                        {fileName.slice(0, fileName.length / 2)}
+                    </Typography>
+                    <Typography
+                        className={"menu-bar-filename-right-split"}
+                        level={"body-md"}
+                    >
+                        {fileName.slice(fileName.length / 2)}
+                    </Typography>
+                </Box>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
