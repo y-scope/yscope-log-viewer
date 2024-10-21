@@ -44,6 +44,9 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 result = "Decoder options cannot be empty.";
             }
             break;
+        case CONFIG_KEY.INITIAL_TAB_NAME:
+            // This config option is not intended for direct user input.
+            break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
