@@ -83,10 +83,7 @@ const Sidebar = () => {
 
             return;
         }
-        if (
-            tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXELS >
-            resizeHandlePosition
-        ) {
+        if (PANEL_CLIP_THRESHOLD_IN_PIXELS > resizeHandlePosition) {
             // If the resize handle is positioned to the right of the <TabList/>'s right edge
             // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);
@@ -109,8 +106,7 @@ const Sidebar = () => {
             const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
             if (
                 getPanelWidth() > availableWidth &&
-                tabListRef.current &&
-                tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth
+                PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth
             ) {
                 setPanelWidth(availableWidth);
             }
