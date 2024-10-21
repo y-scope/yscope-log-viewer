@@ -19,8 +19,8 @@ import "./index.css";
 
 
 const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
-const PANEL_CLIP_THRESHOLD_IN_PIXELS = 360;
-const EDITOR_MIN_WIDTH_IN_PIXELS = 140;
+const PANEL_CLIP_THRESHOLD_IN_PIXELS = 250;
+const EDITOR_MIN_WIDTH_IN_PIXELS = 250;
 
 /**
  * Gets width of the panel from body style properties.
@@ -41,6 +41,20 @@ const setPanelWidth = (newValue: number) => {
     document.documentElement.style.setProperty("--ylv-panel-width", `${newValue}px`);
 };
 
+/**
+ * Adjusts and sets the width of the panel based on the desired width and available width for the
+ * panel.
+ *
+ * @param desiredWidth
+ */
+const adjustAndSetPanelWidth = (desiredWidth: number) => {
+    const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
+    setPanelWidth(
+        desiredWidth < availableWidth ?
+            desiredWidth :
+            availableWidth
+    );
+};
 
 /**
  * Renders a sidebar component that displays tabbed panels and a resize handle.
@@ -68,7 +82,7 @@ const Sidebar = () => {
         }
         setActiveTabName(newTabName);
         setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: newTabName});
-        setPanelWidth(newPanelWidth);
+        adjustAndSetPanelWidth(newPanelWidth);
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -88,15 +102,9 @@ const Sidebar = () => {
             // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);
         } else {
-            // If the resize handle is positioned within the area where the editor width can be
-            // resized, update the panel width with the distance between the mouse pointer and the
-            // window's left edge; otherwise, set the panel width as the available width.
-            const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
-            if (resizeHandlePosition < availableWidth) {
-                setPanelWidth(resizeHandlePosition);
-            } else {
-                setPanelWidth(availableWidth);
-            }
+            // Update the panel width with the distance between the mouse pointer and the window's
+            // left edge.
+            adjustAndSetPanelWidth(resizeHandlePosition);
         }
     }, []);
 
@@ -105,11 +113,7 @@ const Sidebar = () => {
         const handleWindowResize = () => {
             const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
             if (getPanelWidth() > availableWidth) {
-                if (PANEL_CLIP_THRESHOLD_IN_PIXELS < availableWidth) {
-                    setPanelWidth(availableWidth);
-                } else {
-                    setPanelWidth(PANEL_CLIP_THRESHOLD_IN_PIXELS);
-                }
+                adjustAndSetPanelWidth(PANEL_CLIP_THRESHOLD_IN_PIXELS);
             }
         };
 
