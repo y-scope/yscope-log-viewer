@@ -26,7 +26,10 @@
     overflow-x: hidden;
     display: flex;
     flex-grow: 1;
+
     padding-inline: 0.75rem !important;
+
+    white-space: nowrap;
 }
 
 .menu-bar-filename-left-split {
