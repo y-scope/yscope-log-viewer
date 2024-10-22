@@ -1,12 +1,12 @@
-# dependencies
+# Dependencies
 /node_modules
 
-# production
+# Build
 /dist
+
+# For bundle size analysis
+/bundle-stats.json
 
 # IDEs
 /.idea
 /.vscode
-
-# for bundle size analysis
-/bundle_stats.json
