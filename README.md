@@ -75,42 +75,39 @@ $ npm run build
 # How does it work?
 
 `yscope-log-viewer` is written using the ReactJS framework and uses the open 
-source [monaco-editor](https://github.com/microsoft/monaco-editor).
+source [monaco-editor](https://github.com/microsoft/monaco-editor). For decoding
+files in CLP formats, APIs provided by
+[clp-ffi-js](https://github.com/y-scope/clp-ffi-js) are used.
 
-To open IR stream files, the viewer spawns workers to do the following:
+To open log files, the viewer spawns a worker to perform the following tasks:
 
-* Decompress the Zstd-compressed file
-* Build an index of log events
-* Paginate the indexed logs based on the number of log events per page
-* Decode the CLP-encoded log data as needed
+* Selects the appropriate decoder based on the file's extension and decodes the
+file.
+* Build an index of log events.
+* Paginate the indexed logs based on the number of log events per page.
+* Decode the log data as needed.
 
 Once the worker decompresses, decodes, and extracts logs, the viewer UI can be 
-used to navigate the log. Tasks are passed to the worker as needed and changes 
-are rendered to the UI. 
+used to navigate the logs. Tasks are passed to the worker as needed and changes 
+are rendered to the UI.
 
 # Validation
 
-Currently, there is limited automated testing to verify that changes don't cause 
-bugs. While this is being developed, the following tests can be run manually:
+Currently, there is no automated testing in place. While automation is being
+considered for future development, the following tests should be performed
+manually:
 
 * Verify that the following features work:
+  * Changing display themes
   * Changing the number of events per page
   * Navigating to the first/last/next/previous page
   * Loading a log file using the open file dialog and dragging & dropping
   * Copying a link to a log event
-  * Change the log level
-  * Prettifying logs 
-  * Using the keyboard shortcuts
+  * Changing the log level filter
+  * Exporting all logs to a file
+  * Toggling tabbed panels in the sidebar
+  * Using keyboard shortcuts
 * Perform a build and verify that all features are functional
-
-## Running tests
-
-We use [`jest`](https://jestjs.io/docs/getting-started) as our testing
-framework. Tests can be run with:
-
-```shell
-npm test
-```
 
 # Features in Development
 
