@@ -31,6 +31,21 @@ IR stream log files can currently be generated using these libraries:
 * [Log4j Logging Library](https://github.com/y-scope/log4j1-appenders)
 * Golang Logging Library (in development)
 
+# How does it work?
+
+`yscope-log-viewer` is written using the ReactJS framework and uses the open 
+source [monaco-editor](https://github.com/microsoft/monaco-editor).
+[clp-ffi-js](https://github.com/y-scope/clp-ffi-js) is used to decode CLP IR files. 
+
+The log viewer spawns a worker to assist with computationally intensive tasks
+such as:
+* Deserializing the file and creating an index of logs events
+* Paginating the indexed logs
+* Decoding the deserialized events log events into plain-text Tasks are passed
+* to the worker as needed and changes are rendered in the UI.
+
+Tasks are passed to the worker as needed and changes are rendered in the UI.
+
 # Providing Feedback
 
 You can use GitHub issues to [report a bug](https://github.com/y-scope/yscope-log-viewer/issues/new?assignees=&labels=bug&template=bug-report.yml)
@@ -72,21 +87,6 @@ To create a build, run the following command and the build will be placed in the
 ```shell
 $ npm run build
 ```
-
-# How does it work?
-
-`yscope-log-viewer` is written using the ReactJS framework and uses the open 
-source [monaco-editor](https://github.com/microsoft/monaco-editor).
-[clp-ffi-js](https://github.com/y-scope/clp-ffi-js) is used to decode CLP IR files. 
-
-The log viewer spawns a worker to assist with computationally intensive tasks
-such as:
-* Deserializing the file and creating an index of logs events
-* Paginating the indexed logs
-* Decoding the deserialized events log events into plain-text Tasks are passed
-* to the worker as needed and changes are rendered in the UI.
-
-Tasks are passed to the worker as needed and changes are rendered in the UI.
 
 # Validation
 
