@@ -71,13 +71,13 @@ const Sidebar = () => {
 
         setActiveTabName(tabName);
         setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
-        const newPanelWidth = clamp(
-            window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
-            PANEL_CLIP_THRESHOLD_IN_PIXELS,
-            PANEL_DEFAULT_WIDTH_IN_PIXELS
+        setPanelWidth(
+            clamp(
+                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                PANEL_CLIP_THRESHOLD_IN_PIXELS,
+                PANEL_DEFAULT_WIDTH_IN_PIXELS
+            )
         );
-
-        setPanelWidth(newPanelWidth);
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -100,7 +100,11 @@ const Sidebar = () => {
             // Update the panel width with the distance between the mouse pointer and the window's
             // left edge.
             setPanelWidth(
-                Math.min(resizeHandlePosition, window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS)
+                clamp(
+                    window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                    PANEL_CLIP_THRESHOLD_IN_PIXELS,
+                    resizeHandlePosition
+                )
             );
         }
     }, []);
