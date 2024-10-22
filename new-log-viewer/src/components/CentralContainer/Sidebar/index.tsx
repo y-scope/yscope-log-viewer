@@ -12,6 +12,7 @@ import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
+import {clamp} from "../../../utils/math";
 import ResizeHandle from "./ResizeHandle";
 import SidebarTabs from "./SidebarTabs";
 
@@ -59,17 +60,24 @@ const Sidebar = () => {
             return;
         }
 
-        let newTabName = tabName;
-        let newPanelWidth = PANEL_DEFAULT_WIDTH_IN_PIXELS;
         if (activeTabName === tabName) {
-            newTabName = TAB_NAME.NONE;
-            newPanelWidth = tabListRef.current.clientWidth;
+            // Close the panel
+            setActiveTabName(TAB_NAME.NONE);
+            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
+            setPanelWidth(tabListRef.current.clientWidth);
+
+            return;
         }
-        setActiveTabName(newTabName);
-        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: newTabName});
-        setPanelWidth(
-            Math.min(newPanelWidth, window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS)
+
+        setActiveTabName(tabName);
+        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
+        const newPanelWidth = clamp(
+            window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+            PANEL_CLIP_THRESHOLD_IN_PIXELS,
+            PANEL_DEFAULT_WIDTH_IN_PIXELS
         );
+
+        setPanelWidth(newPanelWidth);
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
