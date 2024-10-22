@@ -12,6 +12,7 @@ import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
+import {clamp} from "../../../utils/math";
 import ResizeHandle from "./ResizeHandle";
 import SidebarTabs from "./SidebarTabs";
 
@@ -20,7 +21,7 @@ import "./index.css";
 
 const PANEL_DEFAULT_WIDTH_IN_PIXELS = 360;
 const PANEL_CLIP_THRESHOLD_IN_PIXELS = 250;
-const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
+const EDITOR_MIN_WIDTH_IN_PIXELS = 250;
 
 /**
  * Gets width of the panel from body style properties.
@@ -28,7 +29,7 @@ const PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO = 0.8;
  * @return the width in pixels as a number.
  */
 const getPanelWidth = () => parseInt(
-    document.body.style.getPropertyValue("--ylv-panel-width"),
+    getComputedStyle(document.documentElement).getPropertyValue("--ylv-panel-width"),
     10
 );
 
@@ -38,9 +39,8 @@ const getPanelWidth = () => parseInt(
  * @param newValue in pixels.
  */
 const setPanelWidth = (newValue: number) => {
-    document.body.style.setProperty("--ylv-panel-width", `${newValue}px`);
+    document.documentElement.style.setProperty("--ylv-panel-width", `${newValue}px`);
 };
-
 
 /**
  * Renders a sidebar component that displays tabbed panels and a resize handle.
@@ -60,15 +60,24 @@ const Sidebar = () => {
             return;
         }
 
-        let newTabName = tabName;
-        let newPanelWidth = PANEL_DEFAULT_WIDTH_IN_PIXELS;
         if (activeTabName === tabName) {
-            newTabName = TAB_NAME.NONE;
-            newPanelWidth = tabListRef.current.clientWidth;
+            // Close the panel
+            setActiveTabName(TAB_NAME.NONE);
+            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
+            setPanelWidth(tabListRef.current.clientWidth);
+
+            return;
         }
-        setActiveTabName(newTabName);
-        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: newTabName});
-        setPanelWidth(newPanelWidth);
+
+        setActiveTabName(tabName);
+        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
+        setPanelWidth(
+            clamp(
+                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                PANEL_CLIP_THRESHOLD_IN_PIXELS,
+                PANEL_DEFAULT_WIDTH_IN_PIXELS
+            )
+        );
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -83,21 +92,41 @@ const Sidebar = () => {
 
             return;
         }
-        if (
-            tabListRef.current.clientWidth + PANEL_CLIP_THRESHOLD_IN_PIXELS >
-            resizeHandlePosition
-        ) {
+        if (PANEL_CLIP_THRESHOLD_IN_PIXELS > resizeHandlePosition) {
             // If the resize handle is positioned to the right of the <TabList/>'s right edge
             // with a clipping threshold accounted, close the panel.
             setPanelWidth(tabListRef.current.clientWidth);
-        } else if (
-            resizeHandlePosition < window.innerWidth * PANEL_MAX_WIDTH_TO_WINDOW_WIDTH_RATIO
-        ) {
-            // If the resize handle is positioned to the left of 80% of the window's width,
-            // update the panel width with the distance between the mouse pointer and the
-            // window's left edge.
-            setPanelWidth(resizeHandlePosition);
+        } else {
+            // Update the panel width with the distance between the mouse pointer and the window's
+            // left edge.
+            setPanelWidth(
+                clamp(
+                    window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                    PANEL_CLIP_THRESHOLD_IN_PIXELS,
+                    resizeHandlePosition
+                )
+            );
         }
+    }, []);
+
+    // On initialization, register window resize event handler to resize panel width when necessary.
+    useEffect(() => {
+        const handleWindowResize = () => {
+            const availableWidth = Math.max(
+                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                PANEL_CLIP_THRESHOLD_IN_PIXELS
+            );
+
+            if (getPanelWidth() > availableWidth) {
+                setPanelWidth(availableWidth);
+            }
+        };
+
+        window.addEventListener("resize", handleWindowResize);
+
+        return () => {
+            window.removeEventListener("resize", handleWindowResize);
+        };
     }, []);
 
     // On initialization, do not show panel if there is no active tab.
