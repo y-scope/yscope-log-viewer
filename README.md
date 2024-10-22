@@ -5,9 +5,10 @@
 [![CLP on Zulip](https://img.shields.io/badge/zulip-yscope--clp%20chat-1888FA?logo=zulip)](https://yscope-clp.zulipchat.com/)
 
 `yscope-log-viewer` is a tool that can be used to view log files that were 
-compressed using [CLP](https://github.com/y-scope/clp)'s IR stream format. The 
-viewer can be used to navigate the log file, filter by log level, pretty print 
-the logs and generate direct links to specific log events. 
+compressed using [CLP](https://github.com/y-scope/clp)'s IR stream format. It
+also supports viewing JSON logs. The viewer can be used to navigate the log 
+file, filter by log level, view the logs with syntax highlights and generate
+direct links to specific log events. 
 
 See the [features in development](#features-in-development) section for upcoming
 features.
