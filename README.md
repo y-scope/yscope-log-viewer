@@ -76,9 +76,8 @@ $ npm run build
 # How does it work?
 
 `yscope-log-viewer` is written using the ReactJS framework and uses the open 
-source [monaco-editor](https://github.com/microsoft/monaco-editor). For decoding
-files in CLP formats, APIs provided by
-[clp-ffi-js](https://github.com/y-scope/clp-ffi-js) are used.
+source [monaco-editor](https://github.com/microsoft/monaco-editor).
+[clp-ffi-js](https://github.com/y-scope/clp-ffi-js) is used to decode CLP IR files. 
 
 To open log files, the viewer spawns a worker to perform the following tasks:
 
