@@ -12,6 +12,11 @@ import {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../../services/LogExportManager";
+import {UI_ELEMENT} from "../../typings/states";
+import {
+    ignorePointerIfFastLoading,
+    isDisabled,
+} from "../../utils/states";
 import SmallIconButton from "./SmallIconButton";
 
 
@@ -21,16 +26,14 @@ import SmallIconButton from "./SmallIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress, fileName} = useContext(StateContext);
+    const {exportLogs, exportProgress, uiState} = useContext(StateContext);
 
     return (
         <SmallIconButton
+            className={ignorePointerIfFastLoading(uiState)}
             disabled={
-                // eslint-disable-next-line no-warning-comments
-                // TODO: Replace `"" === fileName` with a more specific context variable that
-                // indicates whether the file has been loaded.
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
-                    "" === fileName
+                isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
             onClick={exportLogs}
         >

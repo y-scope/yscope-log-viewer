@@ -13,3 +13,8 @@
 .page-num-input-num-pages-text {
     font-size: inherit !important;
 }
+
+.page-num-input-num-pages-text-disabled {
+    /* stylelint-disable-next-line custom-property-pattern */
+    color: var(--joy-palette-neutral-plainDisabledColor) !important;
+}

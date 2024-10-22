@@ -32,7 +32,12 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
+import {UI_ELEMENT} from "../../../typings/states";
 import {range} from "../../../utils/data";
+import {
+    ignorePointerIfFastLoading,
+    isDisabled,
+} from "../../../utils/states";
 import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
@@ -126,17 +131,19 @@ interface ClearFiltersOptionProps {
  * @param props.onClick
  * @return
  */
-const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
-    <Option
-        value={INVALID_LOG_LEVEL_VALUE}
-        onClick={onClick}
-    >
-        <ListItemDecorator>
-            <CloseIcon/>
-        </ListItemDecorator>
-        Clear filters
-    </Option>
-);
+const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
+    return (
+        <Option
+            value={INVALID_LOG_LEVEL_VALUE}
+            onClick={onClick}
+        >
+            <ListItemDecorator>
+                <CloseIcon/>
+            </ListItemDecorator>
+            Clear filters
+        </Option>
+    );
+};
 
 /**
  * Renders a dropdown box for selecting log levels.
@@ -144,8 +151,9 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => (
  * @return
  */
 const LogLevelSelect = () => {
+    const {uiState, setLogLevelFilter} = useContext(StateContext);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
-    const {setLogLevelFilter} = useContext(StateContext);
+    const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
         <Box className={"log-level-select-render-value-box"}>
@@ -206,7 +214,8 @@ const LogLevelSelect = () => {
 
     return (
         <Select
-            className={"log-level-select"}
+            className={`log-level-select ${ignorePointerIfFastLoading(uiState)}`}
+            disabled={disabled}
             multiple={true}
             renderValue={handleRenderValue}
             size={"sm"}
@@ -223,7 +232,11 @@ const LogLevelSelect = () => {
                     </IconButton>
                 </Tooltip>}
             placeholder={
-                <Chip className={"log-level-select-render-value-box-label"}>
+                <Chip
+                    className={`log-level-select-render-value-box-label ${disabled ?
+                        "log-level-select-render-value-box-label-disabled" :
+                        ""}`}
+                >
                     Log Level
                 </Chip>
             }

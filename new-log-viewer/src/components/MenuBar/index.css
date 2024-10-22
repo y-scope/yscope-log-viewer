@@ -39,3 +39,8 @@
     display: flex !important;
     justify-content: flex-end;
 }
+
+.menu-bar-loading-progress {
+    z-index: var(--ylv-loading-progress-z-index);
+    margin-bottom: -2px;
+}
