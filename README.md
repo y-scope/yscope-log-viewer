@@ -112,6 +112,7 @@ manually:
 
 # Features in Development
 
+* Pretty print to enhance readability of structured data in the logs
 * Dashboard to visualize distribution of log types and log levels
 * Opening log files which are larger than 2 GB when uncompressed
 * Support for plain text, archived log files, and other requested formats
