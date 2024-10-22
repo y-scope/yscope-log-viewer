@@ -79,17 +79,14 @@ $ npm run build
 source [monaco-editor](https://github.com/microsoft/monaco-editor).
 [clp-ffi-js](https://github.com/y-scope/clp-ffi-js) is used to decode CLP IR files. 
 
-To open log files, the viewer spawns a worker to perform the following tasks:
+The log viewer spawns a worker to assist with computationally intensive tasks
+such as:
+* Deserializing the file and creating an index of logs events
+* Paginating the indexed logs
+* Decoding the deserialized events log events into plain-text Tasks are passed
+* to the worker as needed and changes are rendered in the UI.
 
-* Selects the appropriate decoder based on the file's extension and decodes the
-file.
-* Build an index of log events.
-* Paginate the indexed logs based on the number of log events per page.
-* Decode the log data as needed.
-
-Once the worker decompresses, decodes, and extracts logs, the viewer UI can be 
-used to navigate the logs. Tasks are passed to the worker as needed and changes 
-are rendered to the UI.
+Tasks are passed to the worker as needed and changes are rendered in the UI.
 
 # Validation
 
