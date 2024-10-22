@@ -42,21 +42,6 @@ const setPanelWidth = (newValue: number) => {
 };
 
 /**
- * Adjusts and sets the width of the panel based on the desired width and available width for the
- * panel.
- *
- * @param desiredWidth
- */
-const adjustAndSetPanelWidth = (desiredWidth: number) => {
-    const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
-    setPanelWidth(
-        desiredWidth < availableWidth ?
-            desiredWidth :
-            availableWidth
-    );
-};
-
-/**
  * Renders a sidebar component that displays tabbed panels and a resize handle.
  * The active tab can be changed and the sidebar can be resized by dragging the handle.
  *
@@ -82,7 +67,9 @@ const Sidebar = () => {
         }
         setActiveTabName(newTabName);
         setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: newTabName});
-        adjustAndSetPanelWidth(newPanelWidth);
+        setPanelWidth(
+            Math.min(newPanelWidth, window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS)
+        );
     }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
@@ -104,16 +91,22 @@ const Sidebar = () => {
         } else {
             // Update the panel width with the distance between the mouse pointer and the window's
             // left edge.
-            adjustAndSetPanelWidth(resizeHandlePosition);
+            setPanelWidth(
+                Math.min(resizeHandlePosition, window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS)
+            );
         }
     }, []);
 
     // On initialization, register window resize event handler to resize panel width when necessary.
     useEffect(() => {
         const handleWindowResize = () => {
-            const availableWidth = window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS;
+            const availableWidth = Math.max(
+                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                PANEL_CLIP_THRESHOLD_IN_PIXELS
+            );
+
             if (getPanelWidth() > availableWidth) {
-                adjustAndSetPanelWidth(PANEL_CLIP_THRESHOLD_IN_PIXELS);
+                setPanelWidth(availableWidth);
             }
         };
 
