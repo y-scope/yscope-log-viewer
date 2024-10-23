@@ -40,6 +40,7 @@ decode CLP IR files.
 
 The log viewer spawns a worker to assist with computationally intensive tasks
 such as:
+
 * Deserializing the file and creating an index of logs events.
 * Paginating the indexed logs.
 * Decoding the deserialized events log events into plain-text.
@@ -53,57 +54,9 @@ You can use GitHub issues to [report a bug][report-bug] or
 
 Join us on [Zulip][zulip] to chat with developers and other community members.
 
-# Developing `yscope-log-viewer`
+# Developer Guide
 
-* Clone the repo to get a copy of the code for development
-
-  ```shell
-  git clone https://github.com/yscope/yscope-log-viewer.git
-  cd yscope-log-viewer
-  ```
-
-* Install Node.js using a [release][nodejs-prebuilt-installer] or via [nvm][nvm]
-/ [nvm-windows][nvm-windows]
-* Install the dependencies:
-
-  ```shell
-  $ npm install
-  ```
-
-* Run the development server:
-
-  ```shell
-  $ npm start
-  ```
-
-* The application should now be served at http://localhost:3010. 
-
-# Distribute
-
-To create a build, run the following command and the build will be placed in the
-`dist` folder:
-
-```shell
-$ npm run build
-```
-
-# Validation
-
-Currently, there is no automated testing in place. While automation is being
-considered for future development, the following tests should be performed
-manually:
-
-* Verify that the following features work:
-  * Changing display themes
-  * Changing the number of events per page
-  * Navigating to the first/last/next/previous page
-  * Loading a log file using the open file dialog and dragging & dropping
-  * Copying a link to a log event
-  * Changing the log level filter
-  * Exporting all logs to a file
-  * Toggling tabbed panels in the sidebar
-  * Using keyboard shortcuts
-* Perform a build and verify that all features are functional
+You can find our docs source in `docs/dev-guide`.
 
 # Features in Development
 
@@ -127,9 +80,6 @@ manually:
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
-[nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
-[nvm]: https://github.com/nvm-sh/nvm
-[nvm-windows]: https://github.com/coreybutler/nvm-windows
 [report-bug]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [report-enhancement]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [zulip]: https://yscope-clp.zulipchat.com/
