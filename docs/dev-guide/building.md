@@ -1,26 +1,14 @@
-# Building
+# Quick Start
 
 ## Requirements
 * Node.js via [prebuilt installers][nodejs-prebuilt-installer] / [nvm][nvm] / 
 [nvm-windows][nvm-windows]
-
-## Setup
-
-Clone the repo to get a copy of the code for development
-
-```shell
-git clone https://github.com/yscope/yscope-log-viewer.git
-cd yscope-log-viewer
-```
 
 ## Install the dependencies
 
 ```shell
 $ npm install
 ```
-
-If you ever add a package manually to `package.json` or `package.json` changes
-for some other reason, you should rerun this command.
 
 ## Running in development
 

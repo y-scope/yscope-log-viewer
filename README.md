@@ -50,9 +50,9 @@ You can use GitHub issues to [report a bug][report-bug] or
 
 Join us on [Zulip][zulip] to chat with developers and other community members.
 
-# Developer Guide
+# Contributing
 
-You can find our docs source in `docs/dev-guide`.
+You can find our developer guide in `docs/dev-guide`.
 
 # Features in Development
 
