@@ -6,7 +6,7 @@
 
 ## Setup
 
-* Clone the repo to get a copy of the code for development
+Clone the repo to get a copy of the code for development
 
 ```shell
 git clone https://github.com/yscope/yscope-log-viewer.git

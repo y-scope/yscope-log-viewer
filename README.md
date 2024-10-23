@@ -4,11 +4,11 @@
 ![Open feature requests][feature-requests-shield]
 ![CLP on Zulip][zulip-shield]
 
-`yscope-log-viewer` is a tool that can be used to view log files that were 
-compressed using [CLP][clp-repo]'s IR stream format. It
-also supports viewing JSON logs. The viewer can be used to navigate the log 
-file, filter by log level, view the logs with syntax highlights and generate
-direct links to specific log events. 
+`yscope-log-viewer` is a tool that can be used to view log files that were
+compressed using [CLP][clp-repo]'s IR stream format. It also supports viewing
+JSON logs. The viewer can be used to navigate the log file, filter by log level,
+view the logs with syntax highlights and generate direct links to specific log
+events.
 
 See the [features in development](#features-in-development) section for upcoming
 features.
@@ -16,11 +16,10 @@ features.
 # Online Demo
 
 * A demo of the log viewer can be found at https://yscope.com/log-viewer
-* The demo loads a Hadoop YARN log file from the 
-  [hive-24hrs][hive-24hrs] log dataset. 
-  * More info on the dataset and other datasets can be found 
-    [here][datasets].
-* To open an IR stream, drag and drop it onto the log viewer or use the open 
+* The demo loads a Hadoop YARN log file from the [hive-24hrs][hive-24hrs] log
+  dataset.
+    * More info on the dataset and other datasets can be found [here][datasets].
+* To open an IR stream, drag and drop it onto the log viewer or use the open
   file dialog.
 
 # Generating IR Stream Logs
@@ -34,9 +33,9 @@ IR stream log files can currently be generated using these libraries:
 
 # How does it work?
 
-`yscope-log-viewer` is written using the ReactJS framework and uses the open 
+`yscope-log-viewer` is written using the ReactJS framework and uses the open
 source [monaco-editor][monaco-editor]. [clp-ffi-js][clp-ffi-js] is used to
-decode CLP IR files. 
+decode CLP IR files.
 
 The log viewer spawns a worker to assist with computationally intensive tasks
 such as:
@@ -60,15 +59,15 @@ You can find our docs source in `docs/dev-guide`.
 
 # Features in Development
 
-* Pretty print to enhance readability of structured data in the logs
-* Dashboard to visualize distribution of log types and log levels
-* Opening log files which are larger than 2 GB when uncompressed
-* Support for plain text, archived log files, and other requested formats
-* Search across file, multiple files or within provided time ranges
-* Infinite scrolling instead of using pagination
-* Log correlation with sync by timestamp across multiple editors
-* Automatic conversion of text log files to IR stream format in the browser
-* Deployment of components via NPM
+* Pretty print to enhance readability of structured data in the logs.
+* Dashboard to visualize distribution of log types and log levels.
+* Opening log files which are larger than 2 GB when uncompressed.
+* Support for plain text, archived log files, and other requested formats.
+* Search across file, multiple files or within provided time ranges.
+* Infinite scrolling instead of using pagination.
+* Log correlation with sync by timestamp across multiple editors.
+* Automatic conversion of text log files to IR stream format in the browser.
+* Deployment of components via NPM.
 
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-ffi-js]: https://github.com/y-scope/clp-ffi-js
