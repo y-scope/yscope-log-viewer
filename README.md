@@ -126,7 +126,7 @@ manually:
 [hive-24hrs]: https://zenodo.org/record/7094921#.Y5JbH33MKHs
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
-[monaco-editor]: https://github.com/microsoft/monaco-editor
+[monaco-editor]: https://microsoft.github.io/monaco-editor/
 [nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
 [nvm]: https://github.com/nvm-sh/nvm
 [nvm-windows]: https://github.com/coreybutler/nvm-windows
