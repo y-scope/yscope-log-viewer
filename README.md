@@ -39,7 +39,7 @@ as:
 
 * Deserializing the file and creating an index of logs events.
 * Paginating the indexed logs.
-* Decoding the deserialized log events into plain-text.
+* Decoding the deserialized log events into plain text.
 
 Tasks are passed to the worker as needed and changes are rendered in the UI.
 
