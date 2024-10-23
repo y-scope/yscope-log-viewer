@@ -58,7 +58,6 @@ You can find our developer guide in `docs/dev-guide`.
 
 * Pretty printing to enhance readability of structured data in the logs.
 * A dashboard to visualize distribution of log types and log levels.
-* Opening log files which are larger than 2 GB when uncompressed.
 * Support for plain text, archived log files, and other requested formats.
 * Searching within a file, multiple files, or within provided time ranges.
 * Infinite scrolling instead of pagination.
