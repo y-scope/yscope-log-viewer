@@ -4,11 +4,10 @@
 ![Open feature requests][feature-requests-shield]
 ![CLP on Zulip][zulip-shield]
 
-`yscope-log-viewer` is a tool that can be used to view log files that were
-compressed using [CLP][clp-repo]'s IR stream format. It also supports viewing
-JSON logs. The viewer can be used to navigate the log file, filter by log level,
-view the logs with syntax highlights and generate direct links to specific log
-events.
+`yscope-log-viewer` is a tool that can be used to view log files. It currently
+supports [CLP][clp-repo]'s compressed log files (IR streams) and JSON log files.
+The viewer can be used to navigate the log file, filter by log level, view the
+logs with syntax highlighting, and generate direct links to specific log events.
 
 See the [features in development](#features-in-development) section for upcoming
 features.
@@ -16,8 +15,7 @@ features.
 # Online Demo
 
 * A demo of the log viewer can be found at https://yscope.com/log-viewer
-* The demo loads a Hadoop YARN log file from the [hive-24hrs][hive-24hrs] log
-  dataset.
+* The demo loads a Hadoop YARN log file from the [hive-24hrs] log dataset.
     * More info on the dataset and other datasets can be found [here][datasets].
 * To open an IR stream, drag and drop it onto the log viewer or use the open
   file dialog.
@@ -28,28 +26,27 @@ IR stream log files can currently be generated using these libraries:
 
 * [Log4j Logging Library][log4j1-appenders]
 * [Logback Logging Library][logback-appenders]
-* Golang Logging Library (in development)
 * [Python Logging Library][clp-loglib-py]
+* Golang Logging Library (in development)
 
 # How does it work?
 
-`yscope-log-viewer` is written using the ReactJS framework and uses the open
-source [monaco-editor][monaco-editor]. [clp-ffi-js][clp-ffi-js] is used to
-decode CLP IR files.
+The log viewer is written using the ReactJS framework and uses the open source
+[monaco-editor] and [clp-ffi-js].
 
-The log viewer spawns a worker to assist with computationally intensive tasks
-such as:
+The viewer spawns a worker to assist with computationally intensive tasks such
+as:
 
 * Deserializing the file and creating an index of logs events.
 * Paginating the indexed logs.
-* Decoding the deserialized events log events into plain-text.
+* Decoding the deserialized log events into plain-text.
 
 Tasks are passed to the worker as needed and changes are rendered in the UI.
 
 # Providing Feedback
 
 You can use GitHub issues to [report a bug][report-bug] or
-[request a feature][report-enhancement].
+[request a feature][request-feature].
 
 Join us on [Zulip][zulip] to chat with developers and other community members.
 
@@ -59,7 +56,7 @@ You can find our docs source in `docs/dev-guide`.
 
 # Features in Development
 
-* Pretty print to enhance readability of structured data in the logs.
+* Pretty printing to enhance readability of structured data in the logs.
 * Dashboard to visualize distribution of log types and log levels.
 * Opening log files which are larger than 2 GB when uncompressed.
 * Support for plain text, archived log files, and other requested formats.
@@ -80,6 +77,6 @@ You can find our docs source in `docs/dev-guide`.
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
 [report-bug]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
-[report-enhancement]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
+[request-feature]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [zulip]: https://yscope-clp.zulipchat.com/
 [zulip-shield]: https://img.shields.io/badge/zulip-yscope--clp%20chat-1888FA?logo=zulip
