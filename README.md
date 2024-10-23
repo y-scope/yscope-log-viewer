@@ -16,7 +16,7 @@ features.
 
 * A demo of the log viewer can be found at https://yscope.com/log-viewer
 * The demo loads a Hadoop YARN log file from the [hive-24hrs] log dataset.
-    * More info on the dataset and other datasets can be found [here][datasets].
+  * More info on the dataset and other datasets can be found [here][datasets].
 * To open an IR stream, drag and drop it onto the log viewer or use the open
   file dialog.
 
@@ -57,11 +57,11 @@ You can find our docs source in `docs/dev-guide`.
 # Features in Development
 
 * Pretty printing to enhance readability of structured data in the logs.
-* Dashboard to visualize distribution of log types and log levels.
+* A dashboard to visualize distribution of log types and log levels.
 * Opening log files which are larger than 2 GB when uncompressed.
 * Support for plain text, archived log files, and other requested formats.
-* Search across file, multiple files or within provided time ranges.
-* Infinite scrolling instead of using pagination.
+* Searching within a file, multiple files, or within provided time ranges.
+* Infinite scrolling instead of pagination.
 * Log correlation with sync by timestamp across multiple editors.
 * Automatic conversion of text log files to IR stream format in the browser.
 * Deployment of components via NPM.
