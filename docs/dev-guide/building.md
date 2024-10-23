@@ -19,8 +19,7 @@ The application should now be served in debug mode at http://localhost:3010.
 
 # Distribute
 
-To create a build, run the following command and the build will be placed in the
-`dist` folder:
+To create a build, run the following command and the build will be placed in the `dist` folder:
 
 ```shell
 $ npm run build

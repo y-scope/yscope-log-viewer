@@ -1,8 +1,7 @@
 # Validation
 
-Currently, there is no automated testing in place. While automation is being
-considered for future development, the following tests should be performed
-manually:
+Currently, there is no automated testing in place. While automation is being considered for future
+development, the following tests should be performed manually:
 
 * Verify that the following features work:
     * Changing display themes
