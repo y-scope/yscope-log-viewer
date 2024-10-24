@@ -1,0 +1,15 @@
+.result-button {
+    user-select: none;
+
+    overflow: hidden;
+    display: block !important;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result-text {
+    display: inline !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+}
