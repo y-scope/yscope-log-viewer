@@ -4,10 +4,17 @@
     white-space: nowrap;
 }
 
-.page-num-input input::-webkit-outer-spin-button,
-.page-num-input input::-webkit-inner-spin-button {
+/* Remove the spin buttons (up/down arrows) on number input fields for WebKit-based browsers.
+   NOTE: This approach does not work for Firefox Browser. See the next rule for mitigation. */
+.page-num-input input[type="number"]::-webkit-outer-spin-button,
+.page-num-input input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
     appearance: none;
+}
+
+/* Show number input fields as `textfield` to remove the spin buttons for Firefox Browser. */
+.page-num-input input[type="number"] {
+    appearance: textfield;
 }
 
 .page-num-input-num-pages-text {
