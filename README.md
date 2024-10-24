@@ -59,8 +59,8 @@ See the docs in our [developer guide](docs/dev-guide).
 
 # Features in Development
 
-* Pretty printing to enhance readability of structured data in the logs.
-* A dashboard to visualize distribution of log types and log levels.
+* Pretty printing to enhance the readability of structured data in the logs.
+* A dashboard to visualize the distribution of log types and log levels.
 * Support for plain text, archived log files, and other requested formats.
 * Searching within a file, multiple files, or within provided time ranges.
 * Infinite scrolling instead of pagination.
