@@ -9,6 +9,9 @@ supports [CLP][clp-repo]'s compressed log files (IR streams) and JSON log files.
 The viewer can be used to navigate the log file, filter by log level, view the
 logs with syntax highlighting, and generate direct links to specific log events.
 
+To start a local server for accessing the application locally, refer to
+`docs/dev-guide/building.md`.
+
 See the [features in development](#features-in-development) section for upcoming
 features.
 
