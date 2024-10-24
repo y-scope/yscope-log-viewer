@@ -1,71 +1,107 @@
 {
   "name": "yscope-log-viewer",
-  "version": "0.0.0",
-  "description": "Tool that can be used to view logs compressed in CLP's IR Stream format.",
-  "main": "./src/index.js",
+  "version": "0.1.0",
+  "description": "A tool tailored for viewing logs, including log formats designed by YScope.",
+  "main": "src/index.tsx",
   "scripts": {
+    "analyze:size": "webpack --config webpack.prod.js --profile --json=bundle-stats.json && webpack-bundle-analyzer bundle-stats.json dist/",
     "build": "webpack --config webpack.prod.js",
     "start": "webpack serve --open --config webpack.dev.js",
-    "test": "jest",
-    "analyze:size": "npx webpack --config webpack.prod.js --profile --json=bundle_stats.json && npx webpack-bundle-analyzer bundle_stats.json dist/"
+    "lint": "npm run lint:check",
+    "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
+    "lint:check:css": "stylelint src/**/*.css",
+    "lint:check:js": "eslint src webpack.*.js --max-warnings 0",
+    "lint:ci": "npm-run-all --sequential --continue-on-error lint:check:js \"lint:check:css -- --formatter github\"",
+    "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\""
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/y-scope/yscope-log-viewer.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "YScope Inc. <dev@yscope.com>",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/y-scope/yscope-log-viewer/issues"
   },
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
-    "@obsidize/tar-browserify": "4.0.0",
-    "bootstrap": "^5.2.3",
-    "buffer": "^6.0.3",
-    "compression-webpack-plugin": "^10.0.0",
-    "crypto-browserify": "^3.12.0",
-    "css-unicode-loader": "^1.0.3",
-    "html-webpack-plugin": "^5.5.0",
-    "jszip": "^3.10.1",
-    "monaco-editor": "^0.45.0",
-    "monaco-editor-webpack-plugin": "^7.1.0",
-    "pako": "^2.1.0",
-    "path": "^0.12.7",
-    "process": "^0.11.10",
-    "prop-types": "^15.8.1",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.5.0",
-    "react-bootstrap-icons": "^1.10.2",
-    "react-dom": "^18.2.0",
-    "react-loading-icons": "^1.1.0",
-    "react-router-dom": "^6.4.3",
-    "stream-browserify": "^3.0.0",
-    "zstd-codec": "file:customized-packages/zstd-codec/js/"
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/joy": "^5.0.0-beta.48",
+    "axios": "^1.7.2",
+    "clp-ffi-js": "^0.2.0",
+    "dayjs": "^1.11.11",
+    "monaco-editor": "^0.50.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.6",
-    "@babel/preset-env": "^7.19.4",
-    "@babel/preset-react": "^7.18.6",
-    "babel-loader": "^9.1.0",
-    "css-loader": "^6.7.1",
-    "eslint": "8.22.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-plugin-react": "^7.31.11",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "file-loader": "^6.2.0",
-    "jest": "^29.5.0",
-    "mini-css-extract-plugin": "^2.6.1",
-    "sass": "^1.55.0",
-    "sass-loader": "^13.1.0",
-    "style-loader": "^3.3.1",
-    "stylelint": "^14.16.1",
-    "stylelint-config-standard": "^29.0.0",
-    "stylelint-config-standard-scss": "^6.1.0",
-    "webpack": "^5.74.0",
-    "webpack-bundle-analyzer": "^4.10.1",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1",
-    "webpack-merge": "^5.8.0"
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "babel-loader": "^9.1.3",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "eslint-config-yscope": "latest",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "html-webpack-plugin": "^5.6.0",
+    "mini-css-extract-plugin": "^2.9.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3",
+    "react-refresh": "^0.14.2",
+    "style-loader": "^4.0.0",
+    "stylelint": "^16.9.0",
+    "stylelint-config-clean-order": "^6.1.0",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-prettier": "^5.0.2",
+    "typescript": "^5.6.2",
+    "webpack": "^5.92.0",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4",
+    "webpack-merge": "^5.10.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "yscope/react"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "*.ts",
+          "*.tsx"
+        ],
+        "extends": [
+          "yscope/typescript"
+        ]
+      }
+    ],
+    "rules": {
+      "no-restricted-imports": [
+        "error", {
+          "paths": [
+            {
+              "message": "Please use path imports and name your imports with postfix \"Icon\" to avoid confusions.",
+              "name": "@mui/icons-material"
+            }
+          ],
+          "patterns": [
+            {
+              "group": ["@mui/joy/*", "!@mui/joy/styles"],
+              "message": "Please use the default import from \"@mui/joy\" instead."
+            }
+          ]
+        }
+      ]
+    }
   }
 }

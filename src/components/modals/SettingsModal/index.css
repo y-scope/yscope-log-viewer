@@ -1,0 +1,15 @@
+.settings-dialog-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.settings-dialog-title-text {
+    flex-grow: 1;
+    font-size: 2rem;
+}
+
+.config-form-control {
+    margin-top: 16px;
+}

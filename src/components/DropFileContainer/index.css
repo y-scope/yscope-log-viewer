@@ -1,0 +1,34 @@
+.drop-file-container {
+    position: relative;
+}
+
+.hover-mask {
+    position: absolute;
+    z-index: var(--ylv-drop-file-container-hover-mask-z-index);
+    top: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgb(2 88 168 / 20%);
+}
+
+.hover-message {
+    z-index: var(--ylv-drop-file-container-hover-message-z-index);
+
+    padding: 8px;
+
+    font-family: var(--ylv-ui-font-family), sans-serif;
+    font-size: 0.875rem;
+    color: #616161;
+
+    background-color: #f3f3f3;
+}
+
+.hover-message-disabled {
+    background-color: #fce4e4;
+}

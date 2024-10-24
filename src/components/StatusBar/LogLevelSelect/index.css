@@ -1,0 +1,32 @@
+.log-level-select {
+    /* JoyUI has a rounding issue when calculating the listbox position, causing it to misjudge if
+      the listbox will fit on the right side. To mitigate this, we shift the select box 1px to the
+      left. */
+    margin-right: 1px;
+}
+
+.log-level-select-render-value-box {
+    display: flex;
+    gap: 2px;
+}
+
+.log-level-select-render-value-box-label {
+    /* Disable `Chip`'s background style. */
+    background-color: initial !important;
+}
+
+.log-level-select-render-value-box-label-disabled {
+    /* stylelint-disable-next-line custom-property-pattern */
+    color: var(--joy-palette-neutral-plainDisabledColor) !important;
+}
+
+.log-level-select-listbox {
+    /* Disallow width auto-resizing with the `Select` button. */
+    max-width: 0;
+}
+
+.log-level-select-option-text-tooltip {
+    /* Disable pointer events to prevent tooltips from blocking interaction with underlying
+      elements. */
+    pointer-events: none;
+}

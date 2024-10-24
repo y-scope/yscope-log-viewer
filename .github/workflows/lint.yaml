@@ -28,5 +28,5 @@ jobs:
       - uses: "actions/setup-node@v4"
         with:
           node-version: 22
-      - run: "npm --prefix new-log-viewer/ clean-install"
-      - run: "npm --prefix new-log-viewer/ run lint:ci"
+      - run: "npm clean-install"
+      - run: "npm run lint:ci"

@@ -1,0 +1,49 @@
+.menu-bar {
+    z-index: var(--ylv-menu-bar-z-index);
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    height: var(--ylv-status-bar-height);
+
+    /* stylelint-disable-next-line custom-property-pattern */
+    box-shadow: 0 1px 0 0 var(--joy-palette-neutral-outlinedBorder);
+}
+
+.menu-bar-logo-container {
+    display: flex;
+    justify-content: center;
+    min-width: 48px;
+    height: var(--ylv-status-bar-height);
+}
+
+.menu-bar-open-file-icon {
+    font-size: 24px !important;
+}
+
+.menu-bar-filename-container {
+    overflow-x: hidden;
+    display: flex;
+    flex-grow: 1;
+
+    padding-inline: 0.75rem !important;
+
+    white-space: nowrap;
+}
+
+.menu-bar-filename-left-split {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-bar-filename-right-split {
+    overflow-x: hidden;
+    display: flex !important;
+    justify-content: flex-end;
+}
+
+.menu-bar-loading-progress {
+    z-index: var(--ylv-loading-progress-z-index);
+    margin-bottom: -2px;
+}

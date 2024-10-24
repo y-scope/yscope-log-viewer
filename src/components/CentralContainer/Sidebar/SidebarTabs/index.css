@@ -1,0 +1,9 @@
+.sidebar-tabs {
+    flex-grow: 1;
+    width: calc(100% - var(--ylv-panel-resize-handle-width));
+    height: 100%;
+}
+
+.sidebar-tab-list-spacing {
+    flex-grow: 1;
+}
