@@ -33,7 +33,8 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 const CONFIG_FORM_FIELDS = [
     {
-        helperText: "[JSON] Log messages conversion formats.",
+        helperText: "[JSON] Log messages conversion pattern. The current syntax is similar to" +
+            " Logback conversion patterns but will change in a future release.",
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
