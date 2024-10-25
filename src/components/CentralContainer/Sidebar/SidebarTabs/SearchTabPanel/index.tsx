@@ -14,6 +14,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {QueryResults} from "../../../../../typings/worker";
 import CustomTabPanel from "../CustomTabPanel";
 import TitleButton from "../TitleButton";
 import ResultsGroup from "./ResultsGroup";
@@ -27,24 +28,33 @@ enum SEARCH_OPTION {
 /**
  *
  */
-const SAMPLE_RESULTS = Object.freeze({
-    1: [{logEventNum: 1,
-        message: "hi how are you",
-        matchRange: [0,
-            2] as [number, number]}],
-    2: [{logEventNum: 202,
-        message: "i'm a super long message that supposedly overflows in the panel width.",
-        matchRange: [4,
-            6] as [number, number]}],
-    8: [{logEventNum: 808,
-        message: "hi how are you",
-        matchRange: [4,
-            6] as [number, number]},
-    {logEventNum: 809,
-        message: "hi how are you",
-        matchRange: [4,
-            6] as [number, number]}],
-});
+const SAMPLE_RESULTS: QueryResults = new Map([
+    [1,
+        [
+            {logEventNum: 1,
+                message: "hi how are you",
+                matchRange: [0,
+                    2] as [number, number]},
+        ]],
+    [2,
+        [
+            {logEventNum: 202,
+                message: "i'm a super long message that supposedly overflows in the panel width.",
+                matchRange: [4,
+                    6] as [number, number]},
+        ]],
+    [8,
+        [
+            {logEventNum: 808,
+                message: "hi how are you",
+                matchRange: [4,
+                    6] as [number, number]},
+            {logEventNum: 809,
+                message: "hi how are you",
+                matchRange: [4,
+                    6] as [number, number]},
+        ]],
+]);
 
 /**
  * Displays a panel for submitting search queries and viewing query results.
@@ -104,13 +114,9 @@ const SearchTabPanel = () => {
                 disableDivider={true}
                 size={"sm"}
             >
-                {Object.entries(SAMPLE_RESULTS).map(([pageNum, resultsOnPage]) => (
-                    <ResultsGroup
-                        isAllExpanded={isAllExpanded}
-                        key={pageNum}
-                        pageNum={parseInt(pageNum, 10)}
-                        results={resultsOnPage}/>
-                ))}
+                <ResultsGroup
+                    isAllExpanded={isAllExpanded}
+                    queryResults={SAMPLE_RESULTS}/>
             </AccordionGroup>
         </CustomTabPanel>
     );

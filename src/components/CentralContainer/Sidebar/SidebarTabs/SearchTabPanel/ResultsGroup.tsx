@@ -17,35 +17,26 @@ import {
 
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
+import {QueryResults} from "../../../../../typings/worker";
 import Result from "./Result";
 
 import "./ResultsGroup.css";
 
 
-interface SearchResultOnPage {
-    logEventNum: number,
-    message: string,
-    matchRange: [number, number],
-}
-
 interface ResultsGroupProps {
     isAllExpanded: boolean,
-    pageNum: number,
-    results: SearchResultOnPage[]
+    queryResults: QueryResults,
 }
 
 /**
  *
  * @param props
- * @param props.isAllCollapsed
- * @param props.pageNum
- * @param props.results
  * @param props.isAllExpanded
+ * @param props.queryResults
  */
 const ResultsGroup = ({
     isAllExpanded,
-    pageNum,
-    results,
+    queryResults,
 }: ResultsGroupProps) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(isAllExpanded);
 
@@ -62,45 +53,50 @@ const ResultsGroup = ({
     }, [isAllExpanded]);
 
     return (
-        <Accordion
-            expanded={isExpanded}
-            onChange={handleAccordionChange}
-        >
-            <AccordionSummary
-                slotProps={{
-                    button: {className: "results-group-title-button"},
-                }}
-            >
-                <Box className={"results-group-title-container"}>
-                    <Stack
-                        className={"results-group-title-text-container"}
-                        direction={"row"}
+        <>
+            {Array.from(queryResults.entries()).map(([pageNum, results]) => (
+                <Accordion
+                    expanded={isExpanded}
+                    key={pageNum}
+                    onChange={handleAccordionChange}
+                >
+                    <AccordionSummary
+                        slotProps={{
+                            button: {className: "results-group-title-button"},
+                        }}
                     >
-                        <DescriptionOutlinedIcon fontSize={"inherit"}/>
-                        <Typography
-                            level={"title-sm"}
-                        >
-                            Page
-                            {" "}
-                            {pageNum}
-                        </Typography>
-                    </Stack>
-                    <Chip size={"sm"}>
-                        {results.length}
-                    </Chip>
-                </Box>
-            </AccordionSummary>
-            <AccordionDetails className={"results-group-content"}>
-                <List size={"sm"}>
-                    {results.map((r, index) => (
-                        <Result
-                            key={index}
-                            matchRange={r.matchRange}
-                            message={r.message}/>
-                    ))}
-                </List>
-            </AccordionDetails>
-        </Accordion>
+                        <Box className={"results-group-title-container"}>
+                            <Stack
+                                className={"results-group-title-text-container"}
+                                direction={"row"}
+                            >
+                                <DescriptionOutlinedIcon fontSize={"inherit"}/>
+                                <Typography
+                                    level={"title-sm"}
+                                >
+                                    Page
+                                    {" "}
+                                    {pageNum}
+                                </Typography>
+                            </Stack>
+                            <Chip size={"sm"}>
+                                {results.length}
+                            </Chip>
+                        </Box>
+                    </AccordionSummary>
+                    <AccordionDetails className={"results-group-content"}>
+                        <List size={"sm"}>
+                            {results.map((r) => (
+                                <Result
+                                    key={r.logEventNum}
+                                    matchRange={r.matchRange}
+                                    message={r.message}/>
+                            ))}
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
+            ))}
+        </>
     );
 };
 
