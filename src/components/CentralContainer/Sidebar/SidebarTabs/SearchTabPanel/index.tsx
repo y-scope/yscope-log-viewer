@@ -64,7 +64,6 @@ const SearchTabPanel = () => {
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
-                slotProps={{textarea: {ref: searchTextRef}, endDecorator: {sx: {marginBlockStart: 0, display: "block"}}}}
                 sx={{flexDirection: "row"}}
                 endDecorator={
                     <>
@@ -93,6 +92,10 @@ const SearchTabPanel = () => {
                         </ToggleButtonGroup>
                     </>
                 }
+                slotProps={{
+                    textarea: {ref: searchTextRef},
+                    endDecorator: {sx: {marginBlockStart: 0, display: "block"}},
+                }}
                 onKeyDown={handleSearch}/>
             <AccordionGroup
                 disableDivider={true}

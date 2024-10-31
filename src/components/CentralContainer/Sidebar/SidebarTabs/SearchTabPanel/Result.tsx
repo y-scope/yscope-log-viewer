@@ -34,13 +34,13 @@ const Result = ({message, matchRange}: ResultProps) => {
     return (
         <ListItemButton className={"result-button"}>
             <Typography
-                className={"result-text"}
+                className={"result-text before-match"}
                 level={"body-xs"}
             >
                 {beforeMatch}
             </Typography>
             <Typography
-                className={"result-text"}
+                className={"result-text match"}
                 level={"body-xs"}
                 sx={{
                     backgroundColor: "warning.softBg",
@@ -49,7 +49,7 @@ const Result = ({message, matchRange}: ResultProps) => {
                 {match}
             </Typography>
             <Typography
-                className={"result-text"}
+                className={"result-text after-match"}
                 level={"body-xs"}
             >
                 {afterMatch}

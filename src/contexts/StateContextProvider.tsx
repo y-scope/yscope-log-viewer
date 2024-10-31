@@ -307,6 +307,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
                 setQueryResults((v) => {
+                    v = structuredClone(v);
                     args.results.forEach((resultsPerPage, queryPageNum) => {
                         if (false === v.has(queryPageNum)) {
                             v.set(queryPageNum, []);

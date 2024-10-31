@@ -2,7 +2,7 @@
     user-select: none;
 
     overflow: hidden;
-    display: block !important;
+    display: flex !important;
 
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -12,4 +12,12 @@
     display: inline !important;
     font-size: 0.875rem !important;
     font-weight: 400 !important;
+}
+
+.before-match,
+.match,
+.after-match {
+    flex: 1 1 0;  /* Allow each item to take an equal part */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
