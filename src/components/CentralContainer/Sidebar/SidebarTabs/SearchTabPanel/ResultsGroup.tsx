@@ -38,27 +38,50 @@ const ResultsGroup = ({
     isAllExpanded,
     queryResults,
 }: ResultsGroupProps) => {
-    const [isExpanded, setIsExpanded] = useState<boolean>(isAllExpanded);
-
+    const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>({});
     const handleAccordionChange = (
-        _: React.SyntheticEvent,
-        newValue: boolean
-    ) => {
-        setIsExpanded(newValue);
+        pageNum: number
+    ) => (_: React.SyntheticEvent, newValue: boolean) => {
+        setExpandedMap((prev) => ({
+            ...prev,
+            [pageNum]: newValue,
+        }));
     };
 
     // On `isAllExpanded` updates, sync current results group's expand status.
     useEffect(() => {
-        setIsExpanded(isAllExpanded);
+        const newExpandedMap = Object.fromEntries(
+            Object.entries(expandedMap).map(([key]) => [key,
+                isAllExpanded])
+        );
+
+        setExpandedMap(newExpandedMap);
     }, [isAllExpanded]);
+
+    useEffect(() => {
+        setExpandedMap((prevMap) => {
+            const updatedMap = {...prevMap};
+            queryResults.forEach((_, pageNum) => {
+                // Only set for entries not already in expandedMap
+                if (!(pageNum in updatedMap)) {
+                    updatedMap[pageNum] = isAllExpanded;
+                }
+            });
+
+            return updatedMap;
+        });
+    }, [
+        isAllExpanded,
+        queryResults,
+    ]);
 
     return (
         <>
             {Array.from(queryResults.entries()).map(([pageNum, results]) => (
                 <Accordion
-                    expanded={isExpanded}
+                    expanded={expandedMap[pageNum] ?? isAllExpanded}
                     key={pageNum}
-                    onChange={handleAccordionChange}
+                    onChange={handleAccordionChange(pageNum)}
                 >
                     <AccordionSummary
                         slotProps={{
