@@ -1,4 +1,5 @@
 .sidebar-tab-title-button {
+    z-index: 0 !important;
     min-width: 0 !important;
     min-height: 0 !important;
 }

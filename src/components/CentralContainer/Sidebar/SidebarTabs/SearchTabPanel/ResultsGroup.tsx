@@ -17,7 +17,7 @@ import {
 
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
-import {QueryResults} from "../../../../../typings/worker";
+import {QueryResultsType} from "../../../../../typings/worker";
 import Result from "./Result";
 
 import "./ResultsGroup.css";
@@ -25,7 +25,8 @@ import "./ResultsGroup.css";
 
 interface ResultsGroupProps {
     isAllExpanded: boolean,
-    queryResults: QueryResults,
+    pageNum: number,
+    results: QueryResultsType[],
 }
 
 /**
@@ -33,95 +34,69 @@ interface ResultsGroupProps {
  *
  * @param props
  * @param props.isAllExpanded
- * @param props.queryResults
+ * @param props.pageNum
+ * @param props.results
  * @return
  */
 const ResultsGroup = ({
     isAllExpanded,
-    queryResults,
+    pageNum,
+    results,
 }: ResultsGroupProps) => {
-    const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>({});
+    const [isExpanded, setIsExpanded] = useState<boolean>(isAllExpanded);
+
     const handleAccordionChange = (
-        pageNum: number
-    ) => (_: React.SyntheticEvent, newValue: boolean) => {
-        setExpandedMap((prev) => ({
-            ...prev,
-            [pageNum]: newValue,
-        }));
+        _: React.SyntheticEvent,
+        newValue: boolean
+    ) => {
+        setIsExpanded(newValue);
     };
 
     // On `isAllExpanded` updates, sync current results group's expand status.
     useEffect(() => {
-        const newExpandedMap = Object.fromEntries(
-            Object.entries(expandedMap).map(([key]) => [key,
-                isAllExpanded])
-        );
-
-        setExpandedMap(newExpandedMap);
+        setIsExpanded(isAllExpanded);
     }, [isAllExpanded]);
 
-    useEffect(() => {
-        setExpandedMap((prevMap) => {
-            const updatedMap = {...prevMap};
-            queryResults.forEach((_, pageNum) => {
-                // Only set for entries not already in expandedMap
-                if (!(pageNum in updatedMap)) {
-                    updatedMap[pageNum] = isAllExpanded;
-                }
-            });
-
-            return updatedMap;
-        });
-    }, [
-        isAllExpanded,
-        queryResults,
-    ]);
-
     return (
-        <>
-            {Array.from(queryResults.entries()).map(([pageNum, results]) => (
-                <Accordion
-                    expanded={expandedMap[pageNum] ?? isAllExpanded}
-                    key={pageNum}
-                    onChange={handleAccordionChange(pageNum)}
-                >
-                    <AccordionSummary
-                        slotProps={{
-                            button: {className: "results-group-title-button"},
-                        }}
+        <Accordion
+            expanded={isExpanded}
+            onChange={handleAccordionChange}
+        >
+            <AccordionSummary
+                slotProps={{
+                    button: {className: "results-group-title-button"},
+                }}
+            >
+                <Box className={"results-group-title-container"}>
+                    <Stack
+                        className={"results-group-title-text-container"}
+                        direction={"row"}
                     >
-                        <Box className={"results-group-title-container"}>
-                            <Stack
-                                className={"results-group-title-text-container"}
-                                direction={"row"}
-                            >
-                                <DescriptionOutlinedIcon fontSize={"inherit"}/>
-                                <Typography
-                                    level={"title-sm"}
-                                >
-                                    Page
-                                    {" "}
-                                    {pageNum}
-                                </Typography>
-                            </Stack>
-                            <Chip size={"sm"}>
-                                {results.length}
-                            </Chip>
-                        </Box>
-                    </AccordionSummary>
-                    <AccordionDetails className={"results-group-content"}>
-                        <List size={"sm"}>
-                            {results.map((r) => (
-                                <Result
-                                    key={r.logEventNum}
-                                    matchRange={r.matchRange}
-                                    message={r.message}/>
-                            ))}
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
-            ))}
-        </>
+                        <DescriptionOutlinedIcon fontSize={"inherit"}/>
+                        <Typography
+                            level={"title-sm"}
+                        >
+                            Page
+                            {" "}
+                            {pageNum}
+                        </Typography>
+                    </Stack>
+                    <Chip size={"sm"}>
+                        {results.length}
+                    </Chip>
+                </Box>
+            </AccordionSummary>
+            <AccordionDetails className={"results-group-content"}>
+                <List size={"sm"}>
+                    {results.map((r, index) => (
+                        <Result
+                            key={index}
+                            matchRange={r.matchRange}
+                            message={r.message}/>
+                    ))}
+                </List>
+            </AccordionDetails>
+        </Accordion>
     );
 };
 

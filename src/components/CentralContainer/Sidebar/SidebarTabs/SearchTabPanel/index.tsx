@@ -1,4 +1,4 @@
-import {
+import React, {
     useContext,
     useRef,
     useState,
@@ -64,7 +64,7 @@ const SearchTabPanel = () => {
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
-                sx={{flexDirection: "row"}}
+                sx={{flexDirection: "row", zIndex: 0}}
                 endDecorator={
                     <>
                         <ToggleButtonGroup
@@ -101,9 +101,13 @@ const SearchTabPanel = () => {
                 disableDivider={true}
                 size={"sm"}
             >
-                <ResultsGroup
-                    isAllExpanded={isAllExpanded}
-                    queryResults={queryResults}/>
+                {Array.from(queryResults.entries()).map(([pageNum, results], index) => (
+                    <ResultsGroup
+                        isAllExpanded={isAllExpanded}
+                        key={index}
+                        pageNum={pageNum}
+                        results={results}/>
+                ))}
             </AccordionGroup>
         </CustomTabPanel>
     );

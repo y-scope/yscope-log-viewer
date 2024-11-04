@@ -183,6 +183,7 @@ export type {
     MainWorkerReqMessage,
     MainWorkerRespMessage,
     QueryResults,
+    QueryResultsType,
     WorkerReq,
     WorkerResp,
 };

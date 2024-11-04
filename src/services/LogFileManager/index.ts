@@ -318,12 +318,13 @@ class LogFileManager {
      * @param chunkBeginIdx
      * @param queryRegex
      */
+    // eslint-disable-next-line max-statements
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
         queryRegex: RegExp
     ): void {
-        if (queryId !== this.#queryId || MAX_RESULT_COUNT < this.#queryCount) {
+        if (queryId !== this.#queryId) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
@@ -335,31 +336,37 @@ class LogFileManager {
             null !== this.#decoder.getFilteredLogEventMap()
         );
 
-        decodedEvents?.forEach(([message, , , logEventNum]) => {
+        if (null === decodedEvents) {
+            return;
+        }
+
+        for (const [message, , , logEventNum] of decodedEvents) {
             const matchResult = message.match(queryRegex);
-            if (null !== matchResult && "number" === typeof matchResult.index) {
-                this.#queryCount++;
-                if (MAX_RESULT_COUNT < this.#queryCount) {
-                    return;
-                }
-                const pageNum = Math.ceil(logEventNum / this.#pageSize);
-                if (false === results.has(pageNum)) {
-                    results.set(pageNum, []);
-                }
-                results.get(pageNum)?.push({
-                    logEventNum: logEventNum,
-                    message: message,
-                    matchRange: [
-                        matchResult.index,
-                        (matchResult.index + matchResult[0].length),
-                    ],
-                });
+            if (null === matchResult || "number" !== typeof matchResult.index) {
+                continue;
             }
-        });
+            const pageNum = Math.ceil(logEventNum / this.#pageSize);
+            if (false === results.has(pageNum)) {
+                results.set(pageNum, []);
+            }
+            results.get(pageNum)?.push({
+                logEventNum: logEventNum,
+                message: message,
+                matchRange: [
+                    matchResult.index,
+                    (matchResult.index + matchResult[0].length),
+                ],
+            });
+
+            this.#queryCount++;
+            if (MAX_RESULT_COUNT <= this.#queryCount) {
+                break;
+            }
+        }
 
         this.#onQueryResults(results);
 
-        if (chunkEndIdx < this.#numEvents) {
+        if (chunkEndIdx < this.#numEvents && MAX_RESULT_COUNT > this.#queryCount) {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });

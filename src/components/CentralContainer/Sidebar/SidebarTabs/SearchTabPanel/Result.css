@@ -17,7 +17,7 @@
 .before-match,
 .match,
 .after-match {
-    flex: 1 1 0;  /* Allow each item to take an equal part */
     overflow: hidden;
+    flex: 1 1 0; /* Allow each item to take an equal part */
     text-overflow: ellipsis;
 }
