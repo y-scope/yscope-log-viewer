@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 400] */
+/* eslint max-lines: ["error", 450] */
 import {
     Decoder,
     DecoderOptionsType,
@@ -33,6 +33,8 @@ import {
 } from "./utils";
 
 
+const MAX_RESULT_COUNT = 1_000;
+
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
@@ -50,6 +52,8 @@ class LogFileManager {
     readonly #onQueryResults: (queryResults: QueryResults) => void;
 
     #decoder: Decoder;
+
+    #queryCount: number = 0;
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -287,6 +291,7 @@ class LogFileManager {
      */
     startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
         this.#queryId++;
+        this.#queryCount = 0;
 
         // If the query string is empty, or there are no logs, return
         if ("" === queryString || 0 === this.#numEvents) {
@@ -318,7 +323,7 @@ class LogFileManager {
         chunkBeginIdx: number,
         queryRegex: RegExp
     ): void {
-        if (queryId !== this.#queryId) {
+        if (queryId !== this.#queryId || MAX_RESULT_COUNT < this.#queryCount) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
@@ -333,6 +338,10 @@ class LogFileManager {
         decodedEvents?.forEach(([message, , , logEventNum]) => {
             const matchResult = message.match(queryRegex);
             if (null !== matchResult && "number" === typeof matchResult.index) {
+                this.#queryCount++;
+                if (MAX_RESULT_COUNT < this.#queryCount) {
+                    return;
+                }
                 const pageNum = Math.ceil(logEventNum / this.#pageSize);
                 if (false === results.has(pageNum)) {
                     results.set(pageNum, []);

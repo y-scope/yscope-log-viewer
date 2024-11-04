@@ -29,10 +29,12 @@ interface ResultsGroupProps {
 }
 
 /**
+ * Renders a group of results. Each group contains a list of results from a single page.
  *
  * @param props
  * @param props.isAllExpanded
  * @param props.queryResults
+ * @return
  */
 const ResultsGroup = ({
     isAllExpanded,
