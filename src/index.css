@@ -3,6 +3,10 @@ body,
 #root {
     width: 100%;
     height: 100%;
+
+
+
+
     margin: 0;
 }
 
@@ -12,7 +16,7 @@ html {
 
 :root {
     /* font-family globals */
-    --ylv-ui-font-family: -apple-system, "BlinkMacSystemFont", system-ui, "Ubuntu", "Droid Sans",
+    --ylv-ui-font-family: -apple-system, BlinkMacSystemFont, system-ui, "Ubuntu", "Droid Sans",
         "Inter";
 
     /* size globals */
