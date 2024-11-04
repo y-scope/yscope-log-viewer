@@ -17,5 +17,6 @@
 
 .results-group-content {
     margin-left: 1.5px !important;
+    /* stylelint-disable-next-line custom-property-pattern */
     border-left: 1px solid var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
 }
