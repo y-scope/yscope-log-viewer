@@ -29,4 +29,13 @@ jobs:
         with:
           node-version: 22
       - run: "npm clean-install"
-      - run: "npm run lint:ci"
+      - name: "Set up Stylelint Problem Matcher"
+        run: "echo '::add-matcher::./.github/problem-matchers/stylelint.json'"
+      - name: "Run `lint:ci` script."
+        run: |-
+          # Disable ANSI color codes in Stylelint default "string" formatter
+          export NO_COLOR=1
+          npm run lint:ci
+      - if: "always()"
+        name: "Remove Stylelint Problem Matcher"
+        run: "echo '::remove-matcher::./.github/problem-matchers/stylelint.json'"
