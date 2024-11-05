@@ -49,7 +49,7 @@ class LogFileManager {
 
     readonly #onDiskFileSizeInBytes: number;
 
-    readonly #onQueryResults: (queryResults: QueryResults) => void;
+    readonly #onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
 
     #decoder: Decoder;
 
@@ -71,7 +71,7 @@ class LogFileManager {
         fileName: string,
         onDiskFileSizeInBytes: number,
         pageSize: number,
-        onQueryResults: (queryResults: QueryResults) => void,
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
@@ -115,7 +115,7 @@ class LogFileManager {
         fileSrc: FileSrcType,
         pageSize: number,
         decoderOptions: DecoderOptionsType,
-        onQueryResults: (queryResults: QueryResults) => void,
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
@@ -364,7 +364,7 @@ class LogFileManager {
             }
         }
 
-        this.#onQueryResults(results);
+        this.#onQueryResults(chunkEndIdx / this.#numEvents, results);
 
         if (chunkEndIdx < this.#numEvents && MAX_RESULT_COUNT > this.#queryCount) {
             defer(() => {
