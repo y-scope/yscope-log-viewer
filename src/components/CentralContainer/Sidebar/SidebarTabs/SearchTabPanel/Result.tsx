@@ -3,10 +3,13 @@ import {
     Typography,
 } from "@mui/joy";
 
+import {updateWindowUrlHashParams} from "../../../../../contexts/UrlContextProvider";
+
 import "./Result.css";
 
 
 interface ResultProps {
+    logEventNum: number,
     message: string,
     matchRange: [number, number]
 }
@@ -18,9 +21,10 @@ interface ResultProps {
  * @param props.message
  * @param props.matchRange A two-element array indicating the start and end indices of the substring
  * to be highlighted.
+ * @param props.logEventNum
  * @return
  */
-const Result = ({message, matchRange}: ResultProps) => {
+const Result = ({logEventNum, message, matchRange}: ResultProps) => {
     const [
         beforeMatch,
         match,
@@ -30,9 +34,15 @@ const Result = ({message, matchRange}: ResultProps) => {
         message.slice(...matchRange),
         message.slice(matchRange[1]),
     ];
+    const handleResultButtonClick = () => {
+        updateWindowUrlHashParams({logEventNum});
+    };
 
     return (
-        <ListItemButton className={"result-button"}>
+        <ListItemButton
+            className={"result-button"}
+            onClick={handleResultButtonClick}
+        >
             <Typography
                 className={"result-text before-match"}
                 level={"body-xs"}

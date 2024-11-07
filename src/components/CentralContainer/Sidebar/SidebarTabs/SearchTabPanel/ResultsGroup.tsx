@@ -91,6 +91,7 @@ const ResultsGroup = React.memo(({
                     {results.map((r, index) => (
                         <Result
                             key={index}
+                            logEventNum={r.logEventNum}
                             matchRange={r.matchRange}
                             message={r.message}/>
                     ))}
