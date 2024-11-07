@@ -364,7 +364,10 @@ class LogFileManager {
             }
         }
 
-        this.#onQueryResults(chunkEndIdx / this.#numEvents, results);
+        this.#onQueryResults(
+            Math.max(chunkEndIdx / this.#numEvents, this.#queryCount / MAX_RESULT_COUNT),
+            results
+        );
 
         if (chunkEndIdx < this.#numEvents && MAX_RESULT_COUNT > this.#queryCount) {
             defer(() => {

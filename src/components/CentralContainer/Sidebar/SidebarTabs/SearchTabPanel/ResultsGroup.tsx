@@ -38,7 +38,7 @@ interface ResultsGroupProps {
  * @param props.results
  * @return
  */
-const ResultsGroup = ({
+const ResultsGroup = React.memo(({
     isAllExpanded,
     pageNum,
     results,
@@ -98,6 +98,8 @@ const ResultsGroup = ({
             </AccordionDetails>
         </Accordion>
     );
-};
+});
+
+ResultsGroup.displayName = "ResultsGroup";
 
 export default ResultsGroup;

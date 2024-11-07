@@ -66,31 +66,29 @@ const SearchTabPanel = () => {
                 size={"sm"}
                 sx={{flexDirection: "row", zIndex: 0}}
                 endDecorator={
-                    <>
-                        <ToggleButtonGroup
-                            size={"sm"}
-                            spacing={0.3}
-                            sx={{borderRadius: "2px"}}
-                            value={searchOptions}
-                            variant={"plain"}
-                            onChange={(_, newValue) => {
-                                setSearchOptions(newValue);
-                            }}
+                    <ToggleButtonGroup
+                        size={"sm"}
+                        spacing={0.3}
+                        sx={{borderRadius: "2px"}}
+                        value={searchOptions}
+                        variant={"plain"}
+                        onChange={(_, newValue) => {
+                            setSearchOptions(newValue);
+                        }}
+                    >
+                        <IconButton
+                            sx={{fontFamily: "Inter"}}
+                            value={SEARCH_OPTION.IS_CASE_SENSITIVE}
                         >
-                            <IconButton
-                                sx={{fontFamily: "Inter"}}
-                                value={SEARCH_OPTION.IS_CASE_SENSITIVE}
-                            >
-                                Aa
-                            </IconButton>
-                            <IconButton
-                                sx={{fontFamily: "Inter"}}
-                                value={SEARCH_OPTION.IS_REGEX}
-                            >
-                                .*
-                            </IconButton>
-                        </ToggleButtonGroup>
-                    </>
+                            Aa
+                        </IconButton>
+                        <IconButton
+                            sx={{fontFamily: "Inter"}}
+                            value={SEARCH_OPTION.IS_REGEX}
+                        >
+                            .*
+                        </IconButton>
+                    </ToggleButtonGroup>
                 }
                 slotProps={{
                     textarea: {ref: searchTextRef},
@@ -101,10 +99,10 @@ const SearchTabPanel = () => {
                 disableDivider={true}
                 size={"sm"}
             >
-                {Array.from(queryResults.entries()).map(([pageNum, results], index) => (
+                {Array.from(queryResults.entries()).map(([pageNum, results]) => (
                     <ResultsGroup
                         isAllExpanded={isAllExpanded}
-                        key={index}
+                        key={`${pageNum} + ${results.length}`}
                         pageNum={pageNum}
                         results={results}/>
                 ))}

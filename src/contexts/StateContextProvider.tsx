@@ -63,6 +63,7 @@ interface StateContextType {
     numPages: number,
     onDiskFileSizeInBytes: number,
     pageNum: number,
+    queryProgress: number,
     queryResults: QueryResults,
 
     exportLogs: () => void,
@@ -85,6 +86,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    queryProgress: 0,
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
@@ -231,27 +233,28 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const beginLineNumToLogEventNumRef =
+        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
     const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
         useState(STATE_DEFAULT.onDiskFileSizeInBytes);
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
+    const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
     const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
-    const beginLineNumToLogEventNumRef =
-        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
+    const logExportManagerRef = useRef<null|LogExportManager>(null);
+    const mainWorkerRef = useRef<null|Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
-    const logExportManagerRef = useRef<null|LogExportManager>(null);
-    const mainWorkerRef = useRef<null|Worker>(null);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -317,6 +320,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
                     return v;
                 });
+                setQueryProgress(args.progress);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -506,6 +510,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                queryProgress: queryProgress,
                 queryResults: queryResults,
                 uiState: uiState,
 
