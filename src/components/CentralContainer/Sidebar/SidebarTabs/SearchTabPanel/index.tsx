@@ -7,6 +7,7 @@ import React, {
 import {
     AccordionGroup,
     IconButton,
+    LinearProgress,
     Textarea,
     ToggleButtonGroup,
 } from "@mui/joy";
@@ -47,6 +48,7 @@ const SearchTabPanel = () => {
             startQuery(searchTextRef.current.value, isRegex, isCaseSensitive);
         }
     };
+    const {queryProgress} = useContext(StateContext);
 
     return (
         <CustomTabPanel
@@ -95,6 +97,9 @@ const SearchTabPanel = () => {
                     endDecorator: {sx: {marginBlockStart: 0, display: "block"}},
                 }}
                 onKeyDown={handleSearch}/>
+            <LinearProgress
+                determinate={true}
+                value={queryProgress * 100}/>
             <AccordionGroup
                 disableDivider={true}
                 size={"sm"}

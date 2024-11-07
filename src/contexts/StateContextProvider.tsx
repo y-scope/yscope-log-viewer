@@ -320,7 +320,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
                     return v;
                 });
-                setQueryProgress(args.progress);
+                setQueryProgress(1 === args.progress ?
+                    0 :
+                    args.progress);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);

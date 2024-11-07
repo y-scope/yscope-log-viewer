@@ -31,13 +31,13 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {uiState, numEvents, queryProgress} = useContext(StateContext);
+    const {uiState, numEvents} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     return (
         <Sheet className={"status-bar"}>
             <Typography className={"status-message"}>
-                {queryProgress}
+                {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
             <Button
                 color={"primary"}
