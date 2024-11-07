@@ -1,4 +1,4 @@
-import {JsonlDecoderOptionsType} from "./decoders";
+import {JsonlDecoderOptions} from "./decoders";
 import {TAB_NAME} from "./tab";
 
 
@@ -27,7 +27,7 @@ enum LOCAL_STORAGE_KEY {
 /* eslint-enable @typescript-eslint/prefer-literal-enum-member */
 
 type ConfigMap = {
-    [CONFIG_KEY.DECODER_OPTIONS]: JsonlDecoderOptionsType,
+    [CONFIG_KEY.DECODER_OPTIONS]: JsonlDecoderOptions,
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME,
     [CONFIG_KEY.THEME]: THEME_NAME,
     [CONFIG_KEY.PAGE_SIZE]: number,

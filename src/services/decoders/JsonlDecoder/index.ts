@@ -5,7 +5,7 @@ import {
     Decoder,
     DecodeResultType,
     FilteredLogEventMap,
-    JsonlDecoderOptionsType,
+    JsonlDecoderOptions,
     LogEventCount,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
@@ -25,7 +25,7 @@ import {
 
 
 /**
- * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptionsType` for
+ * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptions` for
  * properties that are specific to log events (compared to generic JSON records).
  */
 class JsonlDecoder implements Decoder {
@@ -49,7 +49,7 @@ class JsonlDecoder implements Decoder {
      * @param dataArray
      * @param decoderOptions
      */
-    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
+    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptions) {
         this.#dataArray = dataArray;
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
@@ -81,7 +81,7 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    setFormatterOptions (options: JsonlDecoderOptionsType): boolean {
+    setFormatterOptions (options: JsonlDecoderOptions): boolean {
         this.#formatter = new LogbackFormatter({formatString: options.formatString});
 
         return true;
