@@ -18,7 +18,7 @@ features.
 
 # Online Demo
 
-* A demo of the log viewer can be found [here][online-demo]
+* A demo of the log viewer can be found [here][online-demo].
 * The demo loads a Hadoop YARN log file from the [hive-24hrs] log dataset.
   * More info on the dataset and other datasets can be found [here][datasets].
 * To open an IR stream, drag and drop it onto the log viewer or use the open
