@@ -9,7 +9,8 @@ supports [CLP][clp-repo]'s compressed log files (IR streams) and JSON log files.
 The viewer can be used to navigate the log file, filter by log level, view the
 logs with syntax highlighting, and generate direct links to specific log events.
 
-To start a local server for accessing the application locally, refer to our
+See the [online demo](#online-demo) section to try out the log viewer on a
+sample log file. To set up a local server, follow the
 [build guide](docs/dev-guide/building.md).
 
 See the [features in development](#features-in-development) section for upcoming
@@ -17,7 +18,7 @@ features.
 
 # Online Demo
 
-* A demo of the log viewer can be found at https://yscope.com/log-viewer
+* A demo of the log viewer can be found [here][online-demo].
 * The demo loads a Hadoop YARN log file from the [hive-24hrs] log dataset.
   * More info on the dataset and other datasets can be found [here][datasets].
 * To open an IR stream, drag and drop it onto the log viewer or use the open
@@ -78,6 +79,7 @@ See the docs in our [developer guide](docs/dev-guide).
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
+[online-demo]: https://yscope.com/log-viewer?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
 [report-bug]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [request-feature]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [zulip]: https://yscope-clp.zulipchat.com/
