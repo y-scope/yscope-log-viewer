@@ -6,7 +6,7 @@ import {
 
 describe("clamp", () => {
     test("returns the number itself if it is within the range", () => {
-        expect(clamp(5, 1, 10)).toBe(1);
+        expect(clamp(5, 1, 10)).toBe(5);
         expect(clamp(1, 1, 10)).toBe(1);
         expect(clamp(10, 1, 10)).toBe(10);
     });
