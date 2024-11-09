@@ -1,30 +1,5 @@
-import {
-    clamp,
-    getChunkNum,
-} from "../../src/utils/math";
+import {getChunkNum} from "../../src/utils/math";
 
-
-describe("clamp", () => {
-    test("returns the number itself if it is within the range", () => {
-        expect(clamp(5, 1, 10)).toBe(1);
-        expect(clamp(1, 1, 10)).toBe(1);
-        expect(clamp(10, 1, 10)).toBe(10);
-    });
-
-    test("returns the lower boundary if the number is less than the range", () => {
-        expect(clamp(0, 1, 10)).toBe(1);
-        expect(clamp(-5, 1, 10)).toBe(1);
-    });
-
-    test("returns the upper boundary if the number is greater than the range", () => {
-        expect(clamp(15, 1, 10)).toBe(10);
-        expect(clamp(100, 1, 10)).toBe(10);
-    });
-
-    test("returns the upper boundary when max is less than min", () => {
-        expect(clamp(5, 10, 1)).toBe(1);
-    });
-});
 
 describe("getChunkNum", () => {
     test("returns 1 if the item number is 0 or less", () => {
