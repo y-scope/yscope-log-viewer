@@ -4,6 +4,15 @@ on:
   push:
     branches: ["main"]
 
+permissions:
+  # So the workflow can cancel in-progress jobs
+  actions: "write"
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  # Cancel in-progress jobs for efficiency
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: "ubuntu-latest"
