@@ -27,8 +27,10 @@ jobs:
   deploy:
     needs: "build"
     permissions:
-      pages: "write"     # to deploy to Pages
-      id-token: "write"  # to verify the deployment originates from an app
+      # to deploy to Pages
+      pages: "write"
+      # to verify the deployment originates from
+      id-token: "write"  an app
     runs-on: "ubuntu-latest"
     environment:
       name: "github-pages"
