@@ -53,7 +53,7 @@ const config: Config = {
     maxWorkers: "100%",
     openHandlesTimeout: 1000,
     reporters: [
-        "undefined" === typeof process.env.GITHUB_ACTIONS ?
+        "undefined" === typeof process.env.CI ?
             "default" :
             [
                 "github-actions",
