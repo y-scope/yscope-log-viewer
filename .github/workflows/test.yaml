@@ -1,0 +1,34 @@
+name: "test"
+
+on:
+  pull_request:
+    types: ["opened", "reopened", "synchronize"]
+  push:
+  schedule:
+    # Run at midnight UTC every day with 15 minutes delay added to avoid high load periods
+    - cron: "15 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  # So the workflow can cancel in-progress jobs
+  actions: "write"
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  # Cancel in-progress jobs for efficiency
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          submodules: "recursive"
+      - uses: "actions/setup-node@v4"
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "./package-lock.json"
+      - run: "npm clean-install"
+      - run: "npm run test"
