@@ -21,9 +21,12 @@ describe("clamp", () => {
         expect(clamp(100, 1, 10)).toBe(10);
     });
 
-    test("returns the upper boundary when max is less than min", () => {
-        expect(clamp(5, 10, 1)).toBe(1);
-    });
+    test(
+        "returns the upper boundary when the upper boundary is less than the lower boundary",
+        () => {
+            expect(clamp(5, 10, 1)).toBe(1);
+        }
+    );
 });
 
 describe("getChunkNum", () => {
