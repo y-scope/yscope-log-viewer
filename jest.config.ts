@@ -3,7 +3,17 @@ import os from "node:os";
 import pathPosix from "node:path/posix";
 
 
-const config: Config = {
+let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
+if ("undefined" !== typeof process.env.CI) {
+    PRIMARY_REPORTER = [
+        "github-actions",
+        {silent: false},
+    ];
+}
+console.log(`Environment variable "CI"="${process.env.CI}": ` +
+    `primary reporter will be ${JSON.stringify(PRIMARY_REPORTER)}`);
+
+const JEST_CONFIG: Config = {
     collectCoverage: true,
     collectCoverageFrom: ["src/**/*.{ts,tsx}"],
     coverageProvider: "v8",
@@ -53,12 +63,7 @@ const config: Config = {
     maxWorkers: "100%",
     openHandlesTimeout: 1000,
     reporters: [
-        "undefined" === typeof process.env.CI ?
-            "default" :
-            [
-                "github-actions",
-                {silent: false},
-            ],
+        PRIMARY_REPORTER,
         "summary",
     ],
     showSeed: true,
@@ -80,4 +85,4 @@ const config: Config = {
     workerThreads: true,
 };
 
-export default config;
+export default JEST_CONFIG;
