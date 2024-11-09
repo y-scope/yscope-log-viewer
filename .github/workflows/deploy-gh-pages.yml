@@ -30,7 +30,8 @@ jobs:
     permissions:
       # To deploy to Pages
       pages: "write"
-      # to verify the deployment originates from an app
+
+      # To request a JWT from GitHub for certifying the origin of the deployment
       id-token: "write"
     runs-on: "ubuntu-latest"
     environment:
