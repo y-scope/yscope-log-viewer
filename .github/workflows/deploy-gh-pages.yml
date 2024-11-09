@@ -28,7 +28,7 @@ jobs:
   deploy:
     needs: "build"
     permissions:
-      # to deploy to Pages
+      # To deploy to Pages
       pages: "write"
       # to verify the deployment originates from an app
       id-token: "write"
