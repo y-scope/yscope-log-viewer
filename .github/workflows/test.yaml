@@ -13,6 +13,7 @@ permissions: {}
 
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
+
   # Cancel in-progress jobs for efficiency
   cancel-in-progress: true
 
