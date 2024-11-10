@@ -9,9 +9,7 @@ on:
     - cron: "15 0 * * *"
   workflow_dispatch:
 
-permissions:
-  # So the workflow can cancel in-progress jobs
-  actions: "write"
+permissions: {}
 
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
