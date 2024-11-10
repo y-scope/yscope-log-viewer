@@ -4,9 +4,7 @@ on:
   push:
     branches: ["main"]
 
-permissions:
-  # So the workflow can cancel in-progress jobs
-  actions: "write"
+permissions: {}
 
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
