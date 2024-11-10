@@ -79,7 +79,7 @@ See the docs in our [developer guide](docs/dev-guide).
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
-[online-demo]: https://yscope.com/log-viewer?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
+[online-demo]: https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
 [report-bug]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [request-feature]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [zulip]: https://yscope-clp.zulipchat.com/
