@@ -26,23 +26,23 @@ import ResultsGroup from "./ResultsGroup";
 import "./index.css";
 
 
-enum SEARCH_OPTION {
+enum QUERY_OPTION {
     IS_CASE_SENSITIVE = "isCaseSensitive",
     IS_REGEX = "isRegex"
 }
 
 /**
- * Displays a panel for submitting search queries and viewing query results.
+ * Displays a panel for submitting queries and viewing query results.
  *
  * @return
  */
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
-    const [searchOptions, setSearchOptions] = useState<SEARCH_OPTION[]>([]);
-    const handleSearchInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const isCaseSensitive = searchOptions.includes(SEARCH_OPTION.IS_CASE_SENSITIVE);
-        const isRegex = searchOptions.includes(SEARCH_OPTION.IS_REGEX);
+    const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
+    const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const isCaseSensitive = queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
+        const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
         startQuery(ev.target.value, isRegex, isCaseSensitive);
     };
 
@@ -59,40 +59,39 @@ const SearchTabPanel = () => {
             }
         >
             <Textarea
-
-                // FIXME: extra newline between search input and search options
-                className={"textarea"}
+                className={"query-input-box"}
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
                 endDecorator={
                     <ToggleButtonGroup
                         size={"sm"}
-                        spacing={0.3}
-                        value={searchOptions}
+                        spacing={0.25}
+                        value={queryOptions}
                         variant={"plain"}
                         onChange={(_, newValue) => {
-                            setSearchOptions(newValue);
+                            setQueryOptions(newValue);
                         }}
                     >
                         <IconButton
-                            className={"search-option"}
-                            value={SEARCH_OPTION.IS_CASE_SENSITIVE}
+                            className={"query-option"}
+                            value={QUERY_OPTION.IS_CASE_SENSITIVE}
                         >
                             Aa
                         </IconButton>
                         <IconButton
-                            className={"search-option"}
-                            value={SEARCH_OPTION.IS_REGEX}
+                            className={"query-option"}
+                            value={QUERY_OPTION.IS_REGEX}
                         >
                             .*
                         </IconButton>
                     </ToggleButtonGroup>
                 }
                 slotProps={{
-                    endDecorator: {className: "end-decorator"},
+                    textarea: {className: "query-input-box-textarea"},
+                    endDecorator: {className: "query-input-box-end-decorator"},
                 }}
-                onChange={handleSearchInputChange}/>
+                onChange={handleQueryInputChange}/>
             <LinearProgress
                 determinate={true}
                 thickness={2}

@@ -1,13 +1,17 @@
-.end-decorator {
-    display: block;
-    margin-block-start: 0;
+.query-input-box {
+    z-index: var(--ylv-panel-query-input-z-index);
+    flex-direction: row !important;
 }
 
-.search-option {
-    font-family: Inter; /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
+.query-option-button {
+    font-family: Inter, sans-serif !important;
 }
 
-.textarea {
-    z-index: 0;
-    flex-direction: row;
+.query-input-box-textarea {
+    width: 0;
+}
+
+.query-input-box-end-decorator {
+    display: block !important;
+    margin-block-start: 0 !important;
 }
