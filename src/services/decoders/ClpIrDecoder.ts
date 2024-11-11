@@ -1,4 +1,5 @@
 import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
+import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../typings/common";
 import {
@@ -10,10 +11,7 @@ import {
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "../../typings/logs";
+import {LogLevelFilter} from "../../typings/logs";
 import LogbackFormatter from "../formatters/LogbackFormatter";
 import {
     convertToDayjsTimestamp,
@@ -106,26 +104,29 @@ class ClpIrDecoder implements Decoder {
         }
 
         results.forEach((result) => {
-            const [message, timestamp] = result;
+            const [
+                message,
+                timestamp,
+                level,
+            ] = result;
+            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 
-            if (0 < message.length) {
-                try {
-                    fields = JSON.parse(message) as JsonObject;
-                    if (false === isJsonObject(fields)) {
-                        throw new Error("Unexpected non-object.");
-                    }
-                } catch (e) {
-                    console.error(e, message);
+            try {
+                fields = JSON.parse(message) as JsonObject;
+                if (false === isJsonObject(fields)) {
+                    throw new Error("Unexpected non-object.");
                 }
+            } catch (e) {
+                console.error(e, message);
             }
 
             // `this.#formatter` has been null-checked at the method entry.
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             result[0] = this.#formatter!.formatLogEvent({
                 fields: fields,
-                level: LOG_LEVEL.UNKNOWN,
-                timestamp: convertToDayjsTimestamp(timestamp),
+                level: level,
+                timestamp: dayJsTimestamp,
             });
         });
 
