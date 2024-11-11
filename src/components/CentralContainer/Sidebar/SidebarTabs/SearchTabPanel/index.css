@@ -1,0 +1,13 @@
+.end-decorator {
+    display: block;
+    margin-block-start: 0;
+}
+
+.search-option {
+    font-family: Inter; /* stylelint-disable-line font-family-no-missing-generic-family-keyword */
+}
+
+.textarea {
+    z-index: 0;
+    flex-direction: row;
+}

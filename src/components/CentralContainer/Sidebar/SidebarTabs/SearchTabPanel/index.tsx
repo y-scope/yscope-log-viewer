@@ -1,6 +1,5 @@
 import React, {
     useContext,
-    useRef,
     useState,
 } from "react";
 
@@ -24,6 +23,8 @@ import CustomTabPanel from "../CustomTabPanel";
 import TitleButton from "../TitleButton";
 import ResultsGroup from "./ResultsGroup";
 
+import "./index.css";
+
 
 enum SEARCH_OPTION {
     IS_CASE_SENSITIVE = "isCaseSensitive",
@@ -36,19 +37,14 @@ enum SEARCH_OPTION {
  * @return
  */
 const SearchTabPanel = () => {
+    const {queryProgress, queryResults, startQuery} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [searchOptions, setSearchOptions] = useState<SEARCH_OPTION[]>([]);
-    const searchTextRef = useRef<HTMLTextAreaElement>(null);
-    const {queryResults, startQuery} = useContext(StateContext);
-    const handleSearch = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if ("Enter" === event.key && searchTextRef.current) {
-            event.preventDefault();
-            const isCaseSensitive = searchOptions.includes(SEARCH_OPTION.IS_CASE_SENSITIVE);
-            const isRegex = searchOptions.includes(SEARCH_OPTION.IS_REGEX);
-            startQuery(searchTextRef.current.value, isRegex, isCaseSensitive);
-        }
+    const handleSearchInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const isCaseSensitive = searchOptions.includes(SEARCH_OPTION.IS_CASE_SENSITIVE);
+        const isRegex = searchOptions.includes(SEARCH_OPTION.IS_REGEX);
+        startQuery(ev.target.value, isRegex, isCaseSensitive);
     };
-    const {queryProgress} = useContext(StateContext);
 
     return (
         <CustomTabPanel
@@ -63,15 +59,16 @@ const SearchTabPanel = () => {
             }
         >
             <Textarea
+
+                // FIXME: extra newline between search input and search options
+                className={"textarea"}
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
-                sx={{flexDirection: "row", zIndex: 0}}
                 endDecorator={
                     <ToggleButtonGroup
                         size={"sm"}
                         spacing={0.3}
-                        sx={{borderRadius: "2px"}}
                         value={searchOptions}
                         variant={"plain"}
                         onChange={(_, newValue) => {
@@ -79,13 +76,13 @@ const SearchTabPanel = () => {
                         }}
                     >
                         <IconButton
-                            sx={{fontFamily: "Inter"}}
+                            className={"search-option"}
                             value={SEARCH_OPTION.IS_CASE_SENSITIVE}
                         >
                             Aa
                         </IconButton>
                         <IconButton
-                            sx={{fontFamily: "Inter"}}
+                            className={"search-option"}
                             value={SEARCH_OPTION.IS_REGEX}
                         >
                             .*
@@ -93,12 +90,12 @@ const SearchTabPanel = () => {
                     </ToggleButtonGroup>
                 }
                 slotProps={{
-                    textarea: {ref: searchTextRef},
-                    endDecorator: {sx: {marginBlockStart: 0, display: "block"}},
+                    endDecorator: {className: "end-decorator"},
                 }}
-                onKeyDown={handleSearch}/>
+                onChange={handleSearchInputChange}/>
             <LinearProgress
                 determinate={true}
+                thickness={2}
                 value={queryProgress * 100}/>
             <AccordionGroup
                 disableDivider={true}

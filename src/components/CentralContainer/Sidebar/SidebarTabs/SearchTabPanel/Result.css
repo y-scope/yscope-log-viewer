@@ -15,9 +15,14 @@
 }
 
 .before-match,
-.match,
 .after-match {
     overflow: hidden;
     flex: 1 1 0; /* Allow each item to take an equal part */
+    text-overflow: ellipsis;
+}
+
+.match {
+    overflow: hidden;
+    flex: initial;
     text-overflow: ellipsis;
 }

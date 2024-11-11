@@ -306,7 +306,7 @@ class LogFileManager {
             "" :
             "i";
         const queryRegex = new RegExp(regexPattern, regexFlags);
-
+        this.#onQueryResults(0, new Map());
         this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
     }
 
@@ -364,6 +364,8 @@ class LogFileManager {
             }
         }
 
+        // The query progress takes the maximum of the progress based on the number of events
+        // queried over total log events, and the number of results over the maximum result limit.
         this.#onQueryResults(
             Math.max(chunkEndIdx / this.#numEvents, this.#queryCount / MAX_RESULT_COUNT),
             results

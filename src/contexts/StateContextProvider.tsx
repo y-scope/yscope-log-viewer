@@ -97,6 +97,8 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     startQuery: () => null,
 });
 
+const INITIAL_QUERY_PROGRESS = 0;
+
 interface StateContextProviderProps {
     children: React.ReactNode
 }
@@ -233,8 +235,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
-    const beginLineNumToLogEventNumRef =
-        useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
@@ -249,6 +249,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
 
     // Refs
+    const beginLineNumToLogEventNumRef =
+            useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null|LogExportManager>(null);
     const mainWorkerRef = useRef<null|Worker>(null);
@@ -309,20 +311,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
-                setQueryResults((v) => {
-                    v = structuredClone(v);
-                    args.results.forEach((resultsPerPage, queryPageNum) => {
-                        if (false === v.has(queryPageNum)) {
-                            v.set(queryPageNum, []);
-                        }
-                        v.get(queryPageNum)?.push(...resultsPerPage);
-                    });
+                setQueryProgress(args.progress);
+                if (INITIAL_QUERY_PROGRESS === args.progress) {
+                    setQueryResults(STATE_DEFAULT.queryResults);
+                } else {
+                    setQueryResults((v) => {
+                        v = structuredClone(v);
+                        args.results.forEach((resultsPerPage, queryPageNum) => {
+                            if (false === v.has(queryPageNum)) {
+                                v.set(queryPageNum, []);
+                            }
+                            v.get(queryPageNum)?.push(...resultsPerPage);
+                        });
 
-                    return v;
-                });
-                setQueryProgress(1 === args.progress ?
-                    0 :
-                    args.progress);
+                        return v;
+                    });
+                }
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);

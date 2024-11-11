@@ -49,9 +49,7 @@ const ExportLogsButton = () => {
                         "primary"}
                 >
                     {EXPORT_LOG_PROGRESS_VALUE_MAX === exportProgress ?
-                        <DownloadIcon
-                            color={"success"}
-                            sx={{fontSize: "14px"}}/> :
+                        <DownloadIcon color={"success"}/> :
                         <Typography level={"body-xs"}>
                             {Math.ceil(exportProgress * 100)}
                         </Typography>}
