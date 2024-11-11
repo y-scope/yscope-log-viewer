@@ -1,10 +1,12 @@
-import clpFfiJsModuleInit, {ClpStreamReader} from "../../../deps/ClpFfiJs-worker";
+import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
+
 import {Nullable} from "../../typings/common";
 import {
     ClpIrDecoderOptions,
     Decoder,
     DecodeResultType,
     FilteredLogEventMap,
+    JsonlDecoderOptions,
     LogEventCount,
 } from "../../typings/decoders";
 import {JsonObject} from "../../typings/js";
@@ -19,17 +21,28 @@ import {
 } from "./JsonlDecoder/utils";
 
 
+enum CLP_IR_STREAM_TYPE {
+    STRUCTURED = "structured",
+    UNSTRUCTURED = "unstructured",
+}
+
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
+    #streamType: CLP_IR_STREAM_TYPE;
+
     #formatter: Nullable<LogbackFormatter>;
 
-    #logLevelKey: Nullable<string>;
-
-    constructor (streamReader: ClpStreamReader, formatter: Nullable<LogbackFormatter>, logLevelKey: Nullable<string>) {
+    constructor (
+        streamType: CLP_IR_STREAM_TYPE,
+        streamReader: ClpStreamReader,
+        decoderOptions: ClpIrDecoderOptions
+    ) {
+        this.#streamType = streamType;
         this.#streamReader = streamReader;
-        this.#formatter = formatter;
-        this.#logLevelKey = logLevelKey;
+        this.#formatter = (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) ?
+            new LogbackFormatter({formatString: decoderOptions.formatString}) :
+            null;
     }
 
     /**
@@ -45,17 +58,11 @@ class ClpIrDecoder implements Decoder {
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
         const streamReader = new module.ClpStreamReader(dataArray, decoderOptions);
+        const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
+            CLP_IR_STREAM_TYPE.STRUCTURED :
+            CLP_IR_STREAM_TYPE.UNSTRUCTURED;
 
-        let formatter: Nullable<LogbackFormatter> = null;
-        let logLevelKey: Nullable<string> = null;
-        if (
-            module.IRProtocolErrorCode.SUPPORTED === streamReader.getIrProtocolErrorCode()
-        ) {
-            formatter = new LogbackFormatter({formatString: decoderOptions.formatString});
-            ({logLevelKey} = decoderOptions);
-        }
-
-        return new ClpIrDecoder(streamReader, formatter, logLevelKey);
+        return new ClpIrDecoder(streamType, streamReader, decoderOptions);
     }
 
     getEstimatedNumEvents (): number {
@@ -79,8 +86,9 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    setFormatterOptions (): boolean {
+    setFormatterOptions (options: JsonlDecoderOptions): boolean {
+        this.#formatter = new LogbackFormatter({formatString: options.formatString});
+
         return true;
     }
 
@@ -90,30 +98,29 @@ class ClpIrDecoder implements Decoder {
         useFilter: boolean
     ): Nullable<DecodeResultType[]> {
         const results = this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
-        if (null === this.#formatter) {
+        if (this.#streamType === CLP_IR_STREAM_TYPE.UNSTRUCTURED) {
             return results;
         }
         results.forEach((result) => {
             const [message, timestamp] = result;
             let fields: JsonObject = {};
-            try {
-                fields = JSON.parse(message) as JsonObject;
-                if (false === isJsonObject(fields)) {
-                    throw new Error("Unexpected non-object.");
-                } else if (null !== this.#logLevelKey) {
-                    const logLevel = fields[this.#logLevelKey];
-                    fields[this.#logLevelKey] = LOG_LEVEL[logLevel as LOG_LEVEL];
+
+            if (0 < message.length) {
+                try {
+                    fields = JSON.parse(message) as JsonObject;
+                    if (false === isJsonObject(fields)) {
+                        throw new Error("Unexpected non-object.");
+                    }
+                } catch (e) {
+                    console.error(e, message);
                 }
-            } catch (e) {
-                if (0 === message.length) {
-                    return;
-                }
-                console.error(e, message);
             }
 
-            // @ts-expect-error `this.#formatter` is certainly non-null
-            result[0] = this.#formatter.formatLogEvent({
+            // `this.#formatter` has been null-checked at the method entry.
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            result[0] = this.#formatter!.formatLogEvent({
                 fields: fields,
+                level: LOG_LEVEL.UNKNOWN,
                 timestamp: convertToDayjsTimestamp(timestamp),
             });
         });
@@ -121,5 +128,6 @@ class ClpIrDecoder implements Decoder {
         return results;
     }
 }
+
 
 export default ClpIrDecoder;
