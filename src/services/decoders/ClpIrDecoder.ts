@@ -9,6 +9,7 @@ import {
     JsonlDecoderOptions,
     LogEventCount,
 } from "../../typings/decoders";
+import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {
     LOG_LEVEL,
@@ -31,7 +32,7 @@ class ClpIrDecoder implements Decoder {
 
     #streamType: CLP_IR_STREAM_TYPE;
 
-    #formatter: Nullable<LogbackFormatter>;
+    #formatter: Nullable<Formatter>;
 
     constructor (
         streamType: CLP_IR_STREAM_TYPE,
