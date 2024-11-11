@@ -27,7 +27,7 @@ interface DecoderOptions {
  * @property level
  * @property number
  */
-type DecodeResultType = [string, number, number, number];
+type DecodeResult = [string, bigint, number, number];
 
 /**
  * Mapping between an index in the filtered log events collection to an index in the unfiltered log
@@ -97,13 +97,13 @@ interface Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean
-    ): Nullable<DecodeResultType[]>;
+    ): Nullable<DecodeResult[]>;
 }
 
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
-    DecodeResultType,
+    DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,

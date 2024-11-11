@@ -4,7 +4,7 @@ import {Dayjs} from "dayjs";
 import {Nullable} from "../../typings/common";
 import {
     Decoder,
-    DecodeResultType,
+    DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
@@ -95,8 +95,8 @@ class ClpIrDecoder implements Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean
-    ): Nullable<DecodeResultType[]> {
-        const results: DecodeResultType[] =
+    ): Nullable<DecodeResult[]> {
+        const results: DecodeResult[] =
             this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
 
         if (this.#streamType === CLP_IR_STREAM_TYPE.UNSTRUCTURED) {
