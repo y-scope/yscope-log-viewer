@@ -5,6 +5,7 @@ import React, {
 
 import {
     AccordionGroup,
+    Box,
     IconButton,
     LinearProgress,
     Textarea,
@@ -58,56 +59,66 @@ const SearchTabPanel = () => {
                 </TitleButton>
             }
         >
-            <Textarea
-                className={"query-input-box"}
-                maxRows={7}
-                placeholder={"Search"}
-                size={"sm"}
-                endDecorator={
-                    <ToggleButtonGroup
+            <Box sx={{display: "flex", flexDirection: "column", height: "100%", overflowY: "hidden"}}>
+                <div>
+                    <Textarea
+                        className={"query-input-box"}
+                        maxRows={7}
+                        placeholder={"Search"}
                         size={"sm"}
-                        spacing={0.25}
-                        value={queryOptions}
-                        variant={"plain"}
-                        onChange={(_, newValue) => {
-                            setQueryOptions(newValue);
+                        sx={{borderRadius: 0}}
+                        endDecorator={
+                            <ToggleButtonGroup
+                                size={"sm"}
+                                spacing={0.25}
+                                value={queryOptions}
+                                variant={"plain"}
+                                onChange={(_, newValue) => {
+                                    setQueryOptions(newValue);
+                                }}
+                            >
+                                <IconButton
+                                    className={"query-option"}
+                                    value={QUERY_OPTION.IS_CASE_SENSITIVE}
+                                >
+                                    Aa
+                                </IconButton>
+                                <IconButton
+                                    className={"query-option"}
+                                    value={QUERY_OPTION.IS_REGEX}
+                                >
+                                    .*
+                                </IconButton>
+                            </ToggleButtonGroup>
+                        }
+                        slotProps={{
+                            textarea: {className: "query-input-box-textarea"},
+                            endDecorator: {className: "query-input-box-end-decorator"},
                         }}
-                    >
-                        <IconButton
-                            className={"query-option"}
-                            value={QUERY_OPTION.IS_CASE_SENSITIVE}
-                        >
-                            Aa
-                        </IconButton>
-                        <IconButton
-                            className={"query-option"}
-                            value={QUERY_OPTION.IS_REGEX}
-                        >
-                            .*
-                        </IconButton>
-                    </ToggleButtonGroup>
-                }
-                slotProps={{
-                    textarea: {className: "query-input-box-textarea"},
-                    endDecorator: {className: "query-input-box-end-decorator"},
-                }}
-                onChange={handleQueryInputChange}/>
-            <LinearProgress
-                determinate={true}
-                thickness={2}
-                value={queryProgress * 100}/>
-            <AccordionGroup
-                disableDivider={true}
-                size={"sm"}
-            >
-                {Array.from(queryResults.entries()).map(([pageNum, results]) => (
-                    <ResultsGroup
-                        isAllExpanded={isAllExpanded}
-                        key={`${pageNum} + ${results.length}`}
-                        pageNum={pageNum}
-                        results={results}/>
-                ))}
-            </AccordionGroup>
+                        onChange={handleQueryInputChange}/>
+                    <LinearProgress
+                        determinate={true}
+                        sx={{"--LinearProgress-progressRadius": 0}}
+                        thickness={4}
+                        value={queryProgress * 100}
+                        color={1 === queryProgress ?
+                            "success" :
+                            "primary"}/>
+                </div>
+                <AccordionGroup
+                    disableDivider={true}
+                    size={"sm"}
+                    sx={{flexGrow: 1, overflowY: "auto"}}
+                >
+                    {Array.from(queryResults.entries()).map(([pageNum, results]) => (
+                        <ResultsGroup
+                            isAllExpanded={isAllExpanded}
+                            key={`${pageNum} + ${results.length}`}
+                            pageNum={pageNum}
+                            results={results}/>
+                    ))}
+                </AccordionGroup>
+            </Box>
         </CustomTabPanel>
     );
 };

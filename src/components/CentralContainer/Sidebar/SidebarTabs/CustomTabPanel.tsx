@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+    Box,
     ButtonGroup,
     DialogContent,
     DialogTitle,
@@ -39,24 +40,26 @@ const CustomTabPanel = ({
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <DialogTitle className={"sidebar-tab-panel-title-container"}>
-                <Typography
-                    className={"sidebar-tab-panel-title"}
-                    level={"body-md"}
-                >
-                    {title}
-                </Typography>
-                <ButtonGroup
-                    size={"sm"}
-                    spacing={"1px"}
-                    variant={"plain"}
-                >
-                    {titleButtons}
-                </ButtonGroup>
-            </DialogTitle>
-            <DialogContent>
-                {children}
-            </DialogContent>
+            <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
+                <DialogTitle className={"sidebar-tab-panel-title-container"}>
+                    <Typography
+                        className={"sidebar-tab-panel-title"}
+                        level={"body-md"}
+                    >
+                        {title}
+                    </Typography>
+                    <ButtonGroup
+                        size={"sm"}
+                        spacing={"1px"}
+                        variant={"plain"}
+                    >
+                        {titleButtons}
+                    </ButtonGroup>
+                </DialogTitle>
+                <DialogContent sx={{flexGrow: 1}}>
+                    {children}
+                </DialogContent>
+            </Box>
         </TabPanel>
     );
 };
