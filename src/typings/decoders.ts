@@ -8,31 +8,15 @@ interface LogEventCount {
 }
 
 /**
- * Options for the JSONL decoder.
- *
  * @property formatString The format string to use to serialize records as plain text.
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptions {
+interface DecoderOptions {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
 }
-
-/**
- * Options for the Structured CLP IR decoder.
- */
-interface StructuredClpIrDecoderOptions extends JsonlDecoderOptions {
-}
-
-/**
- * Options for the CLP IR decoder. Currently, those options are only effective if the stream is
- * Structured IR.
- */
-type ClpIrDecoderOptions = StructuredClpIrDecoderOptions;
-
-type DecoderOptions = JsonlDecoderOptions | ClpIrDecoderOptions;
 
 /**
  * Type of the decoded log event. We use an array rather than object so that it's easier to return
@@ -118,11 +102,9 @@ interface Decoder {
 
 export type {
     ActiveLogCollectionEventIdx,
-    ClpIrDecoderOptions,
     Decoder,
     DecodeResultType,
     DecoderOptions,
     FilteredLogEventMap,
-    JsonlDecoderOptions,
     LogEventCount,
 };

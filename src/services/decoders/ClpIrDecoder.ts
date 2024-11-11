@@ -2,11 +2,10 @@ import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
 
 import {Nullable} from "../../typings/common";
 import {
-    ClpIrDecoderOptions,
     Decoder,
     DecodeResultType,
+    DecoderOptions,
     FilteredLogEventMap,
-    JsonlDecoderOptions,
     LogEventCount,
 } from "../../typings/decoders";
 import {Formatter} from "../../typings/formatters";
@@ -30,14 +29,14 @@ enum CLP_IR_STREAM_TYPE {
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
-    #streamType: CLP_IR_STREAM_TYPE;
+    readonly #streamType: CLP_IR_STREAM_TYPE;
 
     #formatter: Nullable<Formatter>;
 
     constructor (
         streamType: CLP_IR_STREAM_TYPE,
         streamReader: ClpStreamReader,
-        decoderOptions: ClpIrDecoderOptions
+        decoderOptions: DecoderOptions
     ) {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
@@ -50,12 +49,13 @@ class ClpIrDecoder implements Decoder {
      * Creates a new ClpIrDecoder instance.
      *
      * @param dataArray The input data array to be passed to the decoder.
-     * @param decoderOptions
+     * @param decoderOptions The options are only effective if the stream type is
+     * {@link CLP_IR_STREAM_TYPE.STRUCTURED}.
      * @return The created ClpIrDecoder instance.
      */
     static async create (
         dataArray: Uint8Array,
-        decoderOptions: ClpIrDecoderOptions
+        decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
         const streamReader = new module.ClpStreamReader(dataArray, decoderOptions);
@@ -87,7 +87,7 @@ class ClpIrDecoder implements Decoder {
         };
     }
 
-    setFormatterOptions (options: JsonlDecoderOptions): boolean {
+    setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new LogbackFormatter({formatString: options.formatString});
 
         return true;
@@ -98,10 +98,13 @@ class ClpIrDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResultType[]> {
-        const results: DecodeResultType[] = this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
+        const results: DecodeResultType[] =
+            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
+
         if (this.#streamType === CLP_IR_STREAM_TYPE.UNSTRUCTURED) {
             return results;
         }
+
         results.forEach((result) => {
             const [message, timestamp] = result;
             let fields: JsonObject = {};
