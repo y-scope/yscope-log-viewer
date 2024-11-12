@@ -16,10 +16,12 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {UI_ELEMENT} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import TitleButton from "../TitleButton";
 import ResultsGroup from "./ResultsGroup";
@@ -38,7 +40,7 @@ enum QUERY_OPTION {
  * @return
  */
 const SearchTabPanel = () => {
-    const {queryProgress, queryResults, startQuery} = useContext(StateContext);
+    const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -59,14 +61,14 @@ const SearchTabPanel = () => {
                 </TitleButton>
             }
         >
-            <Box sx={{display: "flex", flexDirection: "column", height: "100%", overflowY: "hidden"}}>
+            <Box className={"search-tab-container"}>
                 <div>
                     <Textarea
                         className={"query-input-box"}
+                        disabled={isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX)}
                         maxRows={7}
                         placeholder={"Search"}
                         size={"sm"}
-                        sx={{borderRadius: 0}}
                         endDecorator={
                             <ToggleButtonGroup
                                 size={"sm"}
@@ -106,14 +108,14 @@ const SearchTabPanel = () => {
                             "primary"}/>
                 </div>
                 <AccordionGroup
+                    className={"accordion-group"}
                     disableDivider={true}
                     size={"sm"}
-                    sx={{flexGrow: 1, overflowY: "auto"}}
                 >
                     {Array.from(queryResults.entries()).map(([pageNum, results]) => (
                         <ResultsGroup
                             isAllExpanded={isAllExpanded}
-                            key={`${pageNum} + ${results.length}`}
+                            key={`${pageNum}-${results.length}`}
                             pageNum={pageNum}
                             results={results}/>
                     ))}

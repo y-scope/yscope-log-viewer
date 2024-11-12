@@ -14,6 +14,8 @@ interface ResultProps {
     matchRange: [number, number]
 }
 
+const SEARCH_RESULT_PREFIX_MAX_CHARACTERS = 20;
+
 /**
  * Displays a button containing a message, which highlights a specific range of text.
  *
@@ -44,24 +46,20 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
             onClick={handleResultButtonClick}
         >
             <Typography
-                className={"result-text before-match"}
-                level={"body-xs"}
+                className={"result-button-text"}
+                level={"body-sm"}
             >
-                {beforeMatch}
-            </Typography>
-            <Typography
-                className={"result-text match"}
-                level={"body-xs"}
-                sx={{
-                    backgroundColor: "warning.softBg",
-                }}
-            >
-                {match}
-            </Typography>
-            <Typography
-                className={"result-text after-match"}
-                level={"body-xs"}
-            >
+                <span>
+                    {(SEARCH_RESULT_PREFIX_MAX_CHARACTERS < beforeMatch.length) && "..."}
+                    {beforeMatch.slice(-SEARCH_RESULT_PREFIX_MAX_CHARACTERS)}
+                </span>
+                <Typography
+                    className={"result-button-text"}
+                    level={"body-sm"}
+                    sx={{backgroundColor: "warning.softBg"}}
+                >
+                    {match}
+                </Typography>
                 {afterMatch}
             </Typography>
         </ListItemButton>

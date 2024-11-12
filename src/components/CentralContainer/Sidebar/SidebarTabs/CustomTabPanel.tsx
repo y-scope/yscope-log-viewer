@@ -40,7 +40,7 @@ const CustomTabPanel = ({
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <Box sx={{display: "flex", flexDirection: "column", height: "100%"}}>
+            <Box className={"custom-tab-panel-container"}>
                 <DialogTitle className={"sidebar-tab-panel-title-container"}>
                     <Typography
                         className={"sidebar-tab-panel-title"}
@@ -56,7 +56,7 @@ const CustomTabPanel = ({
                         {titleButtons}
                     </ButtonGroup>
                 </DialogTitle>
-                <DialogContent sx={{flexGrow: 1}}>
+                <DialogContent>
                     {children}
                 </DialogContent>
             </Box>
