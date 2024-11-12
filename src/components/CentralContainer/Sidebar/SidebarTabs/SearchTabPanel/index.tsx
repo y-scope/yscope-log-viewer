@@ -80,13 +80,13 @@ const SearchTabPanel = () => {
                                 }}
                             >
                                 <IconButton
-                                    className={"query-option"}
+                                    className={"query-option-button"}
                                     value={QUERY_OPTION.IS_CASE_SENSITIVE}
                                 >
                                     Aa
                                 </IconButton>
                                 <IconButton
-                                    className={"query-option"}
+                                    className={"query-option-button"}
                                     value={QUERY_OPTION.IS_REGEX}
                                 >
                                     .*
@@ -103,7 +103,7 @@ const SearchTabPanel = () => {
                         sx={{"--LinearProgress-progressRadius": 0}}
                         thickness={4}
                         value={queryProgress * 100}
-                        color={1 === queryProgress ?
+                        color={QUERY_PROGRESS_VALUE_MAX === queryProgress ?
                             "success" :
                             "primary"}/>
                 </div>

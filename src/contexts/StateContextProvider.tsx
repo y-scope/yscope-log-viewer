@@ -86,7 +86,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
-    queryProgress: 0,
+    queryProgress: INITIAL_QUERY_PROGRESS,
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 

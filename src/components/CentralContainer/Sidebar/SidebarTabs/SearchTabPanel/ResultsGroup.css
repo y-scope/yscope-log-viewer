@@ -1,4 +1,5 @@
 .results-group-title-button {
+    cursor: default !important;
     flex-direction: row-reverse !important;
     gap: 2px !important;
     padding-inline-start: 0 !important;
@@ -11,7 +12,7 @@
 
 .results-group-title-text-container {
     flex-grow: 1;
-    gap: 0.1rem;
+    gap: 0.2rem;
     align-items: center;
 }
 

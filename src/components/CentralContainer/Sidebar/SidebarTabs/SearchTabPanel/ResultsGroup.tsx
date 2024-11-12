@@ -74,6 +74,7 @@ const ResultsGroup = React.memo(({
                     >
                         <DescriptionOutlinedIcon fontSize={"inherit"}/>
                         <Typography
+                            fontFamily={"Inter"}
                             level={"title-sm"}
                         >
                             Page

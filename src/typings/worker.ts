@@ -136,7 +136,10 @@ type WorkerRespMap = {
         numPages: number,
         pageNum: number,
     },
-    [WORKER_RESP_CODE.QUERY_RESULT]: { progress: number, results: QueryResults },
+    [WORKER_RESP_CODE.QUERY_RESULT]: {
+        progress: number,
+        results: QueryResults
+    },
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?

@@ -8,7 +8,7 @@
 .query-input-box {
     z-index: var(--ylv-panel-query-input-z-index);
     flex-direction: row !important;
-    border-radius: 0;
+    border-radius: 0 !important;
 }
 
 .query-option-button {
@@ -24,7 +24,7 @@
     margin-block-start: 0 !important;
 }
 
-.accordion-group {
+.query-results {
     overflow-y: auto;
     flex-grow: 1;
 }
