@@ -21,9 +21,10 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {QUERY_PROGRESS_DONE} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
-import TitleButton from "../TitleButton";
+import PanelTitleButton from "../PanelTitleButton";
 import ResultsGroup from "./ResultsGroup";
 
 import "./index.css";
@@ -54,15 +55,15 @@ const SearchTabPanel = () => {
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <TitleButton onClick={() => { setIsAllExpanded((v) => !v); }}>
+                <PanelTitleButton onClick={() => { setIsAllExpanded((v) => !v); }}>
                     {isAllExpanded ?
                         <UnfoldLessIcon/> :
                         <UnfoldMoreIcon/>}
-                </TitleButton>
+                </PanelTitleButton>
             }
         >
             <Box className={"search-tab-container"}>
-                <div>
+                <div className={"query-input-box-with-progress"}>
                     <Textarea
                         className={"query-input-box"}
                         disabled={isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX)}
@@ -99,16 +100,16 @@ const SearchTabPanel = () => {
                         }}
                         onChange={handleQueryInputChange}/>
                     <LinearProgress
+                        className={"query-input-box-linear-progress"}
                         determinate={true}
-                        sx={{"--LinearProgress-progressRadius": 0}}
                         thickness={4}
                         value={queryProgress * 100}
-                        color={QUERY_PROGRESS_VALUE_MAX === queryProgress ?
+                        color={QUERY_PROGRESS_DONE === queryProgress ?
                             "success" :
                             "primary"}/>
                 </div>
                 <AccordionGroup
-                    className={"accordion-group"}
+                    className={"query-results"}
                     disableDivider={true}
                     size={"sm"}
                 >

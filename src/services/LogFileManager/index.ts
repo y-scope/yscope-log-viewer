@@ -33,7 +33,7 @@ import {
 } from "./utils";
 
 
-const MAX_RESULT_COUNT = 1_000;
+const MAX_QUERY_RESULT_COUNT = 1_000;
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -293,6 +293,9 @@ class LogFileManager {
         this.#queryId++;
         this.#queryCount = 0;
 
+        // Send an empty query result with 0 progress to the render to init the results variable because there could be results sent by the last task before `startQuery()` runs.
+        this.#onQueryResults(0, new Map());
+
         // If the query string is empty, or there are no logs, return
         if ("" === queryString || 0 === this.#numEvents) {
             return;
@@ -306,8 +309,6 @@ class LogFileManager {
             "" :
             "i";
         const queryRegex = new RegExp(regexPattern, regexFlags);
-        // Send an empty query result with 0 progress to the render to init the results variable because there could be results sent by the last task before `startQuery()` runs.
-        this.#onQueryResults(0, new Map());
         this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
     }
 
@@ -360,7 +361,7 @@ class LogFileManager {
             });
 
             this.#queryCount++;
-            if (MAX_RESULT_COUNT <= this.#queryCount) {
+            if (MAX_QUERY_RESULT_COUNT <= this.#queryCount) {
                 break;
             }
         }
@@ -368,11 +369,11 @@ class LogFileManager {
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.
         this.#onQueryResults(
-            Math.max(chunkEndIdx / this.#numEvents, this.#queryCount / MAX_RESULT_COUNT),
+            Math.max(chunkEndIdx / this.#numEvents, this.#queryCount / MAX_QUERY_RESULT_COUNT),
             results
         );
 
-        if (chunkEndIdx < this.#numEvents && MAX_RESULT_COUNT > this.#queryCount) {
+        if (chunkEndIdx < this.#numEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });

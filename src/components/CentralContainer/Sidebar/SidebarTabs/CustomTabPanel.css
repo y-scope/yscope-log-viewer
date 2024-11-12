@@ -14,6 +14,7 @@
 }
 
 .sidebar-tab-panel-title {
+    flex-grow: 1;
     font-size: 0.875rem !important;
     font-weight: 400 !important;
     text-transform: uppercase;

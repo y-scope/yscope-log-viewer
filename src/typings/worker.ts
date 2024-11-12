@@ -115,6 +115,9 @@ interface QueryResultsType {
 
 type QueryResults = Map<number, QueryResultsType[]>;
 
+const QUERY_PROGRESS_INIT = 0;
+const QUERY_PROGRESS_DONE = 1;
+
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string
@@ -175,6 +178,8 @@ export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
+    QUERY_PROGRESS_DONE,
+    QUERY_PROGRESS_INIT,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };

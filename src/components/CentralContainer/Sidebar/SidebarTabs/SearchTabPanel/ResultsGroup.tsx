@@ -64,12 +64,12 @@ const ResultsGroup = React.memo(({
         >
             <AccordionSummary
                 slotProps={{
-                    button: {className: "results-group-title-button"},
+                    button: {className: "results-group-summary-button"},
                 }}
             >
-                <Box className={"results-group-title-container"}>
+                <Box className={"results-group-summary-container"}>
                     <Stack
-                        className={"results-group-title-text-container"}
+                        className={"results-group-summary-text-container"}
                         direction={"row"}
                     >
                         <DescriptionOutlinedIcon fontSize={"inherit"}/>
@@ -82,12 +82,19 @@ const ResultsGroup = React.memo(({
                             {pageNum}
                         </Typography>
                     </Stack>
-                    <Chip size={"sm"}>
+                    <Chip
+                        className={"results-group-summary-count"}
+                        size={"sm"}
+                        variant={"solid"}
+                    >
                         {results.length}
                     </Chip>
                 </Box>
             </AccordionSummary>
-            <AccordionDetails className={"results-group-content"}>
+            <AccordionDetails
+                className={"results-group-details"}
+                slotProps={{content: {className: "results-group-details-content"}}}
+            >
                 <List size={"sm"}>
                     {results.map((r, index) => (
                         <Result
@@ -97,6 +104,7 @@ const ResultsGroup = React.memo(({
                             message={r.message}/>
                     ))}
                 </List>
+
             </AccordionDetails>
         </Accordion>
     );

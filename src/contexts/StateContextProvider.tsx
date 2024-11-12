@@ -25,6 +25,7 @@ import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
+    QUERY_PROGRESS_INIT,
     QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -86,7 +87,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
-    queryProgress: INITIAL_QUERY_PROGRESS,
+    queryProgress: QUERY_PROGRESS_INIT,
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
@@ -96,8 +97,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     setLogLevelFilter: () => null,
     startQuery: () => null,
 });
-
-const INITIAL_QUERY_PROGRESS = 0;
 
 interface StateContextProviderProps {
     children: React.ReactNode
@@ -312,7 +311,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
                 setQueryProgress(args.progress);
-                if (INITIAL_QUERY_PROGRESS === args.progress) {
+                if (QUERY_PROGRESS_INIT === args.progress) {
                     setQueryResults(STATE_DEFAULT.queryResults);
                 } else {
                     setQueryResults((v) => {

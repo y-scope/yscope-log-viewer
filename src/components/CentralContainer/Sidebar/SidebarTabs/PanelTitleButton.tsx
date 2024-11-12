@@ -3,7 +3,7 @@ import {
     IconButtonProps,
 } from "@mui/joy";
 
-import "./TitleButton.css";
+import "./PanelTitleButton.css";
 
 
 /**
@@ -12,10 +12,10 @@ import "./TitleButton.css";
  * @param props
  * @return
  */
-const TitleButton = (props: IconButtonProps) => (
+const PanelTitleButton = (props: IconButtonProps) => (
     <IconButton
-        className={"sidebar-tab-title-button"}
+        className={"tab-panel-title-button"}
         {...props}/>
 );
 
-export default TitleButton;
+export default PanelTitleButton;
