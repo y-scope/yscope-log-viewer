@@ -2,7 +2,7 @@ import {
     useEffect,
     useState,
 } from "react";
-import * as React from "react";
+import React from "react";
 
 import {
     Accordion,
@@ -30,7 +30,7 @@ interface ResultsGroupProps {
 }
 
 /**
- * Renders a group of results. Each group contains a list of results from a single page.
+ * Renders a group of results, where each group represents a list of results from a single page.
  *
  * @param props
  * @param props.isAllExpanded
@@ -52,7 +52,7 @@ const ResultsGroup = React.memo(({
         setIsExpanded(newValue);
     };
 
-    // On `isAllExpanded` updates, sync current results group's expand status.
+    // On `isAllExpanded` update, sync current results group's expand status.
     useEffect(() => {
         setIsExpanded(isAllExpanded);
     }, [isAllExpanded]);
@@ -77,8 +77,7 @@ const ResultsGroup = React.memo(({
                             fontFamily={"Inter"}
                             level={"title-sm"}
                         >
-                            Page
-                            {" "}
+                            {"Page "}
                             {pageNum}
                         </Typography>
                     </Stack>
@@ -104,12 +103,12 @@ const ResultsGroup = React.memo(({
                             message={r.message}/>
                     ))}
                 </List>
-
             </AccordionDetails>
         </Accordion>
     );
 });
 
 ResultsGroup.displayName = "ResultsGroup";
+
 
 export default ResultsGroup;

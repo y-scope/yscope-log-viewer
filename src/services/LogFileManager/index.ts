@@ -310,6 +310,7 @@ class LogFileManager {
             "" :
             "i";
         const queryRegex = new RegExp(regexPattern, regexFlags);
+
         this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
     }
 
@@ -321,7 +322,6 @@ class LogFileManager {
      * @param chunkBeginIdx
      * @param queryRegex
      */
-    // eslint-disable-next-line max-statements
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
@@ -369,10 +369,12 @@ class LogFileManager {
 
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.
-        this.#onQueryResults(
-            Math.max(chunkEndIdx / this.#numEvents, this.#queryCount / MAX_QUERY_RESULT_COUNT),
-            results
+        const progress = Math.max(
+            chunkEndIdx / this.#numEvents,
+            this.#queryCount / MAX_QUERY_RESULT_COUNT
         );
+
+        this.#onQueryResults(progress, results);
 
         if (chunkEndIdx < this.#numEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
             defer(() => {

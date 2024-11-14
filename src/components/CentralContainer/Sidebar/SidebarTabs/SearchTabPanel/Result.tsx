@@ -17,12 +17,11 @@ interface ResultProps {
 const SEARCH_RESULT_PREFIX_MAX_CHARACTERS = 20;
 
 /**
- * Displays a button containing a message, which highlights a specific range of text.
+ * Renders a query result as a button with a message, highlighting the first matching text range.
  *
  * @param props
  * @param props.message
- * @param props.matchRange A two-element array indicating the start and end indices of the substring
- * to be highlighted.
+ * @param props.matchRange A two-element array [begin, end) representing the indices of the matching text range.
  * @param props.logEventNum
  * @return
  */
@@ -65,5 +64,6 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         </ListItemButton>
     );
 };
+
 
 export default Result;

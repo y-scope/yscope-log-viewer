@@ -44,6 +44,7 @@ const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
+
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const isCaseSensitive = queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
         const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
@@ -125,5 +126,6 @@ const SearchTabPanel = () => {
         </CustomTabPanel>
     );
 };
+
 
 export default SearchTabPanel;
