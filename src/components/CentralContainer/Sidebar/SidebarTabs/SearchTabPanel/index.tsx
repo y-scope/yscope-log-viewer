@@ -50,6 +50,12 @@ const SearchTabPanel = () => {
         const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
         startQuery(ev.target.value, isRegex, isCaseSensitive);
     };
+    const handleQueryOptionsChange = (
+        _: React.MouseEvent<HTMLElement>,
+        newOptions: QUERY_OPTION[]
+    ) => {
+        setQueryOptions(newOptions);
+    };
 
     return (
         <CustomTabPanel
@@ -77,9 +83,7 @@ const SearchTabPanel = () => {
                                 spacing={0.25}
                                 value={queryOptions}
                                 variant={"plain"}
-                                onChange={(_, newValue) => {
-                                    setQueryOptions(newValue);
-                                }}
+                                onChange={handleQueryOptionsChange}
                             >
                                 <IconButton
                                     className={"query-option-button"}

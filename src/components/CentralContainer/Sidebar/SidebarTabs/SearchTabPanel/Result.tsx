@@ -14,7 +14,7 @@ interface ResultProps {
     matchRange: [number, number]
 }
 
-const SEARCH_RESULT_PREFIX_MAX_CHARACTERS = 20;
+const QUERY_RESULT_PREFIX_MAX_CHARACTERS = 20;
 
 /**
  * Renders a query result as a button with a message, highlighting the first matching text range.
@@ -49,8 +49,8 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
                 level={"body-sm"}
             >
                 <span>
-                    {(SEARCH_RESULT_PREFIX_MAX_CHARACTERS < beforeMatch.length) && "..."}
-                    {beforeMatch.slice(-SEARCH_RESULT_PREFIX_MAX_CHARACTERS)}
+                    {(QUERY_RESULT_PREFIX_MAX_CHARACTERS < beforeMatch.length) && "..."}
+                    {beforeMatch.slice(-QUERY_RESULT_PREFIX_MAX_CHARACTERS)}
                 </span>
                 <Typography
                     className={"result-button-text"}

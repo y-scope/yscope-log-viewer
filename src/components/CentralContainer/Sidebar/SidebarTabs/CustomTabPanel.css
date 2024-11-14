@@ -2,7 +2,7 @@
     padding: 0.75rem;
 }
 
-.custom-tab-panel-container {
+.sidebar-tab-panel-container {
     display: flex;
     flex-direction: column;
     height: 100%;

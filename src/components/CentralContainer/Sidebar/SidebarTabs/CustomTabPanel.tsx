@@ -40,7 +40,7 @@ const CustomTabPanel = ({
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <Box className={"custom-tab-panel-container"}>
+            <Box className={"sidebar-tab-panel-container"}>
                 <DialogTitle className={"sidebar-tab-panel-title-container"}>
                     <Typography
                         className={"sidebar-tab-panel-title"}

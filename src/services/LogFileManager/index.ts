@@ -1,6 +1,7 @@
 /* eslint max-lines: ["error", 450] */
 import {
     Decoder,
+    DecodeResultType,
     DecoderOptionsType,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
@@ -315,6 +316,45 @@ class LogFileManager {
     }
 
     /**
+     * Processes decoded log events and populates the results map with matched entries.
+     *
+     * @param decodedEvents
+     * @param queryRegex
+     * @param results The map to store query results.
+     */
+    #processQueryDecodedEvents (
+        decodedEvents: DecodeResultType[],
+        queryRegex: RegExp,
+        results: QueryResults
+    ): void {
+        for (const [message, , , logEventNum] of decodedEvents) {
+            const matchResult = message.match(queryRegex);
+            if (null === matchResult || "number" !== typeof matchResult.index) {
+                continue;
+            }
+
+            const pageNum = Math.ceil(logEventNum / this.#pageSize);
+            if (false === results.has(pageNum)) {
+                results.set(pageNum, []);
+            }
+
+            results.get(pageNum)?.push({
+                logEventNum: logEventNum,
+                message: message,
+                matchRange: [
+                    matchResult.index,
+                    matchResult.index + matchResult[0].length,
+                ],
+            });
+
+            this.#queryCount++;
+            if (this.#queryCount >= MAX_QUERY_RESULT_COUNT) {
+                break;
+            }
+        }
+    }
+
+    /**
      * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
      * log events remain.
      *
@@ -343,29 +383,7 @@ class LogFileManager {
             return;
         }
 
-        for (const [message, , , logEventNum] of decodedEvents) {
-            const matchResult = message.match(queryRegex);
-            if (null === matchResult || "number" !== typeof matchResult.index) {
-                continue;
-            }
-            const pageNum = Math.ceil(logEventNum / this.#pageSize);
-            if (false === results.has(pageNum)) {
-                results.set(pageNum, []);
-            }
-            results.get(pageNum)?.push({
-                logEventNum: logEventNum,
-                message: message,
-                matchRange: [
-                    matchResult.index,
-                    (matchResult.index + matchResult[0].length),
-                ],
-            });
-
-            this.#queryCount++;
-            if (MAX_QUERY_RESULT_COUNT <= this.#queryCount) {
-                break;
-            }
-        }
+        this.#processQueryDecodedEvents(decodedEvents, queryRegex, results);
 
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.

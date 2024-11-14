@@ -27,8 +27,6 @@ html {
      * .monaco-editor .minimap { z-index: 5; }
      * ```
      */
-    --ylv-panel-title-button-z-index: 0;
-    --ylv-panel-query-input-z-index: 0;
     --ylv-resize-handle-z-index: 1;
     --ylv-menu-bar-z-index: 6;
     --ylv-status-bar-z-index: 6;

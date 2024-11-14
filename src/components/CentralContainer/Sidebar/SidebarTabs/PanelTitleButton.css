@@ -1,5 +1,4 @@
 .tab-panel-title-button {
-    z-index: var(--ylv-panel-title-button-z-index) !important;
     min-width: 0 !important;
     min-height: 0 !important;
 }

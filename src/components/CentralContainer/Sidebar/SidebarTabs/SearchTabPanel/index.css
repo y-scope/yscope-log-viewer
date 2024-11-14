@@ -12,7 +12,6 @@
 }
 
 .query-input-box {
-    z-index: var(--ylv-panel-query-input-z-index);
     flex-direction: row !important;
     border-radius: 0 !important;
 }
