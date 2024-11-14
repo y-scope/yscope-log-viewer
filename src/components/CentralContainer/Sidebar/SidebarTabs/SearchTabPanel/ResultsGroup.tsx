@@ -1,8 +1,8 @@
 import {
+    memo,
     useEffect,
     useState,
 } from "react";
-import React from "react";
 
 import {
     Accordion,
@@ -38,7 +38,7 @@ interface ResultsGroupProps {
  * @param props.results
  * @return
  */
-const ResultsGroup = React.memo(({
+const ResultsGroup = memo(({
     isAllExpanded,
     pageNum,
     results,

@@ -21,7 +21,8 @@ const QUERY_RESULT_PREFIX_MAX_CHARACTERS = 20;
  *
  * @param props
  * @param props.message
- * @param props.matchRange A two-element array [begin, end) representing the indices of the matching text range.
+ * @param props.matchRange A two-element array [begin, end) representing the indices of the matching
+ * text range.
  * @param props.logEventNum
  * @return
  */
