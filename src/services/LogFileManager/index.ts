@@ -1,7 +1,7 @@
 /* eslint max-lines: ["error", 400] */
 import {
     Decoder,
-    DecoderOptionsType,
+    DecoderOptions,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
@@ -110,7 +110,7 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType,
+        decoderOptions: DecoderOptions,
         onQueryResults: (queryResults: QueryResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
@@ -138,13 +138,13 @@ class LogFileManager {
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
             decoder = new JsonlDecoder(fileData, decoderOptions);
         } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData);
+            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
         } else {
             throw new Error(`No decoder supports ${fileName}`);
         }
@@ -161,7 +161,7 @@ class LogFileManager {
     /* Sets any formatter options that exist in the decoder's options.
      * @param options
      */
-    setFormatterOptions (options: DecoderOptionsType) {
+    setFormatterOptions (options: DecoderOptions) {
         this.#decoder.setFormatterOptions(options);
     }
 

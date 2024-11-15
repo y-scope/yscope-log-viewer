@@ -8,19 +8,15 @@ interface LogEventCount {
 }
 
 /**
- * Options for the JSONL decoder.
- *
  * @property formatString The format string to use to serialize records as plain text.
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
-interface JsonlDecoderOptionsType {
+interface DecoderOptions {
     formatString: string,
     logLevelKey: string,
     timestampKey: string,
 }
-
-type DecoderOptionsType = JsonlDecoderOptionsType;
 
 /**
  * Type of the decoded log event. We use an array rather than object so that it's easier to return
@@ -31,7 +27,7 @@ type DecoderOptionsType = JsonlDecoderOptionsType;
  * @property level
  * @property number
  */
-type DecodeResultType = [string, number, number, number];
+type DecodeResult = [string, bigint, number, number];
 
 /**
  * Mapping between an index in the filtered log events collection to an index in the unfiltered log
@@ -85,7 +81,7 @@ interface Decoder {
      * @param options
      * @return Whether the options were successfully set.
      */
-    setFormatterOptions(options: DecoderOptionsType): boolean;
+    setFormatterOptions(options: DecoderOptions): boolean;
 
     /**
      * Decodes log events in the range `[beginIdx, endIdx)` of the filtered or unfiltered
@@ -101,15 +97,14 @@ interface Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean
-    ): Nullable<DecodeResultType[]>;
+    ): Nullable<DecodeResult[]>;
 }
 
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
-    DecodeResultType,
-    DecoderOptionsType,
+    DecodeResult,
+    DecoderOptions,
     FilteredLogEventMap,
-    JsonlDecoderOptionsType,
     LogEventCount,
 };
