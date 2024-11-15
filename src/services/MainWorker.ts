@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import dayjsBigIntSupport from "dayjs/plugin/bigIntSupport";
 import dayjsTimezone from "dayjs/plugin/timezone";
 import dayjsUtc from "dayjs/plugin/utc";
 
@@ -17,6 +18,7 @@ import LogFileManager from "./LogFileManager";
 /* eslint-disable import/no-named-as-default-member */
 dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsTimezone);
+dayjs.extend(dayjsBigIntSupport);
 /* eslint-enable import/no-named-as-default-member */
 
 /**

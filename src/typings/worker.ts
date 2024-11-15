@@ -1,7 +1,7 @@
 import {Nullable} from "./common";
 import {
     ActiveLogCollectionEventIdx,
-    DecoderOptionsType,
+    DecoderOptions,
 } from "./decoders";
 import {
     LOG_LEVEL,
@@ -89,7 +89,7 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,

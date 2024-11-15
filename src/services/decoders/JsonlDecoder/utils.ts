@@ -53,12 +53,13 @@ const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
  * - the timestamp's value is an unsupported type.
  * - the timestamp's value is not a valid dayjs timestamp.
  */
-const convertToDayjsTimestamp = (field: JsonValue | undefined): dayjs.Dayjs => {
+const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.Dayjs => {
     // If the field is an invalid type, then set the timestamp to `INVALID_TIMESTAMP_VALUE`.
     // NOTE: dayjs surprisingly thinks `undefined` is a valid date. See
     // https://day.js.org/docs/en/parse/now#docsNav
     if (("string" !== typeof field &&
-        "number" !== typeof field) ||
+        "number" !== typeof field &&
+        "bigint" !== typeof field) ||
         "undefined" === typeof field
     ) {
         // `INVALID_TIMESTAMP_VALUE` is a valid dayjs date. Another potential option is
