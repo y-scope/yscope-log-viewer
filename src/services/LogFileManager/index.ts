@@ -1,7 +1,7 @@
 /* eslint max-lines: ["error", 450] */
 import {
     Decoder,
-    DecodeResultType,
+    DecodeResult,
     DecoderOptions,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
@@ -323,7 +323,7 @@ class LogFileManager {
      * @param results The map to store query results.
      */
     #processQueryDecodedEvents (
-        decodedEvents: DecodeResultType[],
+        decodedEvents: DecodeResult[],
         queryRegex: RegExp,
         results: QueryResults
     ): void {
