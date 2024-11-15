@@ -32,8 +32,17 @@ interface Formatter {
     formatLogEvent: (logEvent: LogEvent) => string
 }
 
+
+const FIELD_PLACEHOLDER_REGEX = Object.freeze(/(?<!\\)\{([^}]+)\}/g);
+const COLON_REGEX = Object.freeze(/(?<!\\):/g);
+
 export type {
     Formatter,
     FormatterOptionsType,
     LogbackFormatterOptionsType,
 };
+export {
+    FIELD_PLACEHOLDER_REGEX,
+    COLON_REGEX
+};
+
