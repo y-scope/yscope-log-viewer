@@ -100,16 +100,22 @@ class ClpIrDecoder implements Decoder {
         const results: DecodeResult[] =
             this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
 
-        if (this.#streamType === CLP_IR_STREAM_TYPE.UNSTRUCTURED) {
+        if (null === this.#formatter) {
+            if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Revisit when we allow displaying structured logs without a formatter.
+                console.error("Formatter is not set for structured logs.");
+            }
+
             return results;
         }
 
-        results.forEach((result) => {
+        for (const r of results) {
             const [
                 message,
                 timestamp,
                 level,
-            ] = result;
+            ] = r;
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 
@@ -122,14 +128,12 @@ class ClpIrDecoder implements Decoder {
                 console.error(e, message);
             }
 
-            // `this.#formatter` has been null-checked at the method entry.
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            result[0] = this.#formatter!.formatLogEvent({
+            r[0] = this.#formatter.formatLogEvent({
                 fields: fields,
                 level: level,
                 timestamp: dayJsTimestamp,
             });
-        });
+        }
 
         return results;
     }
