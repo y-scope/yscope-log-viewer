@@ -5,6 +5,8 @@ on:
     types: ["edited", "opened", "reopened"]
     branches: ["main"]
 
+permissions: {}
+
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
 
@@ -22,4 +24,3 @@ jobs:
         env:
           GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 
-permissions: {}
