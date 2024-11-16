@@ -10,11 +10,13 @@ import {
 import SvgIcon from "@mui/material/SvgIcon";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import {TAB_NAME} from "../../../../typings/tab";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
+import SearchTabPanel from "./SearchTabPanel";
 import TabButton from "./TabButton";
 
 import "./index.css";
@@ -28,6 +30,7 @@ const TABS_INFO_LIST: Readonly<Array<{
     Icon: typeof SvgIcon,
 }>> = Object.freeze([
     {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
+    {tabName: TAB_NAME.SEARCH, Icon: SearchIcon},
 ]);
 
 interface SidebarTabsProps {
@@ -93,6 +96,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                         onTabButtonClick={handleTabButtonClick}/>
                 </TabList>
                 <FileInfoTabPanel/>
+                <SearchTabPanel/>
             </Tabs>
             <SettingsModal
                 isOpen={isSettingsModalOpen}

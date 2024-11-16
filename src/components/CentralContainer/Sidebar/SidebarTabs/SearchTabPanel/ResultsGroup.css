@@ -1,0 +1,31 @@
+.results-group-summary-button {
+    cursor: default !important;
+    flex-direction: row-reverse !important;
+    gap: 2px !important;
+    padding-inline-start: 0 !important;
+}
+
+.results-group-summary-container {
+    display: flex;
+    flex-grow: 1;
+}
+
+.results-group-summary-text-container {
+    flex-grow: 1;
+    gap: 0.2rem;
+    align-items: center;
+}
+
+.results-group-summary-count {
+    border-radius: 4px !important;
+}
+
+.results-group-details {
+    margin-left: 1.5px !important;
+    /* stylelint-disable-next-line custom-property-pattern */
+    border-left: 1px solid var(--joy-palette-neutral-outlinedBorder, #cdd7e1);
+}
+
+.results-group-details-content {
+    padding-block: 0 !important;
+}

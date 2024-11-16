@@ -43,10 +43,11 @@ const postResp = <T extends WORKER_RESP_CODE>(
 /**
  * Post a response for a chunk of query results.
  *
+ * @param queryProgress
  * @param queryResults
  */
-const onQueryResults = (queryResults: QueryResults) => {
-    postResp(WORKER_RESP_CODE.QUERY_RESULT, {results: queryResults});
+const onQueryResults = (queryProgress: number, queryResults: QueryResults) => {
+    postResp(WORKER_RESP_CODE.QUERY_RESULT, {progress: queryProgress, results: queryResults});
 };
 
 // eslint-disable-next-line no-warning-comments

@@ -42,6 +42,7 @@ enum UI_ELEMENT {
     NAVIGATION_BAR,
     OPEN_FILE_BUTTON,
     PROGRESS_BAR,
+    QUERY_INPUT_BOX,
 }
 
 type UiElementRow = {
@@ -66,6 +67,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.NAVIGATION_BAR]: false,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
         [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },
     [UI_STATE.FILE_LOADING]: {
         [UI_ELEMENT.DRAG_AND_DROP]: false,
@@ -75,6 +77,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.NAVIGATION_BAR]: false,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: true,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },
     [UI_STATE.FAST_LOADING]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
@@ -84,6 +87,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.NAVIGATION_BAR]: true,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
         [UI_ELEMENT.PROGRESS_BAR]: true,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },
     [UI_STATE.SLOW_LOADING]: {
         [UI_ELEMENT.DRAG_AND_DROP]: false,
@@ -93,6 +97,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.NAVIGATION_BAR]: false,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },
     [UI_STATE.READY]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
@@ -102,6 +107,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.NAVIGATION_BAR]: true,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
         [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: true,
     },
 });
 

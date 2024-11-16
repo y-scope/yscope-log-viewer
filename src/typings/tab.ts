@@ -1,6 +1,7 @@
 enum TAB_NAME {
     NONE = "none",
     FILE_INFO = "fileInfo",
+    SEARCH = "search",
     SETTINGS = "settings",
 }
 
@@ -10,6 +11,7 @@ enum TAB_NAME {
 const TAB_DISPLAY_NAMES: Record<TAB_NAME, string> = Object.freeze({
     [TAB_NAME.NONE]: "None",
     [TAB_NAME.FILE_INFO]: "File info",
+    [TAB_NAME.SEARCH]: "Search",
     [TAB_NAME.SETTINGS]: "Settings",
 });
 
