@@ -164,4 +164,5 @@ module.exports = {
         ],
         modules: ["node_modules"],
     },
+    watch: false,
 };

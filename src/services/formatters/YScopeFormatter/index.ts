@@ -24,7 +24,6 @@ class YscopeFormatter implements Formatter {
     #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
-        // NOTE: It's safe for these values to be empty strings.
         this.#formatString = options.formatString;
         this.#parseFieldPlaceholder();
     }
