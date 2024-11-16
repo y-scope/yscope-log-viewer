@@ -9,6 +9,7 @@ import {JsonObject} from "../../typings/js";
 import {LogEvent} from "../../typings/logs";
 import {convertDateTimeFormatterPatternToDayJs} from "../../utils/formatters";
 
+
 /**
  * A formatter that uses a Logback-like format string to format log events into a string. See
  * `LogbackFormatterOptionsType` for details about the format string.

@@ -16,7 +16,4 @@ const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
     return pattern;
 };
 
-export {
-    convertDateTimeFormatterPatternToDayJs,
-};
-
+export {convertDateTimeFormatterPatternToDayJs};

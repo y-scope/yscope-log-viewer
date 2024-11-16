@@ -1,18 +1,18 @@
 import {
+    FIELD_PLACEHOLDER_REGEX,
     Formatter,
     FormatterOptionsType,
     YScopeFieldFormatter,
     YScopeFieldPlaceholder,
-    FIELD_PLACEHOLDER_REGEX,
 } from "../../../typings/formatters";
-
 import {LogEvent} from "../../../typings/logs";
 import {getNestedJsonValue} from "../../../utils/js";
 import {
     jsonValueToString,
     splitFieldPlaceholder,
-    YSCOPE_FORMATTERS_MAP
-} from "./utils"
+    YSCOPE_FORMATTERS_MAP,
+} from "./utils";
+
 
 /**
  * A formatter that uses a Yscope format string to format log events into a string. See
@@ -20,12 +20,13 @@ import {
  */
 class YscopeFormatter implements Formatter {
     #formatString: string;
+
     #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
         // NOTE: It's safe for these values to be empty strings.
         this.#formatString = options.formatString;
-        this.#parseFieldPlaceholder()
+        this.#parseFieldPlaceholder();
     }
 
     formatLogEvent (logEvent: LogEvent): string {
@@ -37,27 +38,33 @@ class YscopeFormatter implements Formatter {
         // constructor. Next, retrieves a field from the log event using the placeholder's
         // `fieldNameKeys`. The field is then formatted using the placeholder's `fieldFormatter`.
         const replacePlaceholder = () => {
-            const fieldPlaceholder: YScopeFieldPlaceholder | undefined = this.#fieldPlaceholders[placeholderIndex]
+            const fieldPlaceholder: YScopeFieldPlaceholder | undefined =
+                this.#fieldPlaceholders[placeholderIndex];
+
             if ("undefined" === typeof fieldPlaceholder) {
-                throw new Error("Unexpected change in placeholder quantity in format string.")
+                throw new Error("Unexpected change in placeholder quantity in format string.");
             }
 
             // Increment `placeholderIndex` taking advantage of closure property. Subsequent
             // calls to `replacePlaceholder()` will use the next index from array of placeholders.
             placeholderIndex++;
 
-            const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys)
-            if (typeof nestedValue === "undefined") {
+            const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
+            if ("undefined" === typeof nestedValue) {
                 return "undefined";
             }
 
-            return fieldPlaceholder.fieldFormatter ? fieldPlaceholder.fieldFormatter.formatField(nestedValue) : jsonValueToString(nestedValue)
-        }
+            return fieldPlaceholder.fieldFormatter ?
+                fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
+                jsonValueToString(nestedValue);
+        };
 
         // Calls `replacePlaceholder()` for each pattern match in the format string. Effectively
         // replaces each field placeholder in the format string with values from the current
         // log event.
-        let formattedLog = this.#formatString.replace(FIELD_PLACEHOLDER_REGEX, replacePlaceholder)
+        const formattedLog =
+            this.#formatString.replace(FIELD_PLACEHOLDER_REGEX, replacePlaceholder);
+
         return `${formattedLog}\n`;
     }
 
@@ -74,33 +81,35 @@ class YscopeFormatter implements Formatter {
         for (const execResult of it) {
             // The 1-index of exec result is the capture group in `FIELD_PLACEHOLDER_REGEX`.
             // (i.e. entire field-placeholder excluding braces).
-            const fieldPlaceholder: string | undefined = execResult[1];
+            const [, placeholderString]: (string | undefined) [] = execResult;
 
-            if ("undefined" === typeof fieldPlaceholder) {
-                throw Error ("Field placeholder regex is invalid and does not have a capture group")
+            if ("undefined" === typeof placeholderString) {
+                throw Error("Field placeholder regex is invalid and does not have a capture group");
             }
 
-            let {fieldNameKeys, formatterName, formatterOptions} = splitFieldPlaceholder(fieldPlaceholder);
+            const {fieldNameKeys, formatterName, formatterOptions} =
+                splitFieldPlaceholder(placeholderString);
 
             if (null === formatterName) {
                 this.#fieldPlaceholders.push({
                     fieldNameKeys: fieldNameKeys,
-                    fieldFormatter: null
-                })
+                    fieldFormatter: null,
+                });
                 continue;
             }
 
-            let fieldFormatterConstructor = YSCOPE_FORMATTERS_MAP[formatterName];
-            if ("undefined" === typeof fieldFormatterConstructor) {
+            const FieldFormatterConstructor = YSCOPE_FORMATTERS_MAP[formatterName];
+            if ("undefined" === typeof FieldFormatterConstructor) {
                 throw Error(`Formatter ${formatterName} is not currently supported`);
             }
 
-            let fieldFormatter: YScopeFieldFormatter = new fieldFormatterConstructor(formatterOptions);
+            const fieldFormatter: YScopeFieldFormatter =
+                new FieldFormatterConstructor(formatterOptions);
 
             this.#fieldPlaceholders.push({
                 fieldNameKeys: fieldNameKeys,
-                fieldFormatter: fieldFormatter
-            })
+                fieldFormatter: fieldFormatter,
+            });
         }
     }
 }
