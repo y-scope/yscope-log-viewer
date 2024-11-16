@@ -32,17 +32,17 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
 };
 
 /**
- * Validates a subfield string.
+ * Validates a component string.
  *
  * @param subfield
- * @return The subfield string if valid, or `null` if the subfield is undefined or empty.
+ * @return The component string if valid, or `null` if the component is undefined or empty.
  */
-const validateSubfield = (subfield: string | undefined): Nullable<string> => {
-    if ("undefined" === typeof subfield || 0 === subfield.length) {
+const validateComponent = (component: string | undefined): Nullable<string> => {
+    if ("undefined" === typeof component || 0 === component.length) {
         return null;
     }
 
-    return subfield;
+    return component;
 };
 
 /**
@@ -65,7 +65,7 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
         formatterName,
         formatterOptions]: Nullable<string|undefined>[] = fieldPlaceholder.split(COLON_REGEX, 3);
 
-    fieldName = validateSubfield(fieldName);
+    fieldName = validateComponent(fieldName);
     if (null === fieldName) {
         throw Error("Field name could not be parsed");
     }
@@ -74,12 +74,12 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
     // Remove escape characters (`\`) after the field name is split.
     fieldNameKeys = fieldNameKeys.map((key) => key.replace(BACKSLASH_REGEX, ""));
 
-    formatterName = validateSubfield(formatterName);
+    formatterName = validateComponent(formatterName);
     if (null !== formatterName) {
         formatterName.replace(BACKSLASH_REGEX, "");
     }
 
-    formatterOptions = validateSubfield(formatterOptions);
+    formatterOptions = validateComponent(formatterOptions);
     if (null !== formatterOptions) {
         formatterOptions.replace(BACKSLASH_REGEX, "");
     }
