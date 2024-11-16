@@ -7,25 +7,7 @@ import {
 } from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {LogEvent} from "../../typings/logs";
-
-
-/**
- * Converts a *simple* java.time.format.DateTimeFormatter pattern to a Day.js date format string.
- *
- * NOTE: This method doesn't handle all possible patterns. Check the implementation to determine
- * what's supported.
- *
- * @param pattern
- * @return The corresponding Day.js date format string.
- */
-const convertDateTimeFormatterPatternToDayJs = (pattern: string): string => {
-    pattern = pattern.replace("yyyy", "YYYY");
-    pattern = pattern.replace("yy", "YY");
-    pattern = pattern.replace("dd", "D");
-    pattern = pattern.replace("d", "D");
-
-    return pattern;
-};
+import {convertDateTimeFormatterPatternToDayJs} from "../../utils/formatters";
 
 /**
  * A formatter that uses a Logback-like format string to format log events into a string. See
@@ -51,12 +33,6 @@ class LogbackFormatter implements Formatter {
         this.#parseKeys();
     }
 
-    /**
-     * Formats the given log event.
-     *
-     * @param logEvent
-     * @return The formatted log event.
-     */
     formatLogEvent (logEvent: LogEvent): string {
         const {fields, timestamp} = logEvent;
         const formatStringWithTimestamp: string =

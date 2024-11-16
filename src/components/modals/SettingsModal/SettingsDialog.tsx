@@ -33,8 +33,9 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 const CONFIG_FORM_FIELDS = [
     {
-        helperText: "[JSON] Log messages conversion pattern. The current syntax is similar to" +
-            " Logback conversion patterns but will change in a future release.",
+        helperText: `[JSON] Log messages conversion pattern. Add field-placeholders to insert fields from JSON log events.
+        A field-placeholder uses the following syntax: \`{<field-name>[:<formatter-name>[:<formatter-options>]]}\`. \`field-name\` is required,
+        while \`formatter-name\` and \`formatter-options\` are optional. See the default pattern for an example.`,
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
