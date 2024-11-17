@@ -1,7 +1,8 @@
-/* eslint max-lines: ["error", 400] */
+/* eslint max-lines: ["error", 450] */
 import {
     Decoder,
-    DecoderOptionsType,
+    DecodeResult,
+    DecoderOptions,
 } from "../../typings/decoders";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
@@ -33,6 +34,8 @@ import {
 } from "./utils";
 
 
+const MAX_QUERY_RESULT_COUNT = 1_000;
+
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
@@ -47,9 +50,11 @@ class LogFileManager {
 
     readonly #onDiskFileSizeInBytes: number;
 
-    readonly #onQueryResults: (queryResults: QueryResults) => void;
+    readonly #onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
 
     #decoder: Decoder;
+
+    #queryCount: number = 0;
 
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
@@ -67,7 +72,7 @@ class LogFileManager {
         fileName: string,
         onDiskFileSizeInBytes: number,
         pageSize: number,
-        onQueryResults: (queryResults: QueryResults) => void,
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
@@ -110,8 +115,8 @@ class LogFileManager {
     static async create (
         fileSrc: FileSrcType,
         pageSize: number,
-        decoderOptions: DecoderOptionsType,
-        onQueryResults: (queryResults: QueryResults) => void,
+        decoderOptions: DecoderOptions,
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
     ): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
@@ -138,13 +143,13 @@ class LogFileManager {
     static async #initDecoder (
         fileName: string,
         fileData: Uint8Array,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
         if (fileName.endsWith(".jsonl")) {
             decoder = new JsonlDecoder(fileData, decoderOptions);
         } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData);
+            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
         } else {
             throw new Error(`No decoder supports ${fileName}`);
         }
@@ -161,7 +166,7 @@ class LogFileManager {
     /* Sets any formatter options that exist in the decoder's options.
      * @param options
      */
-    setFormatterOptions (options: DecoderOptionsType) {
+    setFormatterOptions (options: DecoderOptions) {
         this.#decoder.setFormatterOptions(options);
     }
 
@@ -287,6 +292,11 @@ class LogFileManager {
      */
     startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
         this.#queryId++;
+        this.#queryCount = 0;
+
+        // Send an empty query result with 0 progress to the render to init the results variable
+        // because there could be results sent by previous task before `startQuery()` runs.
+        this.#onQueryResults(0, new Map());
 
         // If the query string is empty, or there are no logs, return
         if ("" === queryString || 0 === this.#numEvents) {
@@ -303,6 +313,45 @@ class LogFileManager {
         const queryRegex = new RegExp(regexPattern, regexFlags);
 
         this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+    }
+
+    /**
+     * Processes decoded log events and populates the results map with matched entries.
+     *
+     * @param decodedEvents
+     * @param queryRegex
+     * @param results The map to store query results.
+     */
+    #processQueryDecodedEvents (
+        decodedEvents: DecodeResult[],
+        queryRegex: RegExp,
+        results: QueryResults
+    ): void {
+        for (const [message, , , logEventNum] of decodedEvents) {
+            const matchResult = message.match(queryRegex);
+            if (null === matchResult || "number" !== typeof matchResult.index) {
+                continue;
+            }
+
+            const pageNum = Math.ceil(logEventNum / this.#pageSize);
+            if (false === results.has(pageNum)) {
+                results.set(pageNum, []);
+            }
+
+            results.get(pageNum)?.push({
+                logEventNum: logEventNum,
+                message: message,
+                matchRange: [
+                    matchResult.index,
+                    matchResult.index + matchResult[0].length,
+                ],
+            });
+
+            this.#queryCount++;
+            if (this.#queryCount >= MAX_QUERY_RESULT_COUNT) {
+                break;
+            }
+        }
     }
 
     /**
@@ -330,27 +379,22 @@ class LogFileManager {
             null !== this.#decoder.getFilteredLogEventMap()
         );
 
-        decodedEvents?.forEach(([message, , , logEventNum]) => {
-            const matchResult = message.match(queryRegex);
-            if (null !== matchResult && "number" === typeof matchResult.index) {
-                const pageNum = Math.ceil(logEventNum / this.#pageSize);
-                if (false === results.has(pageNum)) {
-                    results.set(pageNum, []);
-                }
-                results.get(pageNum)?.push({
-                    logEventNum: logEventNum,
-                    message: message,
-                    matchRange: [
-                        matchResult.index,
-                        (matchResult.index + matchResult[0].length),
-                    ],
-                });
-            }
-        });
+        if (null === decodedEvents) {
+            return;
+        }
 
-        this.#onQueryResults(results);
+        this.#processQueryDecodedEvents(decodedEvents, queryRegex, results);
 
-        if (chunkEndIdx < this.#numEvents) {
+        // The query progress takes the maximum of the progress based on the number of events
+        // queried over total log events, and the number of results over the maximum result limit.
+        const progress = Math.max(
+            chunkEndIdx / this.#numEvents,
+            this.#queryCount / MAX_QUERY_RESULT_COUNT
+        );
+
+        this.#onQueryResults(progress, results);
+
+        if (chunkEndIdx < this.#numEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });

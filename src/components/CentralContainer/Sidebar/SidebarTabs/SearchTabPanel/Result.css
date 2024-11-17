@@ -1,0 +1,20 @@
+.result-button {
+    user-select: none;
+
+    overflow-x: hidden;
+
+    width: 100%;
+    padding-left: 12px;
+
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result-button:hover {
+    cursor: default;
+}
+
+.result-button-text {
+    font-family: Inter, sans-serif !important;
+}

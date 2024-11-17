@@ -6,7 +6,7 @@ import {
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../typings/config";
-import {DecoderOptionsType} from "../typings/decoders";
+import {DecoderOptions} from "../typings/decoders";
 import {TAB_NAME} from "../typings/tab";
 
 
@@ -132,7 +132,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 timestampKey: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
-            } as DecoderOptionsType;
+            } as DecoderOptions;
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);

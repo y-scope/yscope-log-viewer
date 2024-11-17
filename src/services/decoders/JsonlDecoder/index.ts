@@ -3,9 +3,9 @@ import {Dayjs} from "dayjs";
 import {Nullable} from "../../../typings/common";
 import {
     Decoder,
-    DecodeResultType,
+    DecodeResult,
+    DecoderOptions,
     FilteredLogEventMap,
-    JsonlDecoderOptionsType,
     LogEventCount,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
@@ -25,7 +25,7 @@ import {
 
 
 /**
- * A decoder for JSONL (JSON lines) files that contain log events. See `JsonlDecoderOptionsType` for
+ * A decoder for JSONL (JSON lines) files that contain log events. See `DecoderOptions` for
  * properties that are specific to log events (compared to generic JSON records).
  */
 class JsonlDecoder implements Decoder {
@@ -49,7 +49,7 @@ class JsonlDecoder implements Decoder {
      * @param dataArray
      * @param decoderOptions
      */
-    constructor (dataArray: Uint8Array, decoderOptions: JsonlDecoderOptionsType) {
+    constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
@@ -81,7 +81,7 @@ class JsonlDecoder implements Decoder {
         };
     }
 
-    setFormatterOptions (options: JsonlDecoderOptionsType): boolean {
+    setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new YscopeFormatter({formatString: options.formatString});
 
         return true;
@@ -91,7 +91,7 @@ class JsonlDecoder implements Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean,
-    ): Nullable<DecodeResultType[]> {
+    ): Nullable<DecodeResult[]> {
         if (useFilter && null === this.#filteredLogEventMap) {
             return null;
         }
@@ -104,7 +104,7 @@ class JsonlDecoder implements Decoder {
             return null;
         }
 
-        const results: DecodeResultType[] = [];
+        const results: DecodeResult[] = [];
         for (let i = beginIdx; i < endIdx; i++) {
             // Explicit cast since typescript thinks `#filteredLogEventMap[i]` can be undefined, but
             // it shouldn't be since we performed a bounds check at the beginning of the method.
@@ -204,12 +204,12 @@ class JsonlDecoder implements Decoder {
     }
 
     /**
-     * Decodes a log event into a `DecodeResultType`.
+     * Decodes a log event into a `DecodeResult`.
      *
      * @param logEventIdx
      * @return The decoded log event.
      */
-    #decodeLogEvent = (logEventIdx: number): DecodeResultType => {
+    #decodeLogEvent = (logEventIdx: number): DecodeResult => {
         let timestamp: number;
         let message: string;
         let logLevel: LOG_LEVEL;

@@ -1,6 +1,8 @@
 import React from "react";
 
 import {
+    Box,
+    ButtonGroup,
     DialogContent,
     DialogTitle,
     TabPanel,
@@ -14,6 +16,7 @@ interface CustomTabPanelProps {
     children: React.ReactNode,
     tabName: string,
     title: string,
+    titleButtons?: React.ReactNode,
 }
 
 /**
@@ -23,25 +26,40 @@ interface CustomTabPanelProps {
  * @param props.children
  * @param props.tabName
  * @param props.title
+ * @param props.titleButtons
  * @return
  */
-const CustomTabPanel = ({children, tabName, title}: CustomTabPanelProps) => {
+const CustomTabPanel = ({
+    children,
+    tabName,
+    title,
+    titleButtons,
+}: CustomTabPanelProps) => {
     return (
         <TabPanel
             className={"sidebar-tab-panel"}
             value={tabName}
         >
-            <DialogTitle className={"sidebar-tab-panel-title-container"}>
-                <Typography
-                    className={"sidebar-tab-panel-title"}
-                    level={"body-md"}
-                >
-                    {title}
-                </Typography>
-            </DialogTitle>
-            <DialogContent>
-                {children}
-            </DialogContent>
+            <Box className={"sidebar-tab-panel-container"}>
+                <DialogTitle className={"sidebar-tab-panel-title-container"}>
+                    <Typography
+                        className={"sidebar-tab-panel-title"}
+                        level={"body-md"}
+                    >
+                        {title}
+                    </Typography>
+                    <ButtonGroup
+                        size={"sm"}
+                        spacing={"1px"}
+                        variant={"plain"}
+                    >
+                        {titleButtons}
+                    </ButtonGroup>
+                </DialogTitle>
+                <DialogContent>
+                    {children}
+                </DialogContent>
+            </Box>
         </TabPanel>
     );
 };

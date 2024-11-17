@@ -1,7 +1,8 @@
 .sidebar-tabs {
+    overflow-y: hidden;
     flex-grow: 1;
     width: calc(100% - var(--ylv-panel-resize-handle-width));
-    height: 100%;
+    height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height));
 }
 
 .sidebar-tab-list-spacing {

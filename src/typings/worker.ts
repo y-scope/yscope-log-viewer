@@ -1,7 +1,7 @@
 import {Nullable} from "./common";
 import {
     ActiveLogCollectionEventIdx,
-    DecoderOptionsType,
+    DecoderOptions,
 } from "./decoders";
 import {
     LOG_LEVEL,
@@ -89,7 +89,7 @@ type WorkerReqMap = {
         fileSrc: FileSrcType,
         pageSize: number,
         cursor: CursorType,
-        decoderOptions: DecoderOptionsType
+        decoderOptions: DecoderOptions
     },
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType,
@@ -115,6 +115,9 @@ interface QueryResultsType {
 
 type QueryResults = Map<number, QueryResultsType[]>;
 
+const QUERY_PROGRESS_INIT = 0;
+const QUERY_PROGRESS_DONE = 1;
+
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string
@@ -136,7 +139,10 @@ type WorkerRespMap = {
         numPages: number,
         pageNum: number,
     },
-    [WORKER_RESP_CODE.QUERY_RESULT]: { results: QueryResults },
+    [WORKER_RESP_CODE.QUERY_RESULT]: {
+        progress: number,
+        results: QueryResults
+    },
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
@@ -172,6 +178,8 @@ export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
+    QUERY_PROGRESS_DONE,
+    QUERY_PROGRESS_INIT,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
@@ -183,6 +191,7 @@ export type {
     MainWorkerReqMessage,
     MainWorkerRespMessage,
     QueryResults,
+    QueryResultsType,
     WorkerReq,
     WorkerResp,
 };
