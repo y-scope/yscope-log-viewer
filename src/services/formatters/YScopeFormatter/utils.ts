@@ -71,18 +71,20 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
     }
     let fieldNameKeys = fieldName.split(PERIOD_REGEX);
 
+    const pattern = new RegExp(BACKSLASH_REGEX, 'g');
     // Remove escape characters (`\`) after the field name is split.
-    fieldNameKeys = fieldNameKeys.map((key) => key.replace(BACKSLASH_REGEX, ""));
+    fieldNameKeys = fieldNameKeys.map((key) => key.replaceAll(pattern, ""));
 
     formatterName = validateComponent(formatterName);
     if (null !== formatterName) {
-        formatterName.replace(BACKSLASH_REGEX, "");
+        formatterName = formatterName.replaceAll(pattern, "");
     }
 
     formatterOptions = validateComponent(formatterOptions);
     if (null !== formatterOptions) {
-        formatterOptions.replace(BACKSLASH_REGEX, "");
+        formatterOptions = formatterOptions.replaceAll(pattern, "");
     }
+    console.log(formatterOptions);
 
     return {fieldNameKeys, formatterName, formatterOptions};
 };

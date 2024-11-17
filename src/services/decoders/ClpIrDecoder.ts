@@ -12,7 +12,7 @@ import {
 import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
-import YscopeFormatter from "../../formatters/YScopeFormatter";
+import YscopeFormatter from "../formatters/YScopeFormatter";
 import {
     convertToDayjsTimestamp,
     isJsonObject,

@@ -42,7 +42,7 @@ interface LogbackFormatterOptionsType {
  * inserting it into the string.
  * - <formatter-options> (optional) defines any options for the formatter denoted by formatter-name.
  *
- * All three components may contain any character, except that colons (:), right braces (}),
+ * All three as may contain any character, except that colons (:), right braces (}),
  * and backslashes (\) must be escaped with a backslash.
  */
 interface YscopeFormatterOptionsType {
