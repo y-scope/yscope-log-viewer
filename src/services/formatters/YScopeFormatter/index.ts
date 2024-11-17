@@ -50,7 +50,7 @@ class YscopeFormatter implements Formatter {
 
             const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
             if ("undefined" === typeof nestedValue) {
-                return "undefined";
+                return "";
             }
 
             return fieldPlaceholder.fieldFormatter ?
