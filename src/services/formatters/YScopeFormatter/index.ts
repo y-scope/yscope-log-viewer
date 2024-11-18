@@ -59,15 +59,17 @@ class YscopeFormatter implements Formatter {
                 jsonValueToString(nestedValue);
         };
 
-        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, 'g');
+        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
+
         // Calls `replacePlaceholder()` for each pattern match in the format string. Effectively
         // replaces each field placeholder in the format string with values from the current
         // log event.
         let formattedLog =
             this.#formatString.replace(placeholderPattern, replacePlaceholder);
 
-        const backslashPattern = new RegExp(BACKSLASH_REGEX, 'g');
+        const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
         formattedLog = formattedLog.replace(backslashPattern, "");
+
         return `${formattedLog}\n`;
     }
 
@@ -80,7 +82,7 @@ class YscopeFormatter implements Formatter {
      * @throws Error if a specified formatter is not supported.
      */
     #parseFieldPlaceholder () {
-        const pattern = new RegExp(FIELD_PLACEHOLDER_REGEX, 'g');
+        const pattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
         const it = this.#formatString.matchAll(pattern);
         for (const execResult of it) {
             // The 1-index of exec result is the capture group in `FIELD_PLACEHOLDER_REGEX`.

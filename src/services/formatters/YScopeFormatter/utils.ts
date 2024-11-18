@@ -34,7 +34,7 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
 /**
  * Validates a component string.
  *
- * @param subfield
+ * @param component
  * @return The component string if valid, or `null` if the component is undefined or empty.
  */
 const validateComponent = (component: string | undefined): Nullable<string> => {
@@ -71,7 +71,8 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
     }
     let fieldNameKeys = fieldName.split(PERIOD_REGEX);
 
-    const pattern = new RegExp(BACKSLASH_REGEX, 'g');
+    const pattern = new RegExp(BACKSLASH_REGEX, "g");
+
     // Remove escape characters (`\`) after the field name is split.
     fieldNameKeys = fieldNameKeys.map((key) => key.replaceAll(pattern, ""));
 
