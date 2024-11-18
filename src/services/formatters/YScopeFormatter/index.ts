@@ -17,9 +17,9 @@ import {
 
 /**
  * A formatter that uses a Yscope format string to format log events into a string. See
- * `YscopeFormatterOptionsType` for details about the format string.
+ * `YScopeFormatterOptionsType` for details about the format string.
  */
-class YscopeFormatter implements Formatter {
+class YScopeFormatter implements Formatter {
     #formatString: string;
 
     #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
@@ -120,4 +120,4 @@ class YscopeFormatter implements Formatter {
     }
 }
 
-export default YscopeFormatter;
+export default YScopeFormatter;
