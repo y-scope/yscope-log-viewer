@@ -16,7 +16,7 @@ import {
 
 
 /**
- * A formatter that uses a Yscope format string to format log events into a string. See
+ * A formatter that uses a YScope format string to format log events into a string. See
  * `YScopeFormatterOptionsType` for details about the format string.
  */
 class YScopeFormatter implements Formatter {
@@ -67,6 +67,10 @@ class YScopeFormatter implements Formatter {
         let formattedLog =
             this.#formatString.replace(placeholderPattern, replacePlaceholder);
 
+
+        /* eslint-disable-next-line no-warning-comments */
+        // TODO: This is simply but lossy and will remove backlash from user fields. Working on a
+        // better way to avoid this issue.
         const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
         formattedLog = formattedLog.replace(backslashPattern, "");
 
