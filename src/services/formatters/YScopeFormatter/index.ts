@@ -7,9 +7,8 @@ import {
     YScopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
-import {getNestedJsonValue} from "../../../utils/js";
 import {
-    jsonValueToString,
+    getFormattedField,
     splitFieldPlaceholder,
     YSCOPE_FORMATTERS_MAP,
 } from "./utils";
@@ -33,43 +32,23 @@ class YScopeFormatter implements Formatter {
     formatLogEvent (logEvent: LogEvent): string {
         const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
         const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
-
         let formattedLog = "";
 
         // Keeps track of the last position in format string.
         let lastIndex = 0;
 
-        const placeholderIterator = this.#fieldPlaceholders[Symbol.iterator]();
-
-        while (true) {
+        for (const fieldPlaceholder of this.#fieldPlaceholders) {
             const placeholderMatch = placeholderPattern.exec(this.#formatString);
-
             if (null === placeholderMatch) {
-                break;
+                throw Error("Insufficient placeholder quantity: format string was modified");
             }
 
             const notPlaceholder = this.#formatString.slice(lastIndex, placeholderMatch.index);
             const cleanedNotPlaceholder = notPlaceholder.replaceAll(backslashPattern, "");
+
             formattedLog += cleanedNotPlaceholder;
 
-            const fieldPlaceholder: YScopeFieldPlaceholder | undefined =
-                placeholderIterator.next().value;
-
-            if ("undefined" === typeof fieldPlaceholder) {
-                throw new Error("Unexpected change in placeholder quantity in format string.");
-            }
-
-            let nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
-            if ("undefined" === typeof nestedValue) {
-                nestedValue = "";
-            }
-
-            const formattedField = fieldPlaceholder.fieldFormatter ?
-                fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
-                jsonValueToString(nestedValue);
-
-
-            formattedLog += formattedField;
+            formattedLog += getFormattedField(logEvent, fieldPlaceholder);
             lastIndex = placeholderMatch.index + placeholderMatch[0].length;
         }
 

@@ -4,8 +4,11 @@ import {
     COLON_REGEX,
     PERIOD_REGEX,
     YScopeFieldFormatterMap,
+    YScopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
+import {LogEvent} from "../../../typings/logs";
+import {getNestedJsonValue} from "../../../utils/js";
 import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
@@ -29,6 +32,30 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
     return "object" === typeof input ?
         JSON.stringify(input) :
         String(input);
+};
+
+/**
+ * Gets a formatted field. Specifically, retrieves a field from a log event using a placeholder's
+ * `fieldNameKeys`. The field is then formatted using the placeholder's `fieldFormatter`.
+ *
+ * @param logEvent
+ * @param fieldPlaceholder
+ * @return The formatted field as a string.
+ */
+const getFormattedField = (
+    logEvent: LogEvent,
+    fieldPlaceholder: YScopeFieldPlaceholder
+): string => {
+    let nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
+    if ("undefined" === typeof nestedValue) {
+        nestedValue = "";
+    }
+
+    const formattedField = fieldPlaceholder.fieldFormatter ?
+        fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
+        jsonValueToString(nestedValue);
+
+    return formattedField;
 };
 
 /**
@@ -91,6 +118,7 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
 
 
 export {
+    getFormattedField,
     jsonValueToString,
     splitFieldPlaceholder,
     YSCOPE_FORMATTERS_MAP,
