@@ -85,7 +85,6 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
     if (null !== formatterOptions) {
         formatterOptions = formatterOptions.replaceAll(pattern, "");
     }
-    console.log(formatterOptions);
 
     return {fieldNameKeys, formatterName, formatterOptions};
 };

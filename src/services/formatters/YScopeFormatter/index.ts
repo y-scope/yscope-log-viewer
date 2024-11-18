@@ -29,50 +29,53 @@ class YScopeFormatter implements Formatter {
         this.#parseFieldPlaceholder();
     }
 
-    formatLogEvent (logEvent: LogEvent): string {
-        let placeholderIndex = 0;
 
-        // Inline replacer function. Uses `placeholderIndex` indirectly via closure. Returns
-        // a formatted field. Function gets the `YScopeFieldPlaceholder` specified by
-        // `placeholderIndex` from array of placeholders parsed and validated in the class
-        // constructor. Next, retrieves a field from the log event using the placeholder's
-        // `fieldNameKeys`. The field is then formatted using the placeholder's `fieldFormatter`.
-        const replacePlaceholder = () => {
+    formatLogEvent (logEvent: LogEvent): string {
+        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
+        const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
+
+        let formattedLog = "";
+
+        // Keeps track of the last position in format string.
+        let lastIndex = 0;
+
+        const placeholderIterator = this.#fieldPlaceholders[Symbol.iterator]();
+
+        while (true) {
+            const placeholderMatch = placeholderPattern.exec(this.#formatString);
+
+            if (null === placeholderMatch) {
+                break;
+            }
+
+            const notPlaceholder = this.#formatString.slice(lastIndex, placeholderMatch.index);
+            const cleanedNotPlaceholder = notPlaceholder.replaceAll(backslashPattern, "");
+            formattedLog += cleanedNotPlaceholder;
+
             const fieldPlaceholder: YScopeFieldPlaceholder | undefined =
-                this.#fieldPlaceholders[placeholderIndex];
+                placeholderIterator.next().value;
 
             if ("undefined" === typeof fieldPlaceholder) {
                 throw new Error("Unexpected change in placeholder quantity in format string.");
             }
 
-            // Increment `placeholderIndex` taking advantage of closure property. Subsequent
-            // calls to `replacePlaceholder()` will use the next index from array of placeholders.
-            placeholderIndex++;
-
-            const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
+            let nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
             if ("undefined" === typeof nestedValue) {
-                return "";
+                nestedValue = "";
             }
 
-            return fieldPlaceholder.fieldFormatter ?
+            const formattedField = fieldPlaceholder.fieldFormatter ?
                 fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
                 jsonValueToString(nestedValue);
-        };
-
-        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
-
-        // Calls `replacePlaceholder()` for each pattern match in the format string. Effectively
-        // replaces each field placeholder in the format string with values from the current
-        // log event.
-        let formattedLog =
-            this.#formatString.replace(placeholderPattern, replacePlaceholder);
 
 
-        /* eslint-disable-next-line no-warning-comments */
-        // TODO: This is simply but lossy and will remove backlash from user fields. Working on a
-        // better way to avoid this issue.
-        const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
-        formattedLog = formattedLog.replace(backslashPattern, "");
+            formattedLog += formattedField;
+            lastIndex = placeholderMatch.index + placeholderMatch[0].length;
+        }
+
+        const remainder = this.#formatString.slice(lastIndex);
+        const cleanedRemainder = remainder.replace(backslashPattern, "");
+        formattedLog += cleanedRemainder;
 
         return `${formattedLog}\n`;
     }
