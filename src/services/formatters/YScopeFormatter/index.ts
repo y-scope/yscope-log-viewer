@@ -1,3 +1,4 @@
+import {Nullable} from "../../../typings/common";
 import {
     BACKSLASH_REGEX,
     FIELD_PLACEHOLDER_REGEX,
@@ -19,7 +20,7 @@ import {
  * `YScopeFormatterOptionsType` for details about the format string.
  */
 class YScopeFormatter implements Formatter {
-    #formatString: string;
+    readonly #formatString: string;
 
     #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
 
@@ -30,7 +31,6 @@ class YScopeFormatter implements Formatter {
 
 
     formatLogEvent (logEvent: LogEvent): string {
-        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
         const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
         let formattedLog = "";
 
@@ -38,18 +38,14 @@ class YScopeFormatter implements Formatter {
         let lastIndex = 0;
 
         for (const fieldPlaceholder of this.#fieldPlaceholders) {
-            const placeholderMatch = placeholderPattern.exec(this.#formatString);
-            if (null === placeholderMatch) {
-                throw Error("Insufficient placeholder quantity: format string was modified");
-            }
-
-            const notPlaceholder = this.#formatString.slice(lastIndex, placeholderMatch.index);
+            const notPlaceholder =
+                this.#formatString.slice(lastIndex, fieldPlaceholder.range.start);
             const cleanedNotPlaceholder = notPlaceholder.replaceAll(backslashPattern, "");
 
             formattedLog += cleanedNotPlaceholder;
 
             formattedLog += getFormattedField(logEvent, fieldPlaceholder);
-            lastIndex = placeholderMatch.index + placeholderMatch[0].length;
+            lastIndex = fieldPlaceholder.range.end;
         }
 
         const remainder = this.#formatString.slice(lastIndex);
@@ -68,39 +64,35 @@ class YScopeFormatter implements Formatter {
      * @throws Error if a specified formatter is not supported.
      */
     #parseFieldPlaceholder () {
-        const pattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
-        const it = this.#formatString.matchAll(pattern);
-        for (const execResult of it) {
-            // The 1-index of exec result is the capture group in `FIELD_PLACEHOLDER_REGEX`.
-            // (i.e. entire field-placeholder excluding braces).
-            const [, placeholderString]: (string | undefined) [] = execResult;
+        const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
+        const it = this.#formatString.matchAll(placeholderPattern);
+        for (const match of it) {
+            // `fullMatch` includes braces and `groupMatch` excludes them.
+            const [fullMatch, groupMatch]: (string | undefined) [] = match;
 
-            if ("undefined" === typeof placeholderString) {
+            if ("undefined" === typeof groupMatch) {
                 throw Error("Field placeholder regex is invalid and does not have a capture group");
             }
 
             const {fieldNameKeys, formatterName, formatterOptions} =
-                splitFieldPlaceholder(placeholderString);
+                splitFieldPlaceholder(groupMatch);
 
-            if (null === formatterName) {
-                this.#fieldPlaceholders.push({
-                    fieldNameKeys: fieldNameKeys,
-                    fieldFormatter: null,
-                });
-                continue;
+            let fieldFormatter: Nullable<YScopeFieldFormatter> = null;
+            if (null !== formatterName) {
+                const FieldFormatterConstructor = YSCOPE_FORMATTERS_MAP[formatterName];
+                if ("undefined" === typeof FieldFormatterConstructor) {
+                    throw Error(`Formatter ${formatterName} is not currently supported`);
+                }
+                fieldFormatter = new FieldFormatterConstructor(formatterOptions);
             }
-
-            const FieldFormatterConstructor = YSCOPE_FORMATTERS_MAP[formatterName];
-            if ("undefined" === typeof FieldFormatterConstructor) {
-                throw Error(`Formatter ${formatterName} is not currently supported`);
-            }
-
-            const fieldFormatter: YScopeFieldFormatter =
-                new FieldFormatterConstructor(formatterOptions);
 
             this.#fieldPlaceholders.push({
                 fieldNameKeys: fieldNameKeys,
                 fieldFormatter: fieldFormatter,
+                range: {
+                    start: match.index,
+                    end: match.index + fullMatch.length,
+                },
             });
         }
     }
