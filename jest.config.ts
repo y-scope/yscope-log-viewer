@@ -24,7 +24,7 @@ const JEST_CONFIG: Config = {
             lines: 90,
         },
         // eslint-disable-next-line no-warning-comments
-        // TODO: Remove / Adjust below overrides as more test cases are added.
+        // TODO: Remove/adjust the overrides below as more test cases are added.
         "src/*.tsx": {
             functions: 0,
             lines: 0,
