@@ -4,13 +4,13 @@ import pathPosix from "node:path/posix";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
-if ("undefined" !== typeof process.env.CI) {
+if ("undefined" !== typeof process.env.GITHUB_ACTIONS) {
     PRIMARY_REPORTER = [
         "github-actions",
         {silent: false},
     ];
 }
-console.log(`Environment variable "CI"="${process.env.CI}": ` +
+console.log(`Environment variable "GITHUB_ACTIONS"="${process.env.GITHUB_ACTIONS}": ` +
     `primary reporter will be ${JSON.stringify(PRIMARY_REPORTER)}`);
 
 const JEST_CONFIG: Config = {
