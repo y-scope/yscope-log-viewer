@@ -97,7 +97,7 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
         throw Error("Field name could not be parsed");
     }
 
-    // splits field name into an array of field name keys to support nested fields.
+    // Splits field name into an array of field name keys to support nested fields.
     let fieldNameKeys = fieldName.split(PERIOD_REGEX);
 
     const pattern = new RegExp(BACKSLASH_REGEX, "g");
