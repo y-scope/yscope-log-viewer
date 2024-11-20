@@ -20,16 +20,19 @@ const JEST_CONFIG: Config = {
     coverageReporters: ["text"],
     coverageThreshold: {
         "global": {
-            functions: 90,
-            lines: 90,
+            branches: 100,
+            functions: 100,
+            lines: 100,
         },
         // eslint-disable-next-line no-warning-comments
         // TODO: Remove/adjust the overrides below as more test cases are added.
         "src/": {
+            branches: 0,
             functions: 0,
             lines: 0,
         },
         "src/utils/math.ts": {
+            branches: 100,
             functions: 100,
             lines: 100,
         },
