@@ -49,8 +49,8 @@ Tasks are passed to the worker as needed and changes are rendered in the UI.
 
 # Providing Feedback
 
-You can use GitHub issues to [report a bug][report-bug] or
-[request a feature][request-feature].
+You can use GitHub issues to [report a bug][bug-report] or
+[request a feature][feature-req].
 
 Join us on [Zulip][zulip] to chat with developers and other community members.
 
@@ -69,18 +69,18 @@ See the docs in our [developer guide](docs/dev-guide).
 * Automatic conversion of text log files to IR stream format in the browser.
 * Deployment of components via NPM.
 
+[bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-ffi-js]: https://github.com/y-scope/clp-ffi-js
 [clp-loglib-py]: https://github.com/y-scope/clp-loglib-py
 [clp-repo]: https://github.com/y-scope/clp
 [datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/record/7094921#.Y5JbH33MKHs
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
 [online-demo]: https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
-[report-bug]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
-[request-feature]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [zulip]: https://yscope-clp.zulipchat.com/
 [zulip-shield]: https://img.shields.io/badge/zulip-yscope--clp%20chat-1888FA?logo=zulip

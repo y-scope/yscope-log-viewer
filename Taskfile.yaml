@@ -1,0 +1,40 @@
+version: "3"
+
+includes:
+#  deps: "deps-tasks.yml"
+  docs: "docs/tasks.yml"
+#  lint: "lint-tasks.yml"
+  utils: "tools/yscope-dev-utils/taskfiles/utils.yml"
+
+vars:
+#  # Source paths
+#  G_COMPONENTS_DIR: "{{.ROOT_DIR}}/components"
+#  G_CORE_COMPONENT_DIR: "{{.G_COMPONENTS_DIR}}/core"
+#  G_CORE_COMPONENT_SUBMODULES_DIR: "{{.G_CORE_COMPONENT_DIR}}/submodules"
+#  G_LOG_VIEWER_WEBUI_SRC_DIR: "{{.G_COMPONENTS_DIR}}/log-viewer-webui"
+#
+  # Build paths
+  G_BUILD_DIR: "{{.ROOT_DIR}}/build"
+#  G_CORE_COMPONENT_BUILD_DIR: "{{.G_BUILD_DIR}}/core"
+#  G_LOG_VIEWER_WEBUI_BUILD_DIR: "{{.G_BUILD_DIR}}/log-viewer-webui"
+#  G_METEOR_BUILD_DIR: "{{.G_BUILD_DIR}}/meteor"
+#  G_NODEJS_14_BUILD_DIR: "{{.G_BUILD_DIR}}/nodejs-14"
+#  G_NODEJS_14_BIN_DIR: "{{.G_NODEJS_14_BUILD_DIR}}/bin"
+#  G_NODEJS_22_BUILD_DIR: "{{.G_BUILD_DIR}}/nodejs-22"
+#  G_NODEJS_22_BIN_DIR: "{{.G_NODEJS_22_BUILD_DIR}}/bin"
+#  G_PACKAGE_BUILD_DIR: "{{.G_BUILD_DIR}}/clp-package"
+#  G_PACKAGE_VENV_DIR: "{{.G_BUILD_DIR}}/package-venv"
+#  G_WEBUI_BUILD_DIR: "{{.G_BUILD_DIR}}/webui"
+#
+#  # Taskfile paths
+#  G_UTILS_TASKFILE: "{{.ROOT_DIR}}/tools/yscope-dev-utils/taskfiles/utils.yml"
+#
+#  # Versions
+#  G_PACKAGE_VERSION: "0.2.0-dev"
+
+tasks:
+  init:
+    internal: true
+    silent: true
+    run: "once"
+    cmd: "mkdir -p '{{.G_BUILD_DIR}}'"
