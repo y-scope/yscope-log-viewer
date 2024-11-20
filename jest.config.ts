@@ -11,7 +11,7 @@ if ("undefined" !== typeof process.env.GITHUB_ACTIONS) {
     ];
 }
 console.log(`Environment variable "GITHUB_ACTIONS"="${process.env.GITHUB_ACTIONS}": ` +
-    `primary reporter will be ${JSON.stringify(PRIMARY_REPORTER)}`);
+    `primary reporter will be "${JSON.stringify(PRIMARY_REPORTER)}".`);
 
 const JEST_CONFIG: Config = {
     collectCoverage: true,
