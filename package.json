@@ -9,7 +9,7 @@
     "lint": "npm run lint:check",
     "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
     "lint:check:css": "stylelint src/**/*.css",
-    "lint:check:js": "eslint jest.config.ts src webpack.*.js --max-warnings 0",
+    "lint:check:js": "eslint . --max-warnings 0",
     "lint:ci": "npm-run-all --sequential --continue-on-error lint:check:js \"lint:check:css -- --formatter github\"",
     "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\"",
     "start": "webpack serve --open --config webpack.dev.js",
@@ -79,6 +79,10 @@
     "root": true,
     "extends": [
       "yscope/react"
+    ],
+    "ignorePatterns": [
+      "dist/",
+      "node_modules/"
     ],
     "overrides": [
       {
