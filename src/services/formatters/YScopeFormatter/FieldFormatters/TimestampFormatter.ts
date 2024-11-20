@@ -3,7 +3,6 @@ import {Dayjs} from "dayjs";
 import {Nullable} from "../../../../typings/common";
 import {YScopeFieldFormatter} from "../../../../typings/formatters";
 import {JsonValue} from "../../../../typings/js";
-import {convertDateTimeFormatterPatternToDayJs} from "../../../../utils/formatters";
 import {convertToDayjsTimestamp} from "../../../decoders/JsonlDecoder/utils";
 
 
@@ -16,9 +15,7 @@ class TimestampFormatter implements YScopeFieldFormatter {
     #dateFormat: Nullable<string> = null;
 
     constructor (options: Nullable<string>) {
-        if (null !== options) {
-            this.#dateFormat = convertDateTimeFormatterPatternToDayJs(options);
-        }
+        this.#dateFormat = options;
     }
 
     formatField (field: JsonValue): string {
