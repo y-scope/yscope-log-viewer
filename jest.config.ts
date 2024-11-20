@@ -62,8 +62,9 @@ const JEST_CONFIG: Config = {
     },
     verbose: true,
 
-    // Caution: Extra properties set on `Error`, `Map` or `Set` will not be passed on through the
-    // serialization.
+    // NOTE: Extra properties in types such as `Error`, `Map`, or `Set` are not preserved when
+    // passing payloads between parent and child threads due to serialization.
+    // See https://jestjs.io/docs/29.6/configuration#workerthreads
     workerThreads: true,
 };
 
