@@ -50,7 +50,6 @@ const JEST_CONFIG: Config = {
         "summary",
     ],
     showSeed: true,
-    testEnvironment: "node",
     testMatch: [
         pathPosix.join(__dirname, "test/**/?(*)test.{ts,tsx}"),
     ],
