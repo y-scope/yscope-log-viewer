@@ -11,7 +11,6 @@
     "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
     "lint:check:css": "stylelint src/**/*.css",
     "lint:check:js": "eslint src webpack.*.js --max-warnings 0",
-    "lint:ci": "npm-run-all --sequential --continue-on-error lint:check:*",
     "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\""
   },
   "repository": {
