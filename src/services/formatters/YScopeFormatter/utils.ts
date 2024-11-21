@@ -1,8 +1,11 @@
 import {Nullable} from "../../../typings/common";
 import {
-    BACKSLASH_REGEX,
     COLON_REGEX,
+    DOUBLE_BACKSLASH_REGEX,
     PERIOD_REGEX,
+    REPLACEMENT_CHARACTER,
+    REPLACEMENT_CHARACTER_REGEX,
+    SINGLE_BACKSLASH_REGEX,
     YScopeFieldFormatterMap,
     YScopeFieldPlaceholder,
 } from "../../../typings/formatters";
@@ -20,6 +23,56 @@ const YSCOPE_FORMATTERS_MAP: YScopeFieldFormatterMap = Object.freeze({
     timestamp: TimestampFormatter,
     round: RoundFormatter,
 });
+
+
+/**
+ * Removes all backslashes from a string. Used to remove escape character
+ * in front of brace and colon characters.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const removeBackslash = (str: string): string => {
+    const pattern = new RegExp(SINGLE_BACKSLASH_REGEX, "g");
+    return str.replaceAll(pattern, "");
+};
+
+/**
+ * Replaces all replacement characters in format string with a single backslash. Used to remove,
+ * albeit indirectly through replacement character, escape character in front of a backlash
+ * character.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const replaceReplacementCharacter = (str: string): string => {
+    const pattern = new RegExp(REPLACEMENT_CHARACTER_REGEX, "g");
+    return str.replaceAll(pattern, "\\");
+};
+
+/**
+ * Removes escape characters from a string.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const removeEscapeCharacters = (str: string): string => {
+    // `removeBackslash()`, which removes all  backlashes, is called before
+    // `replaceReplacementCharacter()` to prevent removal of escaped backslashes.
+    return replaceReplacementCharacter(removeBackslash(str));
+};
+
+/**
+ * Replaces all escaped backslashes in format string with replacement character.
+ *
+ * @param formatString
+ * @return Modified format string.
+ */
+const replaceDoubleBacklash = (formatString: string): string => {
+    const pattern = new RegExp(DOUBLE_BACKSLASH_REGEX, "g");
+    return formatString.replaceAll(pattern, REPLACEMENT_CHARACTER);
+};
+
 
 /**
  * Converts a JSON value to its string representation.
@@ -100,19 +153,16 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
     // Splits field name into an array of field name keys to support nested fields.
     let fieldNameKeys = fieldName.split(PERIOD_REGEX);
 
-    const pattern = new RegExp(BACKSLASH_REGEX, "g");
-
-    // Remove escape characters (`\`) after the field name is split.
-    fieldNameKeys = fieldNameKeys.map((key) => key.replaceAll(pattern, ""));
+    fieldNameKeys = fieldNameKeys.map((key) => removeEscapeCharacters(key));
 
     formatterName = validateComponent(formatterName);
     if (null !== formatterName) {
-        formatterName = formatterName.replaceAll(pattern, "");
+        formatterName = removeEscapeCharacters(formatterName);
     }
 
     formatterOptions = validateComponent(formatterOptions);
     if (null !== formatterOptions) {
-        formatterOptions = formatterOptions.replaceAll(pattern, "");
+        formatterOptions = removeEscapeCharacters(formatterOptions);
     }
 
     return {fieldNameKeys, formatterName, formatterOptions};
@@ -122,6 +172,8 @@ const splitFieldPlaceholder = (fieldPlaceholder: string): {
 export {
     getFormattedField,
     jsonValueToString,
+    removeEscapeCharacters,
+    replaceDoubleBacklash,
     splitFieldPlaceholder,
     YSCOPE_FORMATTERS_MAP,
 };

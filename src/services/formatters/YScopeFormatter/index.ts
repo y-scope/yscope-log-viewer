@@ -1,15 +1,17 @@
 import {Nullable} from "../../../typings/common";
 import {
-    BACKSLASH_REGEX,
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
     FormatterOptionsType,
+    REPLACEMENT_CHARACTER_REGEX,
     YScopeFieldFormatter,
     YScopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
 import {
     getFormattedField,
+    removeEscapeCharacters,
+    replaceDoubleBacklash,
     splitFieldPlaceholder,
     YSCOPE_FORMATTERS_MAP,
 } from "./utils";
@@ -20,37 +22,39 @@ import {
  * `YScopeFormatterOptionsType` for details about the format string.
  */
 class YScopeFormatter implements Formatter {
-    readonly #formatString: string;
+    readonly #processedFormatString: string;
 
     #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
-        this.#formatString = options.formatString;
+        if (REPLACEMENT_CHARACTER_REGEX.test(options.formatString)) {
+            console.log("Replacement character is an invalid character in format string." +
+                 "Replacement character will appear as \\.");
+        }
+
+        this.#processedFormatString = replaceDoubleBacklash(options.formatString);
         this.#parseFieldPlaceholder();
     }
 
-
     formatLogEvent (logEvent: LogEvent): string {
-        const backslashPattern = new RegExp(BACKSLASH_REGEX, "g");
         let formattedLog = "";
 
         // Keeps track of the last position in format string.
         let lastIndex = 0;
 
         for (const fieldPlaceholder of this.#fieldPlaceholders) {
-            const notPlaceholder =
-                this.#formatString.slice(lastIndex, fieldPlaceholder.range.start);
-            const cleanedNotPlaceholder = notPlaceholder.replaceAll(backslashPattern, "");
+            const formatStringFragment =
+                this.#processedFormatString.slice(lastIndex, fieldPlaceholder.range.start);
+            const cleanedFragment = removeEscapeCharacters(formatStringFragment);
 
-            formattedLog += cleanedNotPlaceholder;
+            formattedLog += cleanedFragment;
 
             formattedLog += getFormattedField(logEvent, fieldPlaceholder);
             lastIndex = fieldPlaceholder.range.end;
         }
 
-        const remainder = this.#formatString.slice(lastIndex);
-        const cleanedRemainder = remainder.replace(backslashPattern, "");
-        formattedLog += cleanedRemainder;
+        const remainder = this.#processedFormatString.slice(lastIndex);
+        formattedLog += removeEscapeCharacters(remainder);
 
         return `${formattedLog}\n`;
     }
@@ -65,7 +69,7 @@ class YScopeFormatter implements Formatter {
      */
     #parseFieldPlaceholder () {
         const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
-        const it = this.#formatString.matchAll(placeholderPattern);
+        const it = this.#processedFormatString.matchAll(placeholderPattern);
         for (const match of it) {
             // `fullMatch` includes braces and `groupMatch` excludes them.
             const [fullMatch, groupMatch]: (string | undefined) [] = match;

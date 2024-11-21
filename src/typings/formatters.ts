@@ -66,25 +66,44 @@ type YScopeFieldFormatterMap = {
     [key: string]: new (options: Nullable<string>) => YScopeFieldFormatter;
 };
 
-// Patterns to assist parsing YScope format string. All patterns accept unescaped
-// matches only.
 /**
- * Pattern to remove backlash.
+ * Rare character to replace escaped backslash in format string. Rare character is unlikely to be in
+ * user format string.  Writing regex to distinguish between a single escape character ("\") and an
+ * escaped backslash ("\\") is challenging especially when they are in series. It is simpler to just
+ * replace escaped backslashes with a rare character and add them back after parsing field
+ * placeholder with regex is finished.
  */
-const BACKSLASH_REGEX = Object.freeze(/(?<!\\)\\/);
+const REPLACEMENT_CHARACTER = Object.freeze("�");
+
+// Patterns to assist parsing YScope format string.
 
 /**
- * Pattern to split field placeholder.
+ * Pattern to replace replacement character.
+ */
+const REPLACEMENT_CHARACTER_REGEX = Object.freeze(/�/);
+
+/**
+ * Pattern to replace double backlash.
+ */
+const DOUBLE_BACKSLASH_REGEX = Object.freeze(/\\\\/);
+
+/**
+ * Pattern to remove single backlash.
+ */
+const SINGLE_BACKSLASH_REGEX = Object.freeze(/\\/);
+
+/**
+ * Pattern to split field unescaped placeholder.
  */
 const COLON_REGEX = Object.freeze(/(?<!\\):/);
 
 /**
- * Pattern to match field placeholder.
+ * Pattern to match unescaped field placeholder.
  */
 const FIELD_PLACEHOLDER_REGEX = Object.freeze(/(?<!\\)\{(.*?)(?<!\\)\}/);
 
 /**
- * Pattern to split field name.
+ * Pattern to split unescaped field name.
  */
 const PERIOD_REGEX = Object.freeze(/(?<!\\)\./);
 
@@ -97,8 +116,11 @@ export type {
 };
 
 export {
-    BACKSLASH_REGEX,
     COLON_REGEX,
+    DOUBLE_BACKSLASH_REGEX,
     FIELD_PLACEHOLDER_REGEX,
     PERIOD_REGEX,
+    REPLACEMENT_CHARACTER,
+    REPLACEMENT_CHARACTER_REGEX,
+    SINGLE_BACKSLASH_REGEX,
 };
