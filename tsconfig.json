@@ -1,6 +1,8 @@
 {
   "include": [
-    "src"
+    "jest.config.ts",
+    "src",
+    "test",
   ],
   "exclude": [
     "node_modules"

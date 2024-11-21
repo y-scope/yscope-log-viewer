@@ -1,0 +1,40 @@
+.search-tab-container {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.query-input-box-with-progress {
+    /* JoyUI has a rounding issue when calculating the Textarea width, causing it to overflow its
+      container. */
+    margin-right: 1px;
+}
+
+.query-input-box {
+    flex-direction: row !important;
+    border-radius: 0 !important;
+}
+
+.query-option-button {
+    font-family: Inter, sans-serif !important;
+}
+
+.query-input-box-textarea {
+    width: 0;
+}
+
+.query-input-box-end-decorator {
+    display: block !important;
+    margin-block-start: 0 !important;
+}
+
+.query-input-box-linear-progress {
+    /* stylelint-disable-next-line custom-property-pattern */
+    --LinearProgress-radius: 0 !important;
+}
+
+.query-results {
+    overflow-y: auto;
+    flex-grow: 1;
+}

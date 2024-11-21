@@ -6,12 +6,13 @@
   "scripts": {
     "analyze:size": "webpack --config webpack.prod.js --profile --json=bundle-stats.json && webpack-bundle-analyzer bundle-stats.json dist/",
     "build": "webpack --config webpack.prod.js",
-    "start": "webpack serve --open --config webpack.dev.js",
     "lint": "npm run lint:check",
     "lint:check": "npm-run-all --sequential --continue-on-error lint:check:*",
     "lint:check:css": "stylelint src/**/*.css",
-    "lint:check:js": "eslint src webpack.*.js --max-warnings 0",
-    "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\""
+    "lint:check:js": "eslint . --max-warnings 0",
+    "lint:fix": "npm-run-all --parallel --continue-on-error \"lint:check:* -- --fix\"",
+    "start": "webpack serve --open --config webpack.dev.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,7 @@
     "@mui/icons-material": "^6.1.0",
     "@mui/joy": "^5.0.0-beta.48",
     "axios": "^1.7.2",
-    "clp-ffi-js": "^0.2.0",
+    "clp-ffi-js": "^0.3.0",
     "dayjs": "^1.11.11",
     "monaco-editor": "^0.50.0",
     "react": "^18.3.1",
@@ -41,6 +42,8 @@
     "@babel/preset-react": "^7.24.7",
     "@babel/preset-typescript": "^7.24.7",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.9.0",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
@@ -51,6 +54,7 @@
     "eslint-config-yscope": "latest",
     "eslint-import-resolver-typescript": "^3.6.1",
     "html-webpack-plugin": "^5.6.0",
+    "jest": "^29.7.0",
     "mini-css-extract-plugin": "^2.9.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "npm-run-all": "^4.1.5",
@@ -61,7 +65,9 @@
     "stylelint-config-clean-order": "^6.1.0",
     "stylelint-config-standard": "^36.0.1",
     "stylelint-prettier": "^5.0.2",
-    "typescript": "^5.6.2",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
     "webpack": "^5.92.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
@@ -73,6 +79,10 @@
     "extends": [
       "yscope/react"
     ],
+    "ignorePatterns": [
+      "dist/",
+      "node_modules/"
+    ],
     "overrides": [
       {
         "files": [
@@ -82,11 +92,23 @@
         "extends": [
           "yscope/typescript"
         ]
+      },
+      {
+        "files": [
+          "test/**/*"
+        ],
+        "env": {
+          "jest": true
+        },
+        "rules": {
+          "no-magic-numbers": "off"
+        }
       }
     ],
     "rules": {
       "no-restricted-imports": [
-        "error", {
+        "error",
+        {
           "paths": [
             {
               "message": "Please use path imports and name your imports with postfix \"Icon\" to avoid confusions.",
@@ -95,7 +117,10 @@
           ],
           "patterns": [
             {
-              "group": ["@mui/joy/*", "!@mui/joy/styles"],
+              "group": [
+                "@mui/joy/*",
+                "!@mui/joy/styles"
+              ],
               "message": "Please use the default import from \"@mui/joy\" instead."
             }
           ]
