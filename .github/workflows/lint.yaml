@@ -38,4 +38,4 @@ jobs:
           npm run lint:check
       - if: "always()"
         name: "Remove Stylelint Problem Matcher"
-        run: "echo '::remove-matcher::./.github/problem-matchers/stylelint.json'"
+        run: "echo '::remove-matcher::./.github/problem-matchers/stylelint.json owner=stylelint::'"
