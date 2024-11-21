@@ -22,6 +22,7 @@ jobs:
   lint-check:
     runs-on: "ubuntu-latest"
     env:
+      STYLELINT_MATCHER_OWNER: "stylelint"
       STYLELINT_MATCHER_PATH: "./.github/problem-matchers/stylelint.json"
     steps:
       - uses: "actions/checkout@v4"
@@ -40,4 +41,4 @@ jobs:
           npm run lint:check
       - if: "always()"
         name: "Remove Stylelint Problem Matcher"
-        run: "echo '::remove-matcher::${{env.STYLELINT_MATCHER_PATH}} owner=stylelint::'"
+        run: "echo '::remove-matcher owner=${{env.STYLELINT_MATCHER_OWNER}}::'"
