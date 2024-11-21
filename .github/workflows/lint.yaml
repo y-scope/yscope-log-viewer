@@ -33,7 +33,7 @@ jobs:
       - run: "npm clean-install"
       - name: "Set up Stylelint Problem Matcher"
         run: "echo '::add-matcher::${{env.STYLELINT_MATCHER_PATH}}'"
-      - name: "Run `lint:ci` script."
+      - name: "Run `lint:check` script."
         run: |-
           # Disable ANSI color codes in Stylelint default "string" formatter
           export NO_COLOR=1
