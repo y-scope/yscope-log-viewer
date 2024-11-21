@@ -20,7 +20,7 @@ const QUERY_CHUNK_SIZE = 10_000;
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.DECODER_OPTIONS]: {
         formatString: "{@timestamp:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS}" +
-        " [{process\\.thread\\.name}] {log\\.level} {message}",
+        " {log\\.level} [{process\\.thread\\.name}] {message}",
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },

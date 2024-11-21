@@ -6,13 +6,13 @@ import {jsonValueToString} from "../utils";
 
 /**
  * A field formatter that rounds numerical values to the nearest integer.
- * If the field value is not a number, it is returned as-is after being
- * converted to a string. Does not currently support any options.
+ * For non-numerical values, the field's value is converted to a string then returned as-is.
+ * Options: none.
  */
 class RoundFormatter implements YScopeFieldFormatter {
     constructor (options: Nullable<string>) {
         if (null !== options) {
-            throw Error(`Round formatter does not support option ${options}`);
+            throw Error(`RoundFormatter does not support options "${options}"`);
         }
     }
 

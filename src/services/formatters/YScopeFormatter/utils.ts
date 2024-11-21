@@ -141,9 +141,11 @@ const splitFieldPlaceholder = (placeholderString: string): {
     formatterName: Nullable<string>,
     formatterOptions: Nullable<string>,
 } => {
-    let [fieldName,
+    let [
+        fieldName,
         formatterName,
-        formatterOptions]: Nullable<string|undefined>[] = placeholderString.split(COLON_REGEX, 3);
+        formatterOptions
+    ]: Nullable<string|undefined>[] = placeholderString.split(COLON_REGEX, 3);
 
     fieldName = validateComponent(fieldName);
     if (null === fieldName) {

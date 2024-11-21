@@ -49,6 +49,13 @@ interface YScopeFieldFormatter {
 }
 
 /**
+ * Type for list of currently supported Yscope field formatters.
+ */
+type YScopeFieldFormatterMap = {
+    [key: string]: new (options: Nullable<string>) => YScopeFieldFormatter;
+};
+
+/**
  * Parsed field placeholder from a Yscope format string.
  */
 type YScopeFieldPlaceholder = {
@@ -60,18 +67,7 @@ type YScopeFieldPlaceholder = {
 }
 
 /**
- * Type for list of currently supported Yscope field formatters.
- */
-type YScopeFieldFormatterMap = {
-    [key: string]: new (options: Nullable<string>) => YScopeFieldFormatter;
-};
-
-/**
- * Rare character to replace escaped backslash in format string. Rare character is unlikely to be in
- * user format string.  Writing regex to distinguish between a single escape character ("\") and an
- * escaped backslash ("\\") is challenging especially when they are in series. It is simpler to just
- * replace escaped backslashes with a rare character and add them back after parsing field
- * placeholder with regex is finished.
+ * Unicode REPLACEMENT CHARACTER `U+FFFD` to substitute escaped backslash (`\\`) in format string.
  */
 const REPLACEMENT_CHARACTER = Object.freeze("�");
 

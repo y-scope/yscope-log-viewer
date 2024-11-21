@@ -7,9 +7,8 @@ import {convertToDayjsTimestamp} from "../../../decoders/JsonlDecoder/utils";
 
 
 /**
- * A formatter that formats timestamp values using a specified date-time pattern.
- * If no pattern is provided as an option, the timestamp is formatted in the
- * default ISO 8601 format.
+ * A formatter for timestamp values, using a specified date-time pattern.
+ * Options: If no pattern is provided, defaults to ISO 8601 format.
  */
 class TimestampFormatter implements YScopeFieldFormatter {
     #dateFormat: Nullable<string> = null;
