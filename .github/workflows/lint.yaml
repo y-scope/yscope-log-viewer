@@ -40,4 +40,4 @@ jobs:
           npm run lint:check
       - if: "always()"
         name: "Remove Stylelint Problem Matcher"
-        run: "echo '::remove-matcher::${{env.STYLELINT_MATCHER_PATH}}'"
+        run: "echo '::remove-matcher::${{env.STYLELINT_MATCHER_PATH}} owner=stylelint::'"
