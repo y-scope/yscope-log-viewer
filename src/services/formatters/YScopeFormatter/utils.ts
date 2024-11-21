@@ -19,15 +19,15 @@ import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 /**
  * List of currently supported field formatters.
  */
-const YSCOPE_FORMATTERS_MAP: YScopeFieldFormatterMap = Object.freeze({
+const YSCOPE_FIELD_FORMATTER_MAP: YScopeFieldFormatterMap = Object.freeze({
     timestamp: TimestampFormatter,
     round: RoundFormatter,
 });
 
 
 /**
- * Removes all backslashes from a string. Used to remove escape character
- * in front of brace and colon characters.
+ * Removes all backslashes from a string. Purpose is to remove escape character in front of brace
+ * and colon characters.
  *
  * @param str
  * @return Modified string.
@@ -38,9 +38,9 @@ const removeBackslash = (str: string): string => {
 };
 
 /**
- * Replaces all replacement characters in format string with a single backslash. Used to remove,
- * albeit indirectly through replacement character, escape character in front of a backlash
- * character.
+ * Replaces all replacement characters in format string with a single backslash. Purpose is to
+ * remove, albeit indirectly through intermediate replacement character, escape character in
+ * front of a backslash character.
  *
  * @param str
  * @return Modified string.
@@ -99,9 +99,9 @@ const getFormattedField = (
     logEvent: LogEvent,
     fieldPlaceholder: YScopeFieldPlaceholder
 ): string => {
-    let nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
+    const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
     if ("undefined" === typeof nestedValue) {
-        nestedValue = "";
+        return "";
     }
 
     const formattedField = fieldPlaceholder.fieldFormatter ?
@@ -126,24 +126,24 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
 };
 
 /**
- * Splits a field placeholder into its components: field name, formatter name, and formatter
+ * Splits a field placeholder string into its components: field name, formatter name, and formatter
  * options.
  *
- * @param fieldPlaceholder
+ * @param placeholderString
  * @return - An object containing:
  * - fieldNameKeys: An array of strings representing the field name split by periods.
  * - formatterName: The formatter name, or `null` if not provided.
  * - formatterOptions: The formatter options, or `null` if not provided.
  * @throws {Error} If the field name could not be parsed.
  */
-const splitFieldPlaceholder = (fieldPlaceholder: string): {
+const splitFieldPlaceholder = (placeholderString: string): {
     fieldNameKeys: string[],
     formatterName: Nullable<string>,
     formatterOptions: Nullable<string>,
 } => {
     let [fieldName,
         formatterName,
-        formatterOptions]: Nullable<string|undefined>[] = fieldPlaceholder.split(COLON_REGEX, 3);
+        formatterOptions]: Nullable<string|undefined>[] = placeholderString.split(COLON_REGEX, 3);
 
     fieldName = validateComponent(fieldName);
     if (null === fieldName) {
@@ -175,5 +175,5 @@ export {
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,
-    YSCOPE_FORMATTERS_MAP,
+    YSCOPE_FIELD_FORMATTER_MAP,
 };

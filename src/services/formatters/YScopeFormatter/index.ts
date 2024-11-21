@@ -13,7 +13,7 @@ import {
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,
-    YSCOPE_FORMATTERS_MAP,
+    YSCOPE_FIELD_FORMATTER_MAP,
 } from "./utils";
 
 
@@ -60,12 +60,13 @@ class YScopeFormatter implements Formatter {
     }
 
     /**
-     * Parses field name, formatter name, and formatter options from placeholders in the format
-     * string. For each placeholder, it creates a corresponding `YScopeFieldFormatter` and adds
-     * it to the class-level array.
+     * Parses field placeholders in format string. For each field placeholder, creates a
+     * corresponding `YScopeFieldFormatter` using the placeholder's field name, formatter type,
+     * and formatter options. Each `YScopeFieldFormatter` is then stored on the
+     * class-level array `#fieldPlaceholders`.
      *
      * @throws Error if `FIELD_PLACEHOLDER_REGEX` does not contain a capture group.
-     * @throws Error if a specified formatter is not supported.
+     * @throws Error if a formatter type is not supported.
      */
     #parseFieldPlaceholder () {
         const placeholderPattern = new RegExp(FIELD_PLACEHOLDER_REGEX, "g");
@@ -83,7 +84,7 @@ class YScopeFormatter implements Formatter {
 
             let fieldFormatter: Nullable<YScopeFieldFormatter> = null;
             if (null !== formatterName) {
-                const FieldFormatterConstructor = YSCOPE_FORMATTERS_MAP[formatterName];
+                const FieldFormatterConstructor = YSCOPE_FIELD_FORMATTER_MAP[formatterName];
                 if ("undefined" === typeof FieldFormatterConstructor) {
                     throw Error(`Formatter ${formatterName} is not currently supported`);
                 }
