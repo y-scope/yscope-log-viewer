@@ -2,7 +2,7 @@ import {LOG_LEVEL} from "./logs";
 
 
 /**
- * Optional button and callback function for pop-up.
+ * Optional button for pop-up.
  */
 type PopUpButton = {
     title: string,
