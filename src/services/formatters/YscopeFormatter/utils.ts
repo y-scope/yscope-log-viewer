@@ -1,11 +1,10 @@
 import {Nullable} from "../../../typings/common";
 import {
     COLON_REGEX,
-    DOUBLE_BACKSLASH_REGEX,
+    DOUBLE_BACKSLASH,
     PERIOD_REGEX,
     REPLACEMENT_CHARACTER,
-    REPLACEMENT_CHARACTER_REGEX,
-    SINGLE_BACKSLASH_REGEX,
+    SINGLE_BACKSLASH,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
@@ -17,9 +16,9 @@ import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
 
 // Initialize commonly used regular expressions to facilitate reuse.
-const singleBackslashPattern = new RegExp(SINGLE_BACKSLASH_REGEX, "g");
-const doubleBacklashPattern = new RegExp(DOUBLE_BACKSLASH_REGEX, "g");
-const replacementCharacterPattern = new RegExp(REPLACEMENT_CHARACTER_REGEX, "g");
+const SINGLE_BACKSLASH_REGEX = new RegExp(SINGLE_BACKSLASH, "g");
+const DOUBLE_BACKSLASH_REGEX = new RegExp(DOUBLE_BACKSLASH, "g");
+const REPLACEMENT_CHARACTER_REGEX = new RegExp(REPLACEMENT_CHARACTER, "g");
 
 /**
  * List of currently supported field formatters.
@@ -38,7 +37,7 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
  * @return Modified string.
  */
 const removeBackslash = (str: string): string => {
-    return str.replaceAll(singleBackslashPattern, "");
+    return str.replaceAll(SINGLE_BACKSLASH_REGEX, "");
 };
 
 /**
@@ -50,7 +49,7 @@ const removeBackslash = (str: string): string => {
  * @return Modified string.
  */
 const replaceReplacementCharacter = (str: string): string => {
-    return str.replaceAll(replacementCharacterPattern, "\\");
+    return str.replaceAll(REPLACEMENT_CHARACTER_REGEX, "\\");
 };
 
 /**
@@ -77,7 +76,7 @@ const removeEscapeCharacters = (str: string): string => {
  * @return Modified format string.
  */
 const replaceDoubleBacklash = (formatString: string): string => {
-    return formatString.replaceAll(doubleBacklashPattern, REPLACEMENT_CHARACTER);
+    return formatString.replaceAll(DOUBLE_BACKSLASH_REGEX, REPLACEMENT_CHARACTER);
 };
 
 

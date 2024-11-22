@@ -71,22 +71,17 @@ type YscopeFieldPlaceholder = {
  */
 const REPLACEMENT_CHARACTER = "�";
 
+/**
+ * Used to remove single backlash in format string.
+ */
+const SINGLE_BACKSLASH = "\\";
+
+/**
+ * Used to replace double backlash in format string.
+ */
+const DOUBLE_BACKSLASH = "\\\\";
+
 // Patterns to assist parsing YScope format string.
-
-/**
- * Pattern to replace replacement character.
- */
-const REPLACEMENT_CHARACTER_REGEX = Object.freeze(/�/);
-
-/**
- * Pattern to replace double backlash.
- */
-const DOUBLE_BACKSLASH_REGEX = Object.freeze(/\\\\/);
-
-/**
- * Pattern to remove single backlash.
- */
-const SINGLE_BACKSLASH_REGEX = Object.freeze(/\\/);
 
 /**
  * Pattern to split field unescaped placeholder.
@@ -113,10 +108,9 @@ export type {
 
 export {
     COLON_REGEX,
-    DOUBLE_BACKSLASH_REGEX,
+    DOUBLE_BACKSLASH,
     FIELD_PLACEHOLDER_REGEX,
     PERIOD_REGEX,
     REPLACEMENT_CHARACTER,
-    REPLACEMENT_CHARACTER_REGEX,
-    SINGLE_BACKSLASH_REGEX,
+    SINGLE_BACKSLASH,
 };

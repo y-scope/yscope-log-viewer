@@ -3,7 +3,7 @@ import {
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
     FormatterOptionsType,
-    REPLACEMENT_CHARACTER_REGEX,
+    REPLACEMENT_CHARACTER,
     YscopeFieldFormatter,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
@@ -27,9 +27,9 @@ class YscopeFormatter implements Formatter {
     #fieldPlaceholders: YscopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
-        if (REPLACEMENT_CHARACTER_REGEX.test(options.formatString)) {
-            console.log("Replacement character is an invalid character in format string." +
-                 "Replacement character will appear as \\.");
+        if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
+            console.warn("Unicode replacement character `U+FFFD` is found in Decoder Format" +
+            ' String, which will appear as "\\".');
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);
