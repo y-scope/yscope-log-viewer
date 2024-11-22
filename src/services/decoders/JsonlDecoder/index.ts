@@ -16,7 +16,7 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
-import YscopeFormatter from "../../formatters/YScopeFormatter";
+import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,

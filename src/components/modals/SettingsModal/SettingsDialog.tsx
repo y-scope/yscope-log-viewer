@@ -33,11 +33,12 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 const CONFIG_FORM_FIELDS = [
     {
-        helperText: `[JSON] Log messages conversion pattern. Add field-placeholders to insert
-        fields from JSON log events. A field-placeholder uses the following syntax:
-        \`{<field-name>[:<formatter-name>[:<formatter-options>]]}\`. \`field-name\` is required,
-        while \`formatter-name\` and \`formatter-options\` are optional. See the default pattern
-        for an example.`,
+        helperText: `[JSON] Log message conversion pattern: use field placeholders to insert
+        values from JSON log events. The syntax is
+        \`{<field-name>[:<formatter-name>[:<formatter-options>]]}\`, where \`field-name\` is
+        required, while \`formatter-name\` and \`formatter-options\` are optional. For example,
+        the following placeholder would format a timestamp field with name \`@timestamp\`:
+        \`{@timestamp:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS}\`.`,
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,

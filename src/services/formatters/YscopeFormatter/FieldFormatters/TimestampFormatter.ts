@@ -1,7 +1,7 @@
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../../typings/common";
-import {YScopeFieldFormatter} from "../../../../typings/formatters";
+import {YscopeFieldFormatter} from "../../../../typings/formatters";
 import {JsonValue} from "../../../../typings/js";
 import {convertToDayjsTimestamp} from "../../../decoders/JsonlDecoder/utils";
 
@@ -10,7 +10,7 @@ import {convertToDayjsTimestamp} from "../../../decoders/JsonlDecoder/utils";
  * A formatter for timestamp values, using a specified date-time pattern.
  * Options: If no pattern is provided, defaults to ISO 8601 format.
  */
-class TimestampFormatter implements YScopeFieldFormatter {
+class TimestampFormatter implements YscopeFieldFormatter {
     #dateFormat: Nullable<string> = null;
 
     constructor (options: Nullable<string>) {

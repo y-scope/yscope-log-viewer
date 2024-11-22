@@ -37,7 +37,7 @@ interface Formatter {
     formatLogEvent: (logEvent: LogEvent) => string
 }
 
-interface YScopeFieldFormatter {
+interface YscopeFieldFormatter {
 
     /**
      * Formats the given field.
@@ -51,25 +51,25 @@ interface YScopeFieldFormatter {
 /**
  * Type for list of currently supported Yscope field formatters.
  */
-type YScopeFieldFormatterMap = {
-    [key: string]: new (options: Nullable<string>) => YScopeFieldFormatter;
+type YscopeFieldFormatterMap = {
+    [key: string]: new (options: Nullable<string>) => YscopeFieldFormatter;
 };
 
 /**
  * Parsed field placeholder from a Yscope format string.
  */
-type YScopeFieldPlaceholder = {
+type YscopeFieldPlaceholder = {
     fieldNameKeys: string[],
-    fieldFormatter: Nullable<YScopeFieldFormatter>,
+    fieldFormatter: Nullable<YscopeFieldFormatter>,
 
     // Location of field placeholder in format string including braces.
     range: {start: number, end: number}
 }
 
 /**
- * Unicode REPLACEMENT CHARACTER `U+FFFD` to substitute escaped backslash (`\\`) in format string.
+ * Unicode replacement character `U+FFFD` to substitute escaped backslash (`\\`) in format string.
  */
-const REPLACEMENT_CHARACTER = Object.freeze("�");
+const REPLACEMENT_CHARACTER = "�";
 
 // Patterns to assist parsing YScope format string.
 
@@ -106,9 +106,9 @@ const PERIOD_REGEX = Object.freeze(/(?<!\\)\./);
 export type {
     Formatter,
     FormatterOptionsType,
-    YScopeFieldFormatter,
-    YScopeFieldFormatterMap,
-    YScopeFieldPlaceholder,
+    YscopeFieldFormatter,
+    YscopeFieldFormatterMap,
+    YscopeFieldPlaceholder,
 };
 
 export {

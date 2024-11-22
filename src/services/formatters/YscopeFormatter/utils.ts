@@ -6,8 +6,8 @@ import {
     REPLACEMENT_CHARACTER,
     REPLACEMENT_CHARACTER_REGEX,
     SINGLE_BACKSLASH_REGEX,
-    YScopeFieldFormatterMap,
-    YScopeFieldPlaceholder,
+    YscopeFieldFormatterMap,
+    YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
 import {LogEvent} from "../../../typings/logs";
@@ -16,10 +16,15 @@ import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
 
+// Initialize commonly used regular expressions to facilitate reuse.
+const singleBackslashPattern = new RegExp(SINGLE_BACKSLASH_REGEX, "g");
+const doubleBacklashPattern = new RegExp(DOUBLE_BACKSLASH_REGEX, "g");
+const replacementCharacterPattern = new RegExp(REPLACEMENT_CHARACTER_REGEX, "g");
+
 /**
  * List of currently supported field formatters.
  */
-const YSCOPE_FIELD_FORMATTER_MAP: YScopeFieldFormatterMap = Object.freeze({
+const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
     timestamp: TimestampFormatter,
     round: RoundFormatter,
 });
@@ -33,8 +38,7 @@ const YSCOPE_FIELD_FORMATTER_MAP: YScopeFieldFormatterMap = Object.freeze({
  * @return Modified string.
  */
 const removeBackslash = (str: string): string => {
-    const pattern = new RegExp(SINGLE_BACKSLASH_REGEX, "g");
-    return str.replaceAll(pattern, "");
+    return str.replaceAll(singleBackslashPattern, "");
 };
 
 /**
@@ -46,8 +50,7 @@ const removeBackslash = (str: string): string => {
  * @return Modified string.
  */
 const replaceReplacementCharacter = (str: string): string => {
-    const pattern = new RegExp(REPLACEMENT_CHARACTER_REGEX, "g");
-    return str.replaceAll(pattern, "\\");
+    return str.replaceAll(replacementCharacterPattern, "\\");
 };
 
 /**
@@ -64,13 +67,17 @@ const removeEscapeCharacters = (str: string): string => {
 
 /**
  * Replaces all escaped backslashes in format string with replacement character.
+ * Replacement character is a rare character that is unlikely to be in user format string.
+ * Writing regex to distinguish between a single escape character ("\") and an escaped backslash
+ * ("\\") is challenging especially when they are in series. It is simpler to just replace
+ * escaped backslashes with a rare character and add them back after parsing field placeholder
+ * with regex is finished.
  *
  * @param formatString
  * @return Modified format string.
  */
 const replaceDoubleBacklash = (formatString: string): string => {
-    const pattern = new RegExp(DOUBLE_BACKSLASH_REGEX, "g");
-    return formatString.replaceAll(pattern, REPLACEMENT_CHARACTER);
+    return formatString.replaceAll(doubleBacklashPattern, REPLACEMENT_CHARACTER);
 };
 
 
@@ -97,7 +104,7 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
  */
 const getFormattedField = (
     logEvent: LogEvent,
-    fieldPlaceholder: YScopeFieldPlaceholder
+    fieldPlaceholder: YscopeFieldPlaceholder
 ): string => {
     const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
     if ("undefined" === typeof nestedValue) {
@@ -144,8 +151,9 @@ const splitFieldPlaceholder = (placeholderString: string): {
     let [
         fieldName,
         formatterName,
-        formatterOptions
-    ]: Nullable<string|undefined>[] = placeholderString.split(COLON_REGEX, 3);
+        formatterOptions,
+    ]: Nullable<string|undefined>[
+] = placeholderString.split(COLON_REGEX, 3);
 
     fieldName = validateComponent(fieldName);
     if (null === fieldName) {

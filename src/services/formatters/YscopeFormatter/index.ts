@@ -4,8 +4,8 @@ import {
     Formatter,
     FormatterOptionsType,
     REPLACEMENT_CHARACTER_REGEX,
-    YScopeFieldFormatter,
-    YScopeFieldPlaceholder,
+    YscopeFieldFormatter,
+    YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
 import {
@@ -19,12 +19,12 @@ import {
 
 /**
  * A formatter that uses a YScope format string to format log events into a string. See
- * `YScopeFormatterOptionsType` for details about the format string.
+ * `YscopeFormatterOptionsType` for details about the format string.
  */
-class YScopeFormatter implements Formatter {
+class YscopeFormatter implements Formatter {
     readonly #processedFormatString: string;
 
-    #fieldPlaceholders: YScopeFieldPlaceholder[] = [];
+    #fieldPlaceholders: YscopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
         if (REPLACEMENT_CHARACTER_REGEX.test(options.formatString)) {
@@ -37,32 +37,28 @@ class YScopeFormatter implements Formatter {
     }
 
     formatLogEvent (logEvent: LogEvent): string {
-        let formattedLog = "";
-
-        // Keeps track of the last position in format string.
+        const formattedLogFragments: string[] = [];
         let lastIndex = 0;
 
         for (const fieldPlaceholder of this.#fieldPlaceholders) {
             const formatStringFragment =
                 this.#processedFormatString.slice(lastIndex, fieldPlaceholder.range.start);
-            const cleanedFragment = removeEscapeCharacters(formatStringFragment);
 
-            formattedLog += cleanedFragment;
-
-            formattedLog += getFormattedField(logEvent, fieldPlaceholder);
+            formattedLogFragments.push(removeEscapeCharacters(formatStringFragment));
+            formattedLogFragments.push(getFormattedField(logEvent, fieldPlaceholder));
             lastIndex = fieldPlaceholder.range.end;
         }
 
         const remainder = this.#processedFormatString.slice(lastIndex);
-        formattedLog += removeEscapeCharacters(remainder);
+        formattedLogFragments.push(removeEscapeCharacters(remainder));
 
-        return `${formattedLog}\n`;
+        return `${formattedLogFragments.join("")}\n`;
     }
 
     /**
      * Parses field placeholders in format string. For each field placeholder, creates a
-     * corresponding `YScopeFieldFormatter` using the placeholder's field name, formatter type,
-     * and formatter options. Each `YScopeFieldFormatter` is then stored on the
+     * corresponding `YscopeFieldFormatter` using the placeholder's field name, formatter type,
+     * and formatter options. Each `YscopeFieldFormatter` is then stored on the
      * class-level array `#fieldPlaceholders`.
      *
      * @throws Error if `FIELD_PLACEHOLDER_REGEX` does not contain a capture group.
@@ -82,7 +78,7 @@ class YScopeFormatter implements Formatter {
             const {fieldNameKeys, formatterName, formatterOptions} =
                 splitFieldPlaceholder(groupMatch);
 
-            let fieldFormatter: Nullable<YScopeFieldFormatter> = null;
+            let fieldFormatter: Nullable<YscopeFieldFormatter> = null;
             if (null !== formatterName) {
                 const FieldFormatterConstructor = YSCOPE_FIELD_FORMATTER_MAP[formatterName];
                 if ("undefined" === typeof FieldFormatterConstructor) {
@@ -103,4 +99,4 @@ class YScopeFormatter implements Formatter {
     }
 }
 
-export default YScopeFormatter;
+export default YscopeFormatter;
