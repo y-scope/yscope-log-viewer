@@ -1,5 +1,7 @@
 # Variable naming
 
+## Indices naming
+
 To differentiate variables that use different starting indexes (0 vs. 1), we use the following
 naming convention:
 

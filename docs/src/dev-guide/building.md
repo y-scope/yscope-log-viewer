@@ -1,8 +1,9 @@
-# Quick Start
+# Building
 
 ## Requirements
-* Node.js via [prebuilt installers][nodejs-prebuilt-installer] / [nvm][nvm] / 
-[nvm-windows][nvm-windows]
+
+* Node.js via [prebuilt installers][nodejs-prebuilt-installer] / [nvm][nvm] /
+  [nvm-windows][nvm-windows]
 
 ## Install the dependencies
 
@@ -10,12 +11,16 @@
 $ npm install
 ```
 
+You may want to specify option `--include=dev` if you are running in an environment where
+environment variable `NODE_ENV=production` is set.
+
 ## Running in development
 
 ```shell
 $ npm start
 ```
-The application should now be served in debug mode at http://localhost:3010. 
+
+The application should now be served in debug mode at http://localhost:3010.
 
 # Distribute
 

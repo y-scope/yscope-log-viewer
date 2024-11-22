@@ -75,6 +75,7 @@ See the docs in our [developer guide](docs/dev-guide).
 [clp-loglib-py]: https://github.com/y-scope/clp-loglib-py
 [clp-repo]: https://github.com/y-scope/clp
 [datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/record/7094921#.Y5JbH33MKHs
