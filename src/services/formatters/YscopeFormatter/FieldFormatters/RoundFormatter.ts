@@ -7,7 +7,7 @@ import {jsonValueToString} from "../utils";
 /**
  * A field formatter that rounds numerical values to the nearest integer.
  * For non-numerical values, the field's value is converted to a string then returned as-is.
- * Options: none.
+ * Options: None.
  */
 class RoundFormatter implements YscopeFieldFormatter {
     constructor (options: Nullable<string>) {
