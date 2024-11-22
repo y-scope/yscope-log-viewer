@@ -15,11 +15,6 @@ import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
 
-// Initialize commonly used regular expressions to facilitate reuse.
-const SINGLE_BACKSLASH_REGEX = new RegExp(SINGLE_BACKSLASH, "g");
-const DOUBLE_BACKSLASH_REGEX = new RegExp(DOUBLE_BACKSLASH, "g");
-const REPLACEMENT_CHARACTER_REGEX = new RegExp(REPLACEMENT_CHARACTER, "g");
-
 /**
  * List of currently supported field formatters.
  */
@@ -37,7 +32,7 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
  * @return Modified string.
  */
 const removeBackslash = (str: string): string => {
-    return str.replaceAll(SINGLE_BACKSLASH_REGEX, "");
+    return str.replaceAll(SINGLE_BACKSLASH, "");
 };
 
 /**
@@ -49,7 +44,7 @@ const removeBackslash = (str: string): string => {
  * @return Modified string.
  */
 const replaceReplacementCharacter = (str: string): string => {
-    return str.replaceAll(REPLACEMENT_CHARACTER_REGEX, "\\");
+    return str.replaceAll(REPLACEMENT_CHARACTER, "\\");
 };
 
 /**
@@ -76,7 +71,7 @@ const removeEscapeCharacters = (str: string): string => {
  * @return Modified format string.
  */
 const replaceDoubleBacklash = (formatString: string): string => {
-    return formatString.replaceAll(DOUBLE_BACKSLASH_REGEX, REPLACEMENT_CHARACTER);
+    return formatString.replaceAll(DOUBLE_BACKSLASH, REPLACEMENT_CHARACTER);
 };
 
 
