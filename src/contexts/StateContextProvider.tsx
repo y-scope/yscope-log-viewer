@@ -292,10 +292,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                             callback: () => { setIsSettingsModalOpen(true); },
                         },
                         level: LOG_LEVEL.INFO,
-                        message: "Open settings to configure a format" +
-                        " string to improve readability of structured logs",
+                        message: "Input a custom format string in settings dialog" +
+                        " to improve readability of JSON logs",
                         timeoutMillis: 2 * DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-                        title: "Configure Format String",
+                        title: "Format JSON Logs",
                     });
                 }
                 break;
