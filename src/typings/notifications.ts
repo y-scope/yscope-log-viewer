@@ -2,6 +2,14 @@ import {LOG_LEVEL} from "./logs";
 
 
 /**
+ * Optional button and callback function for pop-up.
+ */
+type PopUpButton = {
+    title: string,
+    callback: () => void,
+}
+
+/**
  * Contents of pop-up messages and its associated auto dismiss timeout.
  */
 interface PopUpMessage {
@@ -9,6 +17,7 @@ interface PopUpMessage {
     message: string,
     timeoutMillis: number,
     title: string,
+    button?: PopUpButton,
 }
 
 /**

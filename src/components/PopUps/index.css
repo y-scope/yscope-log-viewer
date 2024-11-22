@@ -30,6 +30,10 @@
     width: 300px;
 }
 
+.pop-up-message-box-callback-button {
+    margin-top: 10px !important;
+}
+
 .pop-up-message-box-title-container {
     display: flex;
     align-items: center;

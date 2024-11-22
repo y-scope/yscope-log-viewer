@@ -14,7 +14,10 @@ import LogExportManager, {
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
-import {LogLevelFilter} from "../typings/logs";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "../typings/logs";
 import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
@@ -36,6 +39,7 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {
+    CONFIG_DEFAULT,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
 } from "../utils/config";
@@ -56,8 +60,9 @@ import {
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-    fileName: string,
     exportProgress: Nullable<number>,
+    fileName: string,
+    isSettingsModalOpen: boolean,
     uiState: UI_STATE,
     logData: string,
     numEvents: number,
@@ -70,6 +75,7 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
+    setIsSettingsModalOpen: (isOpen: boolean) => void,
     setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
     startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
@@ -82,6 +88,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -94,6 +101,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    setIsSettingsModalOpen: () => null,
     setLogLevelFilter: () => null,
     startQuery: () => null,
 });
@@ -236,6 +244,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] =
+        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -274,6 +284,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
+                if (getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString ===
+                    CONFIG_DEFAULT[CONFIG_KEY.DECODER_OPTIONS].formatString) {
+                    postPopUp({
+                        button: {
+                            title: "Open Settings",
+                            callback: () => { setIsSettingsModalOpen(true); },
+                        },
+                        level: LOG_LEVEL.INFO,
+                        message: "Open settings to configure a format" +
+                        " string to improve readability of structured logs",
+                        timeoutMillis: 2 * DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+                        title: "Configure Format String",
+                    });
+                }
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({
@@ -510,6 +534,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -522,6 +547,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                setIsSettingsModalOpen: setIsSettingsModalOpen,
                 setLogLevelFilter: setLogLevelFilter,
                 startQuery: startQuery,
             }}

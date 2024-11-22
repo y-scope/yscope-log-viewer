@@ -8,6 +8,7 @@ import {
 import {
     Alert,
     Box,
+    Button,
     CircularProgress,
     IconButton,
     Typography,
@@ -38,7 +39,7 @@ interface PopUpMessageProps {
  * @return
  */
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
-    const {id, level, message: messageStr, title, timeoutMillis} = message;
+    const {id, level, message: messageStr, title, timeoutMillis, button} = message;
 
     const {handlePopUpMessageClose} = useContext(NotificationContext);
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
@@ -113,6 +114,16 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                 <Typography level={"body-sm"}>
                     {messageStr}
                 </Typography>
+                {button && (
+                    <Button
+                        className={"pop-up-message-box-callback-button"}
+                        color={color}
+                        variant={"soft"}
+                        onClick={button.callback}
+                    >
+                        {button.title}
+                    </Button>
+                )}
             </div>
         </Alert>
     );
