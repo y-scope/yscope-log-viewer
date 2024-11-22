@@ -12,7 +12,7 @@ import {
 import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
-import LogbackFormatter from "../formatters/LogbackFormatter";
+import YscopeFormatter from "../formatters/YscopeFormatter";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
@@ -39,7 +39,7 @@ class ClpIrDecoder implements Decoder {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
         this.#formatter = (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) ?
-            new LogbackFormatter({formatString: decoderOptions.formatString}) :
+            new YscopeFormatter({formatString: decoderOptions.formatString}) :
             null;
     }
 
@@ -87,7 +87,7 @@ class ClpIrDecoder implements Decoder {
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
-        this.#formatter = new LogbackFormatter({formatString: options.formatString});
+        this.#formatter = new YscopeFormatter({formatString: options.formatString});
 
         return true;
     }
