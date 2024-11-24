@@ -34,7 +34,7 @@ building
 :hidden:
 
 contributing-getting-started
-coding-guidelines/index
+coding-guidelines
 contributing-validation
 contributing-linting
 :::

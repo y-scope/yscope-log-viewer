@@ -8,8 +8,8 @@ The general process is as follows:
   the change and your proposed implementation if any.
   * A repo maintainer will give you feedback and guidance about how to proceed.
 * [Fork][yscope-log-viewer-fork] the repo.
-* Refer to the [coding guidelines](coding-guidelines/index) to ensure your code adheres to the
-  project's conventions.
+* Refer to the [coding guidelines](coding-guidelines) to ensure your code adheres to the project's
+  conventions.
 * Implement your change, adding unit/integration tests where possible.
 * Validate your change following the [validation](contributing-validation) guide.
 * Apply the [linters](contributing-linting).
