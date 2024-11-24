@@ -1,33 +1,35 @@
 # Validation
 
-## Automated Testing
+## Automated testing
 
-With the recent addition of a Jest test framework, users can validate the project either by running
-tests locally or using the GitHub Action Workflow. Both methods ensure the same level of testing and
-validation, allowing you to choose the approach that fits your workflow.
+You can validate the project either by running tests locally or using the [test][gh-workflow-test]
+GitHub Workflow in your fork.
 
-### Locally
+### Running locally
 
-Run `npm run test` to execute the tests locally. This will:
+```shell
+npm run test
+```
 
-* Find tests under `<projectRoot>/test`.
+This will:
+
+* Find and run any tests in the `test` directory.
 * Enforce line and function coverage thresholds at directory levels.
 * Output detailed results, including any coverage issues.
 
-### GitHub Workflow
+### Running using the GitHub Workflow
 
-Push your changes to a branch and let the [GitHub Action Workflow][gh-worflow-test] execute the
-tests automatically. This workflow:
+Once you push your to a branch in your fork, the [test][gh-workflow-test] GitHub workflow will
+perform the same steps listed in the [Running locally](#running-locally) section, except results
+and issues will be reported as GitHub Annotations.
 
-* Runs the same Jest tests and enforces coverage thresholds.
-* Reports results and issues as GitHub Annotations for easier navigation in the GitHub web UI.
+## Manual testing
 
-## Manual Testing
+Since our automated testing only covers some aspects of the project, the following features should
+still be tested manually:
 
-While automated testing now covers some aspects of the project, the following features should still
-be tested manually:
-
-* Verify that the following features work:
+* Perform a build and verify that all features are functional.
+* In particular, verify that the following features work:
   * Changing display themes
   * Changing the number of events per page
   * Navigating to the first/last/next/previous page
@@ -37,6 +39,5 @@ be tested manually:
   * Exporting all logs to a file
   * Toggling tabbed panels in the sidebar
   * Using keyboard shortcuts
-* Perform a build and verify that all features are functional
 
-[gh-worflow-test]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/lint.yaml
+[gh-workflow-test]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/test.yaml
