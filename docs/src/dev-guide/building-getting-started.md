@@ -1,4 +1,4 @@
-# Building
+# Getting started
 
 ## Requirements
 

@@ -7,7 +7,7 @@ and run the [lint][gh-workflow-lint] GitHub workflow in your fork.
 ## Requirements
 
 To run the linting tools, you'll need to install the dependencies as specified in
-[Building](building).
+[Building](building-getting-started).
 
 ## Running the linters
 

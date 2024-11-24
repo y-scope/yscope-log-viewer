@@ -9,7 +9,7 @@ The sections are as follows:
 :gutter: 2
 
 :::{grid-item-card}
-:link: building
+:link: building-getting-started
 Building
 ^^^
 Docs about building the viewer.
@@ -31,9 +31,10 @@ Docs about the viewer's design.
 ::::
 
 :::{toctree}
+:caption: Building
 :hidden:
 
-building
+building-getting-started
 :::
 
 :::{toctree}
