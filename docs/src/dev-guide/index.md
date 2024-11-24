@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide contains docs useful for developing YScope Log Viewer. Use the left sidebar (if it's 
+This guide contains docs useful for developing the YScope Log Viewer. Use the left sidebar (if it's 
 hidden, click the <i class="fa fa-bars"></i> icon) to navigate to specific docs.
 
 The sections are as follows:
@@ -12,7 +12,7 @@ The sections are as follows:
 :link: building
 Building
 ^^^
-Docs about building the application.
+Docs about building the viewer.
 :::
 
 :::{grid-item-card}
@@ -21,14 +21,6 @@ Contributing
 ^^^
 Docs about contributing to this project.
 :::
-
-:::{grid-item-card}
-:link: coding-guidelines
-Coding guidelines
-^^^
-Guidelines to promote consistency, clarity, and robustness.
-:::
-
 ::::
 
 :::{toctree}
@@ -45,5 +37,4 @@ contributing-getting-started
 coding-guidelines/index
 contributing-validation
 contributing-linting
-
 :::
