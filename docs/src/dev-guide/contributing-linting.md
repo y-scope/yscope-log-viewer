@@ -1,26 +1,26 @@
 # Linting
 
-Before submitting a PR, ensure you've run our linting tools and either fixed any violations or
-suppressed the warning. If you can't run the linting workflows locally, you can enable and run the
-[gh-workflow-lint] workflow in your fork.
+Before submitting a pull request, ensure you've run our linting tools and either fixed any
+violations or suppressed the warning. If you can't run the linting workflows locally, you can enable
+and run the [lint][gh-workflow-lint] GitHub workflow in your fork.
 
 ## Requirements
 
-To run the linting tools, you'll need to install the dependencies as specified in [Building]
-(building).
+To run the linting tools, you'll need to install the dependencies as specified in
+[Building](building).
 
 ## Running the linters
 
-To perform the linting checks:
+To run all linting checks:
 
 ```shell
-task lint:check
+npm run lint:check
 ```
 
-To also apply any automatic fixes:
+To run all linting checks AND automatically fix any fixable issues:
 
 ```shell
-task lint:fix
+npm run lint:fix
 ```
 
 [feature-req]: https://github.com/y-scope/clp/issues/new?assignees=&labels=enhancement&projects=&template=feature-request.yml
