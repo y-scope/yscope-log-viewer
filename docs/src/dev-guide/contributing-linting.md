@@ -23,6 +23,4 @@ To run all linting checks AND automatically fix any fixable issues:
 npm run lint:fix
 ```
 
-[feature-req]: https://github.com/y-scope/clp/issues/new?assignees=&labels=enhancement&projects=&template=feature-request.yml
 [gh-workflow-lint]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/lint.yaml
-[Task]: https://taskfile.dev/

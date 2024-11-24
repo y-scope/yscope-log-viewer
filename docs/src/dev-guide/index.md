@@ -1,7 +1,7 @@
 # Developer guide
 
 This guide contains docs useful for developing the YScope Log Viewer. Use the left sidebar (if it's 
-hidden, click the <i class="fa fa-bars"></i> icon) to navigate to specific docs.
+hidden, click the {fas}`bars` icon) to navigate to specific docs.
 
 The sections are as follows:
 
