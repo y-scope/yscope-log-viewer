@@ -19,7 +19,14 @@ Docs about building the viewer.
 :link: contributing-getting-started
 Contributing
 ^^^
-Docs about contributing to this project.
+Docs about contributing to the viewer.
+:::
+
+:::{grid-item-card}
+:link: design-overview
+Design
+^^^
+Docs about the viewer's design.
 :::
 ::::
 
@@ -37,4 +44,11 @@ contributing-getting-started
 coding-guidelines
 contributing-validation
 contributing-linting
+:::
+
+:::{toctree}
+:caption: Design
+:hidden:
+
+design-overview
 :::
