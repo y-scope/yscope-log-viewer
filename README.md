@@ -11,9 +11,9 @@ logs with syntax highlighting, and generate direct links to specific log events.
 
 See the [online demo](#online-demo) section to try out the log viewer on a
 sample log file. To set up a local server, follow the
-[build guide](docs/dev-guide/building.md).
+[build guide][docs-site/building].
 
-See the [features in development](#features-in-development) section for upcoming
+See the [features in development][docs-site/features-in-development] section for upcoming
 features.
 
 # Online Demo
@@ -33,12 +33,15 @@ Join us on [Zulip][zulip] to chat with developers and other community members.
 
 # Contributing
 
-See the docs in our [developer guide](docs/dev-guide).
+See the docs in our [developer guide][docs-site/dev-guide].
 
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-repo]: https://github.com/y-scope/clp
 [datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[docs-site/building]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/building-getting-started
+[docs-site/dev-guide]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/index
+[docs-site/features-in-development]: https://docs.yscope.com/yscope-log-viewer/main/index#features-in-development
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
