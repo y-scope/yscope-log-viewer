@@ -6,6 +6,9 @@ vars:
   G_DOCS_VENV_DIR: "{{.G_BUILD_DIR}}/docs-venv"
   G_NODE_DEPS_DIR: "{{.G_BUILD_DIR}}/docs-node"
 
+  # Target checksum files
+  G_DOCS_VENV_CHECKSUM_FILE: "{{.G_BUILD_DIR}}/docs#docs-venv.md5"
+
 tasks:
   clean:
     cmds:
@@ -52,7 +55,7 @@ tasks:
           DATA_DIR: "{{.OUTPUT_DIR}}"
           OUTPUT_FILE: "{{.CHECKSUM_FILE}}"
     sources:
-      - "{{.G_BUILD_DIR}}/docs-venv.md5"
+      - "{{.G_DOCS_VENV_CHECKSUM_FILE}}"
       - "{{.ROOT_DIR}}/taskfile.yaml"
       - "{{.TASKFILE}}"
       - "conf/**/*"
@@ -62,7 +65,7 @@ tasks:
   docs-venv:
     internal: true
     vars:
-      CHECKSUM_FILE: "{{.G_BUILD_DIR}}/{{.TASK | replace \":\" \"#\"}}.md5"
+      CHECKSUM_FILE: "{{.G_DOCS_VENV_CHECKSUM_FILE}}"
       OUTPUT_DIR: "{{.G_DOCS_VENV_DIR}}"
       REQUIREMENTS_FILE: "docs/requirements.txt"
     deps:
