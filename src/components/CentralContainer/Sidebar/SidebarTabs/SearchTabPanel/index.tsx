@@ -1,5 +1,6 @@
 import React, {
     useContext,
+    useRef,
     useState,
 } from "react";
 
@@ -44,8 +45,10 @@ const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
+    const queryStringRef = useRef<string>("");
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+        queryStringRef.current = ev.target.value;
         const isCaseSensitive = queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
         const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
         startQuery(ev.target.value, isRegex, isCaseSensitive);
@@ -55,6 +58,11 @@ const SearchTabPanel = () => {
         newOptions: QUERY_OPTION[]
     ) => {
         setQueryOptions(newOptions);
+        if ("" !== queryStringRef.current) {
+            const isCaseSensitive = newOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
+            const isRegex = newOptions.includes(QUERY_OPTION.IS_REGEX);
+            startQuery(queryStringRef.current, isRegex, isCaseSensitive);
+        }
     };
 
     return (
