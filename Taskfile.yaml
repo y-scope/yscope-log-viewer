@@ -5,7 +5,6 @@ includes:
   utils: "tools/yscope-dev-utils/taskfiles/utils.yml"
 
 vars:
-  # Build paths
   G_BUILD_DIR: "{{.ROOT_DIR}}/build"
 
 tasks:

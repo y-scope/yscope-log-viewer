@@ -14,9 +14,8 @@ this project:
 * [Node.js] >= 16 to be able to [view the output](#viewing-the-output)
 * Python 3.10 or later
 * [Task] >= 3.38.0
-  * We constrain the version because, in lower versions, the Taskfile syntax we use has bugs.
 
-## Build Commands
+## Build commands
 
 * Build the site incrementally:
 
@@ -32,7 +31,7 @@ this project:
   task docs:clean
   ```
 
-## Viewing the Output
+## Viewing the output
 
 ```shell
 task docs:serve
