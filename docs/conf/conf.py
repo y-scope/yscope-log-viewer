@@ -2,6 +2,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "YScope Log Viewer"
+
 # NOTE: We don't include a period after "Inc" since the theme adds one already.
 copyright = "2022-2024 YScope Inc"
 
@@ -68,7 +69,6 @@ html_context = {
     "github_version": "main",
     "doc_path": "docs/src",
 }
-
 
 # -- Theme custom CSS and JS ---------------------------------------------------
 # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/static_assets.html
