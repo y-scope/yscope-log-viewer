@@ -78,7 +78,7 @@ See the docs in our [developer guide](docs/dev-guide).
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
-[hive-24hrs]: https://zenodo.org/record/7094921#.Y5JbH33MKHs
+[hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [monaco-editor]: https://microsoft.github.io/monaco-editor/
