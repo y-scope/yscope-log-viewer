@@ -74,15 +74,12 @@ dev-guide/index
 :::
 
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
-[bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-loglib-py]: https://github.com/y-scope/clp-loglib-py
 [clp-repo]: https://github.com/y-scope/clp
 [datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
-[feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [online-demo]: https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
 [zulip]: https://yscope-clp.zulipchat.com/
-[zulip-shield]: https://img.shields.io/badge/zulip-yscope--clp%20chat-1888FA?logo=zulip
