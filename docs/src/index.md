@@ -3,11 +3,11 @@ The YScope Log Viewer is a tool that can be used to view log files. It currently
 navigate the log file, filter by log level, view the logs with syntax highlighting, and generate
 direct links to specific log events.
 
-See the [online demo](#online-demo) section to try the log viewer on a sample log file. Or you can
-generate your own compressed log files using one of our [libraries](#generating-ir-stream-logs).
+See the [demo](#demo) section to try the log viewer on a sample log file. Or you can generate your
+own compressed log files using one of our [libraries](#generating-ir-stream-logs).
 
-The [features in development](#features-in-development) section lists upcoming features, or you can
-request new ones or report issues [here](#providing-feedback).
+Want to report a bug or request a feature? Check out the [feedback](#providing-feedback) section.
+A list of [features in development](#features-in-development) is below.
 
 # Getting started
 
@@ -32,7 +32,7 @@ Docs for those interested in developing and contributing to the YScope Log Viewe
 :::
 ::::
 
-# Online demo
+# Demo
 
 A demo of the viewer is available [here][online-demo].
 

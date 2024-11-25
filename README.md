@@ -4,30 +4,33 @@
 ![Open feature requests][feature-requests-shield]
 ![CLP on Zulip][zulip-shield]
 
-`yscope-log-viewer` is a tool that can be used to view log files. It currently
-supports [CLP][clp-repo]'s compressed log files (IR streams) and JSON log files.
-The viewer can be used to navigate the log file, filter by log level, view the
-logs with syntax highlighting, and generate direct links to specific log events.
+The YScope Log Viewer is a tool that can be used to view log files. It currently supports
+[CLP][clp-repo]'s compressed log files (IR streams) and JSON log files. The viewer can be used to
+navigate the log file, filter by log level, view the logs with syntax highlighting, and generate
+direct links to specific log events.
 
-See the [online demo](#online-demo) section to try out the log viewer on a
-sample log file. To set up a local server, follow the
-[build guide][docs-site/building].
+See the [demo](#demo) section to try the log viewer on a sample log file. Or you can generate your
+own compressed log files using one of our [libraries][docs-site/generating-ir-stream-logs].
 
-See the [features in development][docs-site/features-in-development] section for upcoming
-features.
+Want to report a bug or request a feature? Check out the [feedback](#providing-feedback) section.
+A list of [features in development][docs-site/features-in-development] is available on our
+[docs site][docs-site].
 
-# Online Demo
+# Demo
 
-* A demo of the log viewer can be found [here][online-demo].
+A demo of the viewer available [here][online-demo].
+
 * The demo loads a Hadoop YARN log file from the [hive-24hrs] log dataset.
   * More info on the dataset and other datasets can be found [here][datasets].
-* To open an IR stream, drag and drop it onto the log viewer or use the open
-  file dialog.
+* To open an IR stream, drag and drop it onto the log viewer or use the open file dialog.
 
-# Providing Feedback
+# Docs
 
-You can use GitHub issues to [report a bug][bug-report] or
-[request a feature][feature-req].
+The log viewer's docs are available [here][docs-site].
+
+# Providing feedback
+
+You can use GitHub issues to [report a bug][bug-report] or [request a feature][feature-req].
 
 Join us on [Zulip][zulip] to chat with developers and other community members.
 
@@ -39,9 +42,11 @@ See the docs in our [developer guide][docs-site/dev-guide].
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-repo]: https://github.com/y-scope/clp
 [datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[docs-site]: https://docs.yscope.com/yscope-log-viewer/main/
 [docs-site/building]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/building-getting-started
 [docs-site/dev-guide]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/index
 [docs-site/features-in-development]: https://docs.yscope.com/yscope-log-viewer/main/index#features-in-development
+[docs-site/generating-ir-stream-logs]: https://docs.yscope.com/yscope-log-viewer/main/index#generating-ir-stream-logs
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
