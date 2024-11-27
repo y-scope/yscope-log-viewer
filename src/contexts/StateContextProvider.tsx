@@ -8,6 +8,8 @@ import React, {
     useState,
 } from "react";
 
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+
 import LogExportManager, {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
@@ -18,7 +20,10 @@ import {
     LOG_LEVEL,
     LogLevelFilter,
 } from "../typings/logs";
-import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
+import {
+    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
@@ -39,7 +44,6 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {
-    CONFIG_DEFAULT,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
 } from "../utils/config";
@@ -280,23 +284,24 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     }
                 }
                 break;
+            case WORKER_RESP_CODE.FORMAT_POPUP:
+                postPopUp({
+                    level: LOG_LEVEL.INFO,
+                    message: "Adding a format string can enhance the readability of your" +
+                    " structured logs by customizing how fields are displayed.",
+                    primaryAction: {
+                        children: "Settings",
+                        startDecorator: <SettingsOutlinedIcon/>,
+                        onClick: () => { setIsSettingsModalOpen(true); },
+                    },
+                    timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+                    title: "A format string has not been configured",
+                });
+                break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
-                if (getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString ===
-                    CONFIG_DEFAULT[CONFIG_KEY.DECODER_OPTIONS].formatString) {
-                    postPopUp({
-                        button: {
-                            title: "Open Settings",
-                            callback: () => { setIsSettingsModalOpen(true); },
-                        },
-                        level: LOG_LEVEL.INFO,
-                        message: "Adding one can enhance the readability of your structured logs by customizing how fields are displayed.",
-                        timeoutMillis: 2 * DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-                        title: "A format string has not been configured",
-                    });
-                }
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({

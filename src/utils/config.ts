@@ -41,9 +41,9 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
     switch (key) {
         case CONFIG_KEY.DECODER_OPTIONS:
-            if ("" === value.timestampKey) {
+            if (0 === value.timestampKey.length) {
                 result = "Timestamp key cannot be empty.";
-            } else if ("" === value.logLevelKey) {
+            } else if (0 === value.logLevelKey.length) {
                 result = "Log level key cannot be empty.";
             }
             break;

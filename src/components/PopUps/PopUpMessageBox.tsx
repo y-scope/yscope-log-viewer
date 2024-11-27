@@ -32,14 +32,16 @@ interface PopUpMessageProps {
 }
 
 /**
- * Display a pop-up message in an alert box.
+ * Displays a pop-up message in an alert box with an optional action button. The pop-up can
+ * be manually dismissed or will automatically close after the specified `timeoutMillis`.
+ * If `timeoutMillis` is `0`, the pop-up will remain open until manually closed.
  *
  * @param props
  * @param props.message
  * @return
  */
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
-    const {id, level, button, message: messageStr, title, timeoutMillis} = message;
+    const {id, level, primaryAction, message: messageStr, title, timeoutMillis} = message;
 
     const {handlePopUpMessageClose} = useContext(NotificationContext);
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
@@ -114,14 +116,17 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                 <Typography level={"body-sm"}>
                     {messageStr}
                 </Typography>
-                {button && (
+                {primaryAction && (
                     <Button
-                        className={"pop-up-message-box-callback-button"}
                         color={color}
                         variant={"solid"}
-                        onClick={button.callback}
+                        {...primaryAction}
+                        onClick={(event) => {
+                            primaryAction.onClick?.(event);
+                            handleCloseButtonClick();
+                        }}
                     >
-                        {button.title}
+                        {primaryAction.children}
                     </Button>
                 )}
             </div>

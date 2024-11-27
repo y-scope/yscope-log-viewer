@@ -13,6 +13,7 @@ import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import YscopeFormatter from "../formatters/YscopeFormatter";
+import {postFormatPopup} from "../MainWorker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
@@ -29,7 +30,7 @@ class ClpIrDecoder implements Decoder {
 
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
-    #formatter: Nullable<Formatter>;
+    #formatter: Nullable<Formatter> = null;
 
     constructor (
         streamType: CLP_IR_STREAM_TYPE,
@@ -38,9 +39,12 @@ class ClpIrDecoder implements Decoder {
     ) {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
-        this.#formatter = (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) ?
-            new YscopeFormatter({formatString: decoderOptions.formatString}) :
-            null;
+        if (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
+            this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+            if (0 === decoderOptions.formatString.length) {
+                postFormatPopup();
+            }
+        }
     }
 
     /**

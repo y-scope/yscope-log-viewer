@@ -1,13 +1,7 @@
+import {ButtonProps} from "@mui/joy";
+
 import {LOG_LEVEL} from "./logs";
 
-
-/**
- * Optional button for pop-up.
- */
-type PopUpButton = {
-    title: string,
-    callback: () => void,
-}
 
 /**
  * Contents of pop-up messages and its associated auto dismiss timeout.
@@ -17,7 +11,7 @@ interface PopUpMessage {
     message: string,
     timeoutMillis: number,
     title: string,
-    button?: PopUpButton,
+    primaryAction?: ButtonProps,
 }
 
 /**
@@ -30,9 +24,15 @@ const DO_NOT_TIMEOUT_VALUE = 0;
  */
 const DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS = 10_000;
 
+/**
+ * A longer duration in milliseconds after which an automatic dismissal will occur.
+ */
+const LONG_AUTO_DISMISS_TIMEOUT_MILLIS = 20_000;
+
 
 export type {PopUpMessage};
 export {
     DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
     DO_NOT_TIMEOUT_VALUE,
+    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
 };

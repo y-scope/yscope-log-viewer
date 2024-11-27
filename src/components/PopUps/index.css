@@ -27,11 +27,10 @@
 }
 
 .pop-up-message-box-alert-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: 300px;
-}
-
-.pop-up-message-box-callback-button {
-    margin-top: 10px !important;
 }
 
 .pop-up-message-box-title-container {
