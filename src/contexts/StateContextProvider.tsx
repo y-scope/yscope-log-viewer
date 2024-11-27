@@ -294,7 +294,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         level: LOG_LEVEL.INFO,
                         message: "Adding one can enhance the readability of your structured logs by customizing how fields are displayed.",
                         timeoutMillis: 2 * DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-                        title: "Format JSON Logs",
+                        title: "A format string has not been configured",
                     });
                 }
                 break;
