@@ -10,6 +10,7 @@ import {
 import {LogEvent} from "../../../typings/logs";
 import {
     getFormattedField,
+    jsonValueToString,
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,
@@ -37,6 +38,11 @@ class YscopeFormatter implements Formatter {
     }
 
     formatLogEvent (logEvent: LogEvent): string {
+        // Empty format string is special case where formatter returns all fields as JSON.
+        if ("" === this.#processedFormatString) {
+            return jsonValueToString(logEvent.fields);
+        }
+
         const formattedLogFragments: string[] = [];
         let lastIndex = 0;
 

@@ -17,6 +17,7 @@ import {
     LogLevelFilter,
 } from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
+import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
@@ -54,6 +55,9 @@ class JsonlDecoder implements Decoder {
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+        if (0 === decoderOptions.formatString.length) {
+            postFormatPopup();
+        }
     }
 
     getEstimatedNumEvents (): number {

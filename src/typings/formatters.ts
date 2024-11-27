@@ -4,7 +4,7 @@ import {LogEvent} from "./logs";
 
 
 /**
- * @property formatString A Yscope format string. The format string can include field-placeholders
+ * @property formatString A YScope format string. The format string can include field-placeholders
  * to insert and format any field of a JSON log event. A field-placeholder uses the following
  * syntax:
  * `{<field-name>[:<formatter-name>[:<formatter-options>]]}`
@@ -49,14 +49,14 @@ interface YscopeFieldFormatter {
 }
 
 /**
- * Type for list of currently supported Yscope field formatters.
+ * Type for list of currently supported YScope field formatters.
  */
 type YscopeFieldFormatterMap = {
     [key: string]: new (options: Nullable<string>) => YscopeFieldFormatter;
 };
 
 /**
- * Parsed field placeholder from a Yscope format string.
+ * Parsed field placeholder from a YScope format string.
  */
 type YscopeFieldPlaceholder = {
     fieldNameKeys: string[],

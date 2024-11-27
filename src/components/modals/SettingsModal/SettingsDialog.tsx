@@ -38,7 +38,8 @@ const CONFIG_FORM_FIELDS = [
         \`{<field-name>[:<formatter-name>[:<formatter-options>]]}\`, where \`field-name\` is
         required, while \`formatter-name\` and \`formatter-options\` are optional. For example,
         the following placeholder would format a timestamp field with name \`@timestamp\`:
-        \`{@timestamp:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS}\`.`,
+        \`{@timestamp:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS}\`. Leave format string blank to
+        display the entire log event formatted as JSON.`,
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,

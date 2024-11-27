@@ -77,6 +77,7 @@ enum WORKER_REQ_CODE {
 
 enum WORKER_RESP_CODE {
     CHUNK_DATA = "chunkData",
+    FORMAT_POPUP = "formatPopup",
     LOG_FILE_INFO = "fileInfo",
     NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
@@ -122,6 +123,7 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string
     },
+    [WORKER_RESP_CODE.FORMAT_POPUP]: null,
     [WORKER_RESP_CODE.LOG_FILE_INFO]: {
         fileName: string,
         numEvents: number,
