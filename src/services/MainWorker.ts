@@ -51,7 +51,7 @@ const onQueryResults = (queryProgress: number, queryResults: QueryResults) => {
 };
 
 /**
- * Sends a message to the renderer to open a popup which prompts user to replace the default
+ * Sends a message to the renderer to open a pop-up which prompts user to replace the default
  * format string.
  */
 const postFormatPopup = () => {

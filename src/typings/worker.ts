@@ -77,7 +77,7 @@ enum WORKER_REQ_CODE {
 
 enum WORKER_RESP_CODE {
     CHUNK_DATA = "chunkData",
-    FORMAT_POPUP = "format_popup",
+    FORMAT_POPUP = "formatPopup",
     LOG_FILE_INFO = "fileInfo",
     NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
