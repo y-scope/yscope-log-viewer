@@ -1,0 +1,15 @@
+version: "3"
+
+includes:
+  docs: "docs/tasks.yaml"
+  utils: "tools/yscope-dev-utils/taskfiles/utils.yml"
+
+vars:
+  G_BUILD_DIR: "{{.ROOT_DIR}}/build"
+
+tasks:
+  init:
+    internal: true
+    silent: true
+    run: "once"
+    cmd: "mkdir -p '{{.G_BUILD_DIR}}'"
