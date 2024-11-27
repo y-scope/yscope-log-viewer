@@ -118,7 +118,7 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                     <Button
                         className={"pop-up-message-box-callback-button"}
                         color={color}
-                        variant={"soft"}
+                        variant={"solid"}
                         onClick={button.callback}
                     >
                         {button.title}
