@@ -292,8 +292,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                             callback: () => { setIsSettingsModalOpen(true); },
                         },
                         level: LOG_LEVEL.INFO,
-                        message: "Input a custom format string in settings dialog" +
-                        " to improve readability of JSON logs",
+                        message: "Adding one can enhance the readability of your structured logs by customizing how fields are displayed.",
                         timeoutMillis: 2 * DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
                         title: "Format JSON Logs",
                     });
