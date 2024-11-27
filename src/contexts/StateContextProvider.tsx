@@ -80,7 +80,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setIsSettingsModalOpen: (isOpen: boolean) => void,
-    setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    setLogLevelFilter: (filter: LogLevelFilter) => void,
     startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -446,14 +446,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
+    const setLogLevelFilter = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
         setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
-            logLevelFilter: newLogLevelFilter,
+            logLevelFilter: filter,
         });
     }, []);
 

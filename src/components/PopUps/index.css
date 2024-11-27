@@ -30,7 +30,12 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 300px;
+    width: 333px;
+}
+
+.pop-up-message-box-actions-container {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .pop-up-message-box-title-container {

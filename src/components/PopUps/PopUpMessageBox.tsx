@@ -1,4 +1,4 @@
-import {
+import React, {
     useContext,
     useEffect,
     useRef,
@@ -49,6 +49,11 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
 
     const handleCloseButtonClick = () => {
         handlePopUpMessageClose(id);
+    };
+
+    const handlePrimaryActionClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        primaryAction?.onClick?.(ev);
+        handleCloseButtonClick();
     };
 
     useEffect(() => {
@@ -117,17 +122,16 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                     {messageStr}
                 </Typography>
                 {primaryAction && (
-                    <Button
-                        color={color}
-                        variant={"solid"}
-                        {...primaryAction}
-                        onClick={(event) => {
-                            primaryAction.onClick?.(event);
-                            handleCloseButtonClick();
-                        }}
-                    >
-                        {primaryAction.children}
-                    </Button>
+                    <Box className={"pop-up-message-box-actions-container"}>
+                        <Button
+                            color={color}
+                            variant={"solid"}
+                            {...primaryAction}
+                            onClick={handlePrimaryActionClick}
+                        >
+                            {primaryAction.children}
+                        </Button>
+                    </Box>
                 )}
             </div>
         </Alert>
