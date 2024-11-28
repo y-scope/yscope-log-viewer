@@ -57,7 +57,6 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);
-
         /* c8 ignore next */
         default: break;
     }
@@ -108,7 +107,6 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         case CONFIG_KEY.THEME:
             // Unexpected execution path.
             break;
-
         /* c8 ignore end */
         /* c8 ignore next */
         default: break;
@@ -150,7 +148,6 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
             break;
         case CONFIG_KEY.THEME:
             throw new Error(`"${key}" cannot be managed using these utilities.`);
-
         /* c8 ignore next */
         default: break;
     }
