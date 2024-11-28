@@ -10,7 +10,7 @@ For example, for a JSON log with many fields:
 {
   "ts": 1732733160216,
   "level": "ERROR",
-  "message": "Failed to process payment",
+  "message": "Failed to process payment.",
   "trace_id": "abc123def456",
   "span_id": "span_789xyz",
   "service": "payment-service",
