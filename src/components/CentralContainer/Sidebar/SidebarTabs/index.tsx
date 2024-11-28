@@ -1,6 +1,6 @@
 import {
     forwardRef,
-    useContext,
+    useState,
 } from "react";
 
 import {
@@ -9,11 +9,11 @@ import {
 } from "@mui/joy";
 import SvgIcon from "@mui/material/SvgIcon";
 
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
@@ -22,6 +22,8 @@ import TabButton from "./TabButton";
 
 import "./index.css";
 
+
+const DOCUMENTATION_URL = "https://docs.yscope.com/yscope-log-viewer/main/user-guide/index.html";
 
 /**
  * Lists information for each tab.
@@ -52,7 +54,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
     },
     tabListRef
 ) => {
-    const {isSettingsModalOpen, setIsSettingsModalOpen} = useContext(StateContext);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
     const handleSettingsModalClose = () => {
         setIsSettingsModalOpen(false);
@@ -62,6 +64,9 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
         switch (tabName) {
             case TAB_NAME.SETTINGS:
                 setIsSettingsModalOpen(true);
+                break;
+            case TAB_NAME.DOCUMENTATION:
+                window.open(DOCUMENTATION_URL, "_blank");
                 break;
             default:
                 onActiveTabNameChange(tabName);
@@ -88,8 +93,13 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                             onTabButtonClick={handleTabButtonClick}/>
                     ))}
 
-                    {/* Forces the settings tab to bottom of sidebar. */}
+                    {/* Forces the settings and help tab to bottom of sidebar. */}
                     <div className={"sidebar-tab-list-spacing"}/>
+
+                    <TabButton
+                        Icon={HelpOutlineIcon}
+                        tabName={TAB_NAME.DOCUMENTATION}
+                        onTabButtonClick={handleTabButtonClick}/>
 
                     <TabButton
                         Icon={SettingsOutlinedIcon}
