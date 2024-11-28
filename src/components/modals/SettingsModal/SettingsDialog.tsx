@@ -13,6 +13,7 @@ import {
     FormHelperText,
     FormLabel,
     Input,
+    Link,
     ModalDialog,
 } from "@mui/joy";
 
@@ -33,13 +34,24 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 const CONFIG_FORM_FIELDS = [
     {
-        helperText: `[JSON] Log message conversion pattern: use field placeholders to insert
-        values from JSON log events. The syntax is
-        \`{<field-name>[:<formatter-name>[:<formatter-options>]]}\`, where \`field-name\` is
-        required, while \`formatter-name\` and \`formatter-options\` are optional. For example,
-        the following placeholder would format a timestamp field with name \`@timestamp\`:
-        \`{@timestamp:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS}\`. Leave format string blank to
-        display the entire log event formatted as JSON.`,
+        helperText: (
+            <p>
+                [JSON] Log message format string: The log viewer can format structured
+                (e.g., JSON) logs as plain text using a format string. Please see
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-string-overview.html"}
+                    level={"body-sm"}
+                    rel={"noopener noreferrer"}
+                    target={"_blank"}
+                >
+                    documentation
+                </Link>
+                {" "}
+                for format string syntax. Leave format string blank to display the entire log event
+                formatted as JSON.
+            </p>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
