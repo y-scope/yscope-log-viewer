@@ -50,13 +50,15 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         case CONFIG_KEY.INITIAL_TAB_NAME:
             // This config option is not intended for direct user input.
             break;
-        case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
+        case CONFIG_KEY.THEME:
+            throw new Error(`"${key}" cannot be managed using these utilities.`);
+
+        /* c8 ignore next */
         default: break;
     }
 
@@ -99,11 +101,16 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         case CONFIG_KEY.INITIAL_TAB_NAME:
             window.localStorage.setItem(CONFIG_KEY.INITIAL_TAB_NAME, value.toString());
             break;
-        case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
             break;
+        /* c8 ignore start */
+        case CONFIG_KEY.THEME:
+            // Unexpected execution path.
+            break;
+
+        /* c8 ignore end */
+        /* c8 ignore next */
         default: break;
     }
 
@@ -138,11 +145,13 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
         case CONFIG_KEY.INITIAL_TAB_NAME:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);
             break;
-        case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
             break;
+        case CONFIG_KEY.THEME:
+            throw new Error(`"${key}" cannot be managed using these utilities.`);
+
+        /* c8 ignore next */
         default: break;
     }
 
@@ -168,6 +177,7 @@ export {
     CONFIG_DEFAULT,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    MAX_PAGE_SIZE,
     QUERY_CHUNK_SIZE,
     setConfig,
     testConfig,
