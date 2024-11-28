@@ -1,6 +1,6 @@
 import {
     forwardRef,
-    useState,
+    useContext,
 } from "react";
 
 import {
@@ -14,6 +14,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
+import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
@@ -54,7 +55,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
     },
     tabListRef
 ) => {
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+    const {isSettingsModalOpen, setIsSettingsModalOpen} = useContext(StateContext);
 
     const handleSettingsModalClose = () => {
         setIsSettingsModalOpen(false);
