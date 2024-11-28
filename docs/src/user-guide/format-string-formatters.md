@@ -1,33 +1,38 @@
 # Formatters
 
-Formatters allow you to transform how field values are displayed. See below for a list of
-formatters.
+Formatters allow you to transform how field values are displayed. Below we describe all available
+formatters and their options.
 
-## Timestamp Formatter
+## Timestamp formatter
 
-Converts Unix timestamps to human-readable date-time strings.
+Converts millisecond Unix timestamps to human-readable date-time strings.
 
-**Usage:**
-`{field:timestamp[:options]}`
+### Usage
+```
+{field:timestamp[:options]}
+```
 
-**Options:**
-- Accepts a format string specifically for the date.
-- Uses [Day.js format tokens](https://day.js.org/docs/en/display/format).
-- Date string must escape colons with a backslash, e.g., `HH\:mm\:ss`.
-- If no format is specified, the default format is ISO 8601.
+### Options
+A [Day.js format string](https://day.js.org/docs/en/display/format) for the date and time.
 
-**Examples:**
-- `{ts:timestamp}` → `2024-11-27T10:30:00Z`
-- `{ts:timestamp:YYYY-MM-DD}` → `2024-11-27`
+**Default:** `YYYY-MM-DDTHH:mm:ssZ` (ISO 8601)
 
----
+### Examples
+Assuming the field `ts` is `1732703400000`:
 
-## Round Formatter
+* `{ts:timestamp}` → `2024-11-27T10:30:00Z`
+* `{ts:timestamp:YYYY-MM-DD}` → `2024-11-27`
+
+## Round formatter
 
 Rounds a numeric value to the nearest integer.
 
-**Usage:**
-`{field:round}`
+### Usage
+```
+{field:round}
+```
 
-**Example:**
-- `{value:round}` → `5.7` becomes `6`
+### Examples
+Assuming the field `value` is `5.7`:
+
+* `{value:round}` → `6`
