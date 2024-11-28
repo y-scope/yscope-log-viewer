@@ -94,7 +94,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                             onTabButtonClick={handleTabButtonClick}/>
                     ))}
 
-                    {/* Forces the settings and help tab to bottom of sidebar. */}
+                    {/* Forces the help and settings tabs to the bottom of the sidebar. */}
                     <div className={"sidebar-tab-list-spacing"}/>
 
                     <TabButton

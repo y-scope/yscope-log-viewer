@@ -36,8 +36,7 @@ const CONFIG_FORM_FIELDS = [
     {
         helperText: (
             <p>
-                [JSON] Log message format string: The log viewer can format structured
-                (e.g., JSON) logs as plain text using a format string. Please see
+                [JSON] Format string for formatting a JSON log event as plain text. See the
                 {" "}
                 <Link
                     href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-string-overview.html"}
@@ -45,11 +44,10 @@ const CONFIG_FORM_FIELDS = [
                     rel={"noopener noreferrer"}
                     target={"_blank"}
                 >
-                    documentation
+                    format string syntax docs
                 </Link>
                 {" "}
-                for format string syntax. Leave format string blank to display the entire log event
-                formatted as JSON.
+                or leave this blank to display the entire log event.
             </p>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
