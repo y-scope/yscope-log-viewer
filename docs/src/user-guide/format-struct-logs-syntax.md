@@ -69,7 +69,10 @@ Consider the following log event:
   "@timestamp": 1427153388942,
   "level": "INFO",
   "thread": 0,
-  "latency_secs": 56.4,
+  "latency": {
+    "msecs": 56400,
+    "secs": 56.4,
+  },
   "an.odd.key{name}": "org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties"
 }
 ```
@@ -77,14 +80,14 @@ Consider the following log event:
 We can format this using the following YScope format string:
 
 ```
-{@timestamp:timestamp:YYYY-MM-DD HH\:MM\:ss.SSS} {level} \{{thread}\} latency={latency_secs:round} {an\.odd\.key\{name\}}
+{@timestamp:timestamp:YYYY-MM-DD HH\:MM\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {an\.odd\.key\{name\}}
 ```
 
 * In the first placeholder, we have the field name `@timestamp`, a formatter called `timestamp`, and
-  the formatter’s options which are a date format string.
+  the formatter's options which are a date format string.
 * The second and third placeholders simply stringify the values of the given fields.
-* The fourth placeholder uses the `round` formatter to round the field’s value; this placeholder
-  doesn’t specify any formatter options, so the defaults will be used.
+* The fourth placeholder uses the `round` formatter to round a nested field's value; this
+  placeholder doesn't specify any formatter options, so the defaults will be used.
 * The fifth placeholder is for a field whose name contains characters that require escaping.
 
 The formatted string will be:
