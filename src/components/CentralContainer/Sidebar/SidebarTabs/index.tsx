@@ -16,6 +16,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
+import {openInNewTab} from "../../../../utils/url";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
 import SearchTabPanel from "./SearchTabPanel";
@@ -67,7 +68,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                 setIsSettingsModalOpen(true);
                 break;
             case TAB_NAME.DOCUMENTATION:
-                window.open(DOCUMENTATION_URL, "_blank", "noopener");
+                openInNewTab(DOCUMENTATION_URL);
                 break;
             default:
                 onActiveTabNameChange(tabName);
