@@ -19,7 +19,7 @@ three components:
 {<field-name>[:<formatter-name>[:<formatter-options>]]}
 ```
 
-### field-nane (required)
+### field-name (required)
 Defines the key of the field whose value should replace the placeholder.
 
 * Nested fields can be specified using periods (`.`) to denote hierarchy.
