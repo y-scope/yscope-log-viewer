@@ -39,9 +39,9 @@ const CONFIG_FORM_FIELDS = [
                 [JSON] Format string for formatting a JSON log event as plain text. See the
                 {" "}
                 <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-string-overview.html"}
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
                     level={"body-sm"}
-                    rel={"noopener noreferrer"}
+                    rel={"noopener"}
                     target={"_blank"}
                 >
                     format string syntax docs

@@ -67,7 +67,7 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                 setIsSettingsModalOpen(true);
                 break;
             case TAB_NAME.DOCUMENTATION:
-                window.open(DOCUMENTATION_URL, "_blank", "noopener,noreferrer");
+                window.open(DOCUMENTATION_URL, "_blank", "noopener");
                 break;
             default:
                 onActiveTabNameChange(tabName);
