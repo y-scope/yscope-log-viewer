@@ -43,7 +43,7 @@ The name of the formatter to apply to the value before inserting it into the str
   * `:`
   * `\`
 
-### `formatter-options` (optional)
+### formatter-options (optional)
 Defines any options for the formatter denoted by `formatter-name`.
 
 * Formatter options can contain any character, except the following characters must be escaped with
