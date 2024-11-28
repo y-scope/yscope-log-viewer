@@ -10,21 +10,21 @@ hidden, click the {fas}`bars` icon) to navigate to specific docs.
 :link: quick-start-overview
 Quick start
 ^^^
-A guide to open files in the log viewer.
+A guide to viewing log files in the log viewer.
 :::
 
 :::{grid-item-card}
 :link: format-string-overview
-Format String
+Formatting structured logs
 ^^^
-Docs for format strings.
+A guide to formatting structured (e.g. JSON) logs as plain text.
 :::
 
 :::{grid-item-card}
 :link: log-level-filter
-Log Level Filter
+Log level filtering
 ^^^
-Docs for filtering by log level.
+A guide to filtering log events by their levels.
 :::
 ::::
 
@@ -37,7 +37,7 @@ quick-start-overview
 
 :::{toctree}
 :hidden:
-:caption: Format String
+:caption: Formatting structured logs
 :glob:
 
 format-string-overview
@@ -47,7 +47,7 @@ format-string-formatters
 
 :::{toctree}
 :hidden:
-:caption: Log Level Filter
+:caption: Log level filtering
 
 log-level-filter
 :::
