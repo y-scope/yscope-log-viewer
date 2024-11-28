@@ -40,7 +40,7 @@ class YscopeFormatter implements Formatter {
     formatLogEvent (logEvent: LogEvent): string {
         // Empty format string is special case where formatter returns all fields as JSON.
         if ("" === this.#processedFormatString) {
-            return jsonValueToString(logEvent.fields);
+            return `${jsonValueToString(logEvent.fields)}\n`
         }
 
         const formattedLogFragments: string[] = [];
