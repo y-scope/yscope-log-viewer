@@ -1,11 +1,15 @@
-# Overview
+# Viewing logs
 
-This guide shows you how to open local and remote log files.
+The log viewer can open local or remote log files. The viewer currently supports viewing [CLP] IR
+and [JSONL] log files.
 
-## Local Files
-To open a local file, use the folder icon (📁) in the top-left corner. This will open a file
-browser where you can navigate to and select your log file.
+## Opening local log files
+To open a local file, click the folder icon ({far}`folder`) in the top-left corner. This will open a file
+browser where you can navigate to and select the log file to open.
 
-## Remote Files
-To open a remote file, append `/?filePath=<FILE_URL>` to the current URL. Just replace
- `<FILE_URL>` with the URL of your log file.
+## Opening remote log files
+To open a remote file, append `/?filePath=<FILE_URL>` to the current URL, replacing `<FILE_URL>`
+with the URL of your log file.
+
+[CLP]: https://github.com/y-scope/clp
+[JSONL]: https://jsonlines.org/
