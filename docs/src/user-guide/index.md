@@ -32,7 +32,7 @@ A guide to filtering log events by their levels.
 :hidden:
 :caption: Quick start
 
-quick-start-overview
+quick-start
 :::
 
 :::{toctree}
@@ -40,14 +40,14 @@ quick-start-overview
 :caption: Formatting structured logs
 :glob:
 
-format-string-overview
-format-string-syntax
-format-string-formatters
+format-struct-logs-overview
+format-struct-logs-syntax
+format-struct-logs-formatters
 :::
 
 :::{toctree}
 :hidden:
 :caption: Log level filtering
 
-log-level-filter
+log-level-filtering
 :::
