@@ -9,12 +9,14 @@ import {
 } from "@mui/joy";
 import SvgIcon from "@mui/material/SvgIcon";
 
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
+import {openInNewTab} from "../../../../utils/url";
 import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
 import SearchTabPanel from "./SearchTabPanel";
@@ -22,6 +24,8 @@ import TabButton from "./TabButton";
 
 import "./index.css";
 
+
+const DOCUMENTATION_URL = "https://docs.yscope.com/yscope-log-viewer/main/user-guide/index.html";
 
 /**
  * Lists information for each tab.
@@ -63,6 +67,9 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
             case TAB_NAME.SETTINGS:
                 setIsSettingsModalOpen(true);
                 break;
+            case TAB_NAME.DOCUMENTATION:
+                openInNewTab(DOCUMENTATION_URL);
+                break;
             default:
                 onActiveTabNameChange(tabName);
         }
@@ -88,8 +95,13 @@ const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
                             onTabButtonClick={handleTabButtonClick}/>
                     ))}
 
-                    {/* Forces the settings tab to bottom of sidebar. */}
+                    {/* Forces the help and settings tabs to the bottom of the sidebar. */}
                     <div className={"sidebar-tab-list-spacing"}/>
+
+                    <TabButton
+                        Icon={HelpOutlineIcon}
+                        tabName={TAB_NAME.DOCUMENTATION}
+                        onTabButtonClick={handleTabButtonClick}/>
 
                     <TabButton
                         Icon={SettingsOutlinedIcon}
