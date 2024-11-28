@@ -12,4 +12,4 @@ example, selecting INFO shows INFO, WARN, ERROR, and FATAL logs.
 You can select specific log levels to show or hide by checking or unchecking the checkbox next to
 each level's name.
 
-![Individual level filtering](./individual-filter.png)
+![Individual level filtering](individual-filter.png)
