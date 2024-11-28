@@ -92,4 +92,4 @@ The formatted string will be:
 2015-03-23 19:29:48.942 INFO {0} latency=56 org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties
 ```
 
-For a list of currently supported formatters, see [Formatters](format-string-formatters).
+For a list of currently supported formatters, see [Formatters](format-struct-logs-formatters).

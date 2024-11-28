@@ -7,21 +7,21 @@ hidden, click the {fas}`bars` icon) to navigate to specific docs.
 :gutter: 2
 
 :::{grid-item-card}
-:link: quick-start-overview
+:link: quick-start
 Quick start
 ^^^
 A guide to viewing log files in the log viewer.
 :::
 
 :::{grid-item-card}
-:link: format-string-overview
+:link: format-struct-logs-overview
 Formatting structured logs
 ^^^
 A guide to formatting structured (e.g. JSON) logs as plain text.
 :::
 
 :::{grid-item-card}
-:link: log-level-filter
+:link: log-level-filtering
 Log level filtering
 ^^^
 A guide to filtering log events by their levels.
