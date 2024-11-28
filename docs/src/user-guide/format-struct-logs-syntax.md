@@ -80,8 +80,8 @@ We can format this using the following YScope format string:
 {@timestamp:timestamp:YYYY-MM-DD HH\:MM\:ss.SSS} {level} \{{thread}\} latency={latency_secs:round} {an\.odd\.key\{name\}}
 ```
 
-* In the first placeholder, we have the field name `ts`, a formatter called `timestamp`, and the
-  formatter’s options which are a date format string.
+* In the first placeholder, we have the field name `@timestamp`, a formatter called `timestamp`, and
+  the formatter’s options which are a date format string.
 * The second and third placeholders simply stringify the values of the given fields.
 * The fourth placeholder uses the `round` formatter to round the field’s value; this placeholder
   doesn’t specify any formatter options, so the defaults will be used.
