@@ -33,5 +33,5 @@ The formatted log would appear as:
 ```
 
 For reference docs, see:
-* [Format string syntax](format-string-syntax)
-* [Formatters](format-string-formatters)
+* [Format string syntax](format-struct-logs-syntax)
+* [Formatters](format-stuct-logs-formatters)
