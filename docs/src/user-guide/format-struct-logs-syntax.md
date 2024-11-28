@@ -6,7 +6,7 @@ Each format string is composed of:
 * [An implicit trailing newline](#implicit-trailing-newline)
 
 ## Static text
-Static text may contain any character except the following characters must be escaped with a
+Static text may contain any character, except the following characters must be escaped with a
 backslash:
 * `{`
 * `}`
@@ -24,7 +24,7 @@ Defines the key of the field whose value should replace the placeholder.
 
 * Nested fields can be specified using periods (`.`) to denote hierarchy.
   * E.g., the field `{"a:" {"b": 0}}` may be denoted by `a.b`.
-* Field names can contain any character except the following characters must be escaped with a
+* Field names can contain any character, except the following characters must be escaped with a
   backslash:
   * `.`
   * `$`
@@ -36,7 +36,7 @@ Defines the key of the field whose value should replace the placeholder.
 ### formatter-name (optional)
 The name of the formatter to apply to the value before inserting it into the string.
 
-* Formatter names can contain any character except a space (` `) and the following characters must
+* Formatter names can contain any character except a space (` `), and the following characters must
   be escaped with a backslash (`\`):
   * `{`
   * `}`
@@ -46,8 +46,8 @@ The name of the formatter to apply to the value before inserting it into the str
 ### `formatter-options` (optional)
 Defines any options for the formatter denoted by `formatter-name`.
 
-* Formatter options can contain any character except the following characters must be escaped with a
-  backslash:
+* Formatter options can contain any character, except the following characters must be escaped with
+  a backslash:
   * `{`
   * `}`
   * `:`
