@@ -78,10 +78,10 @@ interface StateContextType {
     queryResults: QueryResults,
 
     exportLogs: () => void,
+    filterLogs: (filter: LogLevelFilter) => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setIsSettingsModalOpen: (isOpen: boolean) => void,
-    filterLogs: (filter: LogLevelFilter) => void,
     setSelectedLogLevels: (levels: LOG_LEVEL[]) => void,
     startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
