@@ -106,10 +106,10 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
+    filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
     setIsSettingsModalOpen: () => null,
-    filterLogs: () => null,
     setSelectedLogLevels: () => null,
     startQuery: () => null,
 });
@@ -263,7 +263,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
     const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
-    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>(STATE_DEFAULT.selectedLogLevels);
+    const [selectedLogLevels, setSelectedLogLevels] =
+        useState<LOG_LEVEL[]>(STATE_DEFAULT.selectedLogLevels);
     const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
 
     // Refs
@@ -550,16 +551,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
-                selectedLogLevels: selectedLogLevels,
                 queryProgress: queryProgress,
                 queryResults: queryResults,
+                selectedLogLevels: selectedLogLevels,
                 uiState: uiState,
 
                 exportLogs: exportLogs,
+                filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setIsSettingsModalOpen: setIsSettingsModalOpen,
-                filterLogs: filterLogs,
                 setSelectedLogLevels: setSelectedLogLevels,
                 startQuery: startQuery,
             }}

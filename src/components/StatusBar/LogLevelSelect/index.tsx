@@ -1,8 +1,6 @@
 import React, {
     useCallback,
     useContext,
-    useEffect,
-    useState,
 } from "react";
 
 import {SelectValue} from "@mui/base/useSelect";
@@ -168,14 +166,17 @@ const LogLevelSelect = () => {
         </Box>
     );
 
-    const updateFilter = (logLevels: LOG_LEVEL[]) => {
+    const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
 
         // Filter logs in backend worker.
         filterLogs((0 === logLevels.length ?
             null :
             logLevels));
-    }
+    }, [
+        setSelectedLogLevels,
+        filterLogs,
+    ]);
 
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
@@ -193,7 +194,10 @@ const LogLevelSelect = () => {
             ];
         }
         updateFilter(newSelectedLogLevels.sort((a, b) => a - b));
-    }, [selectedLogLevels]);
+    }, [
+        selectedLogLevels,
+        updateFilter,
+    ]);
 
     const handleOptionClick = useCallback((ev: React.MouseEvent) => {
         const currentTarget = ev.currentTarget as HTMLElement;
@@ -205,7 +209,7 @@ const LogLevelSelect = () => {
 
         const selectedValue = Number(currentTarget.dataset.value);
         updateFilter(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
-    }, []);
+    }, [updateFilter]);
 
     const handleSelectClearButtonClick = () => {
         updateFilter([]);
