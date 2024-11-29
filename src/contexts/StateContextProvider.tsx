@@ -73,6 +73,7 @@ interface StateContextType {
     numPages: number,
     onDiskFileSizeInBytes: number,
     pageNum: number,
+    selectedLogLevels: LOG_LEVEL[],
     queryProgress: number,
     queryResults: QueryResults,
 
@@ -80,7 +81,8 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setIsSettingsModalOpen: (isOpen: boolean) => void,
-    setLogLevelFilter: (filter: LogLevelFilter) => void,
+    filterLogs: (filter: LogLevelFilter) => void,
+    setSelectedLogLevels: (levels: LOG_LEVEL[]) => void,
     startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -100,13 +102,15 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     pageNum: 0,
     queryProgress: QUERY_PROGRESS_INIT,
     queryResults: new Map(),
+    selectedLogLevels: [],
     uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
     setIsSettingsModalOpen: () => null,
-    setLogLevelFilter: () => null,
+    filterLogs: () => null,
+    setSelectedLogLevels: () => null,
     startQuery: () => null,
 });
 
@@ -259,6 +263,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
     const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
+    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>(STATE_DEFAULT.selectedLogLevels);
     const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
 
     // Refs
@@ -405,6 +410,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
+        setSelectedLogLevels(STATE_DEFAULT.selectedLogLevels);
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
@@ -446,7 +452,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = useCallback((filter: LogLevelFilter) => {
+    const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -544,6 +550,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 numPages: numPages,
                 onDiskFileSizeInBytes: onDiskFileSizeInBytes,
                 pageNum: pageNum,
+                selectedLogLevels: selectedLogLevels,
                 queryProgress: queryProgress,
                 queryResults: queryResults,
                 uiState: uiState,
@@ -552,7 +559,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setIsSettingsModalOpen: setIsSettingsModalOpen,
-                setLogLevelFilter: setLogLevelFilter,
+                filterLogs: filterLogs,
+                setSelectedLogLevels: setSelectedLogLevels,
                 startQuery: startQuery,
             }}
         >

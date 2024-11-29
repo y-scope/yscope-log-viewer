@@ -151,8 +151,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, setLogLevelFilter} = useContext(StateContext);
-    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
+    const {uiState, selectedLogLevels, setSelectedLogLevels, filterLogs} = useContext(StateContext);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
@@ -169,6 +168,15 @@ const LogLevelSelect = () => {
         </Box>
     );
 
+    const updateFilter = (logLevels: LOG_LEVEL[]) => {
+        setSelectedLogLevels(logLevels);
+
+        // Filter logs in backend worker.
+        filterLogs((0 === logLevels.length ?
+            null :
+            logLevels));
+    }
+
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -184,7 +192,7 @@ const LogLevelSelect = () => {
                 value,
             ];
         }
-        setSelectedLogLevels(newSelectedLogLevels.sort((a, b) => a - b));
+        updateFilter(newSelectedLogLevels.sort((a, b) => a - b));
     }, [selectedLogLevels]);
 
     const handleOptionClick = useCallback((ev: React.MouseEvent) => {
@@ -196,21 +204,12 @@ const LogLevelSelect = () => {
         }
 
         const selectedValue = Number(currentTarget.dataset.value);
-        setSelectedLogLevels(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
+        updateFilter(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, []);
 
     const handleSelectClearButtonClick = () => {
-        setSelectedLogLevels([]);
+        updateFilter([]);
     };
-
-    useEffect(() => {
-        setLogLevelFilter((0 === selectedLogLevels.length ?
-            null :
-            selectedLogLevels));
-    }, [
-        setLogLevelFilter,
-        selectedLogLevels,
-    ]);
 
     return (
         <Select
