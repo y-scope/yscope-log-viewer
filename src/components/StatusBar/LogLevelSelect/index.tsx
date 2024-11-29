@@ -149,7 +149,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, selectedLogLevels, setSelectedLogLevels, filterLogs} = useContext(StateContext);
+    const {uiState, filterLogs, selectedLogLevels, setSelectedLogLevels} = useContext(StateContext);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
@@ -174,8 +174,8 @@ const LogLevelSelect = () => {
             null :
             logLevels));
     }, [
-        setSelectedLogLevels,
         filterLogs,
+        setSelectedLogLevels,
     ]);
 
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
