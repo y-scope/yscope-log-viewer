@@ -243,7 +243,7 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, logEventNum, timestamp} = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
@@ -461,6 +461,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    useEffect(() => {
+        if (null !== timestamp) {
+            const newLogEventIdx = getLogEventIndexByTimestamp(timestamp);
+            if (-1 !== newLogEventIdx) {
+                updateWindowUrlHashParams({timestamp: null, logEventNum: newLogEventIdx + 1});
+            }
+            updateWindowUrlHashParams({timestamp: null});
+        }
+    }, [timestamp]);
 
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
