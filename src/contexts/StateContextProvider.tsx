@@ -26,6 +26,7 @@ import {
     FileSrcType,
     MainWorkerRespMessage,
     QUERY_PROGRESS_INIT,
+    QueryArgs,
     QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
@@ -71,7 +72,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
-    startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
+    startQuery: (queryArgs: QueryArgs) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
@@ -333,11 +334,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [postPopUp]);
 
-    const startQuery = useCallback((
-        queryString: string,
-        isRegex: boolean,
-        isCaseSensitive: boolean
-    ) => {
+    const startQuery = useCallback((queryArgs: QueryArgs) => {
+        const {queryString, isRegex, isCaseSensitive} = queryArgs;
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");

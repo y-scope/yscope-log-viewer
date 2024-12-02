@@ -105,6 +105,12 @@ type WorkerReqMap = {
     },
 };
 
+interface QueryArgs {
+    queryString: string;
+    isCaseSensitive: boolean;
+    isRegex: boolean;
+}
+
 type TextRange = [number, number];
 
 interface QueryResultsType {
@@ -190,6 +196,7 @@ export type {
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
+    QueryArgs,
     QueryResults,
     QueryResultsType,
     WorkerReq,

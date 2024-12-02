@@ -1,6 +1,5 @@
 import React, {
     useContext,
-    useRef,
     useState,
 } from "react";
 
@@ -22,7 +21,10 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {QUERY_PROGRESS_DONE} from "../../../../../typings/worker";
+import {
+    QUERY_PROGRESS_DONE,
+    QueryArgs,
+} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
@@ -37,6 +39,24 @@ enum QUERY_OPTION {
 }
 
 /**
+ * Determines if the query is case-sensitive based on the provided query options.
+ *
+ * @param queryOptions
+ * @return True if the query is case-sensitive.
+ */
+const getIsCaseSensitive =
+    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
+
+/**
+ * Determines if the query is a regular expression based on the provided query options.
+ *
+ * @param queryOptions
+ * @return True if the query is a regular expression.
+ */
+const getIsRegex =
+    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_REGEX);
+
+/**
  * Displays a panel for submitting queries and viewing query results.
  *
  * @return
@@ -45,24 +65,31 @@ const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
-    const queryStringRef = useRef<string>("");
+    const [queryString, setQueryString] = useState<string>("");
+
+    const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
+        startQuery({
+            isCaseSensitive: getIsCaseSensitive(queryOptions),
+            isRegex: getIsRegex(queryOptions),
+            queryString: queryString,
+            ...newArgs,
+        });
+    };
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        queryStringRef.current = ev.target.value;
-        const isCaseSensitive = queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
-        const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
-        startQuery(ev.target.value, isRegex, isCaseSensitive);
+        setQueryString(ev.target.value);
+        handleQuerySubmit({queryString: ev.target.value});
     };
+
     const handleQueryOptionsChange = (
         _: React.MouseEvent<HTMLElement>,
         newOptions: QUERY_OPTION[]
     ) => {
         setQueryOptions(newOptions);
-        if ("" !== queryStringRef.current) {
-            const isCaseSensitive = newOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
-            const isRegex = newOptions.includes(QUERY_OPTION.IS_REGEX);
-            startQuery(queryStringRef.current, isRegex, isCaseSensitive);
-        }
+        handleQuerySubmit({
+            isCaseSensitive: getIsCaseSensitive(newOptions),
+            isRegex: getIsRegex(newOptions),
+        });
     };
 
     return (
