@@ -33,8 +33,8 @@ import {
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
 import {
-    UI_STATE,
     UI_ELEMENT,
+    UI_STATE,
 } from "../../../typings/states";
 import {range} from "../../../utils/data";
 import {
