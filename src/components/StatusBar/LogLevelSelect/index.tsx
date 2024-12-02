@@ -1,6 +1,8 @@
 import React, {
     useCallback,
     useContext,
+    useEffect,
+    useState,
 } from "react";
 
 import {SelectValue} from "@mui/base/useSelect";
@@ -30,7 +32,10 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
-import {UI_ELEMENT} from "../../../typings/states";
+import {
+    UI_STATE,
+    UI_ELEMENT,
+} from "../../../typings/states";
 import {range} from "../../../utils/data";
 import {
     ignorePointerIfFastLoading,
@@ -149,7 +154,8 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, filterLogs, selectedLogLevels, setSelectedLogLevels} = useContext(StateContext);
+    const {uiState, filterLogs} = useContext(StateContext);
+    const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
@@ -214,6 +220,13 @@ const LogLevelSelect = () => {
     const handleSelectClearButtonClick = () => {
         updateFilter([]);
     };
+
+    // On `uiState` update, clear `selectedLogLevels` if the state is `UI_STATE.FILE_LOADING`
+    useEffect(() => {
+        if (UI_STATE.FILE_LOADING === uiState) {
+            setSelectedLogLevels([]);
+        }
+    }, [uiState]);
 
     return (
         <Select

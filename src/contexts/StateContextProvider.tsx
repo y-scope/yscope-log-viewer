@@ -73,7 +73,6 @@ interface StateContextType {
     numPages: number,
     onDiskFileSizeInBytes: number,
     pageNum: number,
-    selectedLogLevels: LOG_LEVEL[],
     queryProgress: number,
     queryResults: QueryResults,
 
@@ -82,7 +81,6 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setIsSettingsModalOpen: (isOpen: boolean) => void,
-    setSelectedLogLevels: (levels: LOG_LEVEL[]) => void,
     startQuery: (queryString: string, isRegex: boolean, isCaseSensitive: boolean) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -102,7 +100,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     pageNum: 0,
     queryProgress: QUERY_PROGRESS_INIT,
     queryResults: new Map(),
-    selectedLogLevels: [],
     uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
@@ -110,7 +107,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     loadFile: () => null,
     loadPageByAction: () => null,
     setIsSettingsModalOpen: () => null,
-    setSelectedLogLevels: () => null,
     startQuery: () => null,
 });
 
@@ -263,8 +259,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
     const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
     const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
-    const [selectedLogLevels, setSelectedLogLevels] =
-        useState<LOG_LEVEL[]>(STATE_DEFAULT.selectedLogLevels);
     const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
 
     // Refs
@@ -413,7 +407,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
-        setSelectedLogLevels(STATE_DEFAULT.selectedLogLevels);
 
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
@@ -553,7 +546,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 pageNum: pageNum,
                 queryProgress: queryProgress,
                 queryResults: queryResults,
-                selectedLogLevels: selectedLogLevels,
                 uiState: uiState,
 
                 exportLogs: exportLogs,
@@ -561,7 +553,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setIsSettingsModalOpen: setIsSettingsModalOpen,
-                setSelectedLogLevels: setSelectedLogLevels,
                 startQuery: startQuery,
             }}
         >
