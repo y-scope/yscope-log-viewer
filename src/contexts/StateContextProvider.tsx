@@ -78,10 +78,10 @@ interface StateContextType {
     queryResults: QueryResults,
 
     exportLogs: () => void,
+    filterLogs: (filter: LogLevelFilter) => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
     setIsSettingsModalOpen: (isOpen: boolean) => void,
-    setLogLevelFilter: (filter: LogLevelFilter) => void,
     startQuery: (queryArgs: QueryArgs) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -104,10 +104,10 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
+    filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
     setIsSettingsModalOpen: () => null,
-    setLogLevelFilter: () => null,
     startQuery: () => null,
 });
 
@@ -444,7 +444,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = useCallback((filter: LogLevelFilter) => {
+    const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -547,10 +547,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 uiState: uiState,
 
                 exportLogs: exportLogs,
+                filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setIsSettingsModalOpen: setIsSettingsModalOpen,
-                setLogLevelFilter: setLogLevelFilter,
                 startQuery: startQuery,
             }}
         >

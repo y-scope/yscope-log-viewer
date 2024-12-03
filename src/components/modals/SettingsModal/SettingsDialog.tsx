@@ -35,7 +35,7 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 const CONFIG_FORM_FIELDS = [
     {
         helperText: (
-            <p>
+            <span>
                 [JSON] Format string for formatting a JSON log event as plain text. See the
                 {" "}
                 <Link
@@ -48,7 +48,7 @@ const CONFIG_FORM_FIELDS = [
                 </Link>
                 {" "}
                 or leave this blank to display the entire log event.
-            </p>
+            </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
