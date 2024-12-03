@@ -32,7 +32,10 @@ import {
     LOG_LEVEL_NAMES,
     MAX_LOG_LEVEL,
 } from "../../../typings/logs";
-import {UI_ELEMENT} from "../../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../../typings/states";
 import {range} from "../../../utils/data";
 import {
     ignorePointerIfFastLoading,
@@ -151,7 +154,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, setLogLevelFilter} = useContext(StateContext);
+    const {uiState, filterLogs} = useContext(StateContext);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
@@ -169,6 +172,17 @@ const LogLevelSelect = () => {
         </Box>
     );
 
+    const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
+        setSelectedLogLevels(logLevels);
+
+        filterLogs((0 === logLevels.length ?
+            null :
+            logLevels));
+    }, [
+        filterLogs,
+        setSelectedLogLevels,
+    ]);
+
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -184,8 +198,11 @@ const LogLevelSelect = () => {
                 value,
             ];
         }
-        setSelectedLogLevels(newSelectedLogLevels.sort((a, b) => a - b));
-    }, [selectedLogLevels]);
+        updateFilter(newSelectedLogLevels.sort((a, b) => a - b));
+    }, [
+        selectedLogLevels,
+        updateFilter,
+    ]);
 
     const handleOptionClick = useCallback((ev: React.MouseEvent) => {
         const currentTarget = ev.currentTarget as HTMLElement;
@@ -196,21 +213,19 @@ const LogLevelSelect = () => {
         }
 
         const selectedValue = Number(currentTarget.dataset.value);
-        setSelectedLogLevels(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
-    }, []);
+        updateFilter(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
+    }, [updateFilter]);
 
     const handleSelectClearButtonClick = () => {
-        setSelectedLogLevels([]);
+        updateFilter([]);
     };
 
+    // On `uiState` update, clear `selectedLogLevels` if the state is `UI_STATE.FILE_LOADING`
     useEffect(() => {
-        setLogLevelFilter((0 === selectedLogLevels.length ?
-            null :
-            selectedLogLevels));
-    }, [
-        setLogLevelFilter,
-        selectedLogLevels,
-    ]);
+        if (UI_STATE.FILE_LOADING === uiState) {
+            setSelectedLogLevels([]);
+        }
+    }, [uiState]);
 
     return (
         <Select
