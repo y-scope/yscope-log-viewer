@@ -21,6 +21,9 @@ concurrency:
 jobs:
   lint-check:
     runs-on: "ubuntu-latest"
+    env:
+      STYLELINT_MATCHER_OWNER: "stylelint"
+      STYLELINT_MATCHER_PATH: "./.github/problem-matchers/stylelint.json"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -29,4 +32,13 @@ jobs:
         with:
           node-version: 22
       - run: "npm clean-install"
-      - run: "npm run lint:ci"
+      - name: "Set up Stylelint Problem Matcher"
+        run: "echo '::add-matcher::${{env.STYLELINT_MATCHER_PATH}}'"
+      - name: "Run `lint:check` script."
+        run: |-
+          # Disable ANSI color codes in Stylelint default "string" formatter
+          export NO_COLOR=1
+          npm run lint:check
+      - if: "always()"
+        name: "Remove Stylelint Problem Matcher"
+        run: "echo '::remove-matcher owner=${{env.STYLELINT_MATCHER_OWNER}}::'"

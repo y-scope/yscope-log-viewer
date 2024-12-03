@@ -19,7 +19,7 @@ const QUERY_CHUNK_SIZE = 10_000;
  */
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.DECODER_OPTIONS]: {
-        formatString: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%process.thread.name] %log.level %message%n",
+        formatString: "",
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
     },
@@ -41,8 +41,10 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
     switch (key) {
         case CONFIG_KEY.DECODER_OPTIONS:
-            if (Object.values(value).includes("")) {
-                result = "Decoder options cannot be empty.";
+            if (0 === value.timestampKey.length) {
+                result = "Timestamp key cannot be empty.";
+            } else if (0 === value.logLevelKey.length) {
+                result = "Log level key cannot be empty.";
             }
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:

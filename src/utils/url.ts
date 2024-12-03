@@ -44,8 +44,17 @@ const getBasenameFromUrlOrDefault = (
     return basename;
 };
 
+/**
+ * Opens a given URL in a new browser tab.
+ *
+ * @param url
+ */
+const openInNewTab = (url: string): void => {
+    window.open(url, "_blank", "noopener");
+};
 
 export {
     getAbsoluteUrl,
     getBasenameFromUrlOrDefault,
+    openInNewTab,
 };

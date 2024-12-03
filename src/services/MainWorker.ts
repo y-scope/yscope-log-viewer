@@ -50,6 +50,14 @@ const onQueryResults = (queryProgress: number, queryResults: QueryResults) => {
     postResp(WORKER_RESP_CODE.QUERY_RESULT, {progress: queryProgress, results: queryResults});
 };
 
+/**
+ * Sends a message to the renderer to open a pop-up which prompts user to replace the default
+ * format string.
+ */
+const postFormatPopup = () => {
+    postResp(WORKER_RESP_CODE.FORMAT_POPUP, null);
+};
+
 // eslint-disable-next-line no-warning-comments
 // TODO: Break this function up into smaller functions.
 // eslint-disable-next-line max-lines-per-function,max-statements
@@ -149,3 +157,5 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
         }
     }
 };
+
+export {postFormatPopup};

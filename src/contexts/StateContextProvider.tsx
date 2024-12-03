@@ -8,14 +8,22 @@ import React, {
     useState,
 } from "react";
 
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+
 import LogExportManager, {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
-import {LogLevelFilter} from "../typings/logs";
-import {DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS} from "../typings/notifications";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "../typings/logs";
+import {
+    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
@@ -57,8 +65,9 @@ import {
 
 interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-    fileName: string,
     exportProgress: Nullable<number>,
+    fileName: string,
+    isSettingsModalOpen: boolean,
     uiState: UI_STATE,
     logData: string,
     numEvents: number,
@@ -71,7 +80,8 @@ interface StateContextType {
     exportLogs: () => void,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
     loadPageByAction: (navAction: NavigationAction) => void,
-    setLogLevelFilter: (newLogLevelFilter: LogLevelFilter) => void,
+    setIsSettingsModalOpen: (isOpen: boolean) => void,
+    setLogLevelFilter: (filter: LogLevelFilter) => void,
     startQuery: (queryArgs: QueryArgs) => void,
 }
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -83,6 +93,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -95,6 +106,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     exportLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    setIsSettingsModalOpen: () => null,
     setLogLevelFilter: () => null,
     startQuery: () => null,
 });
@@ -237,6 +249,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] =
+        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -270,6 +284,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         setUiState(UI_STATE.READY);
                     }
                 }
+                break;
+            case WORKER_RESP_CODE.FORMAT_POPUP:
+                postPopUp({
+                    level: LOG_LEVEL.INFO,
+                    message: "Adding a format string can enhance the readability of your" +
+                    " structured logs by customizing how fields are displayed.",
+                    primaryAction: {
+                        children: "Settings",
+                        startDecorator: <SettingsOutlinedIcon/>,
+                        onClick: () => { setIsSettingsModalOpen(true); },
+                    },
+                    timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+                    title: "A format string has not been configured",
+                });
                 break;
             case WORKER_RESP_CODE.LOG_FILE_INFO:
                 setFileName(args.fileName);
@@ -416,14 +444,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, []);
 
-    const setLogLevelFilter = useCallback((newLogLevelFilter: LogLevelFilter) => {
+    const setLogLevelFilter = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
         setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
-            logLevelFilter: newLogLevelFilter,
+            logLevelFilter: filter,
         });
     }, []);
 
@@ -508,6 +536,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -520,6 +549,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 exportLogs: exportLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                setIsSettingsModalOpen: setIsSettingsModalOpen,
                 setLogLevelFilter: setLogLevelFilter,
                 startQuery: startQuery,
             }}

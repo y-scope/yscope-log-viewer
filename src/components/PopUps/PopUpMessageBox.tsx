@@ -1,4 +1,4 @@
-import {
+import React, {
     useContext,
     useEffect,
     useRef,
@@ -8,6 +8,7 @@ import {
 import {
     Alert,
     Box,
+    Button,
     CircularProgress,
     IconButton,
     Typography,
@@ -31,14 +32,16 @@ interface PopUpMessageProps {
 }
 
 /**
- * Display a pop-up message in an alert box.
+ * Displays a pop-up message in an alert box with an optional action button. The pop-up can
+ * be manually dismissed or will automatically close after the specified `timeoutMillis`.
+ * If `timeoutMillis` is `0`, the pop-up will remain open until manually closed.
  *
  * @param props
  * @param props.message
  * @return
  */
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
-    const {id, level, message: messageStr, title, timeoutMillis} = message;
+    const {id, level, primaryAction, message: messageStr, title, timeoutMillis} = message;
 
     const {handlePopUpMessageClose} = useContext(NotificationContext);
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
@@ -46,6 +49,11 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
 
     const handleCloseButtonClick = () => {
         handlePopUpMessageClose(id);
+    };
+
+    const handlePrimaryActionClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        primaryAction?.onClick?.(ev);
+        handleCloseButtonClick();
     };
 
     useEffect(() => {
@@ -113,6 +121,18 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
                 <Typography level={"body-sm"}>
                     {messageStr}
                 </Typography>
+                {primaryAction && (
+                    <Box className={"pop-up-message-box-actions-container"}>
+                        <Button
+                            color={color}
+                            variant={"solid"}
+                            {...primaryAction}
+                            onClick={handlePrimaryActionClick}
+                        >
+                            {primaryAction.children}
+                        </Button>
+                    </Box>
+                )}
             </div>
         </Alert>
     );

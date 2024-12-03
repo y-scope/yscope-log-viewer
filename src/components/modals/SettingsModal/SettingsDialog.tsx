@@ -13,6 +13,7 @@ import {
     FormHelperText,
     FormLabel,
     Input,
+    Link,
     ModalDialog,
 } from "@mui/joy";
 
@@ -33,8 +34,22 @@ import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 const CONFIG_FORM_FIELDS = [
     {
-        helperText: "[JSON] Log messages conversion pattern. The current syntax is similar to" +
-            " Logback conversion patterns but will change in a future release.",
+        helperText: (
+            <p>
+                [JSON] Format string for formatting a JSON log event as plain text. See the
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
+                    level={"body-sm"}
+                    rel={"noopener"}
+                    target={"_blank"}
+                >
+                    format string syntax docs
+                </Link>
+                {" "}
+                or leave this blank to display the entire log event.
+            </p>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
         label: "Decoder: Format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
