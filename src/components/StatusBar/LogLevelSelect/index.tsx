@@ -175,7 +175,6 @@ const LogLevelSelect = () => {
     const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
 
-        // Filter logs in backend worker.
         filterLogs((0 === logLevels.length ?
             null :
             logLevels));
