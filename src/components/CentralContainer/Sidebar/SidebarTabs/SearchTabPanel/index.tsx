@@ -16,15 +16,15 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {
+    QUERY_PROGRESS_VALUE_MAX,
+    QueryArgs,
+} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {
-    QUERY_PROGRESS_DONE,
-    QueryArgs,
-} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
@@ -144,7 +144,7 @@ const SearchTabPanel = () => {
                         determinate={true}
                         thickness={4}
                         value={queryProgress * 100}
-                        color={QUERY_PROGRESS_DONE === queryProgress ?
+                        color={QUERY_PROGRESS_VALUE_MAX === queryProgress ?
                             "success" :
                             "primary"}/>
                 </div>

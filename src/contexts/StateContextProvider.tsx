@@ -24,6 +24,11 @@ import {
     DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
 } from "../typings/notifications";
+import {
+    QUERY_PROGRESS_VALUE_MIN,
+    QueryArgs,
+    QueryResults,
+} from "../typings/query";
 import {UI_STATE} from "../typings/states";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
@@ -33,9 +38,6 @@ import {
     EVENT_POSITION_ON_PAGE,
     FileSrcType,
     MainWorkerRespMessage,
-    QUERY_PROGRESS_INIT,
-    QueryArgs,
-    QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerReq,
@@ -99,7 +101,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
-    queryProgress: QUERY_PROGRESS_INIT,
+    queryProgress: QUERY_PROGRESS_VALUE_MIN,
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
@@ -340,7 +342,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             }
             case WORKER_RESP_CODE.QUERY_RESULT:
                 setQueryProgress(args.progress);
-                if (QUERY_PROGRESS_INIT === args.progress) {
+                if (QUERY_PROGRESS_VALUE_MIN === args.progress) {
                     setQueryResults(STATE_DEFAULT.queryResults);
                 } else {
                     setQueryResults((v) => {
@@ -362,22 +364,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [postPopUp]);
 
-    const startQuery = useCallback(({
-        isCaseSensitive,
-        isRegex,
-        queryString,
-    }: QueryArgs) => {
+    const startQuery = useCallback((queryArgs: QueryArgs) => {
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
 
             return;
         }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, {
-            queryString: queryString,
-            isRegex: isRegex,
-            isCaseSensitive: isCaseSensitive,
-        });
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
     }, []);
 
     const exportLogs = useCallback(() => {
