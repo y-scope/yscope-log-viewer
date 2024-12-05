@@ -411,26 +411,28 @@ class LogFileManager {
      */
     #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
-        switch (code) {
-            case CURSOR_CODE.PAGE_NUM:
-                return getPageNumCursorData(
-                    args.pageNum,
-                    args.eventPositionOnPage,
-                    numActiveEvents,
-                    this.#pageSize,
-                );
-            case CURSOR_CODE.LAST_EVENT:
-                return getLastEventCursorData(numActiveEvents, this.#pageSize);
-            case CURSOR_CODE.EVENT_NUM:
-                return getEventNumCursorData(
-                    args.eventNum,
-                    numActiveEvents,
-                    this.#pageSize,
-                    this.#decoder.getFilteredLogEventMap(),
-                );
-            default:
-                throw new Error(`Unsupported cursor type: ${code}`);
+        let eventNum: number = 0;
+        if (CURSOR_CODE.PAGE_NUM === code) {
+            return getPageNumCursorData(
+                args.pageNum,
+                args.eventPositionOnPage,
+                numActiveEvents,
+                this.#pageSize,
+            );
+        } else if (CURSOR_CODE.LAST_EVENT === code) {
+            return getLastEventCursorData(numActiveEvents, this.#pageSize);
+        } else if (CURSOR_CODE.EVENT_NUM === code) {
+            ({eventNum} = args);
+        } else {
+            eventNum = this.#decoder.getLogEventIdxByTimestamp(args.timestamp) + 1;
         }
+
+        return getEventNumCursorData(
+            eventNum,
+            numActiveEvents,
+            this.#pageSize,
+            this.#decoder.getFilteredLogEventMap(),
+        );
     }
 }
 

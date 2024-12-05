@@ -98,6 +98,8 @@ interface Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]>;
+
+    getLogEventIdxByTimestamp(timestamp: number): number;
 }
 
 export type {

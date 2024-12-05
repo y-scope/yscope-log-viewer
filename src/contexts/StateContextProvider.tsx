@@ -463,12 +463,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [logEventNum]);
 
     useEffect(() => {
-        if (null !== timestamp) {
+        if (null !== mainWorkerRef.current) {
+
+
+            /*
             const newLogEventIdx = getLogEventIndexByTimestamp(timestamp);
             if (-1 !== newLogEventIdx) {
                 updateWindowUrlHashParams({timestamp: null, logEventNum: newLogEventIdx + 1});
             }
             updateWindowUrlHashParams({timestamp: null});
+            */
         }
     }, [timestamp]);
 
@@ -529,6 +533,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        // need to check if timestamp property is present in URLHashParams
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
             cursor = {
