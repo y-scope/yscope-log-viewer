@@ -362,8 +362,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [postPopUp]);
 
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
-        const {queryString, isRegex, isCaseSensitive} = queryArgs;
+    const startQuery = useCallback(({
+        isCaseSensitive,
+        isRegex,
+        queryString,
+    }: QueryArgs) => {
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
