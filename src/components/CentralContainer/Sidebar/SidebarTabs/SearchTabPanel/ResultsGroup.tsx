@@ -17,7 +17,7 @@ import {
 
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
-import {QueryResultsType} from "../../../../../typings/worker";
+import {QueryResultsType} from "../../../../../typings/query";
 import Result from "./Result";
 
 import "./ResultsGroup.css";

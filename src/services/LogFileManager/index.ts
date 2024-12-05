@@ -7,13 +7,16 @@ import {
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
+    QueryArgs,
+    QueryResults,
+} from "../../typings/query";
+import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorData,
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
-    QueryResults,
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
@@ -286,11 +289,12 @@ class LogFileManager {
      * Creates a RegExp object based on the given query string and options, and starts querying the
      * first log chunk.
      *
-     * @param queryString
-     * @param isRegex
-     * @param isCaseSensitive
+     * @param queryArgs
+     * @param queryArgs.queryString
+     * @param queryArgs.isRegex
+     * @param queryArgs.isCaseSensitive
      */
-    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+    startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
         this.#queryId++;
         this.#queryCount = 0;
 

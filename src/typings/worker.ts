@@ -7,6 +7,7 @@ import {
     LOG_LEVEL,
     LogLevelFilter,
 } from "./logs";
+import {QueryResults} from "./query";
 
 
 /**
@@ -106,19 +107,6 @@ type WorkerReqMap = {
     },
 };
 
-type TextRange = [number, number];
-
-interface QueryResultsType {
-    logEventNum: number;
-    message: string;
-    matchRange: TextRange;
-}
-
-type QueryResults = Map<number, QueryResultsType[]>;
-
-const QUERY_PROGRESS_INIT = 0;
-const QUERY_PROGRESS_DONE = 1;
-
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string
@@ -180,8 +168,6 @@ export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
-    QUERY_PROGRESS_DONE,
-    QUERY_PROGRESS_INIT,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
@@ -192,8 +178,6 @@ export type {
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
-    QueryResults,
-    QueryResultsType,
     WorkerReq,
     WorkerResp,
 };
