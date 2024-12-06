@@ -269,6 +269,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorkerRef = useRef<null|Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
+    const timestampRef = useRef(timestamp);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -458,21 +459,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
+    // FIXME: is this necessary? Can we integrate it with the [numEvents, logEventNum] useEffect?
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
     useEffect(() => {
-        if (null !== mainWorkerRef.current) {
+        timestampRef.current = timestamp;
 
-
-            /*
-            const newLogEventIdx = getLogEventIndexByTimestamp(timestamp);
-            if (-1 !== newLogEventIdx) {
-                updateWindowUrlHashParams({timestamp: null, logEventNum: newLogEventIdx + 1});
-            }
+        if (null !== mainWorkerRef.current && null !== timestamp) {
+            loadPageByCursor(mainWorkerRef.current, {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestamp},
+            });
             updateWindowUrlHashParams({timestamp: null});
-            */
         }
     }, [timestamp]);
 
@@ -533,12 +533,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        // need to check if timestamp property is present in URLHashParams
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
+            };
+        }
+        if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestampRef.current) {
+            cursor = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestampRef.current},
             };
         }
         loadFile(filePath, cursor);
