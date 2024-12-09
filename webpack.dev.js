@@ -2,6 +2,7 @@
 
 const {mergeWithRules} = require("webpack-merge");
 const common = require("./webpack.common.js");
+const ErrorOverlayPlugin = require("error-overlay-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const path = require("path");
 
@@ -15,12 +16,15 @@ module.exports = mergeWithRules({
     },
 })(common, {
     devServer: {
+        client: {
+            overlay: false,
+        },
         hot: "only",
         open: true,
         port: 3010,
         watchFiles: ["src/services/**/*"],
     },
-    devtool: "eval-source-map",
+    devtool: "cheap-module-source-map",
     mode: "development",
     module: {
         rules: [
@@ -53,6 +57,15 @@ module.exports = mergeWithRules({
         filename: "[name].bundle.js",
     },
     plugins: [
-        new ReactRefreshWebpackPlugin(),
+        new ReactRefreshWebpackPlugin({
+            overlay: false,
+        }),
+        new ErrorOverlayPlugin(),
     ],
+    resolve: {
+        fallback: {
+            // Needed by ErrorOverlayPlugin
+            querystring: require.resolve("querystring-es3"),
+        },
+    },
 });
