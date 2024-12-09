@@ -186,7 +186,8 @@ const getWindowUrlSearchParams = () => {
         // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
         const [, filePath] = window.location.search.split("filePath=");
         if ("undefined" !== typeof filePath && 0 !== filePath.length) {
-            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(filePath);
+            const decodedFilePath = decodeURIComponent(filePath);
+            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(decodedFilePath);
         }
     }
 
