@@ -7,13 +7,16 @@ import {
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
+    QueryArgs,
+    QueryResults,
+} from "../../typings/query";
+import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorData,
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
-    QueryResults,
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
@@ -286,11 +289,13 @@ class LogFileManager {
      * Creates a RegExp object based on the given query string and options, and starts querying the
      * first log chunk.
      *
-     * @param queryString
-     * @param isRegex
-     * @param isCaseSensitive
+     * @param queryArgs
+     * @param queryArgs.queryString
+     * @param queryArgs.isRegex
+     * @param queryArgs.isCaseSensitive
+     * @throws {SyntaxError} if the query regex string is invalid.
      */
-    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+    startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
         this.#queryId++;
         this.#queryCount = 0;
 
@@ -310,9 +315,16 @@ class LogFileManager {
         const regexFlags = isCaseSensitive ?
             "" :
             "i";
-        const queryRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        try {
+            const queryRegex = new RegExp(regexPattern, regexFlags);
+            this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                console.error("Invalid regular expression:", e);
+            }
+            throw e;
+        }
     }
 
     /**

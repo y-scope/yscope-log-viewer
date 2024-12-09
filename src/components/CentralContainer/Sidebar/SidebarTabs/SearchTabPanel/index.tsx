@@ -16,12 +16,15 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {
+    QUERY_PROGRESS_VALUE_MAX,
+    QueryArgs,
+} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {QUERY_PROGRESS_DONE} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
@@ -36,6 +39,24 @@ enum QUERY_OPTION {
 }
 
 /**
+ * Determines if the query is case-sensitive based on the provided query options.
+ *
+ * @param queryOptions
+ * @return True if the query is case-sensitive.
+ */
+const getIsCaseSensitive =
+    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
+
+/**
+ * Determines if the query is a regular expression based on the provided query options.
+ *
+ * @param queryOptions
+ * @return True if the query is a regular expression.
+ */
+const getIsRegex =
+    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_REGEX);
+
+/**
  * Displays a panel for submitting queries and viewing query results.
  *
  * @return
@@ -44,17 +65,31 @@ const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
+    const [queryString, setQueryString] = useState<string>("");
+
+    const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
+        startQuery({
+            isCaseSensitive: getIsCaseSensitive(queryOptions),
+            isRegex: getIsRegex(queryOptions),
+            queryString: queryString,
+            ...newArgs,
+        });
+    };
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const isCaseSensitive = queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
-        const isRegex = queryOptions.includes(QUERY_OPTION.IS_REGEX);
-        startQuery(ev.target.value, isRegex, isCaseSensitive);
+        setQueryString(ev.target.value);
+        handleQuerySubmit({queryString: ev.target.value});
     };
+
     const handleQueryOptionsChange = (
         _: React.MouseEvent<HTMLElement>,
         newOptions: QUERY_OPTION[]
     ) => {
         setQueryOptions(newOptions);
+        handleQuerySubmit({
+            isCaseSensitive: getIsCaseSensitive(newOptions),
+            isRegex: getIsRegex(newOptions),
+        });
     };
 
     return (
@@ -109,7 +144,7 @@ const SearchTabPanel = () => {
                         determinate={true}
                         thickness={4}
                         value={queryProgress * 100}
-                        color={QUERY_PROGRESS_DONE === queryProgress ?
+                        color={QUERY_PROGRESS_VALUE_MAX === queryProgress ?
                             "success" :
                             "primary"}/>
                 </div>
