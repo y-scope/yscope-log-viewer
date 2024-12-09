@@ -293,7 +293,7 @@ class LogFileManager {
      * @param queryArgs.queryString
      * @param queryArgs.isRegex
      * @param queryArgs.isCaseSensitive
-     * @throws {Error} if the query regex string is invalid.
+     * @throws {SyntaxError} if the query regex string is invalid.
      */
     startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
         this.#queryId++;
