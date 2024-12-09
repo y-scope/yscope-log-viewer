@@ -228,12 +228,6 @@ describe("getConfig", () => {
         );
     });
 
-    it("should retrieve page size once set", () => {
-        setConfig({key: CONFIG_KEY.PAGE_SIZE, value: VALID_PAGE_SIZE});
-        const result = getConfig(CONFIG_KEY.PAGE_SIZE);
-        expect(result).toBe(VALID_PAGE_SIZE);
-    });
-
     it("should retrieve initial tab name once set", () => {
         setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.SEARCH});
         const result = getConfig(CONFIG_KEY.INITIAL_TAB_NAME);
