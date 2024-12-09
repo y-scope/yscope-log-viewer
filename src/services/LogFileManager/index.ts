@@ -293,6 +293,7 @@ class LogFileManager {
      * @param queryArgs.queryString
      * @param queryArgs.isRegex
      * @param queryArgs.isCaseSensitive
+     * @throws {Error} if the query regex string is invalid.
      */
     startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
         this.#queryId++;
@@ -314,9 +315,16 @@ class LogFileManager {
         const regexFlags = isCaseSensitive ?
             "" :
             "i";
-        const queryRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        try {
+            const queryRegex = new RegExp(regexPattern, regexFlags);
+            this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                console.error("Invalid regular expression:", e);
+            }
+            throw e;
+        }
     }
 
     /**
