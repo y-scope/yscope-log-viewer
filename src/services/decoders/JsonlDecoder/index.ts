@@ -131,7 +131,9 @@ class JsonlDecoder implements Decoder {
             const mid = Math.floor((low + high) / 2);
             const midTimestamp = BigInt(this.#logEvents[mid].timestamp.valueOf());
 
-            if (midTimestamp === timestamp) {
+            console.log(`midTimestamp: ${midTimestamp}, mid: ${mid}, low: ${low}, high: ${high}`);
+            if (midTimestamp == timestamp) {
+                console.error(`result recorded: ${mid}`);
                 result = mid;
                 low = mid + 1;
             } else if (midTimestamp < timestamp) {

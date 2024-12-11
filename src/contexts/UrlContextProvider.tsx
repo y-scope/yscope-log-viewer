@@ -209,7 +209,9 @@ const getWindowUrlHashParams = () => {
         const hashParam = hashParams.get(hashParamName);
         if (null !== hashParam) {
             const parsed = Number(hashParam);
-            urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
+
+            // FIXME: hashParamName type
+            urlHashParams[hashParamName] = Number.isNaN(parsed) ?
                 null :
                 parsed;
         }

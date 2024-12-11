@@ -40,7 +40,7 @@ enum CURSOR_CODE {
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.EVENT_NUM]: { eventNum: number };
-    [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
+    [CURSOR_CODE.TIMESTAMP]: { timestamp: bigint };
     [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPositionOnPage: EVENT_POSITION_ON_PAGE };
 };
 
