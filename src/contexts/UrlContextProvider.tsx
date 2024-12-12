@@ -205,12 +205,10 @@ const getWindowUrlHashParams = () => {
     );
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const checkAndSetHashParam = (hashParamName: string) => {
+    const checkAndSetHashParam = (hashParamName: keyof UrlHashParams) => {
         const hashParam = hashParams.get(hashParamName);
         if (null !== hashParam) {
             const parsed = Number(hashParam);
-
-            // FIXME: hashParamName type
             urlHashParams[hashParamName] = Number.isNaN(parsed) ?
                 null :
                 parsed;

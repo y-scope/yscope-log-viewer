@@ -122,18 +122,17 @@ class JsonlDecoder implements Decoder {
         return results;
     }
 
-    getLogEventIdxByTimestamp (timestamp: bigint): number {
+    getLogEventIdxByTimestamp (timestamp: number): number {
         let low = 0;
         let high = this.#logEvents.length - 1;
         let result = -1;
 
         while (low <= high) {
             const mid = Math.floor((low + high) / 2);
-            const midTimestamp = BigInt(this.#logEvents[mid].timestamp.valueOf());
 
-            console.log(`midTimestamp: ${midTimestamp}, mid: ${mid}, low: ${low}, high: ${high}`);
-            if (midTimestamp == timestamp) {
-                console.error(`result recorded: ${mid}`);
+            // @ts-expect-error TS2532: Object is possibly 'undefined'.
+            const midTimestamp = this.#logEvents[mid].timestamp.valueOf();
+            if (midTimestamp === timestamp) {
                 result = mid;
                 low = mid + 1;
             } else if (midTimestamp < timestamp) {

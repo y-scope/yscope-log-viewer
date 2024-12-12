@@ -106,7 +106,7 @@ interface Decoder {
      * @param timestamp
      * @return
      */
-    getLogEventIdxByTimestamp(timestamp: bigint): number;
+    getLogEventIdxByTimestamp(timestamp: number): number;
 }
 
 export type {
