@@ -98,6 +98,15 @@ interface Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]>;
+
+    /**
+     * Retrieves the last index of the log event that matches the given timestamp.
+     * If no such log event exists, returns -1.
+     *
+     * @param timestamp
+     * @return
+     */
+    getLogEventIdxByTimestamp(timestamp: number): number;
 }
 
 export type {
