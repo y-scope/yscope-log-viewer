@@ -49,6 +49,7 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    initProfiles,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -103,7 +104,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     pageNum: 0,
     queryProgress: QUERY_PROGRESS_VALUE_MIN,
     queryResults: new Map(),
-    uiState: UI_STATE.UNOPENED,
+    uiState: UI_STATE.PROFILE_LOADING,
 
     exportLogs: () => null,
     filterLogs: () => null,
@@ -510,22 +511,33 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
-            return;
-        }
+        initProfiles({filePath})
+            .then(() => {
+                setUiState(UI_STATE.UNOPENED);
+                if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
+                    return;
+                }
 
-        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            cursor = {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNumRef.current},
-            };
-        }
-        loadFile(filePath, cursor);
+                let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+                if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
+                    cursor = {
+                        code: CURSOR_CODE.EVENT_NUM,
+                        args: {eventNum: logEventNumRef.current},
+                    };
+                }
+                loadFile(filePath, cursor);
+            })
+            .catch((e: unknown) => {
+                console.error("Unable to init profiles:", e);
+            });
     }, [
         filePath,
         loadFile,
     ]);
+
+    if (UI_STATE.PROFILE_LOADING === uiState) {
+        return <></>;
+    }
 
     return (
         <StateContext.Provider

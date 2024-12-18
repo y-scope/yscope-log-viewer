@@ -23,6 +23,8 @@ enum LOCAL_STORAGE_KEY {
     INITIAL_TAB_NAME = CONFIG_KEY.INITIAL_TAB_NAME,
     THEME = CONFIG_KEY.THEME,
     PAGE_SIZE = CONFIG_KEY.PAGE_SIZE,
+    PROFILE_PREFIX = "profile:",
+    PROFILE_OVERRIDE = "profileOverride",
 }
 /* eslint-enable @typescript-eslint/prefer-literal-enum-member */
 
@@ -40,6 +42,12 @@ type ConfigUpdate = {
     }
 }[keyof ConfigMap];
 
+interface Profile {
+    config: ConfigMap,
+    filePathPrefixes: string[],
+    lastModificationTimestampMillis: number
+}
+
 export {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
@@ -48,4 +56,5 @@ export {
 export type {
     ConfigMap,
     ConfigUpdate,
+    Profile,
 };

@@ -76,7 +76,7 @@ const MonacoInstance = ({
     }, [lineNum]);
 
     useEffect(() => {
-        console.log("Initiating Monaco instance");
+        console.log("Initializing Monaco instance");
         if (null === editorContainerRef.current) {
             console.error("Unexpected unmounted editor container div element");
 

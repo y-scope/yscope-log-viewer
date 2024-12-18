@@ -1,4 +1,7 @@
-import axios, {AxiosError} from "axios";
+import axios, {
+    AxiosError,
+    AxiosProgressEvent,
+} from "axios";
 
 
 type ProgressCallback = (numBytesDownloaded:number, numBytesTotal:number) => void;
@@ -32,25 +35,62 @@ const convertAxiosError = (e: AxiosError): Error => {
     );
 };
 
+
+/**
+ * Normalizes total size if undefined and calls the provided onProgress callback with loaded and
+ * total sizes.
+ *
+ * @param onProgress
+ * @return The handler that wraps `onProgress`.
+ */
+const normalizeTotalSize = (onProgress: ProgressCallback) => ({
+    loaded,
+    total,
+}: AxiosProgressEvent) => {
+    if ("undefined" === typeof total) {
+        total = loaded;
+    }
+    onProgress(loaded, total);
+};
+
+/**
+ * Retrieves an object that is stored as JSON in a remote location.
+ *
+ * @param remoteUrl
+ * @param onDownloadProgress
+ * @return The parsed JSON object.
+ * @throws {Error} if the download fails.
+ */
+const getJsonObjectFrom = async (remoteUrl: string, onDownloadProgress: ProgressCallback)
+    : Promise<object> => {
+    try {
+        const {data} = await axios.get<ArrayBuffer>(remoteUrl, {
+            responseType: "json",
+            onDownloadProgress: normalizeTotalSize(onDownloadProgress),
+        });
+
+        return new Uint8Array(data);
+    } catch (e) {
+        throw (e instanceof AxiosError) ?
+            convertAxiosError(e) :
+            e;
+    }
+};
+
 /**
  * Downloads (bypassing any caching) a file as a Uint8Array.
  *
  * @param fileUrl
- * @param progressCallback
+ * @param onProgress
  * @return The file's content.
  * @throws {Error} if the download fails.
  */
-const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCallback)
+const getUint8ArrayFrom = async (fileUrl: string, onProgress: ProgressCallback)
     : Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
             responseType: "arraybuffer",
-            onDownloadProgress: ({loaded, total}) => {
-                if ("undefined" === typeof total) {
-                    total = loaded;
-                }
-                progressCallback(loaded, total);
-            },
+            onDownloadProgress: normalizeTotalSize(onProgress),
             headers: {
                 "Cache-Control": "no-cache",
                 "Pragma": "no-cache",
@@ -66,5 +106,7 @@ const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCall
     }
 };
 
-
-export {getUint8ArrayFrom};
+export {
+    getJsonObjectFrom,
+    getUint8ArrayFrom,
+};

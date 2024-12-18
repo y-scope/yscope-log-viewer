@@ -4,6 +4,11 @@
 enum UI_STATE {
 
     /**
+     * When a profile is being loaded.
+     */
+    PROFILE_LOADING,
+
+    /**
      * When there is no file opened in the viewer.
      */
     UNOPENED,
@@ -59,6 +64,16 @@ type UiStateGrid = {
  * element is enabled, or `false` if disabled.
  */
 const UI_STATE_GRID: UiStateGrid = Object.freeze({
+    [UI_STATE.PROFILE_LOADING]: {
+        [UI_ELEMENT.DRAG_AND_DROP]: false,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: false,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: false,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
+        [UI_ELEMENT.PROGRESS_BAR]: false,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
+    },
     [UI_STATE.UNOPENED]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
         [UI_ELEMENT.EXPORT_LOGS_BUTTON]: false,

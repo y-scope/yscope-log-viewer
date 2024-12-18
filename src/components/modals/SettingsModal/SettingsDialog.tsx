@@ -2,6 +2,7 @@ import React, {
     forwardRef,
     useCallback,
     useContext,
+    useMemo,
 } from "react";
 
 import {
@@ -32,12 +33,14 @@ import {
 import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 
-const CONFIG_FORM_FIELDS = [
+/**
+ *
+ */
+const getConfigFormFields = () => [
     {
         helperText: (
             <span>
-                [JSON] Format string for formatting a JSON log event as plain text. See the
-                {" "}
+                {"[JSON] Format string for formatting a JSON log event as plain text. See the "}
                 <Link
                     href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
                     level={"body-sm"}
@@ -46,8 +49,7 @@ const CONFIG_FORM_FIELDS = [
                 >
                     format string syntax docs
                 </Link>
-                {" "}
-                or leave this blank to display the entire log event.
+                {" or leave this blank to display the entire log event."}
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
@@ -96,6 +98,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
     const {postPopUp} = useContext(NotificationContext);
+    const configFormFields = useMemo(() => getConfigFormFields(), []);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -147,7 +150,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                     <ThemeSwitchToggle/>
                 </DialogTitle>
                 <DialogContent>
-                    {CONFIG_FORM_FIELDS.map((field, index) => (
+                    {configFormFields.map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
                             key={index}
