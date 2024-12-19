@@ -100,11 +100,10 @@ interface Decoder {
     ): Nullable<DecodeResult[]>;
 
     /**
-     * Retrieves the last index of the log event that matches the given timestamp.
-     * If no such log event exists, returns -1.
+     * Finds the index of the last log event that matches the specified timestamp.
      *
      * @param timestamp
-     * @return
+     * @return The index of the matching log event, or -1 if no match is found.
      */
     getLogEventIdxByTimestamp(timestamp: number): number;
 }

@@ -205,18 +205,18 @@ const getWindowUrlHashParams = () => {
     );
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const checkAndSetHashParam = (hashParamName: keyof UrlHashParams) => {
-        const hashParam = hashParams.get(hashParamName);
+    const numberHashParamNames = [HASH_PARAM_NAMES.LOG_EVENT_NUM,
+        HASH_PARAM_NAMES.TIMESTAMP];
+
+    for (const paramName of numberHashParamNames) {
+        const hashParam = hashParams.get(paramName);
         if (null !== hashParam) {
             const parsed = Number(hashParam);
-            urlHashParams[hashParamName] = Number.isNaN(parsed) ?
+            urlHashParams[paramName] = Number.isNaN(parsed) ?
                 null :
                 parsed;
         }
-    };
-
-    checkAndSetHashParam(HASH_PARAM_NAMES.LOG_EVENT_NUM);
-    checkAndSetHashParam(HASH_PARAM_NAMES.TIMESTAMP);
+    }
 
     return urlHashParams;
 };

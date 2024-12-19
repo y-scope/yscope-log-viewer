@@ -137,14 +137,6 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     args.isCaseSensitive
                 );
                 break;
-
-            /*
-            case WORKER_REQ_CODE.QUERY_TIMESTAMP:
-                if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
-                }
-                LOG_FILE_MANAGER.getLogEventIndexByTimestamp(timestamp);
-             */
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;

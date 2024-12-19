@@ -459,21 +459,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
-    // FIXME: is this necessary? Can we integrate it with the [numEvents, logEventNum] useEffect?
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
+    // Synchronize `timestampRef` with `timestamp`.
     useEffect(() => {
         timestampRef.current = timestamp;
-
-        if (null !== mainWorkerRef.current && null !== timestamp) {
-            loadPageByCursor(mainWorkerRef.current, {
-                code: CURSOR_CODE.TIMESTAMP,
-                args: {timestamp: timestamp},
-            });
-            updateWindowUrlHashParams({timestamp: null});
-        }
     }, [timestamp]);
 
     // Synchronize `pageNumRef` with `pageNum`.
@@ -495,13 +487,21 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [uiState]);
 
-    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorkerRef.current) {
+        if (null === mainWorkerRef.current || null === timestamp) {
             return;
         }
 
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+        loadPageByCursor(mainWorkerRef.current, {
+            code: CURSOR_CODE.TIMESTAMP,
+            args: {timestamp: timestamp},
+        });
+        updateWindowUrlHashParams({timestamp: null});
+    }, [timestamp]);
+
+    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
+    useEffect(() => {
+        if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 

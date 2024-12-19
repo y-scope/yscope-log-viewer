@@ -25,6 +25,8 @@ import {
 } from "./utils";
 
 
+const INVALID_LOG_EVENT_IDX = -1;
+
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `DecoderOptions` for
  * properties that are specific to log events (compared to generic JSON records).
@@ -125,15 +127,14 @@ class JsonlDecoder implements Decoder {
     getLogEventIdxByTimestamp (timestamp: number): number {
         let low = 0;
         let high = this.#logEvents.length - 1;
-        let result = -1;
+        let lastFoundLogEventIdx = INVALID_LOG_EVENT_IDX;
 
         while (low <= high) {
             const mid = Math.floor((low + high) / 2);
-
-            // @ts-expect-error TS2532: Object is possibly 'undefined'.
-            const midTimestamp = this.#logEvents[mid].timestamp.valueOf();
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const midTimestamp = this.#logEvents[mid]!.timestamp.valueOf();
             if (midTimestamp === timestamp) {
-                result = mid;
+                lastFoundLogEventIdx = mid;
                 low = mid + 1;
             } else if (midTimestamp < timestamp) {
                 low = mid + 1;
@@ -142,7 +143,7 @@ class JsonlDecoder implements Decoder {
             }
         }
 
-        return result;
+        return lastFoundLogEventIdx;
     }
 
     /**
