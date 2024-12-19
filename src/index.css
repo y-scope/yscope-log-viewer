@@ -14,6 +14,8 @@ html {
     /* font-family globals */
     --ylv-ui-font-family: -apple-system, "BlinkMacSystemFont", system-ui, "Ubuntu", "Droid Sans",
         "Inter";
+    --ylv-ui-mono-font-family: "SF Mono", monaco, menlo, "Ubuntu Mono", "Liberation Mono",
+        "DejaVu Sans Mono", "Roboto Mono";
 
     /* size globals */
     --ylv-status-bar-height: 32px;
