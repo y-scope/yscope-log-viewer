@@ -21,8 +21,6 @@
 }
 
 .log-level-select-listbox {
-    /* Disallow width auto-resizing with the `Select` button. */
-    max-width: 0;
     max-height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height)) !important;
 }
 
