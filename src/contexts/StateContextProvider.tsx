@@ -246,7 +246,7 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, logEventNum, timestamp} = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
@@ -272,6 +272,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorkerRef = useRef<null|Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
+    const timestampRef = useRef(timestamp);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -453,9 +454,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
+    // FIXME: is this necessary? Can we integrate it with the [numEvents, logEventNum] useEffect?
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    useEffect(() => {
+        timestampRef.current = timestamp;
+
+        if (null !== mainWorkerRef.current && null !== timestamp) {
+            loadPageByCursor(mainWorkerRef.current, {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestamp},
+            });
+            updateWindowUrlHashParams({timestamp: null});
+        }
+    }, [timestamp]);
 
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
@@ -519,6 +533,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
+            };
+        }
+        if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestampRef.current) {
+            cursor = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestampRef.current},
             };
         }
         loadFile(filePath, cursor);

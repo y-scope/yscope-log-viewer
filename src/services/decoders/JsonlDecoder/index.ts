@@ -122,6 +122,29 @@ class JsonlDecoder implements Decoder {
         return results;
     }
 
+    getLogEventIdxByTimestamp (timestamp: number): number {
+        let low = 0;
+        let high = this.#logEvents.length - 1;
+        let result = -1;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+
+            // @ts-expect-error TS2532: Object is possibly 'undefined'.
+            const midTimestamp = this.#logEvents[mid].timestamp.valueOf();
+            if (midTimestamp === timestamp) {
+                result = mid;
+                low = mid + 1;
+            } else if (midTimestamp < timestamp) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Parses each line from the data array and buffers it internally.
      *
@@ -214,7 +237,7 @@ class JsonlDecoder implements Decoder {
      * @return The decoded log event.
      */
     #decodeLogEvent = (logEventIdx: number): DecodeResult => {
-        let timestamp: number;
+        let timestamp: bigint;
         let message: string;
         let logLevel: LOG_LEVEL;
 
@@ -231,7 +254,7 @@ class JsonlDecoder implements Decoder {
             const logEvent = this.#logEvents[logEventIdx] as LogEvent;
             logLevel = logEvent.level;
             message = this.#formatter.formatLogEvent(logEvent);
-            timestamp = logEvent.timestamp.valueOf();
+            timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
         return [
