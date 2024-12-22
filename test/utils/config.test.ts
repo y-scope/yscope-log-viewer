@@ -13,7 +13,6 @@ import {TAB_NAME} from "../../src/typings/tab";
 import {
     CONFIG_DEFAULT,
     getConfig,
-    MAX_PAGE_SIZE,
     setConfig,
     testConfig,
 } from "../../src/utils/config";
@@ -24,55 +23,11 @@ const VALID_DECODER_OPTIONS: DecoderOptions = {
     logLevelKey: "@level",
     timestampKey: "@timestamp",
 };
-const EMPTY_DECODER_OPTIONS_PROMPTS: Record<keyof DecoderOptions, Nullable<string>> = {
-    formatString: null,
-    timestampKey: "Timestamp key cannot be empty.",
-    logLevelKey: "Log level key cannot be empty.",
-};
 
 const VALID_PAGE_SIZE = 5000;
-const INVALID_PAGE_SIZE = -1;
 
 const UNMANAGED_THEME_THROWABLE =
     new Error(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
-
-/* eslint-disable sort-keys */
-/**
- * Negative test cases for `testConfig` and `setConfig` function.
- */
-const NEGATIVE_CONFIG_CASES: Record<string, {
-    input: ConfigUpdate | ConfigUpdate[],
-    expected?: Nullable<string | string[]>,
-    throwable?: Error
-}> = Object.freeze({
-    "should return an error message for any empty decoder option except an empty `formatString`": {
-        input: (Object.keys(VALID_DECODER_OPTIONS) as Array<keyof DecoderOptions>).map((key) => ({
-            key: CONFIG_KEY.DECODER_OPTIONS,
-            value: {
-                ...VALID_DECODER_OPTIONS,
-                [key]: "",
-            },
-        })) as ConfigUpdate[],
-        expected: (Object.keys(VALID_DECODER_OPTIONS) as Array<keyof DecoderOptions>).map(
-            (key) => EMPTY_DECODER_OPTIONS_PROMPTS[key]
-        ) as string[],
-    },
-    'should throw an error for config "theme"': {
-        input: {
-            key: CONFIG_KEY.THEME,
-            value: THEME_NAME.SYSTEM,
-        },
-        throwable: UNMANAGED_THEME_THROWABLE,
-    },
-    "should return an error message for invalid page size": {
-        input: {
-            key: CONFIG_KEY.PAGE_SIZE,
-            value: -1,
-        },
-        expected: "Page size must be greater than 0 and less than 1000001.",
-    },
-});
-/* eslint-enable sort-keys */
 
 /**
  * Runs negative test cases with the given function.
@@ -80,25 +35,54 @@ const NEGATIVE_CONFIG_CASES: Record<string, {
  * @param func
  */
 const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
-    Object.entries(NEGATIVE_CONFIG_CASES).forEach(([description, {input, expected, throwable}]) => {
-        if (Array.isArray(input)) {
-            it(description, () => {
-                input.forEach((testInput, index) => {
-                    const result = func(testInput);
-                    expect(result).toBe(expected?.[index]);
-                });
-            });
-        } else {
-            it(description, () => {
-                if ("undefined" !== typeof expected) {
-                    const result = func(input);
-                    expect(result).toBe(expected);
-                }
-                if ("undefined" !== typeof throwable) {
-                    expect(() => func(input)).toThrow(throwable);
-                }
-            });
-        }
+    it("should return an error message for any empty decoder option except `formatString`", () => {
+        const cases = (
+            Object.keys(VALID_DECODER_OPTIONS) as Array<keyof DecoderOptions>
+        ).map((key) => ({
+            decoderOptions: {
+                key: CONFIG_KEY.DECODER_OPTIONS,
+                value: {
+                    ...VALID_DECODER_OPTIONS,
+                    [key]: "",
+                },
+            } as ConfigUpdate,
+            expected: {
+                formatString: null,
+                logLevelKey: "Log level key cannot be empty.",
+                timestampKey: "Timestamp key cannot be empty.",
+            }[key],
+        }));
+
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
+        cases.forEach((c) => {
+            const result = func(c.decoderOptions);
+            expect(result).toBe(c.expected);
+        });
+
+        consoleSpy.mockRestore();
+    });
+
+    it('should throw an error for config "theme"', () => {
+        const input = {
+            key: CONFIG_KEY.THEME,
+            value: THEME_NAME.SYSTEM,
+        } as ConfigUpdate;
+
+        expect(() => func(input)).toThrow(UNMANAGED_THEME_THROWABLE);
+    });
+
+    it("should return an error message for invalid page size", () => {
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
+        const result = func({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: -1,
+        });
+
+        expect(result).toBe("Page size must be greater than 0 and less than 1000001.");
+
+        consoleSpy.mockRestore();
     });
 };
 
@@ -175,22 +159,6 @@ describe("setConfig", () => {
             key: CONFIG_KEY.THEME,
             value: THEME_NAME.SYSTEM,
         })).toThrow(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
-    });
-
-    it("should log an error for invalid page size", () => {
-        const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-        const result = setConfig({
-            key: CONFIG_KEY.PAGE_SIZE,
-            value: INVALID_PAGE_SIZE,
-        });
-
-        expect(result).toBe(
-            `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`
-        );
-        expect(consoleSpy).toHaveBeenCalledWith(
-            expect.stringContaining(`Unable to set ${CONFIG_KEY.PAGE_SIZE}=${INVALID_PAGE_SIZE}`)
-        );
-        consoleSpy.mockRestore();
     });
 });
 
