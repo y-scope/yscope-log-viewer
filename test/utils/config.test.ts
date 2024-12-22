@@ -18,14 +18,23 @@ import {
 } from "../../src/utils/config";
 
 
+/**
+ * Sample decoder options that are expected to pass validation.
+ */
 const VALID_DECODER_OPTIONS: DecoderOptions = {
     formatString: "some format string",
     logLevelKey: "@level",
     timestampKey: "@timestamp",
 };
 
+/**
+ * Sample page size that is expected to pass validation.
+ */
 const VALID_PAGE_SIZE = 5000;
 
+/**
+ * Exception to be thrown when the "THEME" configuration is specified.
+ */
 const UNMANAGED_THEME_THROWABLE =
     new Error(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
 
