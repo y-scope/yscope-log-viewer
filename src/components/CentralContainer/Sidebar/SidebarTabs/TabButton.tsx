@@ -38,7 +38,6 @@ const TabButton = ({tabName, Icon, onTabButtonClick}: TabButtonProps) => {
             key={tabName}
             placement={"right"}
             title={TAB_DISPLAY_NAMES[tabName]}
-            variant={"outlined"}
         >
             <Tab
                 className={"sidebar-tab-button"}
