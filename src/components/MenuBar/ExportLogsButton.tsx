@@ -17,7 +17,7 @@ import {
     ignorePointerIfFastLoading,
     isDisabled,
 } from "../../utils/states";
-import SmallIconButton from "./SmallIconButton";
+import MenuBarIconButton from "./MenuBarIconButton";
 
 
 /**
@@ -29,8 +29,9 @@ const ExportLogsButton = () => {
     const {exportLogs, exportProgress, uiState} = useContext(StateContext);
 
     return (
-        <SmallIconButton
+        <MenuBarIconButton
             className={ignorePointerIfFastLoading(uiState)}
+            title={"Export logs"}
             disabled={
                 (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
@@ -56,7 +57,7 @@ const ExportLogsButton = () => {
                             {Math.ceil(exportProgress * 100)}
                         </Typography>}
                 </CircularProgress>}
-        </SmallIconButton>
+        </MenuBarIconButton>
     );
 };
 
