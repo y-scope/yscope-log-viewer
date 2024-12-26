@@ -55,6 +55,11 @@ const APP_THEME = extendTheme({
                 }),
             },
         },
+        JoyTooltip: {
+            defaultProps: {
+                variant: "outlined",
+            },
+        },
     },
     fontFamily: {
         body: "var(--ylv-ui-font-family)",
