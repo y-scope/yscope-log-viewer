@@ -42,18 +42,20 @@ const StatusBar = () => {
             </Typography>
 
             <Tooltip title={"Copy link to clipboard"}>
-                <Button
-                    color={"primary"}
-                    disabled={isDisabled(uiState, UI_ELEMENT.LOG_EVENT_NUM_DISPLAY)}
-                    size={"sm"}
-                    variant={"soft"}
-                    onClick={handleCopyLinkButtonClick}
-                >
-                    {"Log Event "}
-                    {logEventNum}
-                    {" / "}
-                    {numEvents}
-                </Button>
+                <span>
+                    <Button
+                        color={"primary"}
+                        disabled={isDisabled(uiState, UI_ELEMENT.LOG_EVENT_NUM_DISPLAY)}
+                        size={"sm"}
+                        variant={"soft"}
+                        onClick={handleCopyLinkButtonClick}
+                    >
+                        {"Log Event "}
+                        {logEventNum}
+                        {" / "}
+                        {numEvents}
+                    </Button>
+                </span>
             </Tooltip>
 
             <LogLevelSelect/>

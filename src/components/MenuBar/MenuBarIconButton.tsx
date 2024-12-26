@@ -28,9 +28,11 @@ const MenuBarIconButton = ({
         placement={tooltipPlacement ?? "bottom-end"}
         title={title}
     >
-        <IconButton
-            size={"sm"}
-            {...rest}/>
+        <span>
+            <IconButton
+                size={"sm"}
+                {...rest}/>
+        </span>
     </Tooltip>
 );
 
