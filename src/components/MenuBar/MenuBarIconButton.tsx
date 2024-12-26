@@ -15,7 +15,6 @@ import {
  */
 const MenuBarIconButton = ({title, ...rest}: IconButtonProps) => (
     <Tooltip
-        arrow={true}
         placement={"bottom-start"}
         title={title}
     >

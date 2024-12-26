@@ -34,7 +34,6 @@ const TabButton = ({tabName, Icon, onTabButtonClick}: TabButtonProps) => {
 
     return (
         <Tooltip
-            arrow={true}
             key={tabName}
             placement={"right"}
             title={TAB_DISPLAY_NAMES[tabName]}
