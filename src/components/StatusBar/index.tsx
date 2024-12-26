@@ -3,6 +3,7 @@ import {useContext} from "react";
 import {
     Button,
     Sheet,
+    Tooltip,
     Typography,
 } from "@mui/joy";
 
@@ -39,18 +40,22 @@ const StatusBar = () => {
             <Typography className={"status-message"}>
                 {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
-            <Button
-                color={"primary"}
-                disabled={isDisabled(uiState, UI_ELEMENT.LOG_EVENT_NUM_DISPLAY)}
-                size={"sm"}
-                variant={"soft"}
-                onClick={handleCopyLinkButtonClick}
-            >
-                {"Log Event "}
-                {logEventNum}
-                {" / "}
-                {numEvents}
-            </Button>
+
+            <Tooltip title={"Copy link to clipboard"}>
+                <Button
+                    color={"primary"}
+                    disabled={isDisabled(uiState, UI_ELEMENT.LOG_EVENT_NUM_DISPLAY)}
+                    size={"sm"}
+                    variant={"soft"}
+                    onClick={handleCopyLinkButtonClick}
+                >
+                    {"Log Event "}
+                    {logEventNum}
+                    {" / "}
+                    {numEvents}
+                </Button>
+            </Tooltip>
+
             <LogLevelSelect/>
         </Sheet>
     );
