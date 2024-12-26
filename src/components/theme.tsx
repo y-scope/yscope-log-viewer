@@ -57,8 +57,8 @@ const APP_THEME = extendTheme({
         },
         JoyTooltip: {
             defaultProps: {
-                variant: "outlined",
                 arrow: true,
+                variant: "outlined",
             },
         },
     },
