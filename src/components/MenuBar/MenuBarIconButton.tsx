@@ -2,20 +2,30 @@ import {
     IconButton,
     IconButtonProps,
     Tooltip,
+    TooltipTypeMap,
 } from "@mui/joy";
 
+
+interface MenuBarIconButtonProps extends IconButtonProps {
+    tooltipPlacement?: TooltipTypeMap["props"]["placement"];
+}
 
 /**
  * An icon button for use in the menu bar.
  *
  * @param props
  * @param props.title Tooltip title.
+ * @param props.tooltipPlacement
  * @param props.rest
  * @return
  */
-const MenuBarIconButton = ({title, ...rest}: IconButtonProps) => (
+const MenuBarIconButton = ({
+    tooltipPlacement,
+    title,
+    ...rest
+}: MenuBarIconButtonProps) => (
     <Tooltip
-        placement={"bottom-start"}
+        placement={tooltipPlacement ?? "bottom-end"}
         title={title}
     >
         <IconButton

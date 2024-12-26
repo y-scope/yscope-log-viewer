@@ -50,6 +50,7 @@ const MenuBar = () => {
                 <MenuBarIconButton
                     disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
                     title={"Open file"}
+                    tooltipPlacement={"bottom-start"}
                     onClick={handleOpenFile}
                 >
                     <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
