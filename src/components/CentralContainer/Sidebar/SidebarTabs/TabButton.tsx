@@ -13,9 +13,9 @@ import "./TabButton.css";
 
 
 interface TabButtonProps {
-    tabName: TAB_NAME,
-    Icon: typeof SvgIcon,
-    onTabButtonClick: (tabName: TAB_NAME) => void
+    tabName: TAB_NAME;
+    Icon: typeof SvgIcon;
+    onTabButtonClick: (tabName: TAB_NAME) => void;
 }
 
 /**

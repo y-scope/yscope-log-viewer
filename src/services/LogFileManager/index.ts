@@ -71,11 +71,11 @@ class LogFileManager {
      * @param params.onQueryResults
      */
     constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
-        decoder: Decoder,
-        fileName: string,
-        onDiskFileSizeInBytes: number,
-        pageSize: number,
-        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
+        decoder: Decoder;
+        fileName: string;
+        onDiskFileSizeInBytes: number;
+        pageSize: number;
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
@@ -196,7 +196,7 @@ class LogFileManager {
      * @throws {Error} if any error occurs when decoding the log events.
      */
     loadChunk (beginLogEventIdx: number): {
-        logs: string,
+        logs: string;
     } {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
         const results = this.#decoder.decodeRange(
