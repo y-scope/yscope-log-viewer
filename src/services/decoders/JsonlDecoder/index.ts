@@ -25,6 +25,8 @@ import {
 } from "./utils";
 
 
+const INVALID_LOG_EVENT_IDX = -1;
+
 /**
  * A decoder for JSONL (JSON lines) files that contain log events. See `DecoderOptions` for
  * properties that are specific to log events (compared to generic JSON records).
@@ -122,6 +124,28 @@ class JsonlDecoder implements Decoder {
         return results;
     }
 
+    getLogEventIdxByTimestamp (timestamp: number): number {
+        let low = 0;
+        let high = this.#logEvents.length - 1;
+        let lastFoundLogEventIdx = INVALID_LOG_EVENT_IDX;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const midTimestamp = this.#logEvents[mid]!.timestamp.valueOf();
+            if (midTimestamp === timestamp) {
+                lastFoundLogEventIdx = mid;
+                low = mid + 1;
+            } else if (midTimestamp < timestamp) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return lastFoundLogEventIdx;
+    }
+
     /**
      * Parses each line from the data array and buffers it internally.
      *
@@ -214,7 +238,7 @@ class JsonlDecoder implements Decoder {
      * @return The decoded log event.
      */
     #decodeLogEvent = (logEventIdx: number): DecodeResult => {
-        let timestamp: number;
+        let timestamp: bigint;
         let message: string;
         let logLevel: LOG_LEVEL;
 
@@ -231,7 +255,7 @@ class JsonlDecoder implements Decoder {
             const logEvent = this.#logEvents[logEventIdx] as LogEvent;
             logLevel = logEvent.level;
             message = this.#formatter.formatLogEvent(logEvent);
-            timestamp = logEvent.timestamp.valueOf();
+            timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
         return [
