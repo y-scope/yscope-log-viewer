@@ -259,6 +259,13 @@ const LogLevelSelect = () => {
                 listbox: {
                     className: "log-level-select-listbox",
                     placement: "top-end",
+                    modifiers: [
+                        // Disallow listbox width auto-resizing with the `Select` button.
+                        {name: "equalWidth", enabled: false},
+
+                        // Remove gap between the listbox and the `Select` button.
+                        {name: "offset", enabled: false},
+                    ],
                 },
             }}
         >
