@@ -13,10 +13,10 @@ import "./CustomTabPanel.css";
 
 
 interface CustomTabPanelProps {
-    children: React.ReactNode,
-    tabName: string,
-    title: string,
-    titleButtons?: React.ReactNode,
+    children: React.ReactNode;
+    tabName: string;
+    title: string;
+    titleButtons?: React.ReactNode;
 }
 
 /**

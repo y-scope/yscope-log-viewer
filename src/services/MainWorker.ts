@@ -15,11 +15,9 @@ import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import LogFileManager from "./LogFileManager";
 
 
-/* eslint-disable import/no-named-as-default-member */
 dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsTimezone);
 dayjs.extend(dayjsBigIntSupport);
-/* eslint-enable import/no-named-as-default-member */
 
 /**
  * Manager for the currently opened log file.

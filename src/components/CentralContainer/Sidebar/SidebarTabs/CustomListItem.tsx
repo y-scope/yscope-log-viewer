@@ -10,12 +10,12 @@ import {
 
 
 interface CustomListItemProps {
-    content: string,
-    icon: React.ReactNode,
+    content: string;
+    icon: React.ReactNode;
     slotProps?: {
-        content?: TypographyProps
-    },
-    title: string
+        content?: TypographyProps;
+    };
+    title: string;
 }
 
 /**

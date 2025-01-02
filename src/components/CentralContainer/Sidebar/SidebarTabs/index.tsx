@@ -31,16 +31,16 @@ const DOCUMENTATION_URL = "https://docs.yscope.com/yscope-log-viewer/main/user-g
  * Lists information for each tab.
  */
 const TABS_INFO_LIST: Readonly<Array<{
-    tabName: TAB_NAME,
-    Icon: typeof SvgIcon,
+    tabName: TAB_NAME;
+    Icon: typeof SvgIcon;
 }>> = Object.freeze([
     {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
     {tabName: TAB_NAME.SEARCH, Icon: SearchIcon},
 ]);
 
 interface SidebarTabsProps {
-    activeTabName: TAB_NAME,
-    onActiveTabNameChange: (newValue: TAB_NAME) => void,
+    activeTabName: TAB_NAME;
+    onActiveTabNameChange: (newValue: TAB_NAME) => void;
 }
 
 /**

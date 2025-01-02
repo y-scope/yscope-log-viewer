@@ -9,9 +9,9 @@ import "./Result.css";
 
 
 interface ResultProps {
-    logEventNum: number,
-    message: string,
-    matchRange: [number, number]
+    logEventNum: number;
+    message: string;
+    matchRange: [number, number];
 }
 
 const QUERY_RESULT_PREFIX_MAX_CHARACTERS = 20;

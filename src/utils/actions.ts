@@ -10,20 +10,19 @@ enum ACTION_NAME {
     NEXT_PAGE = "nextPage",
     LAST_PAGE = "lastPage",
     PAGE_TOP = "pageTop",
-    PAGE_BOTTOM = "pageBottom"
+    PAGE_BOTTOM = "pageBottom",
 }
 
-type EditorAction = {
-    actionName: Nullable<ACTION_NAME>,
-    label: string,
-    keyBindings: monaco.KeyCode[],
+interface EditorAction {
+    actionName: Nullable<ACTION_NAME>;
+    label: string;
+    keyBindings: monaco.KeyCode[];
 }
 
 /**
  * Actions that can be performed in the editor. Actions without a name are not triggered by Monaco
  * but will be displayed in a help dialog.
  */
-/* eslint-disable sort-keys */
 const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: null,
@@ -61,21 +60,23 @@ const EDITOR_ACTIONS : EditorAction[] = [
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
     },
 ];
-/* eslint-enable sort-keys */
 
 type NavigationActionsMap = {
     [ACTION_NAME.SPECIFIC_PAGE]: {
-        pageNum: number,
-    },
-    [ACTION_NAME.FIRST_PAGE]: null,
-    [ACTION_NAME.PREV_PAGE]: null,
-    [ACTION_NAME.NEXT_PAGE]: null,
-    [ACTION_NAME.LAST_PAGE]: null,
+        pageNum: number;
+    };
+    [ACTION_NAME.FIRST_PAGE]: null;
+    [ACTION_NAME.PREV_PAGE]: null;
+    [ACTION_NAME.NEXT_PAGE]: null;
+    [ACTION_NAME.LAST_PAGE]: null;
 };
 
 type NavigationAction = {
     [T in keyof NavigationActionsMap]:
-    { code: T, args: NavigationActionsMap[T] }
+    {
+        code: T;
+        args: NavigationActionsMap[T];
+    }
 } [keyof NavigationActionsMap];
 
 export {

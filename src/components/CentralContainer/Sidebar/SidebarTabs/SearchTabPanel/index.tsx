@@ -35,7 +35,7 @@ import "./index.css";
 
 enum QUERY_OPTION {
     IS_CASE_SENSITIVE = "isCaseSensitive",
-    IS_REGEX = "isRegex"
+    IS_REGEX = "isRegex",
 }
 
 /**
@@ -97,7 +97,11 @@ const SearchTabPanel = () => {
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton onClick={() => { setIsAllExpanded((v) => !v); }}>
+                <PanelTitleButton
+                    onClick={() => {
+                        setIsAllExpanded((v) => !v);
+                    }}
+                >
                     {isAllExpanded ?
                         <UnfoldLessIcon/> :
                         <UnfoldMoreIcon/>}

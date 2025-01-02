@@ -28,7 +28,7 @@ import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 const AUTO_DISMISS_PERCENT_UPDATE_INTERVAL_MILLIS = 50;
 
 interface PopUpMessageProps {
-    message: WithId<PopUpMessage>,
+    message: WithId<PopUpMessage>;
 }
 
 /**
@@ -58,7 +58,8 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
 
     useEffect(() => {
         if (DO_NOT_TIMEOUT_VALUE === timeoutMillis) {
-            return () => {};
+            return () => {
+            };
         }
 
         const totalIntervals = Math.ceil(

@@ -10,10 +10,10 @@ import {PopUpMessage} from "../typings/notifications";
 
 
 interface NotificationContextType {
-    popUpMessages: WithId<PopUpMessage>[],
+    popUpMessages: WithId<PopUpMessage>[];
 
     handlePopUpMessageClose: (messageId: number) => void;
-    postPopUp: (message: PopUpMessage) => void,
+    postPopUp: (message: PopUpMessage) => void;
 }
 
 const NotificationContext = createContext({} as NotificationContextType);
@@ -24,13 +24,15 @@ const NotificationContext = createContext({} as NotificationContextType);
 const NOTIFICATION_DEFAULT: Readonly<NotificationContextType> = Object.freeze({
     popUpMessages: [],
 
-    handlePopUpMessageClose: () => {},
-    postPopUp: () => {},
+    handlePopUpMessageClose: () => {
+    },
+    postPopUp: () => {
+    },
 });
 
 
 interface NotificationContextProviderProps {
-    children: React.ReactNode,
+    children: React.ReactNode;
 }
 
 /**

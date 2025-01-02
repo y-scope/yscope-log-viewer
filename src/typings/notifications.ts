@@ -7,11 +7,11 @@ import {LOG_LEVEL} from "./logs";
  * Contents of pop-up messages and its associated auto dismiss timeout.
  */
 interface PopUpMessage {
-    level: LOG_LEVEL,
-    message: string,
-    timeoutMillis: number,
-    title: string,
-    primaryAction?: ButtonProps,
+    level: LOG_LEVEL;
+    message: string;
+    timeoutMillis: number;
+    title: string;
+    primaryAction?: ButtonProps;
 }
 
 /**

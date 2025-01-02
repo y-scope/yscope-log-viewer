@@ -146,7 +146,14 @@ const getMapValueWithNearestLessThanOrEqualKey = <T>(
  * @throws {Error} if `step` is 0.
  */
 const range = (
-    args: number | {begin: number, end: number} | {begin: number, end: number, step: number}
+    args: number | {
+        begin: number;
+        end: number;
+    } | {
+        begin: number;
+        end: number;
+        step: number;
+    }
 ): number[] => {
     // If `args` is a number, interpret it as `end` with `begin` set to 0.
     if ("number" === typeof args) {

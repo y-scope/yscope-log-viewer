@@ -3,8 +3,8 @@ import {LogLevelFilter} from "./logs";
 
 
 interface LogEventCount {
-    numValidEvents: number,
-    numInvalidEvents: number,
+    numValidEvents: number;
+    numInvalidEvents: number;
 }
 
 /**
@@ -13,9 +13,9 @@ interface LogEventCount {
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
 interface DecoderOptions {
-    formatString: string,
-    logLevelKey: string,
-    timestampKey: string,
+    formatString: string;
+    logLevelKey: string;
+    timestampKey: string;
 }
 
 /**
@@ -65,7 +65,7 @@ interface Decoder {
      * @param logLevelFilter
      * @return Whether the filter was successfully set.
      */
-    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean
+    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean;
 
     /**
      * Deserializes all log events in the file.

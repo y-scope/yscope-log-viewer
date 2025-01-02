@@ -6,9 +6,8 @@ import {
     useState,
 } from "react";
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-
 import {useColorScheme} from "@mui/joy";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {StateContext} from "../../contexts/StateContextProvider";
 import {

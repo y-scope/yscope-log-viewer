@@ -11,7 +11,7 @@ const getAbsoluteUrl = (path: string) => {
     try {
         // eslint-disable-next-line no-new
         new URL(path);
-    } catch (e) {
+    } catch {
         path = new URL(path, window.location.origin).href;
     }
 

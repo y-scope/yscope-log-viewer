@@ -11,15 +11,15 @@ enum LOG_LEVEL {
     INFO,
     WARN,
     ERROR,
-    FATAL
+    FATAL,
 }
 
 type LogLevelFilter = Nullable<LOG_LEVEL[]>;
 
 interface LogEvent {
-    timestamp: Dayjs,
-    level: LOG_LEVEL,
-    fields: JsonObject
+    timestamp: Dayjs;
+    level: LOG_LEVEL;
+    fields: JsonObject;
 }
 
 /**

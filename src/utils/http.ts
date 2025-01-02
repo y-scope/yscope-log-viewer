@@ -41,7 +41,7 @@ const convertAxiosError = (e: AxiosError): Error => {
  * @throws {Error} if the download fails.
  */
 const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCallback)
-    : Promise<Uint8Array> => {
+: Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
             responseType: "arraybuffer",

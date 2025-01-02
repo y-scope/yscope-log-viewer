@@ -21,7 +21,7 @@ import {LogEvent} from "./logs";
  * and backslashes (\) must be escaped with a backslash.
  */
 interface YscopeFormatterOptionsType {
-    formatString: string,
+    formatString: string;
 }
 
 type FormatterOptionsType = YscopeFormatterOptionsType;
@@ -34,7 +34,7 @@ interface Formatter {
      * @param logEvent
      * @return The formatted log event.
      */
-    formatLogEvent: (logEvent: LogEvent) => string
+    formatLogEvent: (logEvent: LogEvent) => string;
 }
 
 interface YscopeFieldFormatter {
@@ -45,26 +45,29 @@ interface YscopeFieldFormatter {
      * @param logEvent
      * @return The formatted field.
      */
-    formatField: (field: JsonValue) => string
+    formatField: (field: JsonValue) => string;
 }
 
 /**
  * Type for list of currently supported YScope field formatters.
  */
-type YscopeFieldFormatterMap = {
+interface YscopeFieldFormatterMap {
     [key: string]: new (options: Nullable<string>) => YscopeFieldFormatter;
-};
+}
 
 /**
  * Parsed field placeholder from a YScope format string.
  */
 type YscopeFieldPlaceholder = {
-    fieldNameKeys: string[],
-    fieldFormatter: Nullable<YscopeFieldFormatter>,
+    fieldNameKeys: string[];
+    fieldFormatter: Nullable<YscopeFieldFormatter>;
 
     // Location of field placeholder in format string including braces.
-    range: {start: number, end: number}
-}
+    range: {
+        start: number;
+        end: number;
+    };
+};
 
 /**
  * Unicode replacement character `U+FFFD` to substitute escaped backslash (`\\`) in format string.
