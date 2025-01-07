@@ -13,6 +13,7 @@ import {TAB_NAME} from "../../src/typings/tab";
 import {
     CONFIG_DEFAULT,
     getConfig,
+    MAX_PAGE_SIZE,
     setConfig,
     testConfig,
     UNMANAGED_THEME_THROWABLE,
@@ -84,7 +85,7 @@ const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
             value: -1,
         });
 
-        expect(result).toBe("Page size must be greater than 0 and less than 1000001.");
+        expect(result).toBe(`Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`);
 
         consoleSpy.mockRestore();
     });
