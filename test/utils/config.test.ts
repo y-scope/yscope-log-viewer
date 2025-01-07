@@ -35,7 +35,8 @@ const VALID_DECODER_OPTIONS: DecoderOptions = {
 const VALID_PAGE_SIZE = 5000;
 
 /**
- * Runs a set of negative config test cases using the given function. Prevents duplication of negative test cases for `setConfig` and `testConfig` functions.
+ * Runs a set of negative config test cases using the given function. Prevents duplication of
+ * negative test cases for `setConfig` and `testConfig` functions.
  *
  * @param func
  */
