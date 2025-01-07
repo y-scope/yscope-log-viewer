@@ -41,6 +41,7 @@ const VALID_PAGE_SIZE = 5000;
  */
 const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
     it("should return an error message for any empty decoder option except `formatString`", () => {
+        // Generate negative test cases for decoder options.
         const cases = (
             Object.keys(VALID_DECODER_OPTIONS) as Array<keyof DecoderOptions>
         ).map((key) => ({
