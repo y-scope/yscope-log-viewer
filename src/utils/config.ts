@@ -15,6 +15,12 @@ const MAX_PAGE_SIZE = 1_000_000;
 const QUERY_CHUNK_SIZE = 10_000;
 
 /**
+ * Exception to be thrown when the "THEME" configuration is specified.
+ */
+const UNMANAGED_THEME_THROWABLE =
+    new Error(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
+
+/**
  * The default configuration values.
  */
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
@@ -56,7 +62,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             }
             break;
         case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
+            throw UNMANAGED_THEME_THROWABLE;
         /* c8 ignore next */
         default: break;
     }
@@ -147,7 +153,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
             break;
         case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
+            throw UNMANAGED_THEME_THROWABLE;
         /* c8 ignore next */
         default: break;
     }
@@ -178,4 +184,5 @@ export {
     QUERY_CHUNK_SIZE,
     setConfig,
     testConfig,
+    UNMANAGED_THEME_THROWABLE,
 };

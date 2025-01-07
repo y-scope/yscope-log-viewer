@@ -15,6 +15,7 @@ import {
     getConfig,
     setConfig,
     testConfig,
+    UNMANAGED_THEME_THROWABLE,
 } from "../../src/utils/config";
 
 
@@ -31,12 +32,6 @@ const VALID_DECODER_OPTIONS: DecoderOptions = {
  * Sample page size that is expected to pass validation.
  */
 const VALID_PAGE_SIZE = 5000;
-
-/**
- * Exception to be thrown when the "THEME" configuration is specified.
- */
-const UNMANAGED_THEME_THROWABLE =
-    new Error(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
 
 /**
  * Runs negative test cases with the given function.
@@ -167,7 +162,7 @@ describe("setConfig", () => {
         expect(() => setConfig({
             key: CONFIG_KEY.THEME,
             value: THEME_NAME.SYSTEM,
-        })).toThrow(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
+        })).toThrow(UNMANAGED_THEME_THROWABLE);
     });
 });
 
@@ -200,9 +195,7 @@ describe("getConfig", () => {
     });
 
     it('should throw an error for config "theme"', () => {
-        expect(() => getConfig(CONFIG_KEY.THEME)).toThrow(
-            `"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`
-        );
+        expect(() => getConfig(CONFIG_KEY.THEME)).toThrow(UNMANAGED_THEME_THROWABLE);
     });
 
     it("should retrieve initial tab name once set", () => {
