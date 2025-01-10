@@ -101,8 +101,12 @@ class ClpIrDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]> {
-        const results: DecodeResult[] =
+        const results: Nullable<DecodeResult[]> =
             this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
+
+        if (null === results) {
+            return null;
+        }
 
         if (null === this.#formatter) {
             if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
