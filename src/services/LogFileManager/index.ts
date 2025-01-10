@@ -385,9 +385,9 @@ class LogFileManager {
         }
 
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
-        const numActiveEvents: number = filteredLogEventMap ?
-            filteredLogEventMap.length :
-            this.#numEvents;
+        const numActiveEvents: number = (null === filteredLogEventMap) ?
+            this.#numEvents :
+            filteredLogEventMap.length;
 
         if (0 === numActiveEvents) {
             return;
