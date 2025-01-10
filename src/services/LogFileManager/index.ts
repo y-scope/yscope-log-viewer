@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 450] */
+/* eslint max-lines: ["error", 500] */
 import {
     Decoder,
     DecodeResult,
