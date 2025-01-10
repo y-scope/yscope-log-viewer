@@ -365,7 +365,7 @@ class LogFileManager {
             }
         }
     }
-    
+
     /**
      * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
      * log events remain.
