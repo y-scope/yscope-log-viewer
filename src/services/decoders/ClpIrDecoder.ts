@@ -101,13 +101,11 @@ class ClpIrDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]> {
-        const results: Nullable<DecodeResult[]> =
-            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
-
         // eslint-disable-next-line no-warning-comments
-        // TODO: Fix DecodeResult typing in clp-ffi-js to be nullable.
+        // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
+        const results =
+            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter) as Nullable<DecodeResult[]>;
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (null === results) {
             return null;
         }
