@@ -365,7 +365,15 @@ class LogFileManager {
             }
         }
     }
-
+    
+    /**
+     * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
+     * log events remain.
+     *
+     * @param queryId
+     * @param chunkBeginIdx
+     * @param queryRegex
+     */
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
