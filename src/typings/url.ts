@@ -7,6 +7,7 @@ enum SEARCH_PARAM_NAMES {
 
 enum HASH_PARAM_NAMES {
     LOG_EVENT_NUM = "logEventNum",
+    TIMESTAMP = "timestamp",
 }
 
 interface UrlSearchParams {
@@ -15,6 +16,7 @@ interface UrlSearchParams {
 
 interface UrlHashParams {
     logEventNum: number,
+    timestamp: number,
 }
 
 type UrlSearchParamUpdatesType = {
