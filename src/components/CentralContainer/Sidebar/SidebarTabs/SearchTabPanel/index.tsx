@@ -10,6 +10,7 @@ import {
     LinearProgress,
     Textarea,
     ToggleButtonGroup,
+    Tooltip,
 } from "@mui/joy";
 
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
@@ -67,6 +68,10 @@ const SearchTabPanel = () => {
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
     const [queryString, setQueryString] = useState<string>("");
 
+    const handleCollapseAllButtonClick = () => {
+        setIsAllExpanded((v) => !v);
+    };
+
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
             isCaseSensitive: getIsCaseSensitive(queryOptions),
@@ -92,12 +97,19 @@ const SearchTabPanel = () => {
         });
     };
 
+    const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
+
     return (
         <CustomTabPanel
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton onClick={() => { setIsAllExpanded((v) => !v); }}>
+                <PanelTitleButton
+                    title={isAllExpanded ?
+                        "Collapse all" :
+                        "Expand all"}
+                    onClick={handleCollapseAllButtonClick}
+                >
                     {isAllExpanded ?
                         <UnfoldLessIcon/> :
                         <UnfoldMoreIcon/>}
@@ -108,34 +120,46 @@ const SearchTabPanel = () => {
                 <div className={"query-input-box-with-progress"}>
                     <Textarea
                         className={"query-input-box"}
-                        disabled={isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX)}
                         maxRows={7}
                         placeholder={"Search"}
                         size={"sm"}
                         endDecorator={
                             <ToggleButtonGroup
+                                disabled={isQueryInputBoxDisabled}
                                 size={"sm"}
                                 spacing={0.25}
                                 value={queryOptions}
                                 variant={"plain"}
                                 onChange={handleQueryOptionsChange}
                             >
-                                <IconButton
-                                    className={"query-option-button"}
-                                    value={QUERY_OPTION.IS_CASE_SENSITIVE}
-                                >
-                                    Aa
-                                </IconButton>
-                                <IconButton
-                                    className={"query-option-button"}
-                                    value={QUERY_OPTION.IS_REGEX}
-                                >
-                                    .*
-                                </IconButton>
+                                <Tooltip title={"Match case"}>
+                                    <span>
+                                        <IconButton
+                                            className={"query-option-button"}
+                                            value={QUERY_OPTION.IS_CASE_SENSITIVE}
+                                        >
+                                            Aa
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+
+                                <Tooltip title={"Use regular expression"}>
+                                    <span>
+                                        <IconButton
+                                            className={"query-option-button"}
+                                            value={QUERY_OPTION.IS_REGEX}
+                                        >
+                                            .*
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
                             </ToggleButtonGroup>
                         }
                         slotProps={{
-                            textarea: {className: "query-input-box-textarea"},
+                            textarea: {
+                                className: "query-input-box-textarea",
+                                disabled: isQueryInputBoxDisabled,
+                            },
                             endDecorator: {className: "query-input-box-end-decorator"},
                         }}
                         onChange={handleQueryInputChange}/>
