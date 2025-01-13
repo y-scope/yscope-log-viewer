@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 450] */
+/* eslint max-lines: ["error", 500] */
 import {
     Decoder,
     DecodeResult,
@@ -383,12 +383,22 @@ class LogFileManager {
             // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
-        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, this.#numEvents);
+
+        const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
+        const numActiveEvents: number = (null !== filteredLogEventMap) ?
+            filteredLogEventMap.length :
+            this.#numEvents;
+
+        if (0 === numActiveEvents) {
+            return;
+        }
+
+        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, numActiveEvents);
         const results: QueryResults = new Map();
         const decodedEvents = this.#decoder.decodeRange(
             chunkBeginIdx,
             chunkEndIdx,
-            null !== this.#decoder.getFilteredLogEventMap()
+            null !== filteredLogEventMap
         );
 
         if (null === decodedEvents) {
@@ -400,13 +410,13 @@ class LogFileManager {
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.
         const progress = Math.max(
-            chunkEndIdx / this.#numEvents,
+            chunkEndIdx / numActiveEvents,
             this.#queryCount / MAX_QUERY_RESULT_COUNT
         );
 
         this.#onQueryResults(progress, results);
 
-        if (chunkEndIdx < this.#numEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
+        if (chunkEndIdx < numActiveEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });
