@@ -3,6 +3,7 @@ import JestConfig from "eslint-config-yscope/JestConfig.mjs";
 import ReactConfigArray from "eslint-config-yscope/ReactConfigArray.mjs";
 import StylisticConfigArray from "eslint-config-yscope/StylisticConfigArray.mjs";
 import TsConfigArray from "eslint-config-yscope/TsConfigArray.mjs";
+import Globals from "globals";
 
 
 const EslintConfig = [
@@ -47,6 +48,14 @@ const EslintConfig = [
                     ],
                 },
             ],
+        },
+    },
+    {
+        files: ["webpack.*.js"],
+        languageOptions: {
+            globals: {
+                ...Globals.node,
+            },
         },
     },
     {
