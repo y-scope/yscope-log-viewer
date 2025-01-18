@@ -14,15 +14,7 @@ const EslintConfig = [
         ],
     },
     CommonConfig,
-    ...TsConfigArray.map(
-        (config) => ({
-            files: [
-                "**/*.ts",
-                "**/*.tsx",
-            ],
-            ...config,
-        })
-    ),
+    ...TsConfigArray,
     ...StylisticConfigArray,
     ...ReactConfigArray,
     {
