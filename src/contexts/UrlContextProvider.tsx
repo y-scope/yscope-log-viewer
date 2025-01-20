@@ -24,6 +24,9 @@ const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
  */
 const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
     [SEARCH_PARAM_NAMES.FILE_PATH]: null,
+    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: null,
+    [SEARCH_PARAM_NAMES.IS_REGEX]: null,
+    [SEARCH_PARAM_NAMES.QUERY_STRING]: null,
 });
 
 /**
