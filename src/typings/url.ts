@@ -3,6 +3,9 @@ import {Nullable} from "./common";
 
 enum SEARCH_PARAM_NAMES {
     FILE_PATH = "filePath",
+    IS_CASE_SENSITIVE = "isCaseSensitive",
+    IS_REGEX = "isRegex",
+    QUERY_STRING = "queryString",
 }
 
 enum HASH_PARAM_NAMES {
@@ -11,6 +14,9 @@ enum HASH_PARAM_NAMES {
 
 interface UrlSearchParams {
     [SEARCH_PARAM_NAMES.FILE_PATH]: string,
+    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: boolean,
+    [SEARCH_PARAM_NAMES.IS_REGEX]: boolean,
+    [SEARCH_PARAM_NAMES.QUERY_STRING]: string,
 }
 
 interface UrlHashParams {

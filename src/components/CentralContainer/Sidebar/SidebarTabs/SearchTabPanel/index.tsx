@@ -13,10 +13,12 @@ import {
     Tooltip,
 } from "@mui/joy";
 
+import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {copyPermalinkToClipboard} from "../../../../../contexts/UrlContextProvider";
 import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
@@ -71,6 +73,13 @@ const SearchTabPanel = () => {
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
     };
+    const handleShareButtonClick = () => {
+        copyPermalinkToClipboard({
+            queryString: queryString,
+            isCaseSensitive: getIsCaseSensitive(queryOptions),
+            isRegex: getIsRegex(queryOptions),
+        }, {});
+    };
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
@@ -104,16 +113,24 @@ const SearchTabPanel = () => {
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton
-                    title={isAllExpanded ?
-                        "Collapse all" :
-                        "Expand all"}
-                    onClick={handleCollapseAllButtonClick}
-                >
-                    {isAllExpanded ?
-                        <UnfoldLessIcon/> :
-                        <UnfoldMoreIcon/>}
-                </PanelTitleButton>
+                <>
+                    <PanelTitleButton
+                        title={isAllExpanded ?
+                            "Collapse all" :
+                            "Expand all"}
+                        onClick={handleCollapseAllButtonClick}
+                    >
+                        {isAllExpanded ?
+                            <UnfoldLessIcon/> :
+                            <UnfoldMoreIcon/>}
+                    </PanelTitleButton>
+                    <PanelTitleButton
+                        title={"Copy URL with search parameters"}
+                        onClick={handleShareButtonClick}
+                    >
+                        <ShareIcon/>
+                    </PanelTitleButton>
+                </>
             }
         >
             <Box className={"search-tab-container"}>
