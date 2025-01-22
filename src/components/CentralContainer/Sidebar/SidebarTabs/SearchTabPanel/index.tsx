@@ -36,7 +36,7 @@ import "./index.css";
 
 enum QUERY_OPTION {
     IS_CASE_SENSITIVE = "isCaseSensitive",
-    IS_REGEX = "isRegex"
+    IS_REGEX = "isRegex",
 }
 
 /**

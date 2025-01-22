@@ -24,9 +24,9 @@ import "./ResultsGroup.css";
 
 
 interface ResultsGroupProps {
-    isAllExpanded: boolean,
-    pageNum: number,
-    results: QueryResultsType[],
+    isAllExpanded: boolean;
+    pageNum: number;
+    results: QueryResultsType[];
 }
 
 /**

@@ -8,7 +8,7 @@ import "./ResizeHandle.css";
 
 
 interface ResizeHandleProps {
-    onHandleRelease: () => void,
+    onHandleRelease: () => void;
 
     /**
      * Gets triggered when a resize event occurs.
@@ -16,7 +16,7 @@ interface ResizeHandleProps {
      * @param resizeHandlePosition The horizontal distance, in pixels, between the mouse pointer
      * and the left edge of the viewport.
      */
-    onResize: (resizeHandlePosition: number) => void,
+    onResize: (resizeHandlePosition: number) => void;
 }
 
 /**

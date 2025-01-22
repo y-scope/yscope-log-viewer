@@ -6,8 +6,8 @@ import "./index.css";
 
 
 interface SettingsModalProps {
-    isOpen: boolean,
-    onClose: () => void
+    isOpen: boolean;
+    onClose: () => void;
 }
 
 /**
