@@ -47,11 +47,11 @@ import "./index.css";
 
 
 interface LogSelectOptionProps {
-    isChecked: boolean,
-    logLevelName: string,
-    logLevelValue: LOG_LEVEL,
-    onCheckboxClick: React.MouseEventHandler
-    onOptionClick: React.MouseEventHandler
+    isChecked: boolean;
+    logLevelName: string;
+    logLevelValue: LOG_LEVEL;
+    onCheckboxClick: React.MouseEventHandler;
+    onOptionClick: React.MouseEventHandler;
 }
 
 /**
@@ -124,7 +124,7 @@ const LogSelectOption = ({
 };
 
 interface ClearFiltersOptionProps {
-    onClick: () => void
+    onClick: () => void;
 }
 
 /**
