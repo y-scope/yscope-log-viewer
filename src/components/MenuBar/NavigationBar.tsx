@@ -1,9 +1,6 @@
 import React, {useContext} from "react";
 
-import {
-    ButtonGroup,
-    IconButton,
-} from "@mui/joy";
+import {ButtonGroup} from "@mui/joy";
 
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
@@ -17,6 +14,7 @@ import {
     ignorePointerIfFastLoading,
     isDisabled,
 } from "../../utils/states";
+import MenuBarIconButton from "./MenuBarIconButton";
 import PageNumInput from "./PageNumInput";
 
 
@@ -46,37 +44,40 @@ const NavigationBar = () => {
         <ButtonGroup
             className={ignorePointerIfFastLoading(uiState)}
             disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-            size={"sm"}
             spacing={0.01}
             variant={"plain"}
         >
-            <IconButton
+            <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
+                title={"First page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipPrevious/>
-            </IconButton>
-            <IconButton
+            </MenuBarIconButton>
+            <MenuBarIconButton
                 data-action-name={ACTION_NAME.PREV_PAGE}
+                title={"Previous page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateBefore/>
-            </IconButton>
+            </MenuBarIconButton>
 
             <PageNumInput/>
 
-            <IconButton
+            <MenuBarIconButton
                 data-action-name={ACTION_NAME.NEXT_PAGE}
+                title={"Next page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateNext/>
-            </IconButton>
-            <IconButton
+            </MenuBarIconButton>
+            <MenuBarIconButton
                 data-action-name={ACTION_NAME.LAST_PAGE}
+                title={"Last page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipNext/>
-            </IconButton>
+            </MenuBarIconButton>
         </ButtonGroup>
     );
 };

@@ -80,7 +80,7 @@ Consider the following log event:
 We can format this using the following YScope format string:
 
 ```
-{@timestamp:timestamp:YYYY-MM-DD HH\:MM\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {an\.odd\.key\{name\}}
+{@timestamp:timestamp:YYYY-MM-DD HH\:mm\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {an\.odd\.key\{name\}}
 ```
 
 * In the first placeholder, we have the field name `@timestamp`, a formatter called `timestamp`, and

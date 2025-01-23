@@ -28,12 +28,12 @@ enum LOCAL_STORAGE_KEY {
 }
 /* eslint-enable @typescript-eslint/prefer-literal-enum-member */
 
-type ConfigMap = {
-    [CONFIG_KEY.DECODER_OPTIONS]: DecoderOptions,
-    [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME,
-    [CONFIG_KEY.THEME]: THEME_NAME,
-    [CONFIG_KEY.PAGE_SIZE]: number,
-};
+interface ConfigMap {
+    [CONFIG_KEY.DECODER_OPTIONS]: DecoderOptions;
+    [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME;
+    [CONFIG_KEY.THEME]: THEME_NAME;
+    [CONFIG_KEY.PAGE_SIZE]: number;
+}
 
 type ConfigUpdate = {
     [T in keyof ConfigMap]: {

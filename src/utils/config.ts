@@ -17,6 +17,12 @@ const MAX_PAGE_SIZE = 1_000_000;
 const QUERY_CHUNK_SIZE = 10_000;
 
 /**
+ * Exception to be thrown when the "THEME" configuration is specified.
+ */
+const UNMANAGED_THEME_THROWABLE =
+    new Error(`"${CONFIG_KEY.THEME}" cannot be managed using these utilities.`);
+
+/**
  * The default configuration values.
  */
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
@@ -166,15 +172,15 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         case CONFIG_KEY.INITIAL_TAB_NAME:
             // This config option is not intended for direct user input.
             break;
-        case CONFIG_KEY.THEME:
-            throw new Error(`"${key}" cannot be managed using these utilities.`);
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
-        default:
-            break;
+        case CONFIG_KEY.THEME:
+            throw UNMANAGED_THEME_THROWABLE;
+        /* c8 ignore next */
+        default: break;
     }
 
     return result;
@@ -239,7 +245,6 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
 
     return null;
 };
-
 
 /**
  * Retrieves the config value for the specified key.
@@ -317,8 +322,10 @@ export {
     initProfiles,
     listProfiles,
     lockProfile,
+    MAX_PAGE_SIZE,
     QUERY_CHUNK_SIZE,
     saveProfile,
     setConfig,
     testConfig,
+    UNMANAGED_THEME_THROWABLE,
 };

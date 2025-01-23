@@ -23,8 +23,8 @@ const LOG_LEVEL_COLOR_MAP: Record<LOG_LEVEL, DefaultColorPalette> = Object.freez
 });
 
 interface LogLevelChipProps {
-    name: string,
-    value: LOG_LEVEL,
+    name: string;
+    value: LOG_LEVEL;
 }
 
 /**

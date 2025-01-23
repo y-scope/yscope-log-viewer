@@ -67,26 +67,27 @@ import {
 
 
 interface StateContextType {
-    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-    exportProgress: Nullable<number>,
-    fileName: string,
-    isSettingsModalOpen: boolean,
-    uiState: UI_STATE,
-    logData: string,
-    numEvents: number,
-    numPages: number,
-    onDiskFileSizeInBytes: number,
-    pageNum: number,
-    queryProgress: number,
-    queryResults: QueryResults,
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
+    exportProgress: Nullable<number>;
+    fileName: string;
+    isSettingsModalOpen: boolean;
+    uiState: UI_STATE;
+    logData: string;
+    numEvents: number;
+    numPages: number;
+    onDiskFileSizeInBytes: number;
+    pageNum: number;
+    queryProgress: number;
+    queryResults: QueryResults;
 
-    exportLogs: () => void,
-    filterLogs: (filter: LogLevelFilter) => void,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void,
-    loadPageByAction: (navAction: NavigationAction) => void,
-    setIsSettingsModalOpen: (isOpen: boolean) => void,
-    startQuery: (queryArgs: QueryArgs) => void,
+    exportLogs: () => void;
+    filterLogs: (filter: LogLevelFilter) => void;
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
+    loadPageByAction: (navAction: NavigationAction) => void;
+    setIsSettingsModalOpen: (isOpen: boolean) => void;
+    startQuery: (queryArgs: QueryArgs) => void;
 }
+
 const StateContext = createContext<StateContextType>({} as StateContextType);
 
 /**
@@ -115,7 +116,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 });
 
 interface StateContextProviderProps {
-    children: React.ReactNode
+    children: React.ReactNode;
 }
 
 /**
@@ -269,8 +270,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const logEventNumRef = useRef(logEventNum);
-    const logExportManagerRef = useRef<null|LogExportManager>(null);
-    const mainWorkerRef = useRef<null|Worker>(null);
+    const logExportManagerRef = useRef<null | LogExportManager>(null);
+    const mainWorkerRef = useRef<null | Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
@@ -296,7 +297,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     primaryAction: {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
-                        onClick: () => { setIsSettingsModalOpen(true); },
+                        onClick: () => {
+                            setIsSettingsModalOpen(true);
+                        },
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
                     title: "A format string has not been configured",
