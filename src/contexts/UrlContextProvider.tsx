@@ -184,6 +184,10 @@ const getWindowUrlSearchParams = () => {
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
+    urlSearchParams.forEach((value, key) => {
+        searchParams[key as keyof UrlSearchParams] = value;
+    });
+
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
         // Split the search string and take everything after as `filePath` value.
         // This ensures any parameters following `filePath=` are incorporated into the `filePath`.

@@ -246,7 +246,7 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, isCaseSensitive, isRegex, logEventNum, queryString} = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
@@ -365,6 +365,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [postPopUp]);
 
     const startQuery = useCallback((queryArgs: QueryArgs) => {
+        console.error("startQuery is triggered");
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -451,6 +452,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             logLevelFilter: filter,
         });
     }, []);
+
+    useEffect(() => {
+        console.error(`queryString is ${queryString}`);
+        if (URL_SEARCH_PARAMS_DEFAULT.queryString !== queryString && URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive !== isCaseSensitive && URL_SEARCH_PARAMS_DEFAULT.isRegex !== isRegex) {
+            startQuery({queryString, isCaseSensitive, isRegex});
+        }
+        updateWindowUrlSearchParams({
+            [SEARCH_PARAM_NAMES.QUERY_STRING]: URL_SEARCH_PARAMS_DEFAULT.queryString,
+            [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive,
+            [SEARCH_PARAM_NAMES.IS_REGEX]: URL_SEARCH_PARAMS_DEFAULT.isRegex,
+        });
+    }, [startQuery]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
