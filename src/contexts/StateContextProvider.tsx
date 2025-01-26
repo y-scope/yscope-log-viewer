@@ -49,7 +49,6 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
-    initProfiles,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -407,10 +406,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
-        if ("string" === typeof fileSrc) {
-            // FIXME: create type alias `FilePath = string`
-            await initProfiles({filePath: fileSrc});
-        } else {
+        if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
         if (null !== mainWorkerRef.current) {

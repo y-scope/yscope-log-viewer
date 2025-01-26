@@ -1,5 +1,6 @@
 import Layout from "./components/Layout";
 import NotificationContextProvider from "./contexts/NotificationContextProvider";
+import ProfilesContextProvider from "./contexts/ProfileContextProvider";
 import StateContextProvider from "./contexts/StateContextProvider";
 import UrlContextProvider from "./contexts/UrlContextProvider";
 
@@ -13,9 +14,11 @@ const App = () => {
     return (
         <NotificationContextProvider>
             <UrlContextProvider>
-                <StateContextProvider>
-                    <Layout/>
-                </StateContextProvider>
+                <ProfilesContextProvider>
+                    <StateContextProvider>
+                        <Layout/>
+                    </StateContextProvider>
+                </ProfilesContextProvider>
             </UrlContextProvider>
         </NotificationContextProvider>
     );

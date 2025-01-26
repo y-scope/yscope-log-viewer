@@ -43,7 +43,7 @@ const DEFAULT_PROFILE: Profile = {
     filePathPrefixes: [],
     lastModificationTimestampMillis: Date.now(),
 };
-let activatedProfileName: string = DEFAULT_PROFILE_NAME;
+const activatedProfileName: string = DEFAULT_PROFILE_NAME;
 const PROFILES: Map<string, Profile> = new Map(
     [
         [
@@ -65,85 +65,6 @@ const getProfileLocalStorageKey =
 interface ProfileInitProps {
     filePath: Nullable<string>;
 }
-
-/**
- * Initializes the profile system, loads profiles, and activates the appropriate profile.
- *
- * @param initProps Initialization properties containing the file path.
- * @param initProps.filePath
- * @return The name of the activated profile.
- */
-const initProfiles = async (initProps:ProfileInitProps): Promise<string> => {
-    PROFILES.clear();
-    PROFILES.set(DEFAULT_PROFILE_NAME, DEFAULT_PROFILE);
-
-    // Load profiles from profile-presets.json
-    try {
-        const {data} = await axios.get<Record<string, Profile>>("profile-presets.json");
-        Object.entries(data).forEach(([profileName, profileData]) => {
-            PROFILES.set(profileName, profileData);
-        });
-    } catch (e) {
-        console.error(`Failed to fetch profile-presets.json: ${JSON.stringify(e)}`);
-    }
-
-    Object.keys(window.localStorage).forEach((key: string) => {
-        if (key.startsWith(LOCAL_STORAGE_KEY.PROFILE_PREFIX)) {
-            const profileName = key.substring(LOCAL_STORAGE_KEY.PROFILE_PREFIX.length);
-            const profileStr = window.localStorage.getItem(key);
-
-            // The `null` check is to satisfy TypeScript.
-            if (null === profileStr) {
-                return;
-            }
-
-            try {
-                // FIXME
-                const profile = JSON.parse(profileStr) as Profile;
-                const existingProfile = PROFILES.get(profileName);
-                if (
-                    "undefined" === typeof existingProfile ||
-                    existingProfile.lastModificationTimestampMillis <
-                    profile.lastModificationTimestampMillis
-                ) {
-                    PROFILES.set(profileName, profile);
-                }
-            } catch (e) {
-                console.error(
-                    `Error parsing profile ${profileName} from localStorage: ${String(e)}`,
-                );
-            }
-        }
-    });
-
-    const profileOverride = window.localStorage.getItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
-    if (null !== profileOverride) {
-        // If override exist, apply the config and return
-        activatedProfileName = profileOverride;
-
-        return activatedProfileName;
-    }
-
-    // Determine profile based on filePath
-    const {filePath} = initProps;
-    if (null !== filePath) {
-        let bestMatchEndIdx = 0;
-        PROFILES.forEach((profile, profileName) => {
-            for (const prefix of profile.filePathPrefixes) {
-                const matchBeginIdx = filePath.indexOf(prefix);
-                if (-1 !== matchBeginIdx) {
-                    const matchEndIdx = matchBeginIdx + prefix.length;
-                    if (matchEndIdx > bestMatchEndIdx) {
-                        bestMatchEndIdx = matchBeginIdx;
-                        activatedProfileName = profileName;
-                    }
-                }
-            }
-        });
-    }
-
-    return activatedProfileName;
-};
 
 /**
  * Validates the config denoted by the given key and value.
@@ -278,28 +199,28 @@ const lockProfile = (profileName: string | null): void => {
     window.localStorage.setItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE, profileName);
 };
 
-/**
- * Returns the activated profile name and a list of all available profiles.
- *
- * @return An object containing the activated profile and list of profiles.
- */
-const listProfiles = (): {
-    activated: string;
-    profiles: Map<string, Profile>;
-} => {
-    return {
-        activated: activatedProfileName,
-        profiles: PROFILES,
-    };
-};
+
+// /**
+//  * Returns the activated profile name and a list of all available profiles.
+//  * FIXME: react hook
+//  *
+//  * @return An object containing the activated profile and list of profiles.
+//  */
+// const useProfiles = (): {
+//     activated: string;
+//     profiles: Map<string, Profile>;
+// } => {
+//     return {
+//         activated: activatedProfileName,
+//         profiles: PROFILES,
+//     };
+// };
 
 export {
     CONFIG_DEFAULT,
     deleteProfile,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
-    initProfiles,
-    listProfiles,
     lockProfile,
     MAX_PAGE_SIZE,
     QUERY_CHUNK_SIZE,
