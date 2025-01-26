@@ -105,7 +105,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     pageNum: 0,
     queryProgress: QUERY_PROGRESS_VALUE_MIN,
     queryResults: new Map(),
-    uiState: UI_STATE.PROFILE_LOADING,
+    uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     filterLogs: () => null,
@@ -400,14 +400,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         fileName,
     ]);
 
-    const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+    const loadFile = useCallback(async (fileSrc: FileSrcType, cursor: CursorType) => {
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
-        if ("string" !== typeof fileSrc) {
+        if ("string" === typeof fileSrc) {
+            // FIXME: create type alias `FilePath = string`
+            await initProfiles({filePath: fileSrc});
+        } else {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
         if (null !== mainWorkerRef.current) {
@@ -514,33 +517,27 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
-        initProfiles({filePath})
-            .then(() => {
-                setUiState(UI_STATE.UNOPENED);
-                if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
-                    return;
-                }
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
+            return;
+        }
 
-                let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-                if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-                    cursor = {
-                        code: CURSOR_CODE.EVENT_NUM,
-                        args: {eventNum: logEventNumRef.current},
-                    };
-                }
-                loadFile(filePath, cursor);
-            })
-            .catch((e: unknown) => {
-                console.error("Unable to init profiles:", e);
+        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNumRef.current},
+            };
+        }
+        loadFile(filePath, cursor)
+            .then()
+            .catch((e:unknown) => {
+                console.error(`Error occurred when loading file "${filePath}" with cursor=${
+                    JSON.stringify(cursor)}:`, e);
             });
     }, [
         filePath,
         loadFile,
     ]);
-
-    if (UI_STATE.PROFILE_LOADING === uiState) {
-        return <></>;
-    }
 
     return (
         <StateContext.Provider

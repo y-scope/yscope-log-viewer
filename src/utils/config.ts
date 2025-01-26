@@ -38,8 +38,20 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
 
 // Global variables
 const DEFAULT_PROFILE_NAME = "Default";
-let ACTIVATED_PROFILE_NAME: Nullable<string> = null;
-const PROFILES: Map<string, Profile> = new Map();
+const DEFAULT_PROFILE: Profile = {
+    config: structuredClone(CONFIG_DEFAULT),
+    filePathPrefixes: [],
+    lastModificationTimestampMillis: Date.now(),
+};
+let activatedProfileName: string = DEFAULT_PROFILE_NAME;
+const PROFILES: Map<string, Profile> = new Map(
+    [
+        [
+            DEFAULT_PROFILE_NAME,
+            DEFAULT_PROFILE,
+        ],
+    ]
+);
 
 
 // Helpers
@@ -51,7 +63,7 @@ const getProfileLocalStorageKey =
     (profileName: string) => (LOCAL_STORAGE_KEY.PROFILE_PREFIX + profileName);
 
 interface ProfileInitProps {
-    filePath: Nullable<string>,
+    filePath: Nullable<string>;
 }
 
 /**
@@ -63,6 +75,7 @@ interface ProfileInitProps {
  */
 const initProfiles = async (initProps:ProfileInitProps): Promise<string> => {
     PROFILES.clear();
+    PROFILES.set(DEFAULT_PROFILE_NAME, DEFAULT_PROFILE);
 
     // Load profiles from profile-presets.json
     try {
@@ -103,26 +116,12 @@ const initProfiles = async (initProps:ProfileInitProps): Promise<string> => {
         }
     });
 
-    if (false === PROFILES.has(DEFAULT_PROFILE_NAME)) {
-        // First time launching the app
-        const defaultProfile: Profile = {
-            config: structuredClone(CONFIG_DEFAULT),
-            filePathPrefixes: [],
-            lastModificationTimestampMillis: Date.now(),
-        };
-
-        PROFILES.set(DEFAULT_PROFILE_NAME, defaultProfile);
-        ACTIVATED_PROFILE_NAME = DEFAULT_PROFILE_NAME;
-
-        return ACTIVATED_PROFILE_NAME;
-    }
-
     const profileOverride = window.localStorage.getItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
     if (null !== profileOverride) {
         // If override exist, apply the config and return
-        ACTIVATED_PROFILE_NAME = profileOverride;
+        activatedProfileName = profileOverride;
 
-        return ACTIVATED_PROFILE_NAME;
+        return activatedProfileName;
     }
 
     // Determine profile based on filePath
@@ -136,18 +135,14 @@ const initProfiles = async (initProps:ProfileInitProps): Promise<string> => {
                     const matchEndIdx = matchBeginIdx + prefix.length;
                     if (matchEndIdx > bestMatchEndIdx) {
                         bestMatchEndIdx = matchBeginIdx;
-                        ACTIVATED_PROFILE_NAME = profileName;
+                        activatedProfileName = profileName;
                     }
                 }
             }
         });
     }
 
-    if (null === ACTIVATED_PROFILE_NAME) {
-        ACTIVATED_PROFILE_NAME = DEFAULT_PROFILE_NAME;
-    }
-
-    return ACTIVATED_PROFILE_NAME;
+    return activatedProfileName;
 };
 
 /**
@@ -190,13 +185,9 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  *
  */
 const getActivatedProfile = (): Profile => {
-    if (null === ACTIVATED_PROFILE_NAME) {
-        throw new Error("No active profile");
-    }
-
-    const activatedProfile = PROFILES.get(ACTIVATED_PROFILE_NAME);
+    const activatedProfile = PROFILES.get(activatedProfileName);
     if ("undefined" === typeof activatedProfile) {
-        throw new Error(`Activated profile ${ACTIVATED_PROFILE_NAME} is not found`);
+        throw new Error(`Activated profile ${activatedProfileName} is not found`);
     }
 
     return activatedProfile;
@@ -206,11 +197,7 @@ const getActivatedProfile = (): Profile => {
  * Saves the current configuration to the active profile in localStorage.
  */
 const saveProfile = (): void => {
-    if (null === ACTIVATED_PROFILE_NAME) {
-        throw new Error("No active profile");
-    }
-
-    const profileKey = getProfileLocalStorageKey(ACTIVATED_PROFILE_NAME);
+    const profileKey = getProfileLocalStorageKey(activatedProfileName);
     const profile = getActivatedProfile();
     profile.lastModificationTimestampMillis = Date.now();
     window.localStorage.setItem(profileKey, JSON.stringify(profile));
@@ -226,10 +213,6 @@ const saveProfile = (): void => {
  * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
-    if (null === ACTIVATED_PROFILE_NAME) {
-        throw new Error("No active profile");
-    }
-
     const error = testConfig({key, value} as ConfigUpdate);
     if (null !== error) {
         console.error(`Unable to set ${key}=${JSON.stringify(value)}: ${error}`);
@@ -285,7 +268,7 @@ const lockProfile = (profileName: string | null): void => {
         // Remove override
         window.localStorage.removeItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
 
-        // FIXME: Reinitialize to determine `ACTIVATED_PROFILE_NAME` based on filePath
+        // FIXME: Reinitialize to determine `activatedProfileName` based on filePath
         return;
     }
 
@@ -304,12 +287,8 @@ const listProfiles = (): {
     activated: string;
     profiles: Map<string, Profile>;
 } => {
-    if (null === ACTIVATED_PROFILE_NAME) {
-        throw new Error("No active profile");
-    }
-
     return {
-        activated: ACTIVATED_PROFILE_NAME,
+        activated: activatedProfileName,
         profiles: PROFILES,
     };
 };
