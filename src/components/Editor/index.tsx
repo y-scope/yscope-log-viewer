@@ -83,15 +83,24 @@ const Editor = () => {
             case ACTION_NAME.LAST_PAGE:
                 loadPageByAction({code: actionName, args: null});
                 break;
-            case ACTION_NAME.PAGE_TOP:
+            case ACTION_NAME.PAGE_TOP: {
                 goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+                const newlogEventNum = beginLineNumToLogEventNumRef.current.get(1);
+                if (newlogEventNum) {
+                    updateWindowUrlHashParams({logEventNum: newlogEventNum});
+                }
                 break;
+            }
             case ACTION_NAME.PAGE_BOTTOM: {
                 const lineCount = editor.getModel()?.getLineCount();
                 if ("undefined" === typeof lineCount) {
                     break;
                 }
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+                const newlogEvent = beginLineNumToLogEventNumRef.current.get(1);
+                if (newlogEvent) {
+                    updateWindowUrlHashParams({logEventNum: newlogEvent + pageSizeRef.current - 1});
+                }
                 break;
             }
             default:
