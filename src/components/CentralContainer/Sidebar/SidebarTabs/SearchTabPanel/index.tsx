@@ -18,7 +18,10 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
-import {copyPermalinkToClipboard} from "../../../../../contexts/UrlContextProvider";
+import {
+    copyPermalinkToClipboard,
+    UrlContext,
+} from "../../../../../contexts/UrlContextProvider";
 import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
@@ -66,9 +69,10 @@ const getIsRegex =
  */
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
+    const {queryString: urlQueryString} = useContext(UrlContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
-    const [queryString, setQueryString] = useState<string>("");
+    const [queryString, setQueryString] = useState<string>(urlQueryString ?? "");
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
@@ -140,6 +144,7 @@ const SearchTabPanel = () => {
                         maxRows={7}
                         placeholder={"Search"}
                         size={"sm"}
+                        value={queryString}
                         endDecorator={
                             <ToggleButtonGroup
                                 disabled={isQueryInputBoxDisabled}
