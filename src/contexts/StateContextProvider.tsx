@@ -69,7 +69,6 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    isSettingsModalOpen: boolean;
     uiState: UI_STATE;
     logData: string;
     numEvents: number;
@@ -83,7 +82,6 @@ interface StateContextType {
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
-    setIsSettingsModalOpen: (isOpen: boolean) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -96,7 +94,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -110,7 +107,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
-    setIsSettingsModalOpen: () => null,
     startQuery: () => null,
 });
 
@@ -252,8 +248,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] =
-        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -297,7 +291,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
                         onClick: () => {
-                            setIsSettingsModalOpen(true);
+                            alert("fix open settings button");
                         },
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -541,7 +535,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -555,7 +548,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
-                setIsSettingsModalOpen: setIsSettingsModalOpen,
                 startQuery: startQuery,
             }}
         >

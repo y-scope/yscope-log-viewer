@@ -9,7 +9,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
-import {THEME_NAME} from "../../../typings/config";
+import {THEME_NAME} from "../../../../../typings/config";
 
 
 /**
