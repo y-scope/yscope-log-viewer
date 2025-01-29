@@ -1,0 +1,50 @@
+{
+  "Athena - This profile should not be merged": {
+    "config": {
+      "decoderOptions": {
+        "formatString": "{ts:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS} {level} [{thread}] {class}.{method}({file}:{line}): {message}",
+        "logLevelKey": "level",
+        "timestampKey": "ts"
+      },
+      "initialTabName": "fileInfo",
+      "pageSize": 10000,
+      "theme": "system"
+    },
+    "filePathPrefixes": [
+      "/prod/logging/athena"
+    ],
+    "lastModificationTimestampMillis": 0
+  },
+  "Kafka - This profile should not be merged": {
+    "config": {
+      "decoderOptions": {
+        "formatString": "{d:timestamp} {p} {c}:{L} - {m}",
+        "logLevelKey": "p",
+        "timestampKey": "d"
+      },
+      "initialTabName": "fileInfo",
+      "pageSize": 10000,
+      "theme": "system"
+    },
+    "filePathPrefixes": [
+      "/prod/logging/up/kafka-replicator"
+    ],
+    "lastModificationTimestampMillis": 1732881600000
+  },
+  "Test": {
+    "config": {
+      "decoderOptions": {
+        "formatString": "{@timestamp} {log\\.level} {message}",
+        "logLevelKey": "log.level",
+        "timestampKey": "@timestmap"
+      },
+      "initialTabName": "fileInfo",
+      "pageSize": 10000,
+      "theme": "system"
+    },
+    "filePathPrefixes": [
+      "/test"
+    ],
+    "lastModificationTimestampMillis": 1732881600000
+  }
+}

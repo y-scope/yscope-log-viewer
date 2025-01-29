@@ -1,12 +1,14 @@
+import axios from "axios";
+
 import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
     ConfigMap,
     ConfigUpdate,
     LOCAL_STORAGE_KEY,
+    Profile,
     THEME_NAME,
 } from "../typings/config";
-import {DecoderOptions} from "../typings/decoders";
 import {TAB_NAME} from "../typings/tab";
 
 
@@ -33,6 +35,36 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
     [CONFIG_KEY.PAGE_SIZE]: 10_000,
 });
+
+// Global variables
+const DEFAULT_PROFILE_NAME = "Default";
+const DEFAULT_PROFILE: Profile = {
+    config: structuredClone(CONFIG_DEFAULT),
+    filePathPrefixes: [],
+    lastModificationTimestampMillis: Date.now(),
+};
+const activatedProfileName: string = DEFAULT_PROFILE_NAME;
+const PROFILES: Map<string, Profile> = new Map(
+    [
+        [
+            DEFAULT_PROFILE_NAME,
+            DEFAULT_PROFILE,
+        ],
+    ]
+);
+
+
+// Helpers
+/**
+ *
+ * @param profileName
+ */
+const getProfileLocalStorageKey =
+    (profileName: string) => (LOCAL_STORAGE_KEY.PROFILE_PREFIX + profileName);
+
+interface ProfileInitProps {
+    filePath: Nullable<string>;
+}
 
 /**
  * Validates the config denoted by the given key and value.
@@ -70,6 +102,27 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     return result;
 };
 
+/**
+ *
+ */
+const getActivatedProfile = (): Profile => {
+    const activatedProfile = PROFILES.get(activatedProfileName);
+    if ("undefined" === typeof activatedProfile) {
+        throw new Error(`Activated profile ${activatedProfileName} is not found`);
+    }
+
+    return activatedProfile;
+};
+
+/**
+ * Saves the current configuration to the active profile in localStorage.
+ */
+const saveProfile = (): void => {
+    const profileKey = getProfileLocalStorageKey(activatedProfileName);
+    const profile = getActivatedProfile();
+    profile.lastModificationTimestampMillis = Date.now();
+    window.localStorage.setItem(profileKey, JSON.stringify(profile));
+};
 
 /**
  * Updates the config denoted by the given key and value.
@@ -88,35 +141,11 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         return error;
     }
 
-    switch (key) {
-        case CONFIG_KEY.DECODER_OPTIONS:
-            window.localStorage.setItem(
-                LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
-                value.formatString
-            );
-            window.localStorage.setItem(
-                LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
-                value.logLevelKey
-            );
-            window.localStorage.setItem(
-                LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
-                value.timestampKey
-            );
-            break;
-        case CONFIG_KEY.INITIAL_TAB_NAME:
-            window.localStorage.setItem(CONFIG_KEY.INITIAL_TAB_NAME, value.toString());
-            break;
-        case CONFIG_KEY.PAGE_SIZE:
-            window.localStorage.setItem(LOCAL_STORAGE_KEY.PAGE_SIZE, value.toString());
-            break;
-        /* c8 ignore start */
-        case CONFIG_KEY.THEME:
-            // Unexpected execution path.
-            break;
-        /* c8 ignore end */
-        /* c8 ignore next */
-        default: break;
-    }
+    const {config: activatedConfig} = getActivatedProfile();
+
+    // @ts-expect-error TS cannot match the key's type with the value's type
+    activatedConfig[key] = value;
+    saveProfile();
 
     return null;
 };
@@ -129,59 +158,73 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
  * @throws {Error} If the config item cannot be managed by these config utilities.
  */
 const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
-    let value = null;
+    const {config: activatedConfig} = getActivatedProfile();
 
-    // Read values from `localStorage`.
-    switch (key) {
-        case CONFIG_KEY.DECODER_OPTIONS:
-            value = {
-                formatString: window.localStorage.getItem(
-                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING
-                ),
-                logLevelKey: window.localStorage.getItem(
-                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY
-                ),
-                timestampKey: window.localStorage.getItem(
-                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
-                ),
-            } as DecoderOptions;
-            break;
-        case CONFIG_KEY.INITIAL_TAB_NAME:
-            value = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);
-            break;
-        case CONFIG_KEY.PAGE_SIZE:
-            value = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
-            break;
-        case CONFIG_KEY.THEME:
-            throw UNMANAGED_THEME_THROWABLE;
-        /* c8 ignore next */
-        default: break;
-    }
-
-    // Fallback to default values if the config is absent from `localStorage`.
-    if (null === value ||
-        ("object" === typeof value && Object.values(value).includes(null))) {
-        value = CONFIG_DEFAULT[key];
-        setConfig({key, value} as ConfigUpdate);
-    }
-
-    // Process values read from `localStorage`.
-    switch (key) {
-        case CONFIG_KEY.PAGE_SIZE:
-            value = Number(value);
-            break;
-        default: break;
-    }
-
-    return value as ConfigMap[T];
+    return activatedConfig[key];
 };
+
+/**
+ * Deletes a profile by name.
+ *
+ * @param profileName The name of the profile to delete.
+ * @throws Error if the specified profile is currently activated.
+ */
+const deleteProfile = (profileName: string) => {
+    if (false === PROFILES.has(profileName)) {
+        throw new Error(`Deleting an unknown profile: ${profileName}`);
+    }
+
+    const profileKey = getProfileLocalStorageKey(profileName);
+    window.localStorage.removeItem(profileKey);
+};
+
+/**
+ * Sets a profile override and activates the specified profile.
+ * If profileName is null, removes the override.
+ *
+ * @param profileName The name of the profile to activate or null to remove override.
+ */
+const lockProfile = (profileName: string | null): void => {
+    if (null === profileName) {
+        // Remove override
+        window.localStorage.removeItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
+
+        // FIXME: Reinitialize to determine `activatedProfileName` based on filePath
+        return;
+    }
+
+    if (false === PROFILES.has(profileName)) {
+        throw new Error(`Locking an unknown profile: ${profileName}`);
+    }
+    window.localStorage.setItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE, profileName);
+};
+
+
+// /**
+//  * Returns the activated profile name and a list of all available profiles.
+//  * FIXME: react hook
+//  *
+//  * @return An object containing the activated profile and list of profiles.
+//  */
+// const useProfiles = (): {
+//     activated: string;
+//     profiles: Map<string, Profile>;
+// } => {
+//     return {
+//         activated: activatedProfileName,
+//         profiles: PROFILES,
+//     };
+// };
 
 export {
     CONFIG_DEFAULT,
+    deleteProfile,
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    lockProfile,
     MAX_PAGE_SIZE,
     QUERY_CHUNK_SIZE,
+    saveProfile,
     setConfig,
     testConfig,
     UNMANAGED_THEME_THROWABLE,
