@@ -20,15 +20,16 @@ interface UrlSearchParams {
 }
 
 interface UrlHashParams {
-    logEventNum: number,
+    logEventNum: number;
 }
 
 type UrlSearchParamUpdatesType = {
     [T in keyof UrlSearchParams]?: Nullable<UrlSearchParams[T]>;
-}
+};
+
 type UrlHashParamUpdatesType = {
     [T in keyof UrlHashParams]?: Nullable<UrlHashParams[T]>;
-}
+};
 
 type UrlParamsType = {
     [T in keyof UrlSearchParams]: Nullable<UrlSearchParams[T]>;
