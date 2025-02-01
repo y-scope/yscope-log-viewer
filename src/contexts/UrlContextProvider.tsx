@@ -24,6 +24,9 @@ const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
  */
 const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
     [SEARCH_PARAM_NAMES.FILE_PATH]: null,
+    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: null,
+    [SEARCH_PARAM_NAMES.IS_REGEX]: null,
+    [SEARCH_PARAM_NAMES.QUERY_STRING]: null,
 });
 
 /**
@@ -180,6 +183,10 @@ const getWindowUrlSearchParams = () => {
         URL_SEARCH_PARAMS_DEFAULT
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+
+    urlSearchParams.forEach((value, key) => {
+        searchParams[key as keyof UrlSearchParams] = value;
+    });
 
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
         // Split the search string and take everything after as `filePath` value.

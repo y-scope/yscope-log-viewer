@@ -247,14 +247,15 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, isCaseSensitive, isRegex, logEventNum, queryString} = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [isFileLoaded, setIsFileLoaded] = useState<boolean>(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] =
         useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
-    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -308,6 +309,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
+                setIsFileLoaded(true);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({
@@ -422,6 +424,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
         });
+        setQueryResults(STATE_DEFAULT.queryResults);
+        setQueryProgress(QUERY_PROGRESS_VALUE_MIN);
     }, [
         handleMainWorkerResp,
     ]);
@@ -454,6 +458,21 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             logLevelFilter: filter,
         });
     }, []);
+
+    useEffect(() => {
+        if (
+            URL_SEARCH_PARAMS_DEFAULT.queryString !== queryString &&
+            URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive !== isCaseSensitive &&
+            URL_SEARCH_PARAMS_DEFAULT.isRegex !== isRegex
+        ) {
+            startQuery({queryString, isCaseSensitive, isRegex});
+        }
+        updateWindowUrlSearchParams({
+            [SEARCH_PARAM_NAMES.QUERY_STRING]: URL_SEARCH_PARAMS_DEFAULT.queryString,
+            [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive,
+            [SEARCH_PARAM_NAMES.IS_REGEX]: URL_SEARCH_PARAMS_DEFAULT.isRegex,
+        });
+    }, [isFileLoaded]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
