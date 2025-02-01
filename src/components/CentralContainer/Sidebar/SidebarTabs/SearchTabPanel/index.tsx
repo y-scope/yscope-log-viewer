@@ -67,6 +67,8 @@ const getIsRegex =
  *
  * @return
  */
+// eslint max-lines-per-function ["error", { "max": 140 }]
+// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const {queryString: urlQueryString} = useContext(UrlContext);

@@ -13,10 +13,10 @@ enum HASH_PARAM_NAMES {
 }
 
 interface UrlSearchParams {
-    [SEARCH_PARAM_NAMES.FILE_PATH]: string,
-    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: boolean,
-    [SEARCH_PARAM_NAMES.IS_REGEX]: boolean,
-    [SEARCH_PARAM_NAMES.QUERY_STRING]: string,
+    [SEARCH_PARAM_NAMES.FILE_PATH]: string;
+    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: boolean;
+    [SEARCH_PARAM_NAMES.IS_REGEX]: boolean;
+    [SEARCH_PARAM_NAMES.QUERY_STRING]: string;
 }
 
 interface UrlHashParams {

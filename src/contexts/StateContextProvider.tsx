@@ -460,7 +460,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, []);
 
     useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.queryString !== queryString && URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive !== isCaseSensitive && URL_SEARCH_PARAMS_DEFAULT.isRegex !== isRegex) {
+        if (
+            URL_SEARCH_PARAMS_DEFAULT.queryString !== queryString &&
+            URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive !== isCaseSensitive &&
+            URL_SEARCH_PARAMS_DEFAULT.isRegex !== isRegex
+        ) {
             startQuery({queryString, isCaseSensitive, isRegex});
         }
         updateWindowUrlSearchParams({
