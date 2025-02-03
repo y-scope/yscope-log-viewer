@@ -14,7 +14,7 @@ import LogExportManager, {
     EXPORT_LOG_PROGRESS_VALUE_MAX,
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../services/LogExportManager";
-import MainWorker from "../services/MainWorker?worker";
+import MainWorker from "../services/MainWorker.worker?worker";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {

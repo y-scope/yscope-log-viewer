@@ -17,7 +17,7 @@ import {
     LogLevelFilter,
 } from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker";
+import {postFormatPopup} from "../../MainWorker.worker";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
