@@ -31,5 +31,8 @@
     "strict": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "jest.config.ts",
+    "vite.config.ts"
+  ]
 }
