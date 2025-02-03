@@ -24,7 +24,10 @@ const EslintConfig = [
         "tsconfig.app.json"
     ),
     createTsConfigOverride(
-        ["vite.config.ts"],
+        [
+            "jest.config.ts",
+            "vite.config.ts",
+        ],
         "tsconfig.node.json"
     ),
 
