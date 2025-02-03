@@ -3,7 +3,8 @@ import {createRoot} from "react-dom/client";
 
 import App from "./App";
 
-import "./index.css";
+import "./main.css";
+import "./components/Editor/MonacoInstance/bootstrap";
 
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

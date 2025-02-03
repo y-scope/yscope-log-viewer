@@ -5,13 +5,13 @@ import type {Config} from "jest";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
-if ("undefined" !== typeof process.env.GITHUB_ACTIONS) {
+if ("undefined" !== typeof process.env["GITHUB_ACTIONS"]) {
     PRIMARY_REPORTER = [
         "github-actions",
         {silent: false},
     ];
 }
-console.log(`Environment variable "GITHUB_ACTIONS"="${process.env.GITHUB_ACTIONS}": ` +
+console.log(`Environment variable "GITHUB_ACTIONS"="${process.env["GITHUB_ACTIONS"]}": ` +
     `primary reporter will be "${JSON.stringify(PRIMARY_REPORTER)}".`);
 
 const JEST_CONFIG: Config = {

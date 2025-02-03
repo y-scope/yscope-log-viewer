@@ -2,8 +2,7 @@ import CommonConfig from "eslint-config-yscope/CommonConfig.mjs";
 import JestConfig from "eslint-config-yscope/JestConfig.mjs";
 import ReactConfigArray from "eslint-config-yscope/ReactConfigArray.mjs";
 import StylisticConfigArray from "eslint-config-yscope/StylisticConfigArray.mjs";
-import TsConfigArray from "eslint-config-yscope/TsConfigArray.mjs";
-import Globals from "globals";
+import TsConfigArray, {createTsConfigOverride} from "eslint-config-yscope/TsConfigArray.mjs";
 
 
 const EslintConfig = [
@@ -14,7 +13,20 @@ const EslintConfig = [
         ],
     },
     CommonConfig,
+
     ...TsConfigArray,
+    createTsConfigOverride(
+        [
+            "src/**/*.ts",
+            "src/**/*.tsx",
+        ],
+        "tsconfig.app.json"
+    ),
+    createTsConfigOverride(
+        ["vite.config.ts"],
+        "tsconfig.node.json"
+    ),
+
     ...StylisticConfigArray,
     ...ReactConfigArray,
     {
@@ -41,13 +53,10 @@ const EslintConfig = [
                 },
             ],
         },
-    },
-    {
-        files: ["webpack.*.js"],
-        languageOptions: {
-            globals: {
-                ...Globals.node,
-            },
+        settings: {
+            "import/ignore": [
+                "\\.worker",
+            ],
         },
     },
     {
