@@ -19,6 +19,7 @@ const EslintConfig = [
         [
             "src/**/*.ts",
             "src/**/*.tsx",
+            "test/**/*.ts",
         ],
         "tsconfig.app.json"
     ),
