@@ -4,7 +4,7 @@
 import {Nullable} from "../../src/typings/common";
 import {
     CONFIG_KEY,
-    ConfigUpdate,
+    ConfigUpdateEntry,
     LOCAL_STORAGE_KEY,
     THEME_NAME,
 } from "../../src/typings/config";
@@ -40,7 +40,7 @@ const VALID_PAGE_SIZE = 5000;
  *
  * @param func
  */
-const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
+const runNegativeCases = (func: (input: ConfigUpdateEntry) => Nullable<string>) => {
     it("should return an error message for any empty decoder option except `formatString`", () => {
         // Generate negative test cases for decoder options.
         const cases = (
@@ -52,7 +52,7 @@ const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
                     ...VALID_DECODER_OPTIONS,
                     [key]: "",
                 },
-            } as ConfigUpdate,
+            } as ConfigUpdateEntry,
             expected: {
                 formatString: null,
                 logLevelKey: "Log level key cannot be empty.",
@@ -74,7 +74,7 @@ const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
         const input = {
             key: CONFIG_KEY.THEME,
             value: THEME_NAME.SYSTEM,
-        } as ConfigUpdate;
+        } as ConfigUpdateEntry;
 
         expect(() => func(input)).toThrow(UNMANAGED_THEME_THROWABLE);
     });

@@ -10,7 +10,7 @@ import {CONFIG_KEY} from "../../../typings/config";
 import {TAB_NAME} from "../../../typings/tab";
 import {
     getConfig,
-    setConfig,
+    updateConfig,
 } from "../../../utils/config";
 import {clamp} from "../../../utils/math";
 import ResizeHandle from "./ResizeHandle";
@@ -63,14 +63,14 @@ const Sidebar = () => {
         if (activeTabName === tabName) {
             // Close the panel
             setActiveTabName(TAB_NAME.NONE);
-            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
+            updateConfig({[CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.NONE});
             setPanelWidth(tabListRef.current.clientWidth);
 
             return;
         }
 
         setActiveTabName(tabName);
-        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
+        updateConfig({[CONFIG_KEY.INITIAL_TAB_NAME]: tabName});
         setPanelWidth(
             clamp(
                 window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,

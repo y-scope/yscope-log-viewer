@@ -13,23 +13,16 @@ import {
     IconButton,
     Input,
     Link,
-    Option,
-    Select,
     Tab,
     TabList,
     TabPanel,
     Tabs,
 } from "@mui/joy";
 
-import {
-    Edit,
-    Lock,
-} from "@mui/icons-material";
 import CheckIcon from "@mui/icons-material/Check";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import {useProfiles} from "../../../../../contexts/ProfileContextProvider";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -41,10 +34,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {
-    getConfig,
-    setConfig,
-} from "../../../../../utils/config";
+import {getConfig} from "../../../../../utils/config";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ThemeSwitchToggle from "./ThemeSwitchToggle";
@@ -56,7 +46,7 @@ import "./index.css";
  *
  * @param profileName
  */
-const useConfigFormFields = (profileName) => {
+const getConfigFormFields = (profileName) => {
     return [
         {
             helperText: (
@@ -120,10 +110,6 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {activatedProfileName, profiles} = useProfiles();
-
-    const [visibleProfileName, setVisibleProfileName] = useState<string>(activatedProfileName);
-    const configFormFields = useMemo(() => useConfigFormFields(), []);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -186,41 +172,8 @@ const SettingsTabPanel = () => {
                 }
             >
                 <ThemeSwitchToggle/>
-                <Tabs value={visibleProfileName}>
-                    <TabList sx={{overflowX: "auto", width: "100%"}}>
-                        <Tab>+</Tab>
-                        {Array.from(profiles.keys()).map((profileName) => (
-                            <Tab
-                                key={profileName}
-                                value={profileName}
-                                sx={{
-                                    maxWidth: "10ch",
-                                    paddingX: "1ch",
-                                    whiteSpace: "nowrap",
-                                    justifyContent: "start",
-                                }}
-                                onMouseDown={() => {
-                                    // FIXME: investigate why onClick does not work
-                                    // FIXME: support locking
-                                    console.log(profileName);
-                                    setVisibleProfileName(profileName);
-                                }}
-                            >
-                                <span
-                                    style={{
-                                        textOverflow: "ellipsis",
-                                        overflowX: "hidden",
-                                    }}
-                                >
-                                    {profileName}
-                                </span>
-                            </Tab>
-                        ))}
-                    </TabList>
-                    <TabPanel>123</TabPanel>
-                </Tabs>
 
-                {configFormFields.map((field, index) => (
+                {getConfigFormFields("something").map((field, index) => (
                     <FormControl
                         className={"config-form-control"}
                         key={index}

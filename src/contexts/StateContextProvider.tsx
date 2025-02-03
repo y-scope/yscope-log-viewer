@@ -49,6 +49,7 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    initProfiles,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -400,7 +401,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
-        if ("string" !== typeof fileSrc) {
+        if ("string" === typeof fileSrc) {
+            await initProfiles({filePath: fileSrc});
+        } else {
+            await initProfiles({filePath: null});
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
         if (null !== mainWorkerRef.current) {
