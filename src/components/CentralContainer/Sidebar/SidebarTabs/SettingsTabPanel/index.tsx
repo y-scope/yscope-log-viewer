@@ -7,8 +7,6 @@ import React, {
 
 import {
     Box,
-    ButtonGroup,
-    Checkbox,
     Dropdown,
     FormControl,
     FormHelperText,
@@ -27,6 +25,7 @@ import {
     Typography,
 } from "@mui/joy";
 
+import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -47,6 +46,7 @@ import {
     TAB_NAME,
 } from "../../../../../typings/tab";
 import {
+    createProfile,
     DEFAULT_PROFILE_NAME,
     deleteProfile,
     forceProfile,
@@ -123,6 +123,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
     const {activatedProfileName} = useContext(StateContext);
+    const [newProfileName, setNewProfileName] = useState<string>("");
     const [selectedProfileName, setSelectedProfileName] = useState<ProfileName>(
         activatedProfileName ?? DEFAULT_PROFILE_NAME,
     );
@@ -228,102 +229,145 @@ const SettingsTabPanel = () => {
                     </FormControl>
 
                     <FormControl>
-                        <FormLabel>Profile</FormLabel>
-                        <Select
-                            size={"sm"}
-                            sx={{flexGrow: 1}}
-                            value={selectedProfileName}
-                            endDecorator={
-                                <ToggleButtonGroup
-                                    size={"sm"}
-                                    spacing={0.1}
-                                    variant={"soft"}
-                                    value={[isSelectedProfileForced ?
-                                        "forced" :
-                                        ""]}
-                                >
-                                    {isSelectedProfileLocalStorage &&
-                                    <Dropdown>
-                                        <Tooltip
-                                            title={"Delete locally stored profile"}
-                                        >
-                                            <MenuButton
-                                                size={"sm"}
-                                                sx={{paddingInline: "3px", zIndex: 10}}
+                        <FormLabel>
+                            Profile
+                        </FormLabel>
+                        <Stack direction={"row"}>
+                            <Select
+                                size={"sm"}
+                                sx={{flexGrow: 1}}
+                                value={selectedProfileName}
+                                endDecorator={
+                                    <ToggleButtonGroup
+                                        size={"sm"}
+                                        spacing={0.1}
+                                        variant={"soft"}
+                                        value={[isSelectedProfileForced ?
+                                            "forced" :
+                                            ""]}
+                                    >
+                                        {isSelectedProfileLocalStorage &&
+                                        <Dropdown>
+                                            <Tooltip
+                                                title={"Delete locally stored profile"}
                                             >
-                                                <DeleteIcon/>
-                                            </MenuButton>
-                                        </Tooltip>
-                                        <Menu
-                                            size={"sm"}
-                                        >
-                                            <MenuItem
+                                                <MenuButton
+                                                    size={"sm"}
+                                                    sx={{paddingInline: "3px", zIndex: 10}}
+                                                >
+                                                    <DeleteIcon/>
+                                                </MenuButton>
+                                            </Tooltip>
+                                            <Menu
+                                                size={"sm"}
+                                            >
+                                                <MenuItem
+                                                    onClick={() => {
+                                                        deleteProfile(selectedProfileName);
+                                                        window.location.reload();
+                                                    }}
+                                                >
+                                                    Confirm deletion
+                                                </MenuItem>
+                                            </Menu>
+                                        </Dropdown>}
+                                        <Tooltip title={"Force this profile on all file paths"}>
+                                            <IconButton
+                                                value={"forced"}
+                                                variant={"soft"}
                                                 onClick={() => {
-                                                    deleteProfile(selectedProfileName);
-                                                    window.location.reload();
+                                                    const newForcedProfileName = isSelectedProfileForced ?
+                                                        null :
+                                                        selectedProfileName;
+
+                                                    forceProfile(newForcedProfileName);
+                                                    setProfilesMetadata(listProfiles());
+                                                    setCanReload(true);
                                                 }}
                                             >
-                                                Confirm deletion
-                                            </MenuItem>
-                                        </Menu>
-                                    </Dropdown>}
-                                    <Tooltip title={"Force this profile on all file paths"}>
-                                        <IconButton
-                                            value={"forced"}
-                                            variant={"soft"}
-                                            onClick={() => {
-                                                const newForcedProfileName = isSelectedProfileForced ?
-                                                    null :
-                                                    selectedProfileName;
-
-                                                forceProfile(newForcedProfileName);
-                                                setProfilesMetadata(listProfiles());
-                                                setCanReload(true);
-                                            }}
-                                        >
-                                            <LockIcon/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </ToggleButtonGroup>
-                            }
-                            onChange={(_, newValue) => {
-                                if (null === newValue || "string" !== typeof newValue) {
-                                    throw new Error(`Unexpected newValue: ${newValue}`);
+                                                <LockIcon/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </ToggleButtonGroup>
                                 }
-                                setSelectedProfileName(newValue);
-                            }}
-                        >
-                            {Array.from(profilesMetadata).map(([profileName, metadata]) => (
-                                <Option
-                                    key={profileName}
-                                    value={profileName}
+                                onChange={(_, newValue) => {
+                                    if (null === newValue || "string" !== typeof newValue) {
+                                        throw new Error(`Unexpected newValue: ${newValue}`);
+                                    }
+                                    setSelectedProfileName(newValue);
+                                }}
+                            >
+                                {Array.from(profilesMetadata).map(([profileName, metadata]) => (
+                                    <Option
+                                        key={profileName}
+                                        value={profileName}
+                                    >
+                                        <Typography sx={{flexGrow: 1}}>
+                                            {profileName}
+                                        </Typography>
+                                        <Stack
+                                            direction={"row"}
+                                            gap={1}
+                                        >
+                                            {metadata.isLocalStorage && (
+                                                <Tooltip title={"Locally stored"}>
+                                                    <SdStorageIcon/>
+                                                </Tooltip>
+                                            )}
+                                            {metadata.isForced && (
+                                                <Tooltip title={"Forced"}>
+                                                    <LockIcon/>
+                                                </Tooltip>
+                                            )}
+                                            {activatedProfileName === profileName && (
+                                                <Tooltip title={"Active"}>
+                                                    <CheckBoxIcon/>
+                                                </Tooltip>
+                                            )}
+                                        </Stack>
+                                    </Option>
+                                ))}
+                            </Select>
+                            <Dropdown>
+                                <MenuButton
+                                    size={"sm"}
+                                    variant={"solid"}
                                 >
-                                    <Typography sx={{flexGrow: 1}}>
-                                        {profileName}
-                                    </Typography>
+                                    <AddIcon/>
+                                </MenuButton>
+                                <Menu
+                                    placement={"bottom-start"}
+                                    size={"sm"}
+                                >
                                     <Stack
                                         direction={"row"}
-                                        gap={1}
+                                        paddingInline={1}
+                                        spacing={1}
                                     >
-                                        {metadata.isLocalStorage && (
-                                            <Tooltip title={"Locally stored"}>
-                                                <SdStorageIcon/>
-                                            </Tooltip>
-                                        )}
-                                        {metadata.isForced && (
-                                            <Tooltip title={"Forced"}>
-                                                <LockIcon/>
-                                            </Tooltip>
-                                        )}
-                                        {activatedProfileName === profileName && (
-                                            <Tooltip title={"Active"}>
-                                                <CheckBoxIcon/>
-                                            </Tooltip>
-                                        )}
+                                        <FormControl>
+                                            <Input
+                                                placeholder={"New Profile Name"}
+                                                value={newProfileName}
+                                                onChange={(ev) => {
+                                                    setNewProfileName(ev.target.value);
+                                                }}/>
+                                        </FormControl>
+                                        <MenuItem
+                                            disabled={0 === newProfileName.length}
+                                            onClick={() => {
+                                                const result = createProfile(newProfileName);
+                                                if (result) {
+                                                    setProfilesMetadata(listProfiles);
+                                                    setSelectedProfileName(newProfileName);
+                                                }
+                                            }}
+                                        >
+                                            <CheckIcon/>
+                                        </MenuItem>
                                     </Stack>
-                                </Option>
-                            ))}
-                        </Select>
+                                </Menu>
+                            </Dropdown>
+                        </Stack>
                         <FormHelperText>
                             Below fields are managed by the selected profile.
                         </FormHelperText>

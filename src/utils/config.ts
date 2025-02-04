@@ -239,6 +239,25 @@ const saveProfile = (profileName: ProfileName, profile: Profile): void => {
     updateProfileMetadata(profileName, {isLocalStorage: true});
 };
 
+/**
+ *
+ * @param profileName
+ */
+const createProfile = (profileName: ProfileName): boolean => {
+    if (PROFILES.has(profileName)) {
+        console.log("Profile already exists:", profileName);
+
+        return false;
+    }
+
+    PROFILES.set(profileName, DEFAULT_PROFILE);
+    PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: true});
+    saveProfile(profileName, DEFAULT_PROFILE);
+    forceProfile(profileName);
+
+    return true;
+};
+
 
 /**
  *
@@ -394,6 +413,7 @@ const listProfiles = (): ReadonlyMap<ProfileName, ProfileMetadata> => {
 export type {ProfileMetadata};
 export {
     CONFIG_DEFAULT,
+    createProfile,
     DEFAULT_PROFILE_METADATA,
     DEFAULT_PROFILE_NAME,
     deleteProfile,
