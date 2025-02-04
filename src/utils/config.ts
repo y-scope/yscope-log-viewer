@@ -239,25 +239,6 @@ const saveProfile = (profileName: ProfileName, profile: Profile): void => {
     updateProfileMetadata(profileName, {isLocalStorage: true});
 };
 
-/**
- *
- * @param profileName
- */
-const createProfile = (profileName: ProfileName): boolean => {
-    if (PROFILES.has(profileName)) {
-        console.log("Profile already exists:", profileName);
-
-        return false;
-    }
-
-    PROFILES.set(profileName, DEFAULT_PROFILE);
-    PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: true});
-    saveProfile(profileName, DEFAULT_PROFILE);
-    forceProfile(profileName);
-
-    return true;
-};
-
 
 /**
  *
@@ -365,21 +346,6 @@ const getConfig = <T extends CONFIG_KEY>(
 };
 
 /**
- * Deletes a profile by name.
- *
- * @param profileName The name of the profile to delete.
- * @throws Error if the specified profile is currently activated.
- */
-const deleteProfile = (profileName: string) => {
-    if (false === PROFILES.has(profileName)) {
-        throw new Error(`Deleting an unknown profile: ${profileName}`);
-    }
-
-    const profileKey = getLocalStorageKeyFromProfileName(profileName);
-    window.localStorage.removeItem(profileKey);
-};
-
-/**
  * Sets a profile override and activates the specified profile.
  * If profileName is null, removes the override.
  *
@@ -404,6 +370,44 @@ const forceProfile = (profileName: string | null): void => {
 
 /**
  *
+ * @param profileName
+ */
+const createProfile = (profileName: ProfileName): boolean => {
+    if (PROFILES.has(profileName)) {
+        console.log("Profile already exists:", profileName);
+
+        return false;
+    }
+
+    PROFILES.set(profileName, DEFAULT_PROFILE);
+    PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: true});
+    saveProfile(profileName, DEFAULT_PROFILE);
+    forceProfile(profileName);
+
+    return true;
+};
+
+/**
+ * Deletes a profile by name. FIXME
+ *
+ * @param profileName The name of the profile to delete.
+ * @throws Error if the specified profile is currently activated.
+ */
+const deleteLocalStorageProfile = (profileName: string) => {
+    const profileMetadata = PROFILES_METADATA.get(profileName);
+    if ("undefined" === typeof profileMetadata) {
+        throw new Error(`Deleting an unknown profile: ${profileName}`);
+    }
+    if (profileMetadata.isForced) {
+        forceProfile(null);
+    }
+
+    const profileKey = getLocalStorageKeyFromProfileName(profileName);
+    window.localStorage.removeItem(profileKey);
+};
+
+/**
+ *
  */
 const listProfiles = (): ReadonlyMap<ProfileName, ProfileMetadata> => {
     return Object.freeze(structuredClone(PROFILES_METADATA));
@@ -416,7 +420,7 @@ export {
     createProfile,
     DEFAULT_PROFILE_METADATA,
     DEFAULT_PROFILE_NAME,
-    deleteProfile,
+    deleteLocalStorageProfile,
     EXPORT_LOGS_CHUNK_SIZE,
     forceProfile,
     getConfig,

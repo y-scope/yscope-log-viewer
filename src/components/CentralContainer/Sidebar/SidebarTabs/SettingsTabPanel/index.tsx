@@ -48,7 +48,7 @@ import {
 import {
     createProfile,
     DEFAULT_PROFILE_NAME,
-    deleteProfile,
+    deleteLocalStorageProfile,
     forceProfile,
     getConfig,
     listProfiles,
@@ -263,7 +263,7 @@ const SettingsTabPanel = () => {
                                             >
                                                 <MenuItem
                                                     onClick={() => {
-                                                        deleteProfile(selectedProfileName);
+                                                        deleteLocalStorageProfile(selectedProfileName);
                                                         window.location.reload();
                                                     }}
                                                 >
