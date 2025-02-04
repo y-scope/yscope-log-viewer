@@ -112,7 +112,6 @@ const getConfigFormFields = (profileName: ProfileName) => {
  */
 const handleConfigFormReset = (ev: React.FormEvent) => {
     ev.preventDefault();
-    window.localStorage.clear();
     window.location.reload();
 };
 
@@ -129,6 +128,8 @@ const SettingsTabPanel = () => {
     );
     const [profilesMetadata, setProfilesMetadata] =
         useState<ReadonlyMap<ProfileName, ProfileMetadata>>(listProfiles());
+    const [canApply, setCanApply] = useState<boolean>(false);
+    const [canReload, setCanReload] = useState<boolean>(false);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -160,6 +161,8 @@ const SettingsTabPanel = () => {
         }
 
         setProfilesMetadata(listProfiles());
+        setCanApply(false);
+        setCanReload(true);
     }, [
         postPopUp,
         selectedProfileName,
@@ -185,6 +188,9 @@ const SettingsTabPanel = () => {
             tabIndex={-1}
             onReset={handleConfigFormReset}
             onSubmit={handleConfigFormSubmit}
+            onChange={() => {
+                setCanApply(true);
+            }}
         >
             <CustomTabPanel
                 tabName={TAB_NAME.SETTINGS}
@@ -193,14 +199,16 @@ const SettingsTabPanel = () => {
                     <>
                         <PanelTitleButton
                             color={"neutral"}
-                            title={"Reset Default"}
+                            disabled={false === canReload}
+                            title={"Reload"}
                             type={"reset"}
                         >
                             <RestartAltIcon/>
                         </PanelTitleButton>
                         <PanelTitleButton
                             color={"primary"}
-                            title={"Apply & Reload"}
+                            disabled={false === canApply}
+                            title={"Apply"}
                             type={"submit"}
                         >
                             <CheckIcon/>
@@ -225,7 +233,7 @@ const SettingsTabPanel = () => {
                             size={"sm"}
                             sx={{flexGrow: 1}}
                             value={selectedProfileName}
-                            startDecorator={
+                            endDecorator={
                                 <ToggleButtonGroup
                                     size={"sm"}
                                     spacing={0.1}
@@ -239,14 +247,12 @@ const SettingsTabPanel = () => {
                                         <Tooltip
                                             title={"Delete locally stored profile"}
                                         >
-                                            <IconButton>
-                                                <MenuButton
-                                                    size={"sm"}
-                                                    sx={{width: 0, paddingInline: 0}}
-                                                >
-                                                    <DeleteIcon/>
-                                                </MenuButton>
-                                            </IconButton>
+                                            <MenuButton
+                                                size={"sm"}
+                                                sx={{paddingInline: "3px", zIndex: 10}}
+                                            >
+                                                <DeleteIcon/>
+                                            </MenuButton>
                                         </Tooltip>
                                         <Menu
                                             size={"sm"}
@@ -272,6 +278,7 @@ const SettingsTabPanel = () => {
 
                                                 forceProfile(newForcedProfileName);
                                                 setProfilesMetadata(listProfiles());
+                                                setCanReload(true);
                                             }}
                                         >
                                             <LockIcon/>
