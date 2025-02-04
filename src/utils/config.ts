@@ -35,28 +35,53 @@ const UNMANAGED_THEME_THROWABLE = new Error(
 const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     // Global
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
+    [CONFIG_KEY.PAGE_SIZE]: 10_000,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
 
     // Profile managed
-    [CONFIG_KEY.DECODER_OPTIONS]: {
-        formatString: "",
-        logLevelKey: "log.level",
-        timestampKey: "@timestamp",
-    },
-    [CONFIG_KEY.PAGE_SIZE]: 10_000,
+    [CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING]: "",
+    [CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY]: "log.level",
+    [CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY]: "@timestamp",
 });
+
+interface ProfileMetadata {
+    isLocalStorage: boolean;
+    isForced: boolean;
+}
 
 // Global variables
 const DEFAULT_PROFILE_NAME = "Default";
 const DEFAULT_PROFILE: Profile = {
     config: structuredClone(CONFIG_DEFAULT),
     filePathPrefixes: [],
-    lastModificationTimestampMillis: Date.now(),
+    lastModificationTimestampMillis: -1,
+};
+const DEFAULT_PROFILE_METADATA: ProfileMetadata = {
+    isLocalStorage: false,
+    isForced: false,
 };
 
-let activatedProfileName: string = DEFAULT_PROFILE_NAME;
-const PROFILES: Map<string, Profile> = new Map([[DEFAULT_PROFILE_NAME,
+let activatedProfileName: ProfileName = DEFAULT_PROFILE_NAME;
+const PROFILES: Map<ProfileName, Profile> = new Map([[DEFAULT_PROFILE_NAME,
     DEFAULT_PROFILE]]);
+const PROFILES_METADATA: Map<ProfileName, ProfileMetadata> = new Map([[
+    DEFAULT_PROFILE_NAME,
+    DEFAULT_PROFILE_METADATA,
+]]);
+
+
+/**
+ *
+ * @param profileName
+ * @param metadataUpdate
+ */
+const updateProfileMetadata = (profileName: ProfileName, metadataUpdate: Partial<ProfileMetadata>) => {
+    const metadata = PROFILES_METADATA.get(profileName);
+    if ("undefined" === typeof metadata) {
+        throw new Error(`Profile "${profileName}" is not found`);
+    }
+    Object.assign(metadata, metadataUpdate);
+};
 
 /**
  * Initializes the profile system, loads profiles, and activates the appropriate profile.
@@ -65,56 +90,62 @@ const PROFILES: Map<string, Profile> = new Map([[DEFAULT_PROFILE_NAME,
  * @param initProps.filePath
  * @return The name of the activated profile.
  */
-const initProfiles = async (initProps: {filePath: Nullable<string>}) => {
+const initProfiles = async (initProps: {filePath: Nullable<string>}): Promise<string> => {
     PROFILES.clear();
+    PROFILES_METADATA.clear();
     PROFILES.set(DEFAULT_PROFILE_NAME, DEFAULT_PROFILE);
+    PROFILES_METADATA.set(DEFAULT_PROFILE_NAME, DEFAULT_PROFILE_METADATA);
 
     // Load profiles from profile-presets.json
     try {
         const {data} = await axios.get<Record<string, Profile>>("profile-presets.json");
         Object.entries(data).forEach(([profileName, profileData]) => {
             PROFILES.set(profileName, profileData);
+            PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: false});
         });
     } catch (e) {
         console.error(`Failed to fetch profile-presets.json: ${JSON.stringify(e)}`);
     }
 
     Object.keys(window.localStorage).forEach((key: string) => {
-        if (isLocalStorageKeyProfile(key)) {
-            const profileName = getProfileNameFromLocalStorageKey(key);
-            const profileStr = window.localStorage.getItem(key);
+        if (false === isLocalStorageKeyProfile(key)) {
+            return;
+        }
+        const profileName = getProfileNameFromLocalStorageKey(key);
+        const profileStr = window.localStorage.getItem(key);
+        if (null === profileStr) {
+            return;
+        }
+        try {
+            // eslint-disable-next-line no-warning-comments
+            // TODO: Validate parsed profile.
+            const profile = JSON.parse(profileStr) as Profile;
+            const existingProfile = PROFILES.get(profileName);
 
-            // The `null` check is to satisfy TypeScript.
-            if (null === profileStr) {
-                return;
+            // Insert the profile. If a duplicated profile name is found and the localStorage
+            // profile is newer than the existing one, replace with the localStorage profile.
+            if (
+                "undefined" === typeof existingProfile ||
+                existingProfile.lastModificationTimestampMillis <
+                    profile.lastModificationTimestampMillis
+            ) {
+                PROFILES.set(profileName, profile);
+                PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: true});
             }
-
-            try {
-                // FIXME
-                const profile = JSON.parse(profileStr) as Profile;
-                const existingProfile = PROFILES.get(profileName);
-                if (
-                    "undefined" === typeof existingProfile ||
-                    existingProfile.lastModificationTimestampMillis <
-                        profile.lastModificationTimestampMillis
-                ) {
-                    PROFILES.set(profileName, profile);
-                }
-            } catch (e) {
-                console.error(
-                    `Error parsing profile ${profileName} from localStorage: ${String(e)}`,
-                );
-            }
+        } catch (e) {
+            console.error(`Error parsing profile ${profileName} from localStorage: ${String(e)}`);
         }
     });
 
     // Preset and localStorage profiles loading is completed.
-    const profileOverride = window.localStorage.getItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
-    if (null !== profileOverride) {
-        console.log("Profile override detected:", profileOverride);
-        activatedProfileName = profileOverride;
+    // Check for forced profile override.
+    const forcedProfileName = window.localStorage.getItem(LOCAL_STORAGE_KEY.FORCED_PROFILE);
+    if (null !== forcedProfileName) {
+        console.log("Forcing profile:", forcedProfileName);
+        activatedProfileName = forcedProfileName;
+        updateProfileMetadata(forcedProfileName, {isForced: true});
 
-        return;
+        return activatedProfileName;
     }
 
     // Determine profile based on filePath
@@ -136,9 +167,12 @@ const initProfiles = async (initProps: {filePath: Nullable<string>}) => {
     }
 
     console.log("Activated profile:", activatedProfileName);
+
+    return activatedProfileName;
 };
 
 // Helpers
+
 
 /**
  * Validates the config denoted by the given key and value.
@@ -152,11 +186,14 @@ const initProfiles = async (initProps: {filePath: Nullable<string>}) => {
 const testConfig = ({key, value}: ConfigUpdateEntry): Nullable<string> => {
     let result = null;
     switch (key) {
-        case CONFIG_KEY.DECODER_OPTIONS:
-            if (0 === value.timestampKey.length) {
-                result = "Timestamp key cannot be empty.";
-            } else if (0 === value.logLevelKey.length) {
+        case CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY:
+            if (0 === value.length) {
                 result = "Log level key cannot be empty.";
+            }
+            break;
+        case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY:
+            if (0 === value.length) {
+                result = "Timestamp key cannot be empty.";
             }
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
@@ -192,11 +229,6 @@ const getProfile = (profileName: ProfileName): Profile => {
 
 /**
  *
- */
-const getActivatedProfile = (): Profile => getProfile(activatedProfileName);
-
-/**
- *
  * @param profileName
  * @param profile
  */
@@ -204,6 +236,7 @@ const saveProfile = (profileName: ProfileName, profile: Profile): void => {
     const profileKey = getLocalStorageKeyFromProfileName(profileName);
     profile.lastModificationTimestampMillis = Date.now();
     window.localStorage.setItem(profileKey, JSON.stringify(profile));
+    updateProfileMetadata(profileName, {isLocalStorage: true});
 };
 
 
@@ -214,10 +247,15 @@ const saveProfile = (profileName: ProfileName, profile: Profile): void => {
  */
 const updateConfig = (
     updates: ConfigUpdates,
-    profileName: ProfileName = activatedProfileName
+    profileName: Nullable<ProfileName> = activatedProfileName
 ): string[] => {
+    if (null === profileName) {
+        profileName = activatedProfileName;
+    }
+
     const errorList = [];
     const profile = getProfile(profileName);
+    let isProfileModified = false;
 
     for (const [key, value] of Object.entries(updates)) {
         const updateEntry = {
@@ -238,18 +276,27 @@ const updateConfig = (
                 break;
             case CONFIG_KEY.THEME:
                 throw UNMANAGED_THEME_THROWABLE;
+            case CONFIG_KEY.PAGE_SIZE:
+                window.localStorage.setItem(
+                    LOCAL_STORAGE_KEY.PAGE_SIZE,
+                    updateEntry.value.toString()
+                );
+                break;
 
             // Profile managed
-            case CONFIG_KEY.DECODER_OPTIONS:
-            case CONFIG_KEY.PAGE_SIZE:
-                // @ts-expect-error TypeScript does not narrow types in cascading case statements.
+            case CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING:
+            case CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY:
+            case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY:
+                isProfileModified = true;
                 profile.config[updateEntry.key as PROFILE_MANAGED_CONFIG_KEY] = updateEntry.value;
                 break;
             default: break;
         }
     }
 
-    saveProfile(profileName, profile);
+    if (isProfileModified) {
+        saveProfile(profileName, profile);
+    }
 
     return errorList;
 };
@@ -258,10 +305,18 @@ const updateConfig = (
  * Retrieves the config value for the specified key.
  *
  * @param key
+ * @param profileName
  * @return The value.
  * @throws {Error} If the config item cannot be managed by these config utilities.
  */
-const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
+const getConfig = <T extends CONFIG_KEY>(
+    key: T,
+    profileName: Nullable<ProfileName> = activatedProfileName
+): ConfigMap[T] => {
+    if (null === profileName) {
+        profileName = activatedProfileName;
+    }
+
     let value = null;
     switch (key) {
         // Global
@@ -276,10 +331,12 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
             throw UNMANAGED_THEME_THROWABLE;
 
         // Profile managed
-        case CONFIG_KEY.DECODER_OPTIONS:
+        case CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING:
+        case CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY:
+        case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY:
         case CONFIG_KEY.PAGE_SIZE: {
-            const {config: activatedConfig} = getActivatedProfile();
-            value = activatedConfig[key as PROFILE_MANAGED_CONFIG_KEY];
+            const {config} = getProfile(profileName);
+            value = config[key as PROFILE_MANAGED_CONFIG_KEY];
             break;
         }
         default: break;
@@ -309,28 +366,42 @@ const deleteProfile = (profileName: string) => {
  *
  * @param profileName The name of the profile to activate or null to remove override.
  */
-const lockProfile = (profileName: string | null): void => {
+const forceProfile = (profileName: string | null): void => {
+    const forcedProfileName = window.localStorage.getItem(LOCAL_STORAGE_KEY.FORCED_PROFILE);
+    if (null !== forcedProfileName) {
+        updateProfileMetadata(forcedProfileName, {isForced: false});
+    }
+
     if (null === profileName) {
         // Remove override
-        window.localStorage.removeItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE);
+        window.localStorage.removeItem(LOCAL_STORAGE_KEY.FORCED_PROFILE);
 
-        // FIXME: Reinitialize to determine `activatedProfileName` based on filePath
         return;
     }
 
-    if (false === PROFILES.has(profileName)) {
-        throw new Error(`Locking an unknown profile: ${profileName}`);
-    }
-    window.localStorage.setItem(LOCAL_STORAGE_KEY.PROFILE_OVERRIDE, profileName);
+    window.localStorage.setItem(LOCAL_STORAGE_KEY.FORCED_PROFILE, profileName);
+    updateProfileMetadata(profileName, {isForced: true});
 };
 
+/**
+ *
+ */
+const listProfiles = (): ReadonlyMap<ProfileName, ProfileMetadata> => {
+    return Object.freeze(structuredClone(PROFILES_METADATA));
+};
+
+
+export type {ProfileMetadata};
 export {
     CONFIG_DEFAULT,
+    DEFAULT_PROFILE_METADATA,
+    DEFAULT_PROFILE_NAME,
     deleteProfile,
     EXPORT_LOGS_CHUNK_SIZE,
+    forceProfile,
     getConfig,
     initProfiles,
-    lockProfile,
+    listProfiles,
     MAX_PAGE_SIZE,
     QUERY_CHUNK_SIZE,
     testConfig,

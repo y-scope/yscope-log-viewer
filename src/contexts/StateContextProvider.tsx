@@ -15,7 +15,10 @@ import LogExportManager, {
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
-import {CONFIG_KEY} from "../typings/config";
+import {
+    CONFIG_KEY,
+    ProfileName,
+} from "../typings/config";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -67,6 +70,7 @@ import {
 
 
 interface StateContextType {
+    activatedProfileName: Nullable<ProfileName>;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
@@ -81,7 +85,7 @@ interface StateContextType {
 
     exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
@@ -92,6 +96,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
+    activatedProfileName: null,
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
@@ -106,7 +111,8 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 
     exportLogs: () => null,
     filterLogs: () => null,
-    loadFile: () => null,
+    loadFile: async () => {
+    },
     loadPageByAction: () => null,
     startQuery: () => null,
 });
@@ -247,6 +253,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [activatedProfileName, setActivatedProfileName] =
+        useState<Nullable<ProfileName>>(STATE_DEFAULT.activatedProfileName);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
@@ -401,12 +409,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
+        let initResult: ProfileName;
         if ("string" === typeof fileSrc) {
-            await initProfiles({filePath: fileSrc});
+            initResult = await initProfiles({filePath: fileSrc});
         } else {
-            await initProfiles({filePath: null});
+            initResult = await initProfiles({filePath: null});
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
+        setActivatedProfileName(initResult);
+
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
@@ -418,7 +429,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             cursor: cursor,
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            decoderOptions: {
+                formatString: getConfig(CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING),
+                logLevelKey: getConfig(CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY),
+                timestampKey: getConfig(CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY),
+            },
         });
     }, [
         handleMainWorkerResp,
@@ -511,6 +526,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
+        initProfiles({filePath: null})
+            .then((initResult) => {
+                setActivatedProfileName(initResult);
+            })
+            .catch((e:unknown) => {
+                console.error("Error occurred when initializing profiles:", e);
+            });
         if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
             return;
         }
@@ -536,6 +558,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                activatedProfileName: activatedProfileName,
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,

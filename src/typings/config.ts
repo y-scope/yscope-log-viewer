@@ -10,12 +10,14 @@ enum THEME_NAME {
 
 enum GLOBAL_CONFIG_KEY {
     INITIAL_TAB_NAME = "initialTabName",
+    PAGE_SIZE = "pageSize",
     THEME = "theme",
 }
 
 enum PROFILE_MANAGED_CONFIG_KEY {
-    DECODER_OPTIONS = "decoderOptions",
-    PAGE_SIZE = "pageSize",
+    DECODER_OPTIONS_FORMAT_STRING = "decoderOptions/formatString",
+    DECODER_OPTIONS_LOG_LEVEL_KEY = "decoderOptions/logLevelKey",
+    DECODER_OPTIONS_TIMESTAMP_KEY = "decoderOptions/timestampKey",
 }
 
 /**
@@ -53,21 +55,24 @@ const getProfileNameFromLocalStorageKey = (key: string): string => key.substring
 const getLocalStorageKeyFromProfileName = (profileName: string): string => `${LOCAL_STORAGE_KEY_PROFILE_PREFIX}${profileName}`;
 
 enum LOCAL_STORAGE_KEY {
+    FORCED_PROFILE = "forcedProfile",
     INITIAL_TAB_NAME = "initialTabName",
+    PAGE_SIZE = "pageSize",
+
+    // This key should only be used by Joy UI.
     THEME = "theme",
-    PROFILE_OVERRIDE = "profileOverride",
 }
 
 interface ProfileManagedConfigMap {
-    [PROFILE_MANAGED_CONFIG_KEY.DECODER_OPTIONS]: DecoderOptions;
-    [PROFILE_MANAGED_CONFIG_KEY.PAGE_SIZE]: number;
+    [PROFILE_MANAGED_CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING]: DecoderOptions["formatString"];
+    [PROFILE_MANAGED_CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY]: DecoderOptions["logLevelKey"];
+    [PROFILE_MANAGED_CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY]: DecoderOptions["timestampKey"];
 }
 
-interface ConfigMap {
+interface ConfigMap extends ProfileManagedConfigMap {
     [GLOBAL_CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME;
+    [GLOBAL_CONFIG_KEY.PAGE_SIZE]: number;
     [GLOBAL_CONFIG_KEY.THEME]: THEME_NAME;
-    [PROFILE_MANAGED_CONFIG_KEY.DECODER_OPTIONS]: DecoderOptions;
-    [PROFILE_MANAGED_CONFIG_KEY.PAGE_SIZE]: number;
 }
 
 type ConfigUpdates = {
