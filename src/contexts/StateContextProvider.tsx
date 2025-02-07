@@ -271,6 +271,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -408,6 +409,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
+        setActivatedProfileName(null);
+
+        // Cache `fileSrc` for future reloads.
+        fileSrcRef.current = fileSrc;
 
         let initResult: ProfileName;
         if ("string" === typeof fileSrc) {
@@ -442,6 +447,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        if (navAction.code === ACTION_NAME.RELOAD) {
+            if (null === fileSrcRef.current || null === logEventNumRef.current) {
+                throw new Error(`Expected fileSrc=${JSON.stringify(fileSrcRef.current)
+                }, logEventNum=${logEventNumRef.current} when reloading.`);
+            }
+            loadFile(fileSrcRef.current, {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNumRef.current},
+            }).catch((e:unknown) => {
+                console.error(e);
+            });
 
             return;
         }

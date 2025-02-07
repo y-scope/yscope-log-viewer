@@ -4,6 +4,7 @@ import {Nullable} from "../typings/common";
 
 
 enum ACTION_NAME {
+    RELOAD = "reload",
     SPECIFIC_PAGE = "specificPage",
     FIRST_PAGE = "firstPage",
     PREV_PAGE = "prevPage",
@@ -62,6 +63,7 @@ const EDITOR_ACTIONS : EditorAction[] = [
 ];
 
 type NavigationActionsMap = {
+    [ACTION_NAME.RELOAD]: null;
     [ACTION_NAME.SPECIFIC_PAGE]: {
         pageNum: number;
     };

@@ -45,6 +45,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {ACTION_NAME} from "../../../../../utils/actions";
 import {
     createProfile,
     DEFAULT_PROFILE_NAME,
@@ -55,6 +56,7 @@ import {
     ProfileMetadata,
     updateConfig,
 } from "../../../../../utils/config";
+import {defer} from "../../../../../utils/time";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ThemeSwitchField from "./ThemeSwitchField";
@@ -122,7 +124,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {activatedProfileName} = useContext(StateContext);
+    const {activatedProfileName, loadPageByAction} = useContext(StateContext);
     const [newProfileName, setNewProfileName] = useState<string>("");
     const [selectedProfileName, setSelectedProfileName] = useState<ProfileName>(
         activatedProfileName ?? DEFAULT_PROFILE_NAME,
@@ -163,8 +165,11 @@ const SettingsTabPanel = () => {
 
         setProfilesMetadata(listProfiles());
         setCanApply(false);
+        setSelectedProfileName(DEFAULT_PROFILE_NAME);
+        loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
         setCanReload(true);
     }, [
+        loadPageByAction,
         postPopUp,
         selectedProfileName,
     ]);
@@ -232,7 +237,10 @@ const SettingsTabPanel = () => {
                         <FormLabel>
                             Profile
                         </FormLabel>
-                        <Stack direction={"row"}>
+                        <Stack
+                            direction={"row"}
+                            gap={0.3}
+                        >
                             <Select
                                 size={"sm"}
                                 sx={{flexGrow: 1}}
@@ -259,6 +267,7 @@ const SettingsTabPanel = () => {
                                                 </MenuButton>
                                             </Tooltip>
                                             <Menu
+                                                placement={"top-start"}
                                                 size={"sm"}
                                             >
                                                 <MenuItem
@@ -282,6 +291,8 @@ const SettingsTabPanel = () => {
 
                                                     forceProfile(newForcedProfileName);
                                                     setProfilesMetadata(listProfiles());
+                                                    setSelectedProfileName(DEFAULT_PROFILE_NAME);
+                                                    loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
                                                     setCanReload(true);
                                                 }}
                                             >
@@ -331,12 +342,13 @@ const SettingsTabPanel = () => {
                             <Dropdown>
                                 <MenuButton
                                     size={"sm"}
-                                    variant={"solid"}
+                                    sx={{paddingInline: "6px"}}
+                                    variant={"soft"}
                                 >
                                     <AddIcon/>
                                 </MenuButton>
                                 <Menu
-                                    placement={"bottom-start"}
+                                    placement={"bottom-end"}
                                     size={"sm"}
                                 >
                                     <Stack
@@ -347,13 +359,21 @@ const SettingsTabPanel = () => {
                                         <FormControl>
                                             <Input
                                                 placeholder={"New Profile Name"}
+                                                size={"sm"}
+                                                sx={{minWidth: "24ch"}}
                                                 value={newProfileName}
                                                 onChange={(ev) => {
                                                     setNewProfileName(ev.target.value);
+                                                    defer(() => {
+                                                        // Prevent the confirm button from receiving
+                                                        // focus when the input value changes.
+                                                        ev.target.focus();
+                                                    });
                                                 }}/>
                                         </FormControl>
                                         <MenuItem
                                             disabled={0 === newProfileName.length}
+                                            sx={{borderRadius: "2px"}}
                                             onClick={() => {
                                                 const result = createProfile(newProfileName);
                                                 if (result) {

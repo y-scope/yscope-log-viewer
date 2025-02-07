@@ -221,7 +221,7 @@ const testConfig = ({key, value}: ConfigUpdateEntry): Nullable<string> => {
 const getProfile = (profileName: ProfileName): Profile => {
     const profile = PROFILES.get(profileName);
     if ("undefined" === typeof profile) {
-        throw new Error(`Profile "${profile}" is not found`);
+        throw new Error(`Profile "${profileName}" is not found`);
     }
 
     return profile;
@@ -254,9 +254,8 @@ const updateConfig = (
     }
 
     const errorList = [];
-    const profile = getProfile(profileName);
-    let isProfileModified = false;
-
+    let profile = null;
+    let isProfileUpdated = false;
     for (const [key, value] of Object.entries(updates)) {
         const updateEntry = {
             key: key as CONFIG_KEY,
@@ -286,15 +285,22 @@ const updateConfig = (
             // Profile managed
             case CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING:
             case CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY:
-            case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY:
-                isProfileModified = true;
-                profile.config[updateEntry.key as PROFILE_MANAGED_CONFIG_KEY] = updateEntry.value;
+            case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY: {
+                if (null === profile) {
+                    profile = getProfile(profileName);
+                }
+                const oldValue = profile.config[updateEntry.key as PROFILE_MANAGED_CONFIG_KEY];
+                if (oldValue !== updateEntry.value) {
+                    profile.config[updateEntry.key as PROFILE_MANAGED_CONFIG_KEY] =
+                        updateEntry.value;
+                    isProfileUpdated = true;
+                }
                 break;
-            default: break;
+            } default: break;
         }
     }
 
-    if (isProfileModified) {
+    if (isProfileUpdated && null !== profile) {
         saveProfile(profileName, profile);
     }
 
@@ -318,8 +324,9 @@ const getConfig = <T extends CONFIG_KEY>(
     }
 
     let value = null;
+
+    // Global
     switch (key) {
-        // Global
         case CONFIG_KEY.INITIAL_TAB_NAME: {
             const storedValue = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);
             value = (null === storedValue) ?
@@ -329,12 +336,21 @@ const getConfig = <T extends CONFIG_KEY>(
         }
         case CONFIG_KEY.THEME:
             throw UNMANAGED_THEME_THROWABLE;
+        case CONFIG_KEY.PAGE_SIZE: {
+            const storedValue = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
+            value = (null === storedValue) ?
+                CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE] :
+                storedValue as number;
+            break;
+        }
+        default: break;
+    }
 
-        // Profile managed
+    // Profile managed
+    switch (key) {
         case CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING:
         case CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY:
-        case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY:
-        case CONFIG_KEY.PAGE_SIZE: {
+        case CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY: {
             const {config} = getProfile(profileName);
             value = config[key as PROFILE_MANAGED_CONFIG_KEY];
             break;
