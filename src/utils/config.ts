@@ -340,7 +340,7 @@ const getConfig = <T extends CONFIG_KEY>(
             const storedValue = window.localStorage.getItem(LOCAL_STORAGE_KEY.PAGE_SIZE);
             value = (null === storedValue) ?
                 CONFIG_DEFAULT[CONFIG_KEY.PAGE_SIZE] :
-                storedValue as number;
+                Number(storedValue);
             break;
         }
         default: break;
