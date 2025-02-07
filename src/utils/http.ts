@@ -4,7 +4,7 @@ import axios, {
 } from "axios";
 
 
-type ProgressCallback = (numBytesDownloaded:number, numBytesTotal:number) => void;
+type ProgressCallback = (numBytesLoaded:number, numBytesTotal:number) => void;
 
 /**
  * Converts an Axios error into a custom Error object.
@@ -37,8 +37,8 @@ const convertAxiosError = (e: AxiosError): Error => {
 
 
 /**
- * Normalizes the total size of a download event, and calls the provided onProgress callback with
- * loaded and total sizes.
+ * Normalizes the total size of a download / upload event, and calls the provided onProgress
+ * callback with loaded and total sizes.
  *
  * @param onProgress
  * @return The handler that wraps `onProgress`.
