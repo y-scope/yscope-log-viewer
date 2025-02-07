@@ -57,16 +57,19 @@ const normalizeTotalSize = (onProgress: ProgressCallback) => ({
  * Retrieves an object that is stored as JSON in a remote location.
  *
  * @param remoteUrl
- * @param onDownloadProgress
+ * @param onProgress
  * @return The parsed JSON object.
  * @throws {Error} if the download fails.
  */
-const getJsonObjectFrom = async (remoteUrl: string, onDownloadProgress: ProgressCallback)
-    : Promise<object> => {
+const getJsonObjectFrom = async (
+    remoteUrl: string,
+    onProgress: ProgressCallback = () => null
+)
+: Promise<object> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(remoteUrl, {
             responseType: "json",
-            onDownloadProgress: normalizeTotalSize(onDownloadProgress),
+            onDownloadProgress: normalizeTotalSize(onProgress),
         });
 
         return new Uint8Array(data);
@@ -85,8 +88,11 @@ const getJsonObjectFrom = async (remoteUrl: string, onDownloadProgress: Progress
  * @return The file's content.
  * @throws {Error} if the download fails.
  */
-const getUint8ArrayFrom = async (fileUrl: string, onProgress: ProgressCallback)
-    : Promise<Uint8Array> => {
+const getUint8ArrayFrom = async (
+    fileUrl: string,
+    onProgress: ProgressCallback = () => null
+)
+: Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
             responseType: "arraybuffer",
