@@ -183,7 +183,7 @@ const SettingsTabPanel = () => {
             title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
         >
             <form
-                style={{overflowY: "hidden", display: "flex", flexDirection: "column"}}
+                style={{overflowY: "hidden", display: "flex", flexDirection: "column", gap: "0.75rem"}}
                 tabIndex={-1}
                 onSubmit={handleConfigFormSubmit}
                 onChange={() => {
@@ -195,7 +195,7 @@ const SettingsTabPanel = () => {
                         display: "flex",
                         flexDirection: "column",
                         flexGrow: 1,
-                        gap: "1rem",
+                        gap: "0.75rem",
                         overflowY: "auto",
                     }}
                 >
@@ -208,6 +208,8 @@ const SettingsTabPanel = () => {
                             type={"number"}/>
                         <FormHelperText>Number of log messages to display per page.</FormHelperText>
                     </FormControl>
+
+                    <Divider/>
 
                     <FormControl>
                         <FormLabel>Profile</FormLabel>
@@ -389,7 +391,6 @@ const SettingsTabPanel = () => {
                 <Divider/>
                 <Button
                     disabled={false === canApply}
-                    sx={{marginTop: "0.75rem"}}
                     type={"submit"}
                 >
                     Apply
