@@ -7,6 +7,8 @@ import React, {
 
 import {
     Box,
+    Button,
+    Divider,
     Dropdown,
     FormControl,
     FormHelperText,
@@ -30,7 +32,6 @@ import CheckIcon from "@mui/icons-material/Check";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LockIcon from "@mui/icons-material/Lock";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import SdStorageIcon from "@mui/icons-material/SdStorage";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
@@ -58,7 +59,6 @@ import {
 } from "../../../../../utils/config";
 import {defer} from "../../../../../utils/time";
 import CustomTabPanel from "../CustomTabPanel";
-import PanelTitleButton from "../PanelTitleButton";
 import ThemeSwitchField from "./ThemeSwitchField";
 
 import "./index.css";
@@ -108,16 +108,6 @@ const getConfigFormFields = (profileName: ProfileName) => {
 };
 
 /**
- * Handles the reset event for the configuration form.
- *
- * @param ev
- */
-const handleConfigFormReset = (ev: React.FormEvent) => {
-    ev.preventDefault();
-    window.location.reload();
-};
-
-/**
  * Displays a panel for FIXME
  *
  * @return
@@ -132,7 +122,6 @@ const SettingsTabPanel = () => {
     const [profilesMetadata, setProfilesMetadata] =
         useState<ReadonlyMap<ProfileName, ProfileMetadata>>(listProfiles());
     const [canApply, setCanApply] = useState<boolean>(false);
-    const [canReload, setCanReload] = useState<boolean>(false);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -167,7 +156,6 @@ const SettingsTabPanel = () => {
         setCanApply(false);
         setSelectedProfileName(DEFAULT_PROFILE_NAME);
         loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
-        setCanReload(true);
     }, [
         loadPageByAction,
         postPopUp,
@@ -190,39 +178,27 @@ const SettingsTabPanel = () => {
     const isSelectedProfileForced = profilesMetadata.get(selectedProfileName)?.isForced ?? false;
 
     return (
-        <form
-            tabIndex={-1}
-            onReset={handleConfigFormReset}
-            onSubmit={handleConfigFormSubmit}
-            onChange={() => {
-                setCanApply(true);
-            }}
+        <CustomTabPanel
+            tabName={TAB_NAME.SETTINGS}
+            title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
         >
-            <CustomTabPanel
-                tabName={TAB_NAME.SETTINGS}
-                title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
-                titleButtons={
-                    <>
-                        <PanelTitleButton
-                            color={"neutral"}
-                            disabled={false === canReload}
-                            title={"Reload"}
-                            type={"reset"}
-                        >
-                            <RestartAltIcon/>
-                        </PanelTitleButton>
-                        <PanelTitleButton
-                            color={"primary"}
-                            disabled={false === canApply}
-                            title={"Apply"}
-                            type={"submit"}
-                        >
-                            <CheckIcon/>
-                        </PanelTitleButton>
-                    </>
-                }
+            <form
+                style={{overflowY: "hidden", display: "flex", flexDirection: "column"}}
+                tabIndex={-1}
+                onSubmit={handleConfigFormSubmit}
+                onChange={() => {
+                    setCanApply(true);
+                }}
             >
-                <Box sx={{display: "flex", flexDirection: "column", gap: "1rem"}}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        flexGrow: 1,
+                        gap: "1rem",
+                        overflowY: "auto",
+                    }}
+                >
                     <ThemeSwitchField/>
                     <FormControl>
                         <FormLabel>View: Page Size</FormLabel>
@@ -234,9 +210,7 @@ const SettingsTabPanel = () => {
                     </FormControl>
 
                     <FormControl>
-                        <FormLabel>
-                            Profile
-                        </FormLabel>
+                        <FormLabel>Profile</FormLabel>
                         <Stack
                             direction={"row"}
                             gap={0.3}
@@ -254,46 +228,50 @@ const SettingsTabPanel = () => {
                                             "forced" :
                                             ""]}
                                     >
-                                        {isSelectedProfileLocalStorage &&
-                                        <Dropdown>
-                                            <Tooltip
-                                                title={"Delete locally stored profile"}
-                                            >
-                                                <MenuButton
+                                        {isSelectedProfileLocalStorage && (
+                                            <Dropdown>
+                                                <Tooltip title={"Delete locally stored profile"}>
+                                                    <MenuButton
+                                                        size={"sm"}
+                                                        sx={{paddingInline: "3px", zIndex: 10}}
+                                                    >
+                                                        <DeleteIcon/>
+                                                    </MenuButton>
+                                                </Tooltip>
+                                                <Menu
+                                                    placement={"top-start"}
                                                     size={"sm"}
-                                                    sx={{paddingInline: "3px", zIndex: 10}}
                                                 >
-                                                    <DeleteIcon/>
-                                                </MenuButton>
-                                            </Tooltip>
-                                            <Menu
-                                                placement={"top-start"}
-                                                size={"sm"}
-                                            >
-                                                <MenuItem
-                                                    onClick={() => {
-                                                        deleteLocalStorageProfile(selectedProfileName);
-                                                        window.location.reload();
-                                                    }}
-                                                >
-                                                    Confirm deletion
-                                                </MenuItem>
-                                            </Menu>
-                                        </Dropdown>}
+                                                    <MenuItem
+                                                        onClick={() => {
+                                                            deleteLocalStorageProfile(
+                                                                selectedProfileName,
+                                                            );
+                                                            window.location.reload();
+                                                        }}
+                                                    >
+                                                        Confirm deletion
+                                                    </MenuItem>
+                                                </Menu>
+                                            </Dropdown>
+                                        )}
                                         <Tooltip title={"Force this profile on all file paths"}>
                                             <IconButton
                                                 value={"forced"}
                                                 variant={"soft"}
                                                 onClick={() => {
-                                                    const newForcedProfileName = isSelectedProfileForced ?
-                                                        null :
-                                                        selectedProfileName;
+                                                    const newForcedProfileName =
+                                                        isSelectedProfileForced ?
+                                                            null :
+                                                            selectedProfileName;
 
                                                     forceProfile(newForcedProfileName);
                                                     setProfilesMetadata(listProfiles());
                                                     setSelectedProfileName(DEFAULT_PROFILE_NAME);
-                                                    loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
-                                                    setCanReload(true);
+                                                    loadPageByAction({
+                                                        code: ACTION_NAME.RELOAD,
+                                                        args: null,
+                                                    });
                                                 }}
                                             >
                                                 <LockIcon/>
@@ -408,8 +386,16 @@ const SettingsTabPanel = () => {
                         </FormControl>
                     ))}
                 </Box>
-            </CustomTabPanel>
-        </form>
+                <Divider/>
+                <Button
+                    disabled={false === canApply}
+                    sx={{marginTop: "0.75rem"}}
+                    type={"submit"}
+                >
+                    Apply
+                </Button>
+            </form>
+        </CustomTabPanel>
     );
 };
 
