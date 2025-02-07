@@ -61,18 +61,18 @@ const normalizeTotalSize = (onProgress: ProgressCallback) => ({
  * @return The parsed JSON object.
  * @throws {Error} if the download fails.
  */
-const getJsonObjectFrom = async (
+const getJsonObjectFrom = async <T>(
     remoteUrl: string,
     onProgress: ProgressCallback = () => null
 )
-: Promise<object> => {
+: Promise<T> => {
     try {
-        const {data} = await axios.get<ArrayBuffer>(remoteUrl, {
+        const {data} = await axios.get<T>(remoteUrl, {
             responseType: "json",
             onDownloadProgress: normalizeTotalSize(onProgress),
         });
 
-        return new Uint8Array(data);
+        return data;
     } catch (e) {
         throw (e instanceof AxiosError) ?
             convertAxiosError(e) :

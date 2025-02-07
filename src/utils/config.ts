@@ -1,5 +1,3 @@
-import axios from "axios";
-
 import {Nullable} from "../typings/common";
 import {
     CONFIG_KEY,
@@ -16,6 +14,7 @@ import {
     THEME_NAME,
 } from "../typings/config";
 import {TAB_NAME} from "../typings/tab";
+import {getJsonObjectFrom} from "./http";
 
 
 const EXPORT_LOGS_CHUNK_SIZE = 10_000;
@@ -98,8 +97,10 @@ const initProfiles = async (initProps: {filePath: Nullable<string>}): Promise<st
 
     // Load profiles from profile-presets.json
     try {
-        const {data} = await axios.get<Record<string, Profile>>("profile-presets.json");
-        Object.entries(data).forEach(([profileName, profileData]) => {
+        const profilePresets =
+            await getJsonObjectFrom<Record<string, Profile>>("profile-presets.json");
+
+        Object.entries(profilePresets).forEach(([profileName, profileData]) => {
             PROFILES.set(profileName, profileData);
             PROFILES_METADATA.set(profileName, {isForced: false, isLocalStorage: false});
         });
