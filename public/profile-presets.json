@@ -19,7 +19,7 @@
       "pageSize": 10000
     },
     "filePathPrefixes": [
-      "/prod/logging/up/kafka-replicator"
+      "/prod/logging/up"
     ],
     "lastModificationTimestampMillis": 1732881600000
   },
