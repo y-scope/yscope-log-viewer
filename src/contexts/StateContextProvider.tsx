@@ -15,7 +15,10 @@ import LogExportManager, {
     EXPORT_LOG_PROGRESS_VALUE_MIN,
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
-import {CONFIG_KEY} from "../typings/config";
+import {
+    CONFIG_KEY,
+    ProfileName,
+} from "../typings/config";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -49,6 +52,7 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    initProfiles,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -66,10 +70,10 @@ import {
 
 
 interface StateContextType {
+    activatedProfileName: Nullable<ProfileName>;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    isSettingsModalOpen: boolean;
     uiState: UI_STATE;
     logData: string;
     numEvents: number;
@@ -81,9 +85,8 @@ interface StateContextType {
 
     exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
+    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
-    setIsSettingsModalOpen: (isOpen: boolean) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -93,10 +96,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
+    activatedProfileName: null,
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -108,9 +111,9 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 
     exportLogs: () => null,
     filterLogs: () => null,
-    loadFile: () => null,
+    loadFile: async () => {
+    },
     loadPageByAction: () => null,
-    setIsSettingsModalOpen: () => null,
     startQuery: () => null,
 });
 
@@ -250,10 +253,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [activatedProfileName, setActivatedProfileName] =
+        useState<Nullable<ProfileName>>(STATE_DEFAULT.activatedProfileName);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] =
-        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -268,6 +271,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -297,7 +301,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
                         onClick: () => {
-                            setIsSettingsModalOpen(true);
+                            alert("fix open settings button");
                         },
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -399,16 +403,26 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         fileName,
     ]);
 
-    const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
+    const loadFile = useCallback(async (fileSrc: FileSrcType, cursor: CursorType) => {
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
+        setActivatedProfileName(null);
 
-        if ("string" !== typeof fileSrc) {
+        // Cache `fileSrc` for future reloads.
+        fileSrcRef.current = fileSrc;
+
+        let initResult: ProfileName;
+        if ("string" === typeof fileSrc) {
+            initResult = await initProfiles({filePath: fileSrc});
+        } else {
+            initResult = await initProfiles({filePath: null});
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
+        setActivatedProfileName(initResult);
+
         if (null !== mainWorkerRef.current) {
             mainWorkerRef.current.terminate();
         }
@@ -420,7 +434,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             fileSrc: fileSrc,
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             cursor: cursor,
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            decoderOptions: {
+                formatString: getConfig(CONFIG_KEY.DECODER_OPTIONS_FORMAT_STRING),
+                logLevelKey: getConfig(CONFIG_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY),
+                timestampKey: getConfig(CONFIG_KEY.DECODER_OPTIONS_TIMESTAMP_KEY),
+            },
         });
     }, [
         handleMainWorkerResp,
@@ -429,6 +447,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        if (navAction.code === ACTION_NAME.RELOAD) {
+            if (null === fileSrcRef.current || null === logEventNumRef.current) {
+                throw new Error(`Expected fileSrc=${JSON.stringify(fileSrcRef.current)
+                }, logEventNum=${logEventNumRef.current} when reloading.`);
+            }
+            loadFile(fileSrcRef.current, {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNumRef.current},
+            }).catch((e:unknown) => {
+                console.error(e);
+            });
 
             return;
         }
@@ -513,6 +545,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `filePath` update, load file.
     useEffect(() => {
+        initProfiles({filePath: null})
+            .then((initResult) => {
+                setActivatedProfileName(initResult);
+            })
+            .catch((e:unknown) => {
+                console.error("Error occurred when initializing profiles:", e);
+            });
         if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
             return;
         }
@@ -524,7 +563,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 args: {eventNum: logEventNumRef.current},
             };
         }
-        loadFile(filePath, cursor);
+        loadFile(filePath, cursor)
+            .then()
+            .catch((e:unknown) => {
+                console.error(`Error occurred when loading file "${filePath}" with cursor=${
+                    JSON.stringify(cursor)}:`, e);
+            });
     }, [
         filePath,
         loadFile,
@@ -533,10 +577,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                activatedProfileName: activatedProfileName,
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -550,7 +594,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
-                setIsSettingsModalOpen: setIsSettingsModalOpen,
                 startQuery: startQuery,
             }}
         >

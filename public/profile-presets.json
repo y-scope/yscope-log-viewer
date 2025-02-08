@@ -1,0 +1,38 @@
+{
+  "Athena": {
+    "config": {
+      "decoderOptions/formatString": "{ts:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS} {level} [{thread}] {class}.{method}({file}:{line}): {message}",
+      "decoderOptions/logLevelKey": "level",
+      "decoderOptions/timestampKey": "ts",
+      "pageSize": 10000
+    },
+    "filePathPrefixes": [
+      "/prod/logging/athena"
+    ],
+    "lastModificationTimestampMillis": 0
+  },
+  "Kafka": {
+    "config": {
+      "decoderOptions/formatString": "{d:timestamp} {p} {c}:{L} - {m}",
+      "decoderOptions/logLevelKey": "p",
+      "decoderOptions/timestampKey": "d",
+      "pageSize": 10000
+    },
+    "filePathPrefixes": [
+      "/prod/logging/up"
+    ],
+    "lastModificationTimestampMillis": 1732881600000
+  },
+  "Test": {
+    "config": {
+      "decoderOptions/formatString": "{@timestamp} {log\\.level} {message}",
+      "decoderOptions/logLevelKey": "log.level",
+      "decoderOptions/timestampKey": "@timestamp",
+      "pageSize": 10000
+    },
+    "filePathPrefixes": [
+      "/test"
+    ],
+    "lastModificationTimestampMillis": 1732881600000
+  }
+}
