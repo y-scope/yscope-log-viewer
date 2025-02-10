@@ -1,6 +1,7 @@
-import type {Config} from "jest";
 import os from "node:os";
 import pathPosix from "node:path/posix";
+
+import type {Config} from "jest";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
@@ -30,6 +31,11 @@ const JEST_CONFIG: Config = {
             branches: 0,
             functions: 0,
             lines: 0,
+        },
+        "src/utils/config.ts": {
+            branches: 100,
+            functions: 100,
+            lines: 100,
         },
         "src/utils/math.ts": {
             branches: 100,

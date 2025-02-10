@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 450] */
+/* eslint max-lines: ["error", 500] */
 import {
     Decoder,
     DecodeResult,
@@ -7,13 +7,16 @@ import {
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
+    QueryArgs,
+    QueryResults,
+} from "../../typings/query";
+import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorData,
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
-    QueryResults,
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../../typings/worker";
@@ -68,11 +71,11 @@ class LogFileManager {
      * @param params.onQueryResults
      */
     constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
-        decoder: Decoder,
-        fileName: string,
-        onDiskFileSizeInBytes: number,
-        pageSize: number,
-        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
+        decoder: Decoder;
+        fileName: string;
+        onDiskFileSizeInBytes: number;
+        pageSize: number;
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
@@ -193,7 +196,7 @@ class LogFileManager {
      * @throws {Error} if any error occurs when decoding the log events.
      */
     loadChunk (beginLogEventIdx: number): {
-        logs: string,
+        logs: string;
     } {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
         const results = this.#decoder.decodeRange(
@@ -286,11 +289,13 @@ class LogFileManager {
      * Creates a RegExp object based on the given query string and options, and starts querying the
      * first log chunk.
      *
-     * @param queryString
-     * @param isRegex
-     * @param isCaseSensitive
+     * @param queryArgs
+     * @param queryArgs.queryString
+     * @param queryArgs.isRegex
+     * @param queryArgs.isCaseSensitive
+     * @throws {SyntaxError} if the query regex string is invalid.
      */
-    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+    startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
         this.#queryId++;
         this.#queryCount = 0;
 
@@ -310,9 +315,16 @@ class LogFileManager {
         const regexFlags = isCaseSensitive ?
             "" :
             "i";
-        const queryRegex = new RegExp(regexPattern, regexFlags);
 
-        this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        try {
+            const queryRegex = new RegExp(regexPattern, regexFlags);
+            this.#queryChunkAndScheduleNext(this.#queryId, 0, queryRegex);
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                console.error("Invalid regular expression:", e);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -371,12 +383,22 @@ class LogFileManager {
             // Current task no longer corresponds to the latest query in the LogFileManager.
             return;
         }
-        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, this.#numEvents);
+
+        const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
+        const numActiveEvents: number = (null !== filteredLogEventMap) ?
+            filteredLogEventMap.length :
+            this.#numEvents;
+
+        if (0 === numActiveEvents) {
+            return;
+        }
+
+        const chunkEndIdx = Math.min(chunkBeginIdx + QUERY_CHUNK_SIZE, numActiveEvents);
         const results: QueryResults = new Map();
         const decodedEvents = this.#decoder.decodeRange(
             chunkBeginIdx,
             chunkEndIdx,
-            null !== this.#decoder.getFilteredLogEventMap()
+            null !== filteredLogEventMap
         );
 
         if (null === decodedEvents) {
@@ -388,13 +410,13 @@ class LogFileManager {
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.
         const progress = Math.max(
-            chunkEndIdx / this.#numEvents,
+            chunkEndIdx / numActiveEvents,
             this.#queryCount / MAX_QUERY_RESULT_COUNT
         );
 
         this.#onQueryResults(progress, results);
 
-        if (chunkEndIdx < this.#numEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
+        if (chunkEndIdx < numActiveEvents && MAX_QUERY_RESULT_COUNT > this.#queryCount) {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });

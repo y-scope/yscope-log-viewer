@@ -13,9 +13,9 @@ import "./TabButton.css";
 
 
 interface TabButtonProps {
-    tabName: TAB_NAME,
-    Icon: typeof SvgIcon,
-    onTabButtonClick: (tabName: TAB_NAME) => void
+    tabName: TAB_NAME;
+    Icon: typeof SvgIcon;
+    onTabButtonClick: (tabName: TAB_NAME) => void;
 }
 
 /**
@@ -34,11 +34,9 @@ const TabButton = ({tabName, Icon, onTabButtonClick}: TabButtonProps) => {
 
     return (
         <Tooltip
-            arrow={true}
             key={tabName}
             placement={"right"}
             title={TAB_DISPLAY_NAMES[tabName]}
-            variant={"outlined"}
         >
             <Tab
                 className={"sidebar-tab-button"}

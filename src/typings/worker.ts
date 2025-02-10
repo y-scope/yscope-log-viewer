@@ -7,6 +7,7 @@ import {
     LOG_LEVEL,
     LogLevelFilter,
 } from "./logs";
+import {QueryResults} from "./query";
 
 
 /**
@@ -34,18 +35,28 @@ enum CURSOR_CODE {
     LAST_EVENT = "lastEvent",
     EVENT_NUM = "eventNum",
     TIMESTAMP = "timestamp",
-    PAGE_NUM = "pageNum"
+    PAGE_NUM = "pageNum",
 }
 
 type CursorArgMap = {
     [CURSOR_CODE.LAST_EVENT]: null;
-    [CURSOR_CODE.EVENT_NUM]: { eventNum: number };
-    [CURSOR_CODE.TIMESTAMP]: { timestamp: number };
-    [CURSOR_CODE.PAGE_NUM]: { pageNum: number, eventPositionOnPage: EVENT_POSITION_ON_PAGE };
+    [CURSOR_CODE.EVENT_NUM]: {
+        eventNum: number;
+    };
+    [CURSOR_CODE.TIMESTAMP]: {
+        timestamp: number;
+    };
+    [CURSOR_CODE.PAGE_NUM]: {
+        pageNum: number;
+        eventPositionOnPage: EVENT_POSITION_ON_PAGE;
+    };
 };
 
 type CursorType = {
-    [T in keyof CursorArgMap]: { code: T, args: CursorArgMap[T] };
+    [T in keyof CursorArgMap]: {
+        code: T;
+        args: CursorArgMap[T];
+    };
 }[keyof CursorArgMap];
 
 /**
@@ -85,66 +96,53 @@ enum WORKER_RESP_CODE {
 }
 
 type WorkerReqMap = {
-    [WORKER_REQ_CODE.EXPORT_LOG]: null
+    [WORKER_REQ_CODE.EXPORT_LOG]: null;
     [WORKER_REQ_CODE.LOAD_FILE]: {
-        fileSrc: FileSrcType,
-        pageSize: number,
-        cursor: CursorType,
-        decoderOptions: DecoderOptions
-    },
+        fileSrc: FileSrcType;
+        pageSize: number;
+        cursor: CursorType;
+        decoderOptions: DecoderOptions;
+    };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
-        cursor: CursorType,
-    },
+        cursor: CursorType;
+    };
     [WORKER_REQ_CODE.SET_FILTER]: {
-        cursor: CursorType,
-        logLevelFilter: LogLevelFilter,
-    },
+        cursor: CursorType;
+        logLevelFilter: LogLevelFilter;
+    };
     [WORKER_REQ_CODE.START_QUERY]: {
-        queryString: string,
-        isRegex: boolean,
-        isCaseSensitive: boolean,
-    },
+        queryString: string;
+        isRegex: boolean;
+        isCaseSensitive: boolean;
+    };
 };
-
-type TextRange = [number, number];
-
-interface QueryResultsType {
-    logEventNum: number;
-    message: string;
-    matchRange: TextRange;
-}
-
-type QueryResults = Map<number, QueryResultsType[]>;
-
-const QUERY_PROGRESS_INIT = 0;
-const QUERY_PROGRESS_DONE = 1;
 
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
-        logs: string
-    },
-    [WORKER_RESP_CODE.FORMAT_POPUP]: null,
+        logs: string;
+    };
+    [WORKER_RESP_CODE.FORMAT_POPUP]: null;
     [WORKER_RESP_CODE.LOG_FILE_INFO]: {
-        fileName: string,
-        numEvents: number,
-        onDiskFileSizeInBytes: number,
-    },
+        fileName: string;
+        numEvents: number;
+        onDiskFileSizeInBytes: number;
+    };
     [WORKER_RESP_CODE.NOTIFICATION]: {
-        logLevel: LOG_LEVEL,
-        message: string,
-    },
+        logLevel: LOG_LEVEL;
+        message: string;
+    };
     [WORKER_RESP_CODE.PAGE_DATA]: {
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
-        cursorLineNum: number,
-        logEventNum: Nullable<number>,
-        logs: string,
-        numPages: number,
-        pageNum: number,
-    },
+        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
+        cursorLineNum: number;
+        logEventNum: Nullable<number>;
+        logs: string;
+        numPages: number;
+        pageNum: number;
+    };
     [WORKER_RESP_CODE.QUERY_RESULT]: {
-        progress: number,
-        results: QueryResults
-    },
+        progress: number;
+        results: QueryResults;
+    };
 };
 
 type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
@@ -156,11 +154,17 @@ type WorkerResp<T extends WORKER_RESP_CODE> = T extends keyof WorkerRespMap ?
     never;
 
 type MainWorkerReqMessage = {
-    [T in keyof WorkerReqMap]: { code: T, args: WorkerReqMap[T] };
+    [T in keyof WorkerReqMap]: {
+        code: T;
+        args: WorkerReqMap[T];
+    };
 }[keyof WorkerReqMap];
 
 type MainWorkerRespMessage = {
-    [T in keyof WorkerRespMap]: { code: T, args: WorkerRespMap[T] };
+    [T in keyof WorkerRespMap]: {
+        code: T;
+        args: WorkerRespMap[T];
+    };
 }[keyof WorkerRespMap];
 
 /**
@@ -180,8 +184,6 @@ export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
-    QUERY_PROGRESS_DONE,
-    QUERY_PROGRESS_INIT,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
 };
@@ -192,8 +194,6 @@ export type {
     FileSrcType,
     MainWorkerReqMessage,
     MainWorkerRespMessage,
-    QueryResults,
-    QueryResultsType,
     WorkerReq,
     WorkerResp,
 };

@@ -4,9 +4,9 @@ import dayjsTimezone from "dayjs/plugin/timezone";
 import dayjsUtc from "dayjs/plugin/utc";
 
 import {LOG_LEVEL} from "../typings/logs";
+import {QueryResults} from "../typings/query";
 import {
     MainWorkerReqMessage,
-    QueryResults,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
     WorkerResp,
@@ -15,11 +15,9 @@ import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
 import LogFileManager from "./LogFileManager";
 
 
-/* eslint-disable import/no-named-as-default-member */
 dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsTimezone);
 dayjs.extend(dayjsBigIntSupport);
-/* eslint-enable import/no-named-as-default-member */
 
 /**
  * Manager for the currently opened log file.
@@ -124,18 +122,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                if (
-                    "string" !== typeof args.queryString ||
-                    "boolean" !== typeof args.isRegex ||
-                    "boolean" !== typeof args.isCaseSensitive
-                ) {
-                    throw new Error("Invalid arguments for QUERY_LOG");
-                }
-                LOG_FILE_MANAGER.startQuery(
-                    args.queryString,
-                    args.isRegex,
-                    args.isCaseSensitive
-                );
+                LOG_FILE_MANAGER.startQuery(args);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);

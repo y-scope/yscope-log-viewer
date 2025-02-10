@@ -23,17 +23,17 @@ import "./index.css";
 
 
 interface MonacoEditorProps {
-    actions: EditorAction[],
-    lineNum: number,
-    text: string,
-    themeName: "dark" | "light",
+    actions: EditorAction[];
+    lineNum: number;
+    text: string;
+    themeName: "dark" | "light";
 
-    beforeMount?: BeforeMountCallback,
-    beforeTextUpdate?: BeforeTextUpdateCallback,
-    onCursorExplicitPosChange: CursorExplicitPosChangeCallback,
-    onCustomAction: CustomActionCallback,
-    onMount?: MountCallback,
-    onTextUpdate?: TextUpdateCallback,
+    beforeMount?: BeforeMountCallback;
+    beforeTextUpdate?: BeforeTextUpdateCallback;
+    onCursorExplicitPosChange: CursorExplicitPosChangeCallback;
+    onCustomAction: CustomActionCallback;
+    onMount?: MountCallback;
+    onTextUpdate?: TextUpdateCallback;
 }
 
 /**
@@ -66,7 +66,7 @@ const MonacoInstance = ({
     onCustomAction,
     onTextUpdate,
 }: MonacoEditorProps) => {
-    const editorRef = useRef<null|monaco.editor.IStandaloneCodeEditor>(null);
+    const editorRef = useRef<null | monaco.editor.IStandaloneCodeEditor>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
     const lineNumRef = useRef<number>(lineNum);
 
@@ -76,7 +76,7 @@ const MonacoInstance = ({
     }, [lineNum]);
 
     useEffect(() => {
-        console.log("Initiating Monaco instance");
+        console.log("Initializing Monaco instance...");
         if (null === editorContainerRef.current) {
             console.error("Unexpected unmounted editor container div element");
 

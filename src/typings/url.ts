@@ -11,20 +11,21 @@ enum HASH_PARAM_NAMES {
 }
 
 interface UrlSearchParams {
-    [SEARCH_PARAM_NAMES.FILE_PATH]: string,
+    [SEARCH_PARAM_NAMES.FILE_PATH]: string;
 }
 
 interface UrlHashParams {
-    logEventNum: number,
-    timestamp: number,
+    logEventNum: number;
+    timestamp: number;
 }
 
 type UrlSearchParamUpdatesType = {
     [T in keyof UrlSearchParams]?: Nullable<UrlSearchParams[T]>;
-}
+};
+
 type UrlHashParamUpdatesType = {
     [T in keyof UrlHashParams]?: Nullable<UrlHashParams[T]>;
-}
+};
 
 type UrlParamsType = {
     [T in keyof UrlSearchParams]: Nullable<UrlSearchParams[T]>;
