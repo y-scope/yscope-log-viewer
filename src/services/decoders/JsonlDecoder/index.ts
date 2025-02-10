@@ -124,7 +124,7 @@ class JsonlDecoder implements Decoder {
         return results;
     }
 
-    getLogEventIdxByTimestamp (timestamp: number): number {
+    findNearestLogEventByTimestamp (timestamp: number): number {
         let low = 0;
         let high = this.#logEvents.length - 1;
         let lastFoundLogEventIdx = INVALID_LOG_EVENT_IDX;

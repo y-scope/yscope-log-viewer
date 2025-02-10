@@ -105,7 +105,7 @@ interface Decoder {
      * @param timestamp
      * @return The index of the matching log event, or -1 if no match is found.
      */
-    getLogEventIdxByTimestamp(timestamp: number): number;
+    findNearestLogEventByTimestamp(timestamp: number): number;
 }
 
 export type {

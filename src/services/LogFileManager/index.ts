@@ -446,7 +446,7 @@ class LogFileManager {
         } else if (CURSOR_CODE.EVENT_NUM === code) {
             ({eventNum} = args);
         } else {
-            eventNum = this.#decoder.getLogEventIdxByTimestamp(args.timestamp) + 1;
+            eventNum = this.#decoder.findNearestLogEventByTimestamp(args.timestamp) + 1;
         }
 
         return getEventNumCursorData(

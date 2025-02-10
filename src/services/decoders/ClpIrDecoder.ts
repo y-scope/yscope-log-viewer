@@ -77,8 +77,8 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getFilteredLogEventMap();
     }
 
-    getLogEventIdxByTimestamp (timestamp: number): number {
-        return this.#streamReader.getLogEventIdxByTimestamp(timestamp);
+    findNearestLogEventByTimestamp (timestamp: number): number {
+        return this.#streamReader.findNearestLogEventByTimestamp(timestamp);
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
