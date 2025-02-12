@@ -37,9 +37,7 @@ const convertAxiosError = (e: AxiosError): Error => {
  * @return The file's content.
  * @throws {Error} if the download fails.
  */
-const getUint8ArrayFrom = async (
-    fileUrl: string,
-)
+const getUint8ArrayFrom = async (fileUrl: string)
 : Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
