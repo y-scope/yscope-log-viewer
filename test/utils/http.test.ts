@@ -10,18 +10,9 @@ import {
 } from "../../src/utils/http";
 
 
-const handleProgress = jest.fn((loaded, total) => {
-    expect(loaded).toBeGreaterThanOrEqual(0);
-    expect(total).toBeGreaterThanOrEqual(0);
-});
-
-beforeEach(() => {
-    handleProgress.mockReset();
-});
-
 describe("getUint8ArrayFrom", () => {
     it(
-        "should fetch a file with an optional progress callback and return a Uint8Array",
+        "should fetch a file and return a Uint8Array",
         async () => {
             const myString = "hello";
             const myDataArray = new TextEncoder().encode(myString);
@@ -30,23 +21,8 @@ describe("getUint8ArrayFrom", () => {
             let result = await getUint8ArrayFrom(url);
             expect(result).toEqual(myDataArray);
 
-            result = await getUint8ArrayFrom(url, handleProgress);
+            result = await getUint8ArrayFrom(url);
             expect(result).toEqual(myDataArray);
-            expect(handleProgress).toHaveBeenCalled();
-        }
-    );
-});
-
-describe("normalizeTotalSize", () => {
-    it(
-        'should normalize total size if the response headers do not contain "Content-Length"',
-        async () => {
-            await getUint8ArrayFrom(
-                "https://httpbin.org/stream-bytes/4",
-                handleProgress
-            );
-
-            expect(handleProgress).toHaveBeenCalled();
         }
     );
 });
