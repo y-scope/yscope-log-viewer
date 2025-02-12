@@ -5,6 +5,15 @@ import {defineConfig} from "vite";
 // https://vite.dev/config/
 export default defineConfig({
     appType: "mpa",
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    "monaco-editor": ["monaco-editor"],
+                },
+            },
+        },
+    },
     optimizeDeps: {
         exclude: [
             "clp-ffi-js/worker",
