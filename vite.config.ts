@@ -14,15 +14,12 @@ export default defineConfig({
                 },
             },
         },
+        sourcemap: true,
     },
     optimizeDeps: {
-        exclude: [
-            "clp-ffi-js/worker",
-        ],
+        exclude: ["clp-ffi-js/worker"],
     },
-    plugins: [
-        react(),
-    ],
+    plugins: [react()],
     server: {
         port: 3010,
     },
