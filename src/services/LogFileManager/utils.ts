@@ -139,7 +139,17 @@ const loadFile = async (fileSrc: FileSrcType)
     let fileData: Uint8Array;
     if ("string" === typeof fileSrc) {
         fileName = getBasenameFromUrlOrDefault(fileSrc);
-        fileData = await getUint8ArrayFrom(fileSrc);
+        fileData = await getUint8ArrayFrom(fileSrc, (numBytesLoaded, numBytesTotal) => {
+            // eslint-disable-next-line no-warning-comments
+            // TODO: Also present the loading progress in the UI.
+            const percentage = ((numBytesLoaded / numBytesTotal) * 100).toFixed(2);
+
+            // Pads the percentage string to ensure consistent alignment.
+            const paddedPercentage = percentage.padStart("100.00".length);
+            console.log(
+                `Loaded ${paddedPercentage}%: ${numBytesLoaded} / ${numBytesTotal} bytes.`
+            );
+        });
     } else {
         fileName = fileSrc.name;
         fileData = new Uint8Array(await fileSrc.arrayBuffer());
