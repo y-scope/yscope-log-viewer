@@ -100,10 +100,21 @@ interface Decoder {
     ): Nullable<DecodeResult[]>;
 
     /**
-     * Finds the index of the last log event that matches the specified timestamp.
+     * Finds the log event, L, where if we assume:
+     *
+     * - the collection of log events is sorted in chronological order;
+     * - and we insert a marker log event, M, with timestamp `timestamp` into the collection (if log
+     *   events with timestamp `timestamp` already exist in the collection, M should be inserted
+     *   after them).
+     *
+     * L is the event just before M, if M is not the first event in the collection; otherwise L is
+     * the event just after M.
+     *
+     * NOTE: If the collection of log events isn't in chronological order, this method has undefined
+     * behaviour.
      *
      * @param timestamp
-     * @return The index of the matching log event, or -1 if no match is found.
+     * @return The index of the log event L.
      */
     findNearestLogEventByTimestamp(timestamp: number): number;
 }
