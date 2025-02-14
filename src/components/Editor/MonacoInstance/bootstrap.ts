@@ -1,3 +1,5 @@
+// Imports monaco plugins and sets up environment for Monaco worker creation.
+
 /* eslint-disable @stylistic/max-len */
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 
