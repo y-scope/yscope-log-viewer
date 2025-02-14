@@ -1,5 +1,7 @@
 import axios, {AxiosError} from "axios";
 
+import {JsonValue} from "../typings/js";
+
 
 /**
  * Converts an Axios error into a custom Error object.
@@ -38,10 +40,10 @@ const convertAxiosError = (e: AxiosError): Error => {
  * @return The parsed JSON object.
  * @throws {Error} if the download fails.
  */
-const getJsonObjectFrom = async <T>(remoteUrl: string)
-: Promise<T> => {
+const getJsonObjectFrom = async (remoteUrl: string)
+: Promise<JsonValue> => {
     try {
-        const {data} = await axios.get<T>(remoteUrl, {
+        const {data} = await axios.get<JsonValue>(remoteUrl, {
             responseType: "json",
         });
 
