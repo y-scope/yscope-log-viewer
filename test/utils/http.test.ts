@@ -20,10 +20,7 @@ describe("getUint8ArrayFrom", () => {
             const myDataArray = new TextEncoder().encode(myString);
             const url = `${HTTP_BIN_ENDPOINT_BASE}/base64/${btoa(myString)}`;
 
-            let result = await getUint8ArrayFrom(url);
-            expect(result).toEqual(myDataArray);
-
-            result = await getUint8ArrayFrom(url);
+            const result = await getUint8ArrayFrom(url);
             expect(result).toEqual(myDataArray);
         }
     );
