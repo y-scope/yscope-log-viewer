@@ -14,13 +14,13 @@
     "preview": "vite preview",
     "test": "jest"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/y-scope/yscope-log-viewer.git"
   },
   "author": "YScope Inc. <dev@yscope.com>",
   "license": "Apache-2.0",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/y-scope/yscope-log-viewer/issues"
   },
