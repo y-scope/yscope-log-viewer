@@ -7,6 +7,7 @@ export default defineConfig({
     appType: "mpa",
     base: "./",
     build: {
+        assetsDir: "",
         rollupOptions: {
             output: {
                 manualChunks: {
