@@ -10,13 +10,15 @@ import {
 } from "../../src/utils/http";
 
 
+const HTTP_BIN_ENDPOINT_BASE = "https://cloud.yscope.com/httpbin";
+
 describe("getUint8ArrayFrom", () => {
     it(
         "should fetch a file and return a Uint8Array",
         async () => {
             const myString = "hello";
             const myDataArray = new TextEncoder().encode(myString);
-            const url = `https://httpbin.org/base64/${btoa(myString)}`;
+            const url = `${HTTP_BIN_ENDPOINT_BASE}/base64/${btoa(myString)}`;
 
             let result = await getUint8ArrayFrom(url);
             expect(result).toEqual(myDataArray);
@@ -31,7 +33,7 @@ describe("Invalid HTTP sources", () => {
     it(
         "should cause a custom error to be thrown when the HTTP request is not successful",
         async () => {
-            const url = `https://httpbin.org/status/${StatusCodes.NOT_FOUND}`;
+            const url = `${HTTP_BIN_ENDPOINT_BASE}/status/${StatusCodes.NOT_FOUND}`;
             await expect(getUint8ArrayFrom(url)).rejects.toMatchObject({
                 message: `Request failed with status code ${StatusCodes.NOT_FOUND}`,
                 cause: {
@@ -52,7 +54,7 @@ describe("Invalid HTTP sources", () => {
 
 describe("convertAxiosError", () => {
     it("should handle errors with a response available", async () => {
-        const url = `https://httpbin.org/status/${StatusCodes.NOT_FOUND}`;
+        const url = `${HTTP_BIN_ENDPOINT_BASE}/status/${StatusCodes.NOT_FOUND}`;
         const expectedCode = "ERR_BAD_REQUEST";
         const expectedStatus = StatusCodes.NOT_FOUND;
         const expectedStatusText = getReasonPhrase(expectedStatus).toUpperCase();
