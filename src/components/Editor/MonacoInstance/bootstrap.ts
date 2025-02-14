@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/max-len */
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 
 import "monaco-editor/esm/vs/base/browser/ui/codicons/codiconStyles.js";
@@ -12,6 +13,9 @@ import "monaco-editor/esm/vs/editor/contrib/readOnlyMessage/browser/contribution
 import "monaco-editor/esm/vs/editor/contrib/sectionHeaders/browser/sectionHeaders.js";
 import "monaco-editor/esm/vs/editor/contrib/wordHighlighter/browser/wordHighlighter.js";
 import "monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneCommandsQuickAccess.js";
+
+
+/* eslint-enable @stylistic/max-len */
 
 
 self.MonacoEnvironment = {
