@@ -33,11 +33,11 @@ const convertAxiosError = (e: AxiosError): Error => {
 };
 
 /**
- * Retrieves an object that is stored as JSON in a remote location.
- * If the response is not an object, the response is returned as a string.
+ * Downloads and parses JSON from remote URL.
+ * If the HTTP response body is not JSON, the body is gracefully returned as a string.
  *
  * @param remoteUrl
- * @return The parsed JSON object.
+ * @return The parsed response.
  * @throws {Error} if the download fails.
  */
 const getJsonObjectFrom = async (remoteUrl: string)
