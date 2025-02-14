@@ -10,6 +10,8 @@ import {
 } from "../../src/utils/http";
 
 
+// eslint-disable-next-line no-warning-comments
+// TODO: Add unit tests with mock responses for below tests that interact with the httpbin endpoint.
 const HTTP_BIN_ENDPOINT_BASE = "https://cloud.yscope.com/httpbin";
 
 describe("getUint8ArrayFrom", () => {
