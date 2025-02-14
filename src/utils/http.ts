@@ -58,4 +58,7 @@ const getUint8ArrayFrom = async (fileUrl: string)
 };
 
 
-export {getUint8ArrayFrom};
+export {
+    convertAxiosError,
+    getUint8ArrayFrom,
+};
