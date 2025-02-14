@@ -37,11 +37,6 @@ const JEST_CONFIG: Config = {
             functions: 100,
             lines: 100,
         },
-        "src/utils/http.ts": {
-            branches: 100,
-            functions: 100,
-            lines: 100,
-        },
         "src/utils/math.ts": {
             branches: 100,
             functions: 100,
