@@ -34,7 +34,6 @@ import {
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import MonacoInstance from "./MonacoInstance";
-import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
 import "./index.css";
 
@@ -84,7 +83,6 @@ const Editor = () => {
                 loadPageByAction({code: actionName, args: null});
                 break;
             case ACTION_NAME.PAGE_TOP: {
-                goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
                 const newlogEventNum = beginLineNumToLogEventNumRef.current.get(1);
                 if (newlogEventNum) {
                     updateWindowUrlHashParams({logEventNum: newlogEventNum});
@@ -96,7 +94,6 @@ const Editor = () => {
                 if ("undefined" === typeof lineCount) {
                     break;
                 }
-                goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 const newlogEvent = beginLineNumToLogEventNumRef.current.get(1);
                 if (newlogEvent) {
                     updateWindowUrlHashParams({logEventNum: newlogEvent + pageSizeRef.current - 1});
@@ -135,12 +132,13 @@ const Editor = () => {
     }, []);
 
     /**
-     * On explicit position change of the cursor in the editor, get the `logEventNum` corresponding
-     * to the line number at the cursor's position and update the URL parameter.
+     * Get the `logEventNum` corresponding to the line number at the cursor's position and update
+     * the URL parameter when the position of the cursor either changes explicitly in the editor,
+     * or is changed by the editor.setPosition function.
      *
      * @param ev The event object containing information about the cursor position change.
      */
-    const handleCursorExplicitPosChange = useCallback((
+    const handleCursorPosChange = useCallback((
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
         const newLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
@@ -194,7 +192,7 @@ const Editor = () => {
                 themeName={(("system" === mode) ?
                     systemMode :
                     mode) ?? THEME_NAME.DARK}
-                onCursorExplicitPosChange={handleCursorExplicitPosChange}
+                onCursorExplicitPosChange={handleCursorPosChange}
                 onCustomAction={handleEditorCustomAction}
                 onMount={handleMount}
                 onTextUpdate={restoreCachedPageSize}/>
