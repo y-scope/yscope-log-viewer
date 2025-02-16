@@ -11,7 +11,7 @@ import type {Mode} from "@mui/system/cssVars/useCurrentColorScheme";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 
-import {THEME_NAME} from "../../../typings/config";
+import {THEME_NAME} from "../../../../../typings/config";
 
 
 /**

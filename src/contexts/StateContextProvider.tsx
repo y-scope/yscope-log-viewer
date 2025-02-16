@@ -30,6 +30,7 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
+import {TAB_NAME} from "../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -49,6 +50,7 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
+    setConfig,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -66,10 +68,10 @@ import {
 
 
 interface StateContextType {
+    activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    isSettingsModalOpen: boolean;
     uiState: UI_STATE;
     logData: string;
     numEvents: number;
@@ -79,11 +81,11 @@ interface StateContextType {
     queryProgress: number;
     queryResults: QueryResults;
 
+    changeActiveTabName: (tabName: TAB_NAME) => void;
     exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
-    setIsSettingsModalOpen: (isOpen: boolean) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -93,10 +95,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
+    activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -106,11 +108,11 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
+    changeActiveTabName: () => null,
     exportLogs: () => null,
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
-    setIsSettingsModalOpen: () => null,
     startQuery: () => null,
 });
 
@@ -250,10 +252,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] =
-        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -274,6 +275,21 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
+
+    const changeActiveTabName = useCallback((tabName: TAB_NAME) => {
+        setActiveTabName((oldTabName) => {
+            if (oldTabName === tabName) {
+                // Close the panel
+                setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
+
+                return TAB_NAME.NONE;
+            }
+
+            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
+
+            return tabName;
+        });
+    }, []);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -297,7 +313,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
                         onClick: () => {
-                            setIsSettingsModalOpen(true);
+                            changeActiveTabName(TAB_NAME.SETTINGS);
                         },
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -365,7 +381,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, [postPopUp]);
+    }, [
+        changeActiveTabName,
+        postPopUp,
+    ]);
 
     const startQuery = useCallback((queryArgs: QueryArgs) => {
         setQueryResults(STATE_DEFAULT.queryResults);
@@ -533,10 +552,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                activeTabName: activeTabName,
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -546,11 +565,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 queryResults: queryResults,
                 uiState: uiState,
 
+                changeActiveTabName: changeActiveTabName,
                 exportLogs: exportLogs,
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
-                setIsSettingsModalOpen: setIsSettingsModalOpen,
                 startQuery: startQuery,
             }}
         >

@@ -1,5 +1,6 @@
 .sidebar-tab-panel {
-    padding: 0.75rem;
+    padding: 0.75rem !important;
+    padding-right: 0.5rem !important;
 }
 
 .sidebar-tab-panel-container {
