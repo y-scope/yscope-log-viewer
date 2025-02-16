@@ -138,16 +138,16 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
  * @throws {Error} If the field name could not be parsed.
  */
 const splitFieldPlaceholder = (placeholderString: string): {
-    fieldNameKeys: string[],
-    formatterName: Nullable<string>,
-    formatterOptions: Nullable<string>,
+    fieldNameKeys: string[];
+    formatterName: Nullable<string>;
+    formatterOptions: Nullable<string>;
 } => {
     let [
         fieldName,
         formatterName,
         formatterOptions,
-    ]: Nullable<string|undefined>[
-] = placeholderString.split(COLON_REGEX, 3);
+    ]: Nullable<string | undefined>[
+    ] = placeholderString.split(COLON_REGEX, 3);
 
     fieldName = validateComponent(fieldName);
     if (null === fieldName) {

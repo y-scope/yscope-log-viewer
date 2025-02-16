@@ -6,14 +6,18 @@ type JsonValue = null |
     string |
     number |
     boolean |
-    { [key: string]: JsonValue } |
+    {
+        [key: string]: JsonValue;
+    } |
     Array<JsonValue>;
 
 /**
  * JSON object type.
  * Reference: https://www.json.org/json-en.html
  */
-type JsonObject = { [key: string]: JsonValue };
+type JsonObject = {
+    [key: string]: JsonValue;
+};
 
 /**
  * The maximum length that a string can have in the V8 JavaScript engine.

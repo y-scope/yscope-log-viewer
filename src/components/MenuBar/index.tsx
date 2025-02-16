@@ -3,10 +3,8 @@ import {useContext} from "react";
 import {
     Box,
     Divider,
-    IconButton,
     LinearProgress,
     Sheet,
-    Tooltip,
     Typography,
 } from "@mui/joy";
 
@@ -18,6 +16,7 @@ import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
 import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
+import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
 
 import "./index.css";
@@ -48,20 +47,14 @@ const MenuBar = () => {
                 </div>
 
                 <Divider orientation={"vertical"}/>
-                <Tooltip
-                    arrow={true}
-                    placement={"right"}
+                <MenuBarIconButton
+                    disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
                     title={"Open file"}
-                    variant={"outlined"}
+                    tooltipPlacement={"bottom-start"}
+                    onClick={handleOpenFile}
                 >
-                    <IconButton
-                        disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
-                        size={"sm"}
-                        onClick={handleOpenFile}
-                    >
-                        <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
-                    </IconButton>
-                </Tooltip>
+                    <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
+                </MenuBarIconButton>
                 <Divider orientation={"vertical"}/>
 
                 <Box
