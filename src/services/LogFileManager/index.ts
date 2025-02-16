@@ -433,7 +433,7 @@ class LogFileManager {
      */
     #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
-        // eslint-disable-next-line no-useless-assignment
+
         let eventNum: number = 0;
         if (CURSOR_CODE.PAGE_NUM === code) {
             return getPageNumCursorData(
@@ -447,7 +447,10 @@ class LogFileManager {
         } else if (CURSOR_CODE.EVENT_NUM === code) {
             ({eventNum} = args);
         } else {
-            eventNum = this.#decoder.findNearestLogEventByTimestamp(args.timestamp) + 1;
+            const eventIdx = this.#decoder.findNearestLogEventByTimestamp(args.timestamp);
+            if (null !== eventIdx) {
+                eventNum = eventIdx + 1;
+            }
         }
 
         return getEventNumCursorData(
