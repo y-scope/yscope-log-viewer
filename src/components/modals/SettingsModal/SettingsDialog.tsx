@@ -29,7 +29,7 @@ import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
-import ThemeOverrideFormField from "./ThemeOverrideFormField";
+import ThemeSwitchFormField from "./ThemeSwitchFormField";
 
 
 const CONFIG_FORM_FIELDS = [
@@ -144,7 +144,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                     Settings
                 </DialogTitle>
                 <DialogContent>
-                    <ThemeOverrideFormField/>
+                    <ThemeSwitchFormField/>
                     {CONFIG_FORM_FIELDS.map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
