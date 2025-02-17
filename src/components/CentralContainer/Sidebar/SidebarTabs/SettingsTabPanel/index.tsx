@@ -148,10 +148,7 @@ const SettingsTabPanel = () => {
                 <Box className={"settings-form-fields-container"}>
                     <ThemeSwitchFormField/>
                     {CONFIG_FORM_FIELDS.map((field, index) => (
-                        <FormControl
-                            className={"config-form-control"}
-                            key={index}
-                        >
+                        <FormControl key={index}>
                             <FormLabel>
                                 {field.label}
                             </FormLabel>
