@@ -55,7 +55,7 @@ const ThemeSwitchFormField = () => {
                 </Button>
             </ToggleButtonGroup>
             <FormHelperText>
-                {`Current mode: ${mode}`}
+                Log viewer color theme. System theme will match your system settings.
             </FormHelperText>
         </FormControl>
     );
