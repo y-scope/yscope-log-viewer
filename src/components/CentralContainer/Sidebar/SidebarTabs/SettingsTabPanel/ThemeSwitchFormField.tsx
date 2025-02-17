@@ -14,6 +14,8 @@ import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
 import {THEME_NAME} from "../../../../../typings/config";
 
+import "./ThemeSwitchFormField.css";
+
 
 /**
  * Renders a toggle button form field for theme selection.
@@ -29,6 +31,7 @@ const ThemeSwitchFormField = () => {
                 Theme
             </FormLabel>
             <ToggleButtonGroup
+                className={"theme-switch-toggle-button-group"}
                 size={"sm"}
                 value={mode as string}
                 onChange={(__, newValue) => {
