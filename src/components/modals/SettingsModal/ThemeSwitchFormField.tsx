@@ -26,7 +26,7 @@ const ThemeSwitchFormField = () => {
     return (
         <FormControl>
             <FormLabel>
-                Theme override
+                Theme
             </FormLabel>
             <ToggleButtonGroup
                 size={"sm"}
