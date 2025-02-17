@@ -459,7 +459,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
-    }, []);
+    }, [loadFile]);
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
