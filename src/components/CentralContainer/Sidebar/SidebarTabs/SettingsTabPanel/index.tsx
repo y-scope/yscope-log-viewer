@@ -31,7 +31,7 @@ import {
     setConfig,
 } from "../../../../../utils/config";
 import CustomTabPanel from "../CustomTabPanel";
-import ThemeOverrideFormField from "./ThemeOverrideFormField";
+import ThemeSwitchFormField from "./ThemeSwitchFormField";
 
 import "./index.css";
 
@@ -140,13 +140,13 @@ const SettingsTabPanel = () => {
             title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
         >
             <form
-                className={"settings-form"}
+                className={"settings-tab-container"}
                 tabIndex={-1}
                 onReset={handleConfigFormReset}
                 onSubmit={handleConfigFormSubmit}
             >
                 <Box className={"settings-form-fields-container"}>
-                    <ThemeOverrideFormField/>
+                    <ThemeSwitchFormField/>
                     {CONFIG_FORM_FIELDS.map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
