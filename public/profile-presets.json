@@ -1,7 +1,7 @@
 {
   "Athena": {
     "config": {
-      "decoderOptions/formatString": "{ts:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS} {level} [{thread}] {class}.{method}({file}:{line}): {message}",
+      "decoderOptions/formatString": "{ts:timestamp:YYYY-MM-DD HH\\:mm\\:ss.SSS} {level} [{thread}] {class}.{method}({file}:{line}): {message}{xEx}",
       "decoderOptions/logLevelKey": "level",
       "decoderOptions/timestampKey": "ts",
       "pageSize": 10000
