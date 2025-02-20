@@ -12,7 +12,9 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 
-import {THEME_NAME} from "../../../typings/config";
+import {THEME_NAME} from "../../../../../typings/config";
+
+import "./ThemeSwitchFormField.css";
 
 
 /**
@@ -29,6 +31,7 @@ const ThemeSwitchFormField = () => {
                 Theme
             </FormLabel>
             <ToggleButtonGroup
+                className={"theme-switch-toggle-button-group"}
                 size={"sm"}
                 value={mode as string}
                 onChange={(__, newValue) => {

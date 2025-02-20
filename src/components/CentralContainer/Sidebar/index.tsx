@@ -1,17 +1,12 @@
 import {
     useCallback,
+    useContext,
     useEffect,
-    useMemo,
     useRef,
-    useState,
 } from "react";
 
-import {CONFIG_KEY} from "../../../typings/config";
+import {StateContext} from "../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../typings/tab";
-import {
-    getConfig,
-    setConfig,
-} from "../../../utils/config";
 import {clamp} from "../../../utils/math";
 import ResizeHandle from "./ResizeHandle";
 import SidebarTabs from "./SidebarTabs";
@@ -49,42 +44,14 @@ const setPanelWidth = (newValue: number) => {
  * @return
  */
 const Sidebar = () => {
-    const initialTabName = useMemo(() => getConfig(CONFIG_KEY.INITIAL_TAB_NAME), []);
-    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(initialTabName);
+    const {activeTabName, changeActiveTabName} = useContext(StateContext);
     const tabListRef = useRef<HTMLDivElement>(null);
-
-    const handleActiveTabNameChange = useCallback((tabName: TAB_NAME) => {
-        if (null === tabListRef.current) {
-            console.error("Unexpected null tabListRef.current");
-
-            return;
-        }
-
-        if (activeTabName === tabName) {
-            // Close the panel
-            setActiveTabName(TAB_NAME.NONE);
-            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
-            setPanelWidth(tabListRef.current.clientWidth);
-
-            return;
-        }
-
-        setActiveTabName(tabName);
-        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
-        setPanelWidth(
-            clamp(
-                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
-                PANEL_CLIP_THRESHOLD_IN_PIXELS,
-                PANEL_DEFAULT_WIDTH_IN_PIXELS
-            )
-        );
-    }, [activeTabName]);
 
     const handleResizeHandleRelease = useCallback(() => {
         if (getPanelWidth() === tabListRef.current?.clientWidth) {
-            setActiveTabName(TAB_NAME.NONE);
+            changeActiveTabName(TAB_NAME.NONE);
         }
-    }, []);
+    }, [changeActiveTabName]);
 
     const handleResize = useCallback((resizeHandlePosition: number) => {
         if (null === tabListRef.current) {
@@ -129,27 +96,37 @@ const Sidebar = () => {
         };
     }, []);
 
-    // On initialization, do not show panel if there is no active tab.
+    // On `activeTabName` update, update panel width.
     useEffect(() => {
         if (null === tabListRef.current) {
             console.error("Unexpected null tabListRef.current");
 
             return;
         }
-        if (TAB_NAME.NONE === initialTabName) {
+
+        if (activeTabName === TAB_NAME.NONE) {
             setPanelWidth(tabListRef.current.clientWidth);
+
+            return;
         }
-    }, [initialTabName]);
+
+        setPanelWidth(
+            clamp(
+                window.innerWidth - EDITOR_MIN_WIDTH_IN_PIXELS,
+                PANEL_CLIP_THRESHOLD_IN_PIXELS,
+                PANEL_DEFAULT_WIDTH_IN_PIXELS,
+            ),
+        );
+    }, [activeTabName]);
 
     return (
         <div className={"sidebar-tabs-container"}>
-            <SidebarTabs
-                activeTabName={activeTabName}
-                ref={tabListRef}
-                onActiveTabNameChange={handleActiveTabNameChange}/>
-            {TAB_NAME.NONE !== activeTabName && <ResizeHandle
-                onHandleRelease={handleResizeHandleRelease}
-                onResize={handleResize}/>}
+            <SidebarTabs ref={tabListRef}/>
+            {TAB_NAME.NONE !== activeTabName && (
+                <ResizeHandle
+                    onHandleRelease={handleResizeHandleRelease}
+                    onResize={handleResize}/>
+            )}
         </div>
     );
 };
