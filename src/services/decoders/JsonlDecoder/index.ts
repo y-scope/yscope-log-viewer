@@ -140,6 +140,11 @@ class JsonlDecoder implements Decoder {
             }
         }
 
+        // corner case: all log events have timestamps >= timestamp
+        if (0 > high) {
+            return 0;
+        }
+
         return high;
     }
 
