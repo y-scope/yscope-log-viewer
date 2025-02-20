@@ -247,7 +247,7 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, logEventNum, timestamp} = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
@@ -274,6 +274,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorkerRef = useRef<null | Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
+    const timestampRef = useRef(timestamp);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -477,6 +478,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
+    // Synchronize `timestampRef` with `timestamp`.
+    useEffect(() => {
+        timestampRef.current = timestamp;
+    }, [timestamp]);
+
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
         pageNumRef.current = pageNum;
@@ -496,13 +502,21 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [uiState]);
 
-    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorkerRef.current) {
+        if (null === mainWorkerRef.current || null === timestamp) {
             return;
         }
 
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+        loadPageByCursor(mainWorkerRef.current, {
+            code: CURSOR_CODE.TIMESTAMP,
+            args: {timestamp: timestamp},
+        });
+        updateWindowUrlHashParams({timestamp: null});
+    }, [timestamp]);
+
+    // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
+    useEffect(() => {
+        if (null === mainWorkerRef.current || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 
@@ -539,6 +553,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
+            };
+        }
+        if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestampRef.current) {
+            cursor = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestampRef.current},
             };
         }
         loadFile(filePath, cursor);
