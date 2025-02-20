@@ -112,8 +112,8 @@ type WorkerReqMap = {
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;
-        isRegex: boolean;
-        isCaseSensitive: boolean;
+        queryIsCaseSensitive: boolean;
+        queryIsRegex: boolean;
     };
 };
 

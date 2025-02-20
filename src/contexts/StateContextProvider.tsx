@@ -30,7 +30,10 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
-import {SEARCH_PARAM_NAMES} from "../typings/url";
+import {
+    HASH_PARAM_NAMES,
+    SEARCH_PARAM_NAMES,
+} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -247,14 +250,20 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {
+        filePath,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        logEventNum,
+        queryString,
+    } = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [isSettingsModalOpen, setIsSettingsModalOpen] =
         useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
-    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -275,6 +284,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
+
+    const startQuery = useCallback((queryArgs: QueryArgs) => {
+        setQueryResults(STATE_DEFAULT.queryResults);
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
+    }, []);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -368,16 +387,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [postPopUp]);
 
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
-        setQueryResults(STATE_DEFAULT.queryResults);
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
-    }, []);
-
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -406,6 +415,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
+        setQueryResults(STATE_DEFAULT.queryResults);
+        setQueryProgress(QUERY_PROGRESS_VALUE_MIN);
 
         // Cache `fileSrc` for reloads.
         fileSrcRef.current = fileSrc;
@@ -495,6 +506,30 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             setLogData(STATE_DEFAULT.logData);
         }
     }, [uiState]);
+
+    useEffect(() => {
+        if (uiState === UI_STATE.READY) {
+            if (
+                URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
+                URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive &&
+                URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex
+            ) {
+                startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
+            }
+            updateWindowUrlHashParams({
+                [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
+                [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
+                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
+                [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
+            });
+        }
+    }, [
+        queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        startQuery,
+        uiState,
+    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
