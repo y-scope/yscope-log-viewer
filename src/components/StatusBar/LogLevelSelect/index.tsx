@@ -104,7 +104,6 @@ const LogSelectOption = ({
             </ListItemDecorator>
             <Tooltip
                 placement={"left"}
-                slotProps={{root: {className: "log-level-select-option-text-tooltip"}}}
                 title={
                     <Stack
                         alignItems={"center"}
