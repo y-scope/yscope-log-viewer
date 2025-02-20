@@ -33,7 +33,7 @@ class YscopeFormatter implements Formatter {
 
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
             console.warn("Unicode replacement character `U+FFFD` is found in Decoder Format" +
-            ' String, which will appear as "\\".');
+            ' String, which will be treaded as "\\".');
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);
