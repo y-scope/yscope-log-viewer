@@ -47,11 +47,11 @@ import "./index.css";
 
 
 interface LogSelectOptionProps {
-    isChecked: boolean,
-    logLevelName: string,
-    logLevelValue: LOG_LEVEL,
-    onCheckboxClick: React.MouseEventHandler
-    onOptionClick: React.MouseEventHandler
+    isChecked: boolean;
+    logLevelName: string;
+    logLevelValue: LOG_LEVEL;
+    onCheckboxClick: React.MouseEventHandler;
+    onOptionClick: React.MouseEventHandler;
 }
 
 /**
@@ -104,7 +104,6 @@ const LogSelectOption = ({
             </ListItemDecorator>
             <Tooltip
                 placement={"left"}
-                slotProps={{root: {className: "log-level-select-option-text-tooltip"}}}
                 title={
                     <Stack
                         alignItems={"center"}
@@ -124,7 +123,7 @@ const LogSelectOption = ({
 };
 
 interface ClearFiltersOptionProps {
-    onClick: () => void
+    onClick: () => void;
 }
 
 /**

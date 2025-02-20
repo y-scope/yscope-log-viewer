@@ -1,6 +1,7 @@
-import type {Config} from "jest";
 import os from "node:os";
 import pathPosix from "node:path/posix";
+
+import type {Config} from "jest";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";

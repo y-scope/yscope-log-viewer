@@ -131,12 +131,15 @@ const getLastEventCursorData = (
  * @throws {Error} If the file source type is not supported.
  */
 const loadFile = async (fileSrc: FileSrcType)
-    : Promise<{ fileName: string, fileData: Uint8Array }> => {
+: Promise<{
+    fileName: string;
+    fileData: Uint8Array;
+}> => {
     let fileName: string;
     let fileData: Uint8Array;
     if ("string" === typeof fileSrc) {
         fileName = getBasenameFromUrlOrDefault(fileSrc);
-        fileData = await getUint8ArrayFrom(fileSrc, () => null);
+        fileData = await getUint8ArrayFrom(fileSrc);
     } else {
         fileName = fileSrc.name;
         fileData = new Uint8Array(await fileSrc.arrayBuffer());

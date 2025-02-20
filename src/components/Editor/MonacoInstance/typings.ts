@@ -62,8 +62,8 @@ type BeforeTextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) =>
 type TextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
 
 interface CustomMonacoEditorHandlers {
-    onCursorExplicitPosChange?: CursorExplicitPosChangeCallback,
-    onCustomAction?: CustomActionCallback,
+    onCursorExplicitPosChange?: CursorExplicitPosChangeCallback;
+    onCustomAction?: CustomActionCallback;
 }
 
 export {TOKEN_NAME};

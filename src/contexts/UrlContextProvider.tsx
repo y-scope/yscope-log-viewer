@@ -218,7 +218,7 @@ const getWindowUrlHashParams = () => {
 const searchParams = getWindowUrlSearchParams();
 
 interface UrlContextProviderProps {
-    children: React.ReactNode
+    children: React.ReactNode;
 }
 
 /**
