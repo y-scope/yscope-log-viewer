@@ -60,6 +60,11 @@ const APP_THEME = extendTheme({
                 arrow: true,
                 variant: "outlined",
             },
+            styleOverrides: {
+                root: {
+                    pointerEvents: "none",
+                },
+            },
         },
     },
     fontFamily: {

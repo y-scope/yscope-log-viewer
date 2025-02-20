@@ -1,7 +1,7 @@
 import axios, {AxiosError} from "axios";
 
+import {JsonValue} from "../typings/js";
 
-type ProgressCallback = (numBytesDownloaded:number, numBytesTotal:number) => void;
 
 /**
  * Converts an Axios error into a custom Error object.
@@ -33,24 +33,40 @@ const convertAxiosError = (e: AxiosError): Error => {
 };
 
 /**
+ * Downloads and parses JSON from the specified remote URL.
+ *
+ * @param remoteUrl
+ * @return The parsed response. If the HTTP response body is not JSON, the body is gracefully
+ * returned as a string.
+ * @throws {Error} if the download fails.
+ */
+const getJsonObjectFrom = async (remoteUrl: string)
+: Promise<JsonValue> => {
+    try {
+        const {data} = await axios.get<JsonValue>(remoteUrl, {
+            responseType: "json",
+        });
+
+        return data;
+    } catch (e) {
+        throw (e instanceof AxiosError) ?
+            convertAxiosError(e) :
+            e;
+    }
+};
+
+/**
  * Downloads (bypassing any caching) a file as a Uint8Array.
  *
  * @param fileUrl
- * @param progressCallback
  * @return The file's content.
  * @throws {Error} if the download fails.
  */
-const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCallback)
+const getUint8ArrayFrom = async (fileUrl: string)
 : Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
             responseType: "arraybuffer",
-            onDownloadProgress: ({loaded, total}) => {
-                if ("undefined" === typeof total) {
-                    total = loaded;
-                }
-                progressCallback(loaded, total);
-            },
             headers: {
                 "Cache-Control": "no-cache",
                 "Pragma": "no-cache",
@@ -66,5 +82,7 @@ const getUint8ArrayFrom = async (fileUrl: string, progressCallback: ProgressCall
     }
 };
 
-
-export {getUint8ArrayFrom};
+export {
+    getJsonObjectFrom,
+    getUint8ArrayFrom,
+};

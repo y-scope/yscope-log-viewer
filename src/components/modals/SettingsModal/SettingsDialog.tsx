@@ -31,7 +31,7 @@ import {
     getConfig,
     setConfig,
 } from "../../../utils/config";
-import ThemeSwitchToggle from "./ThemeSwitchToggle";
+import ThemeSwitchFormField from "./ThemeSwitchFormField";
 
 
 /**
@@ -154,12 +154,10 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                 size={"lg"}
             >
                 <DialogTitle className={"settings-dialog-title"}>
-                    <span className={"settings-dialog-title-text"}>
-                        Settings
-                    </span>
-                    <ThemeSwitchToggle/>
+                    Settings
                 </DialogTitle>
                 <DialogContent>
+                    <ThemeSwitchFormField/>
                     {getConfigFormFields().map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
