@@ -327,19 +327,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setFileName(args.fileName);
                 setNumEvents(args.numEvents);
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
-                if (
-                    URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
-                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive &&
-                    URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex
-                ) {
-                    startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
-                }
-                updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
-                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
-                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
-                    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
-                });
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({
@@ -502,6 +489,30 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             setLogData(STATE_DEFAULT.logData);
         }
     }, [uiState]);
+
+    useEffect(() => {
+        if (uiState === UI_STATE.READY) {
+            if (
+                URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
+                URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive &&
+                URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex
+            ) {
+                startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
+            }
+            updateWindowUrlHashParams({
+                [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
+                [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
+                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
+                [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
+            });
+        }
+    }, [
+        queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        startQuery,
+        uiState,
+    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
