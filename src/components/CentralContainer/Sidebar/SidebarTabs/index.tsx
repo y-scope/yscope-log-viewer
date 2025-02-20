@@ -1,5 +1,5 @@
 import {
-    forwardRef,
+    Ref,
     useContext,
 } from "react";
 
@@ -38,17 +38,20 @@ const TABS_INFO_LIST: Readonly<Array<{
     {tabName: TAB_NAME.SEARCH, Icon: SearchIcon},
 ]);
 
+interface SidebarTabsProps {
+    ref: Ref<HTMLDivElement>;
+}
 
 /**
  * Displays a set of tabs in a vertical orientation.
  *
- * @param tabListRef Reference object used to access the TabList DOM element.
+ * @param props
+ * @param props.ref Reference object used to access the TabList DOM element.
  * @return
  */
-const SidebarTabs = forwardRef<HTMLDivElement>((
-    _,
-    tabListRef
-) => {
+const SidebarTabs = ({
+    ref,
+}: SidebarTabsProps) => {
     const {activeTabName, changeActiveTabName} = useContext(StateContext);
 
     const handleTabButtonClick = (tabName: TAB_NAME) => {
@@ -69,7 +72,7 @@ const SidebarTabs = forwardRef<HTMLDivElement>((
             variant={"plain"}
         >
             <TabList
-                ref={tabListRef}
+                ref={ref}
                 size={"lg"}
             >
                 {TABS_INFO_LIST.map(({tabName, Icon}) => (
@@ -98,7 +101,6 @@ const SidebarTabs = forwardRef<HTMLDivElement>((
             <SettingsTabPanel/>
         </Tabs>
     );
-});
+};
 
-SidebarTabs.displayName = "SidebarTabs";
 export default SidebarTabs;
