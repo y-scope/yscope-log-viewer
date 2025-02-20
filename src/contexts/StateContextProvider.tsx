@@ -30,7 +30,10 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
-import {SEARCH_PARAM_NAMES} from "../typings/url";
+import {
+    HASH_PARAM_NAMES,
+    SEARCH_PARAM_NAMES,
+} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -247,7 +250,13 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, isCaseSensitive, isRegex, logEventNum, queryString} = useContext(UrlContext);
+    const {
+        filePath,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        logEventNum,
+        queryString,
+    } = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
@@ -319,16 +328,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 setNumEvents(args.numEvents);
                 setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 if (
-                    URL_SEARCH_PARAMS_DEFAULT.queryString !== queryString &&
-                    URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive !== isCaseSensitive &&
-                    URL_SEARCH_PARAMS_DEFAULT.isRegex !== isRegex
+                    URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
+                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive &&
+                    URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex
                 ) {
-                    startQuery({queryString, isCaseSensitive, isRegex});
+                    startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
                 }
-                updateWindowUrlSearchParams({
-                    [SEARCH_PARAM_NAMES.QUERY_STRING]: URL_SEARCH_PARAMS_DEFAULT.queryString,
-                    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: URL_SEARCH_PARAMS_DEFAULT.isCaseSensitive,
-                    [SEARCH_PARAM_NAMES.IS_REGEX]: URL_SEARCH_PARAMS_DEFAULT.isRegex,
+                updateWindowUrlHashParams({
+                    [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
+                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
+                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
+                    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
                 });
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:

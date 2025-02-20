@@ -293,9 +293,11 @@ class LogFileManager {
      * @param queryArgs.queryString
      * @param queryArgs.isRegex
      * @param queryArgs.isCaseSensitive
+     * @param queryArgs.queryIsRegex
+     * @param queryArgs.queryIsCaseSensitive
      * @throws {SyntaxError} if the query regex string is invalid.
      */
-    startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
+    startQuery ({queryString, queryIsRegex, queryIsCaseSensitive}: QueryArgs): void {
         this.#queryId++;
         this.#queryCount = 0;
 
@@ -309,10 +311,10 @@ class LogFileManager {
         }
 
         // Construct query RegExp
-        const regexPattern = isRegex ?
+        const regexPattern = queryIsRegex ?
             queryString :
             queryString.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const regexFlags = isCaseSensitive ?
+        const regexFlags = queryIsCaseSensitive ?
             "" :
             "i";
 

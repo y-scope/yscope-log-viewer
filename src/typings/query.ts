@@ -1,7 +1,7 @@
 interface QueryArgs {
     queryString: string;
-    isCaseSensitive: boolean;
-    isRegex: boolean;
+    queryIsCaseSensitive: boolean;
+    queryIsRegex: boolean;
 }
 
 type TextRange = [number, number];

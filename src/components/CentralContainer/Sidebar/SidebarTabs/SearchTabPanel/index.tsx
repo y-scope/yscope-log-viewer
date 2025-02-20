@@ -80,17 +80,17 @@ const SearchTabPanel = () => {
         setIsAllExpanded((v) => !v);
     };
     const handleShareButtonClick = () => {
-        copyPermalinkToClipboard({
+        copyPermalinkToClipboard({}, {
             queryString: queryString,
-            isCaseSensitive: getIsCaseSensitive(queryOptions),
-            isRegex: getIsRegex(queryOptions),
-        }, {});
+            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
+            queryIsRegex: getIsRegex(queryOptions),
+        });
     };
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
-            isCaseSensitive: getIsCaseSensitive(queryOptions),
-            isRegex: getIsRegex(queryOptions),
+            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
+            queryIsRegex: getIsRegex(queryOptions),
             queryString: queryString,
             ...newArgs,
         });
@@ -107,8 +107,8 @@ const SearchTabPanel = () => {
     ) => {
         setQueryOptions(newOptions);
         handleQuerySubmit({
-            isCaseSensitive: getIsCaseSensitive(newOptions),
-            isRegex: getIsRegex(newOptions),
+            queryIsCaseSensitive: getIsCaseSensitive(newOptions),
+            queryIsRegex: getIsRegex(newOptions),
         });
     };
 

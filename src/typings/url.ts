@@ -3,24 +3,25 @@ import {Nullable} from "./common";
 
 enum SEARCH_PARAM_NAMES {
     FILE_PATH = "filePath",
-    IS_CASE_SENSITIVE = "isCaseSensitive",
-    IS_REGEX = "isRegex",
-    QUERY_STRING = "queryString",
 }
 
 enum HASH_PARAM_NAMES {
     LOG_EVENT_NUM = "logEventNum",
+    QUERY_IS_CASE_SENSITIVE = "queryIsCaseSensitive",
+    QUERY_IS_REGEX = "queryIsRegex",
+    QUERY_STRING = "queryString",
 }
 
 interface UrlSearchParams {
     [SEARCH_PARAM_NAMES.FILE_PATH]: string;
-    [SEARCH_PARAM_NAMES.IS_CASE_SENSITIVE]: boolean;
-    [SEARCH_PARAM_NAMES.IS_REGEX]: boolean;
-    [SEARCH_PARAM_NAMES.QUERY_STRING]: string;
+
 }
 
 interface UrlHashParams {
-    logEventNum: number;
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: number;
+    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: boolean;
+    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: boolean;
+    [HASH_PARAM_NAMES.QUERY_STRING]: string;
 }
 
 type UrlSearchParamUpdatesType = {
