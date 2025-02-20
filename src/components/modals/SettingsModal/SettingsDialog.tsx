@@ -34,7 +34,12 @@ import {
 import ThemeSwitchToggle from "./ThemeSwitchToggle";
 
 
-const CONFIG_FORM_FIELDS = [
+/**
+ * Gets form fields information for user input of configuration values.
+ *
+ * @return A list of form fields information.
+ */
+const getConfigFormFields = () => [
     {
         helperText: (
             <span>
@@ -155,7 +160,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                     <ThemeSwitchToggle/>
                 </DialogTitle>
                 <DialogContent>
-                    {CONFIG_FORM_FIELDS.map((field, index) => (
+                    {getConfigFormFields().map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
                             key={index}
