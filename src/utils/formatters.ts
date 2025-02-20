@@ -102,6 +102,7 @@ const parseFieldName = (
 };
 
 export {
+    parseFilterKey,
     parseFieldName,
     jsonValueToString,
     removeEscapeCharacters,

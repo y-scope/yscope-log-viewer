@@ -68,8 +68,8 @@ class JsonlDecoder implements Decoder {
 
         this.#logLevelSplitKey = parsedLogLevelKey.splitKey;
         this.#timestampSplitKey = parsedTimestampKey.splitKey;
-        this.#formatter = new YscopeFormatter({formatString: DecoderOptions.formatString});
-        if (0 === DecoderOptions.formatString.length) {
+        this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString, mergedKvPairKeys: null});
+        if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
         }
     }
