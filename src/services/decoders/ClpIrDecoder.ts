@@ -18,7 +18,6 @@ import {
     convertToDayjsTimestamp,
     isJsonObject,
 } from "./JsonlDecoder/utils";
-import { parseDecoderOptions } from "../../utils/decoders";
 
 
 enum CLP_IR_STREAM_TYPE {
