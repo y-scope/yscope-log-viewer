@@ -21,7 +21,7 @@ interface StructuredIrReaderOptions {
  *
  * @param decoderOptions
  */
-const parseDecoderOptions = (
+const getStructuredIrReaderOptions = (
     decoderOptions: DecoderOptions,
 ): StructuredIrReaderOptions => {
     return {
@@ -49,7 +49,7 @@ const getStructuredIrNamespaceKeys = (module: MainModule): StructuredIrNamespace
 
 export {
     CLP_IR_STREAM_TYPE,
-    parseDecoderOptions,
+    getStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
 };
 

@@ -23,7 +23,7 @@ import {
 } from "../JsonlDecoder/utils";
 import {
     CLP_IR_STREAM_TYPE,
-    parseDecoderOptions,
+    getStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
 } from "./utils";
 
@@ -71,7 +71,7 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
-        const readerOptions = parseDecoderOptions(decoderOptions);
+        const readerOptions = getStructuredIrReaderOptions(decoderOptions);
         const streamReader = new module.ClpStreamReader(dataArray, readerOptions);
         const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
             CLP_IR_STREAM_TYPE.STRUCTURED :

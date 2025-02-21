@@ -31,21 +31,18 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
 });
 
 
-const getLogEventFields = (logEvent: LogEvent, structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>, hasAutoPrefix: boolean): JsonObject => {
-    if (null === structuredIrNamespaceKeys) {
-        return logEvent.fields
-    }
+const getFieldsByNamespace = (logEvent: LogEvent, structuredIrNamespaceKeys: StructuredIrNamespaceKeys, hasAutoPrefix: boolean): JsonObject => {
     const namespaceKey = hasAutoPrefix ?
         structuredIrNamespaceKeys.auto :
         structuredIrNamespaceKeys.user;
-    const nestedFields = logEvent.fields[namespaceKey];
-    if ("undefined" === typeof nestedFields) {
+    const fields = logEvent.fields[namespaceKey];
+    if ("undefined" === typeof fields) {
         throw new Error("Structured IR log event is missing namespace key");
     }
-    if (false === isJsonObject(nestedFields)) {
+    if (false === isJsonObject(fields)) {
         throw new Error("Structured IR log event is corrupted");
     }
-    return nestedFields
+    return fields
 }
 
 /**
@@ -67,7 +64,7 @@ const getFormattedField = (
     if (null === structuredIrNamespaceKeys) {
         fields = logEvent.fields;
     } else {
-        fields = getLogEventFields(
+        fields = getFieldsByNamespace(
             logEvent,
             structuredIrNamespaceKeys,
             fieldPlaceholder.parsedKey.hasAutoPrefix);
@@ -75,7 +72,7 @@ const getFormattedField = (
 
     const nestedValue = getNestedJsonValue(
         fields,
-        fieldPlaceholder.fieldNameKeys
+        fieldPlaceholder.parsedKey.splitKey
     );
     if ("undefined" === typeof nestedValue) {
         return "";

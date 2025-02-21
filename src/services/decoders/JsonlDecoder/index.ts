@@ -55,17 +55,17 @@ class JsonlDecoder implements Decoder {
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
 
-        const parsedLogLevelKey = escapeThenParseFilterKey(decoderOptions.logLevelKey);
-        const parsedTimestampKey = escapeThenParseFilterKey(decoderOptions.timestampKey);
-        if (parsedLogLevelKey.hasAutoPrefix || parsedTimestampKey.hasAutoPrefix) {
+        const logLevelKey = escapeThenParseFilterKey(decoderOptions.logLevelKey);
+        const timestampKey = escapeThenParseFilterKey(decoderOptions.timestampKey);
+        if (logLevelKey.hasAutoPrefix || timestampKey.hasAutoPrefix) {
             throw new Error(
                 "`@` is a reserved symbol for filter keys and must be escaped with `\\` " +
                 "for JSONL logs."
             );
         }
 
-        this.#logLevelSplitKey = parsedLogLevelKey.splitKey;
-        this.#timestampSplitKey = parsedTimestampKey.splitKey;
+        this.#logLevelSplitKey = logLevelKey.splitKey;
+        this.#timestampSplitKey = timestampKey.splitKey;
         this.#formatter = new YscopeFormatter({
             formatString: decoderOptions.formatString
         });
