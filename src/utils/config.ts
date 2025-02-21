@@ -28,6 +28,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
         formatString: "",
         logLevelKey: "log.level",
         timestampKey: "@timestamp",
+        timestampFormatString: "YYYY-MM-DDTHH:mm:ssZ",
     },
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
@@ -51,6 +52,8 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 result = "Timestamp key cannot be empty.";
             } else if (0 === value.logLevelKey.length) {
                 result = "Log level key cannot be empty.";
+            } else if (0 === value.timestampFormatString.length){
+                result = "Timestamp format string cannot be empty.";
             }
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
@@ -66,7 +69,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         /* c8 ignore next */
         default: break;
     }
-
+ 
     return result;
 };
 
@@ -101,6 +104,10 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             window.localStorage.setItem(
                 LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
                 value.timestampKey
+            );
+            window.localStorage.setItem(
+                LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
+                value.timestampFormatString
             );
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
@@ -143,6 +150,9 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 ),
                 timestampKey: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
+                ),
+                timestampFormatString: window.localStorage.getItem(
+                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
                 ),
             } as DecoderOptions;
             break;

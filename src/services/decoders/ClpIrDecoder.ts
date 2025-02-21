@@ -1,5 +1,5 @@
 import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
-import {Dayjs} from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 
 import {Nullable} from "../../typings/common";
 import {
@@ -31,6 +31,7 @@ class ClpIrDecoder implements Decoder {
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
     #formatter: Nullable<Formatter> = null;
+    #timestampFormatString: string;
 
     constructor (
         streamType: CLP_IR_STREAM_TYPE,
@@ -39,6 +40,7 @@ class ClpIrDecoder implements Decoder {
     ) {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
+        this.#timestampFormatString = decoderOptions.timestampFormatString;
         if (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
             this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
             if (0 === decoderOptions.formatString.length) {
@@ -109,12 +111,21 @@ class ClpIrDecoder implements Decoder {
         if (null === results) {
             return null;
         }
-
         if (null === this.#formatter) {
             if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
                 // eslint-disable-next-line no-warning-comments
                 // TODO: Revisit when we allow displaying structured logs without a formatter.
                 console.error("Formatter is not set for structured logs.");
+            }
+            
+            for (const r of results) {
+                const [
+                    message,
+                    timestamp,
+                    level,
+                ] = r;
+                const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
+                r[0] = formattedTimestamp + message;
             }
 
             return results;
@@ -137,12 +148,6 @@ class ClpIrDecoder implements Decoder {
             } catch (e) {
                 console.error(e, message);
             }
-
-            r[0] = this.#formatter.formatLogEvent({
-                fields: fields,
-                level: level,
-                timestamp: dayJsTimestamp,
-            });
         }
 
         return results;
