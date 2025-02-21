@@ -78,7 +78,7 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
  *
  * @param filterKey
  */
-const parseFieldName = (
+const parseKey = (
     filterKey: string,
 ): ParsedKey => {
     const hasAutoPrefix = AUTO_GENERATED_KEY_PREFIX === filterKey.charAt(0);
@@ -93,25 +93,9 @@ const parseFieldName = (
     };
 };
 
-/**
- *
- * @param filterKey
- */
-const parseFilterKey = (
-    filterKey: string,
-): ParsedKey => {
-    if (filterKey.includes(REPLACEMENT_CHARACTER)) {
-        console.warn("Unicode replacement character `U+FFFD` is found in filter key" +
-        ' String, which will be treated as "\\".');
-    }
-    filterKey = replaceDoubleBacklash(filterKey);
-    return parseFieldName(filterKey);
-};
-
 export {
     jsonValueToString,
-    parseFieldName,
-    parseFilterKey,
+    parseKey,
     removeEscapeCharacters,
     replaceDoubleBacklash,
 };

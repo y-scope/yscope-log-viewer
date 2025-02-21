@@ -24,6 +24,7 @@ import {
 import {
     CLP_IR_STREAM_TYPE,
     parseDecoderOptions,
+    getStructuredIrNamespaceKeys,
 } from "./utils";
 
 
@@ -76,17 +77,7 @@ class ClpIrDecoder implements Decoder {
             CLP_IR_STREAM_TYPE.STRUCTURED :
             CLP_IR_STREAM_TYPE.UNSTRUCTURED;
 
-        if ("string" !== typeof module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY ||
-            "string" !== typeof module.MERGED_KV_PAIRS_USER_GENERATED_KEY) {
-            throw new Error("Merged key pair values are not strings.");
-        }
-
-        const structuredIrNamespaceKeys: StructuredIrNamespaceKeys = {
-            auto: module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY,
-            user: module.MERGED_KV_PAIRS_USER_GENERATED_KEY,
-        };
-
-        return new ClpIrDecoder(streamType, streamReader, decoderOptions, structuredIrNamespaceKeys);
+        return new ClpIrDecoder(streamType, streamReader, decoderOptions, getStructuredIrNamespaceKeys(module));
     }
 
     getEstimatedNumEvents (): number {

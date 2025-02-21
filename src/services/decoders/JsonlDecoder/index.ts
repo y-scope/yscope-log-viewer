@@ -16,7 +16,7 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
-import {parseFilterKey} from "../../../utils/formatters";
+import {escapeThenParseFilterKey} from "../../../utils/decoders";
 import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {postFormatPopup} from "../../MainWorker";
@@ -55,8 +55,8 @@ class JsonlDecoder implements Decoder {
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
 
-        const parsedLogLevelKey = parseFilterKey(decoderOptions.logLevelKey);
-        const parsedTimestampKey = parseFilterKey(decoderOptions.timestampKey);
+        const parsedLogLevelKey = escapeThenParseFilterKey(decoderOptions.logLevelKey);
+        const parsedTimestampKey = escapeThenParseFilterKey(decoderOptions.timestampKey);
         if (parsedLogLevelKey.hasAutoPrefix || parsedTimestampKey.hasAutoPrefix) {
             throw new Error(
                 "`@` is a reserved symbol for filter keys and must be escaped with `\\` " +
@@ -67,8 +67,7 @@ class JsonlDecoder implements Decoder {
         this.#logLevelSplitKey = parsedLogLevelKey.splitKey;
         this.#timestampSplitKey = parsedTimestampKey.splitKey;
         this.#formatter = new YscopeFormatter({
-            formatString: decoderOptions.formatString,
-            structuredIrNamespaceKeys: null,
+            formatString: decoderOptions.formatString
         });
         if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
@@ -102,8 +101,7 @@ class JsonlDecoder implements Decoder {
 
     setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new YscopeFormatter({
-            formatString: options.formatString,
-            structuredIrNamespaceKeys: null,
+            formatString: options.formatString
         });
 
         return true;

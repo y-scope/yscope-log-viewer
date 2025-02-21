@@ -12,7 +12,7 @@ import {LogEvent} from "../../../typings/logs";
 import {JsonObject} from "../../../typings/js";
 import {
     jsonValueToString,
-    parseFieldName,
+    parseKey,
     removeEscapeCharacters,
     replaceDoubleBacklash,
 } from "../../../utils/formatters";
@@ -132,7 +132,7 @@ const splitFieldPlaceholder = (placeholderString: string, structuredIrNamespaceK
         throw Error("Field name could not be parsed");
     }
 
-    const parsedKey: ParsedKey = parseFieldName(fieldName);
+    const parsedKey: ParsedKey = parseKey(fieldName);
     if (null === structuredIrNamespaceKeys && parsedKey.hasAutoPrefix) {
         throw new Error(
             "`@` is a reserved symbol in the format string and must be escaped with `\\` " +
