@@ -8,6 +8,14 @@ interface LogEventCount {
 }
 
 /**
+ * Parsed field placeholder from a YScope format string.
+ */
+interface StructuredIrNamespaceKeys {
+    auto: string;
+    user: string;
+}
+
+/**
  * @property formatString The format string to use to serialize records as plain text.
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
@@ -103,6 +111,7 @@ interface Decoder {
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
+    StructuredIrNamespaceKeys,
     DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,

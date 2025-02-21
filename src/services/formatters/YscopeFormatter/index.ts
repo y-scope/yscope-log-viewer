@@ -3,11 +3,13 @@ import {
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
     FormatterOptionsType,
-    MergedKvPairKeys,
     REPLACEMENT_CHARACTER,
     YscopeFieldFormatter,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
+import {
+    StructuredIrNamespaceKeys
+} from "../../../typings/decoders";
 import {LogEvent} from "../../../typings/logs";
 import {
     getFormattedField,
@@ -26,16 +28,16 @@ import {
 class YscopeFormatter implements Formatter {
     readonly #processedFormatString: string;
 
-    readonly #mergedKvPairKeys: Nullable<MergedKvPairKeys>;
+    readonly #structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>;
 
     #fieldPlaceholders: YscopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
-        this.#mergedKvPairKeys = options.mergedKvPairKeys;
+        this.#structuredIrNamespaceKeys = options.structuredIrNamespaceKeys ?? null;
 
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
-            console.warn("Unicode replacement character `U+FFFD` is found in Decoder Format" +
-            ' String, which will be treaded as "\\".');
+            console.warn("Unicode replacement character `U+FFFD` is found in Decoder format" +
+            ' string; character is replaced with "\\".');
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);
@@ -57,7 +59,7 @@ class YscopeFormatter implements Formatter {
 
             formattedLogFragments.push(removeEscapeCharacters(formatStringFragment));
             formattedLogFragments.push(getFormattedField(
-                this.#mergedKvPairKeys,
+                this.#structuredIrNamespaceKeys,
                 logEvent,
                 fieldPlaceholder
             ));
@@ -91,7 +93,7 @@ class YscopeFormatter implements Formatter {
             }
 
             const {parsedFieldName, formatterName, formatterOptions} =
-                splitFieldPlaceholder(groupMatch, this.#mergedKvPairKeys);
+                splitFieldPlaceholder(groupMatch, this.#structuredIrNamespaceKeys);
 
             let fieldFormatter: Nullable<YscopeFieldFormatter> = null;
             if (null !== formatterName) {

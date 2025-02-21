@@ -68,7 +68,7 @@ class JsonlDecoder implements Decoder {
         this.#timestampSplitKey = parsedTimestampKey.splitKey;
         this.#formatter = new YscopeFormatter({
             formatString: decoderOptions.formatString,
-            mergedKvPairKeys: null,
+            structuredIrNamespaceKeys: null,
         });
         if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
@@ -103,7 +103,7 @@ class JsonlDecoder implements Decoder {
     setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new YscopeFormatter({
             formatString: options.formatString,
-            mergedKvPairKeys: null,
+            structuredIrNamespaceKeys: null,
         });
 
         return true;
