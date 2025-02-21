@@ -8,7 +8,7 @@ import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
 } from "../../../typings/logs";
-import {escapeThenParseFilterKey} from "../../../utils/decoders";
+import {processThenParseFilterKey} from "../../../utils/decoders";
 
 
 /**
@@ -85,8 +85,8 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
  * @return An array containing the parsed log level key and timestamp key.
  */
 const parseFilterKeys = (logLevelKey: string, timestampKey: string): [string[], string[]] => {
-    const parsedLogLevelKey = escapeThenParseFilterKey(logLevelKey);
-    const parsedTimestampKey = escapeThenParseFilterKey(timestampKey);
+    const parsedLogLevelKey = processThenParseFilterKey(logLevelKey);
+    const parsedTimestampKey = processThenParseFilterKey(timestampKey);
 
     if (parsedLogLevelKey.hasAutoPrefix || parsedTimestampKey.hasAutoPrefix) {
         throw new Error(

@@ -9,19 +9,17 @@ import {
 
 
 /**
+ * Preprocesses filter key to facilitate parsing, then parses the key.
  *
- * @param filterKey
+ * @param filterKey - The key to be processed and parsed.
+ * @returns The parsed key object.
  */
-const escapeThenParseFilterKey = (
-    filterKey: string,
-): ParsedKey => {
+const processThenParseFilterKey = (filterKey: string): ParsedKey => {
     if (filterKey.includes(REPLACEMENT_CHARACTER)) {
-        console.warn("Unicode replacement character `U+FFFD` is found in filter key" +
-        ' String, which will be treated as "\\".');
+        console.warn("Unicode replacement character `U+FFFD` found in filter key; " +
+            `it will be replaced with "\\"`);
     }
-    filterKey = replaceDoubleBacklash(filterKey);
-
-    return parseKey(filterKey);
+    return parseKey(replaceDoubleBacklash(filterKey));
 };
 
-export {escapeThenParseFilterKey};
+export {processThenParseFilterKey};

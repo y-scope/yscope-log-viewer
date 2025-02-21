@@ -71,9 +71,9 @@ class YscopeFormatter implements Formatter {
     }
 
     /**
-     * Parses field placeholders in format string. For each field placeholder, creates a
-     * corresponding `YscopeFieldFormatter` using the placeholder's field name, formatter type,
-     * and formatter options. Each `YscopeFieldFormatter` is then stored on the
+     * Parses field placeholders in format string. For each field, creates a corresponding
+     * `YscopeFieldPlaceholder` using the placeholder's parsed key, formatter type,
+     * and formatter options. Each `YscopeFieldPlaceholder` is then stored on the
      * class-level array `#fieldPlaceholders`.
      *
      * @throws Error if `FIELD_PLACEHOLDER_REGEX` does not contain a capture group.

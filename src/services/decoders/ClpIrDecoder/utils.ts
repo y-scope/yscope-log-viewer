@@ -5,7 +5,7 @@ import {
     StructuredIrNamespaceKeys,
 } from "../../../typings/decoders";
 import {ParsedKey} from "../../../typings/formatters";
-import {escapeThenParseFilterKey} from "../../../utils/decoders";
+import {processThenParseFilterKey} from "../../../utils/decoders";
 
 
 enum CLP_IR_STREAM_TYPE {
@@ -26,8 +26,8 @@ const createStructuredIrReaderOptions = (
     decoderOptions: DecoderOptions,
 ): StructuredIrReaderOptions => {
     return {
-        logLevelKey: escapeThenParseFilterKey(decoderOptions.logLevelKey),
-        timestampKey: escapeThenParseFilterKey(decoderOptions.timestampKey),
+        logLevelKey: processThenParseFilterKey(decoderOptions.logLevelKey),
+        timestampKey: processThenParseFilterKey(decoderOptions.timestampKey),
     };
 };
 

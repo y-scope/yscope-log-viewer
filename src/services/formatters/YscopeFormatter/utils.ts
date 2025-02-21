@@ -30,14 +30,15 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
 
 
 /**
- * Retrieves the fields from the appropriate namespace of a structured IR log event based on the
- * prefix of the parsed key.
+ * Retrieves fields from auto-generated or user-generated namespace of a structured IR log
+ * event based on the prefix of the parsed key.
  *
  * @param logEvent
  * @param structuredIrNamespaceKeys
  * @param parsedKey
- * @returns The fields.
- * @throws {Error} If the namespace key is missing or the fields are not a valid JsonObject.
+ * @returns The extracted fields.
+ * @throws {Error} If the namespace key is missing from structured IR log event or the
+ * extracted fields are not a valid JsonObject.
  */
 const getFieldsByNamespace = (
     logEvent: LogEvent,
@@ -63,7 +64,7 @@ const getFieldsByNamespace = (
 
 /**
  * Gets a formatted field. Specifically, retrieves a field from a log event using a placeholder's
- * `fieldNameKeys`. The field is then formatted using the placeholder's `fieldFormatter`.
+ * `parsedKey`. The field is then formatted using the placeholder's `fieldFormatter`.
  *
  * @param structuredIrNamespaceKeys
  * @param logEvent
@@ -105,14 +106,13 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
 };
 
 /**
- * Splits a field placeholder string into its components: field name, formatter name, and formatter
+ * Splits a field placeholder string into its components: parsed key, formatter name, and formatter
  * options.
  *
  * @param placeholderString
  * @param structuredIrNamespaceKeys
  * @return - An object containing:
- * - hasAutoPrefix: Whether the field name is auto-generated.
- * - fieldNameKeys: An array of strings representing the field name split by periods.
+ * - parsedKey: The parsed key.
  * - formatterName: The formatter name, or `null` if not provided.
  * - formatterOptions: The formatter options, or `null` if not provided.
  * @throws {Error} If the field name could not be parsed.
@@ -137,7 +137,7 @@ const splitFieldPlaceholder = (placeholderString: string, structuredIrNamespaceK
     const parsedKey: ParsedKey = parseKey(fieldName);
     if (null === structuredIrNamespaceKeys && parsedKey.hasAutoPrefix) {
         throw new Error(
-            "`@` is a reserved symbol in the format string and must be escaped with `\\` " +
+            "`@` is a reserved symbol and must be escaped with `\\` " +
             "for JSONL logs."
         );
     }

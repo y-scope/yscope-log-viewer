@@ -21,9 +21,9 @@ const removeBackslash = (str: string): string => {
 };
 
 /**
- * Replaces all replacement characters in format string with a single backslash. Purpose is to
- * remove, albeit indirectly through intermediate replacement character, escape character in
- * front of a backslash character.
+ * Replaces all replacement characters with a single backslash. Purpose is to remove, albeit
+ * indirectly through intermediate replacement character, escape character in front of a backslash
+ * character.
  *
  * @param str
  * @return Modified string.
@@ -45,18 +45,17 @@ const removeEscapeCharacters = (str: string): string => {
 };
 
 /**
- * Replaces all escaped backslashes in format string with replacement character.
- * Replacement character is a rare character that is unlikely to be in user format string.
- * Writing regex to distinguish between a single escape character ("\") and an escaped backslash
- * ("\\") is challenging especially when they are in series. It is simpler to just replace
- * escaped backslashes with a rare character and add them back after parsing field placeholder
- * with regex is finished.
+ * Replaces all escaped backslashes with replacement character. Replacement character is a rare
+ * character that is unlikely to be in user string. Writing regex to distinguish between
+ * a single escape character ("\") and an escaped backslash ("\\") is challenging especially
+ * when they are in series. It is simpler to just replace escaped backslashes with a rare character
+ * and add them back after parsing user string with regex is finished.
  *
- * @param formatString
- * @return Modified format string.
+ * @param string
+ * @return Modified string.
  */
-const replaceDoubleBacklash = (formatString: string): string => {
-    return formatString.replaceAll(DOUBLE_BACKSLASH, REPLACEMENT_CHARACTER);
+const replaceDoubleBacklash = (string: string): string => {
+    return string.replaceAll(DOUBLE_BACKSLASH, REPLACEMENT_CHARACTER);
 };
 
 
@@ -75,22 +74,20 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
 
 
 /**
+ * Parses a key into its hierarchical components and determines if it is prefixed with
+ * `AUTO_GENERATED_KEY_PREFIX`. If the prefix is present, it is removed.
  *
- * @param filterKey
+ * @param key
+ * @return The parsed key.
  */
-const parseKey = (
-    filterKey: string,
-): ParsedKey => {
-    const hasAutoPrefix = AUTO_GENERATED_KEY_PREFIX === filterKey.charAt(0);
-    if (hasAutoPrefix) {
-        filterKey = filterKey.substring(1);
-    }
-    let splitKey = filterKey.split(PERIOD_REGEX);
-    splitKey = splitKey.map((key) => removeEscapeCharacters(key));
+const parseKey = (key: string): ParsedKey => {
+    const hasAutoPrefix = AUTO_GENERATED_KEY_PREFIX === key.charAt(0);
+    const keyWithoutAutoPrefix = hasAutoPrefix ? key.substring(1) : key;
+    const splitKey = keyWithoutAutoPrefix.split(PERIOD_REGEX).map(removeEscapeCharacters);
 
     return {
-        hasAutoPrefix: hasAutoPrefix,
-        splitKey: splitKey,
+        hasAutoPrefix,
+        splitKey,
     };
 };
 
