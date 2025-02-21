@@ -2,8 +2,8 @@ import {Nullable} from "../../../typings/common";
 import {
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
-    MergedKvPairKeys,
     FormatterOptionsType,
+    MergedKvPairKeys,
     REPLACEMENT_CHARACTER,
     YscopeFieldFormatter,
     YscopeFieldPlaceholder,
@@ -25,6 +25,7 @@ import {
  */
 class YscopeFormatter implements Formatter {
     readonly #processedFormatString: string;
+
     readonly #mergedKvPairKeys: Nullable<MergedKvPairKeys>;
 
     #fieldPlaceholders: YscopeFieldPlaceholder[] = [];
@@ -55,7 +56,11 @@ class YscopeFormatter implements Formatter {
                 this.#processedFormatString.slice(lastIndex, fieldPlaceholder.range.start);
 
             formattedLogFragments.push(removeEscapeCharacters(formatStringFragment));
-            formattedLogFragments.push(getFormattedField(this.#mergedKvPairKeys, logEvent, fieldPlaceholder));
+            formattedLogFragments.push(getFormattedField(
+                this.#mergedKvPairKeys,
+                logEvent,
+                fieldPlaceholder
+            ));
             lastIndex = fieldPlaceholder.range.end;
         }
 
