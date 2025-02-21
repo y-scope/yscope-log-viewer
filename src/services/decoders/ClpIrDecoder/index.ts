@@ -32,7 +32,7 @@ class ClpIrDecoder implements Decoder {
 
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
-    readonly #structuredIrNamespaceKeys: MergedKvPairKeys;
+    readonly #structuredIrNamespaceKeys: StructuredIrNamespaceKeys;
 
     #formatter: Nullable<Formatter> = null;
 
@@ -40,7 +40,7 @@ class ClpIrDecoder implements Decoder {
         streamType: CLP_IR_STREAM_TYPE,
         streamReader: ClpStreamReader,
         decoderOptions: DecoderOptions,
-        structuredIrNamespaceKeys: MergedKvPairKeys
+        structuredIrNamespaceKeys: StructuredIrNamespaceKeys
     ) {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
@@ -81,7 +81,7 @@ class ClpIrDecoder implements Decoder {
             throw new Error("Merged key pair values are not strings.");
         }
 
-        const structuredIrNamespaceKeys: MergedKvPairKeys = {
+        const structuredIrNamespaceKeys: StructuredIrNamespaceKeys = {
             auto: module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY,
             user: module.MERGED_KV_PAIRS_USER_GENERATED_KEY,
         };

@@ -92,7 +92,7 @@ class YscopeFormatter implements Formatter {
                 throw Error("Field placeholder regex is invalid and does not have a capture group");
             }
 
-            const {parsedFieldName, formatterName, formatterOptions} =
+            const {parsedKey, formatterName, formatterOptions} =
                 splitFieldPlaceholder(groupMatch, this.#structuredIrNamespaceKeys);
 
             let fieldFormatter: Nullable<YscopeFieldFormatter> = null;
@@ -105,7 +105,7 @@ class YscopeFormatter implements Formatter {
             }
 
             this.#fieldPlaceholders.push({
-                parsedFieldName: parsedFieldName,
+                parsedKey: parsedKey,
                 fieldFormatter: fieldFormatter,
                 range: {
                     start: match.index,

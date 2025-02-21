@@ -1,5 +1,5 @@
 import {DecoderOptions} from "../../../typings/decoders";
-import {ParsedFieldName} from "../../../typings/formatters";
+import {ParsedKey} from "../../../typings/formatters";
 import {parseFilterKey} from "../../../utils/formatters";
 
 
@@ -8,17 +8,9 @@ enum CLP_IR_STREAM_TYPE {
     UNSTRUCTURED = "unstructured",
 }
 
-/**
- * Parsed field placeholder from a YScope format string.
- */
-interface StructuredIrNamespaceKeys {
-    auto: string;
-    user: string;
-}
-
 interface StructuredIrReaderOptions {
-    logLevelKey: ParsedFieldName;
-    timestampKey: ParsedFieldName;
+    logLevelKey: ParsedKey;
+    timestampKey: ParsedKey;
 };
 
 /**
@@ -32,10 +24,6 @@ const parseDecoderOptions = (
         logLevelKey: parseFilterKey(decoderOptions.logLevelKey),
         timestampKey: parseFilterKey(decoderOptions.timestampKey),
     };
-};
-
-export type {
-    StructuredIrNamespaceKeys
 };
 
 export {
