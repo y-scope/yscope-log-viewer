@@ -31,6 +31,7 @@ class ClpIrDecoder implements Decoder {
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
     #formatter: Nullable<Formatter> = null;
+
     #timestampFormatString: string;
 
     constructor (
@@ -117,12 +118,10 @@ class ClpIrDecoder implements Decoder {
                 // TODO: Revisit when we allow displaying structured logs without a formatter.
                 console.error("Formatter is not set for structured logs.");
             }
-            
+
             for (const r of results) {
                 const [
-                    message,
-                    timestamp,
-                    level,
+                    message, timestamp,
                 ] = r;
                 const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
                 r[0] = formattedTimestamp + message;
@@ -148,6 +147,12 @@ class ClpIrDecoder implements Decoder {
             } catch (e) {
                 console.error(e, message);
             }
+
+            r[0] = this.#formatter.formatLogEvent({
+                fields: fields,
+                level: level,
+                timestamp: dayJsTimestamp,
+            });
         }
 
         return results;

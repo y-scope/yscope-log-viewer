@@ -52,7 +52,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 result = "Timestamp key cannot be empty.";
             } else if (0 === value.logLevelKey.length) {
                 result = "Log level key cannot be empty.";
-            } else if (0 === value.timestampFormatString.length){
+            } else if (0 === value.timestampFormatString.length) {
                 result = "Timestamp format string cannot be empty.";
             }
             break;
@@ -69,7 +69,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         /* c8 ignore next */
         default: break;
     }
- 
+
     return result;
 };
 
