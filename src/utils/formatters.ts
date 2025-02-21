@@ -1,6 +1,6 @@
 import {
-    DOUBLE_BACKSLASH,
     AUTO_GENERATED_KEY_PREFIX,
+    DOUBLE_BACKSLASH,
     ParsedKey,
     PERIOD_REGEX,
     REPLACEMENT_CHARACTER,
@@ -87,6 +87,7 @@ const parseKey = (
     }
     let splitKey = filterKey.split(PERIOD_REGEX);
     splitKey = splitKey.map((key) => removeEscapeCharacters(key));
+
     return {
         hasAutoPrefix: hasAutoPrefix,
         splitKey: splitKey,

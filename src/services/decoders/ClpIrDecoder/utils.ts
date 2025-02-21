@@ -1,10 +1,11 @@
-import { MainModule } from "clp-ffi-js";
-import {DecoderOptions} from "../../../typings/decoders";
-import {ParsedKey} from "../../../typings/formatters";
-import {escapeThenParseFilterKey} from "../../../utils/decoders";
+import {MainModule} from "clp-ffi-js";
+
 import {
+    DecoderOptions,
     StructuredIrNamespaceKeys,
 } from "../../../typings/decoders";
+import {ParsedKey} from "../../../typings/formatters";
+import {escapeThenParseFilterKey} from "../../../utils/decoders";
 
 
 enum CLP_IR_STREAM_TYPE {
@@ -15,7 +16,7 @@ enum CLP_IR_STREAM_TYPE {
 interface StructuredIrReaderOptions {
     logLevelKey: ParsedKey;
     timestampKey: ParsedKey;
-};
+}
 
 /**
  *
@@ -32,8 +33,9 @@ const getStructuredIrReaderOptions = (
 
 /**
  * Extracts structured IR namespace keys from the module.
+ *
  * @param module The module containing the keys.
- * @returns The structured IR namespace keys.
+ * @return The structured IR namespace keys.
  */
 const getStructuredIrNamespaceKeys = (module: MainModule): StructuredIrNamespaceKeys => {
     if ("string" !== typeof module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY ||
@@ -49,7 +51,6 @@ const getStructuredIrNamespaceKeys = (module: MainModule): StructuredIrNamespace
 
 export {
     CLP_IR_STREAM_TYPE,
-    getStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
+    getStructuredIrReaderOptions,
 };
-

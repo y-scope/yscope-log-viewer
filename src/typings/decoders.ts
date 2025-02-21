@@ -111,9 +111,9 @@ interface Decoder {
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
-    StructuredIrNamespaceKeys,
     DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    StructuredIrNamespaceKeys,
 };

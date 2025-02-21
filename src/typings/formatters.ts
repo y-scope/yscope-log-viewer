@@ -1,7 +1,8 @@
 import {Nullable} from "../typings/common";
+import {StructuredIrNamespaceKeys} from "./decoders";
 import {JsonValue} from "./js";
 import {LogEvent} from "./logs";
-import {StructuredIrNamespaceKeys} from "./decoders";
+
 
 /**
  * @property formatString A YScope format string. The format string can include field-placeholders
@@ -123,16 +124,16 @@ const PERIOD_REGEX = Object.freeze(/(?<!\\)\./);
 export type {
     Formatter,
     FormatterOptionsType,
-    StructuredIrNamespaceKeys,
     ParsedKey,
+    StructuredIrNamespaceKeys,
     YscopeFieldFormatter,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 };
 
 export {
-    COLON_REGEX,
     AUTO_GENERATED_KEY_PREFIX,
+    COLON_REGEX,
     DOUBLE_BACKSLASH,
     FIELD_PLACEHOLDER_REGEX,
     PERIOD_REGEX,

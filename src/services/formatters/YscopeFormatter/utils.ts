@@ -1,15 +1,13 @@
 import {Nullable} from "../../../typings/common";
+import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
     COLON_REGEX,
     ParsedKey,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
-import {
-    StructuredIrNamespaceKeys
-} from "../../../typings/decoders";
-import {LogEvent} from "../../../typings/logs";
 import {JsonObject} from "../../../typings/js";
+import {LogEvent} from "../../../typings/logs";
 import {
     jsonValueToString,
     parseKey,
@@ -31,6 +29,12 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
 });
 
 
+/**
+ *
+ * @param logEvent
+ * @param structuredIrNamespaceKeys
+ * @param hasAutoPrefix
+ */
 const getFieldsByNamespace = (logEvent: LogEvent, structuredIrNamespaceKeys: StructuredIrNamespaceKeys, hasAutoPrefix: boolean): JsonObject => {
     const namespaceKey = hasAutoPrefix ?
         structuredIrNamespaceKeys.auto :
@@ -42,8 +46,9 @@ const getFieldsByNamespace = (logEvent: LogEvent, structuredIrNamespaceKeys: Str
     if (false === isJsonObject(fields)) {
         throw new Error("Structured IR log event is corrupted");
     }
-    return fields
-}
+
+    return fields;
+};
 
 /**
  * Gets a formatted field. Specifically, retrieves a field from a log event using a placeholder's
@@ -59,21 +64,22 @@ const getFormattedField = (
     logEvent: LogEvent,
     fieldPlaceholder: YscopeFieldPlaceholder
 ): string => {
-
     let fields: JsonObject;
     if (null === structuredIrNamespaceKeys) {
-        fields = logEvent.fields;
+        ({ fields } = logEvent);
     } else {
         fields = getFieldsByNamespace(
             logEvent,
             structuredIrNamespaceKeys,
-            fieldPlaceholder.parsedKey.hasAutoPrefix);
+            fieldPlaceholder.parsedKey.hasAutoPrefix
+        );
     }
 
     const nestedValue = getNestedJsonValue(
         fields,
         fieldPlaceholder.parsedKey.splitKey
     );
+
     if ("undefined" === typeof nestedValue) {
         return "";
     }

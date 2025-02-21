@@ -2,7 +2,10 @@ import {
     ParsedKey,
     REPLACEMENT_CHARACTER,
 } from "../typings/formatters";
-import {replaceDoubleBacklash, parseKey } from "./formatters";
+import {
+    parseKey,
+    replaceDoubleBacklash,
+} from "./formatters";
 
 
 /**
@@ -17,9 +20,8 @@ const escapeThenParseFilterKey = (
         ' String, which will be treated as "\\".');
     }
     filterKey = replaceDoubleBacklash(filterKey);
+
     return parseKey(filterKey);
 };
 
-export {
-    escapeThenParseFilterKey,
-};
+export {escapeThenParseFilterKey};

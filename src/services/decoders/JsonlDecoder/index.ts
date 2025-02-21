@@ -67,7 +67,7 @@ class JsonlDecoder implements Decoder {
         this.#logLevelSplitKey = logLevelKey.splitKey;
         this.#timestampSplitKey = timestampKey.splitKey;
         this.#formatter = new YscopeFormatter({
-            formatString: decoderOptions.formatString
+            formatString: decoderOptions.formatString,
         });
         if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
@@ -101,7 +101,7 @@ class JsonlDecoder implements Decoder {
 
     setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new YscopeFormatter({
-            formatString: options.formatString
+            formatString: options.formatString,
         });
 
         return true;

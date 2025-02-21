@@ -1,4 +1,5 @@
 import {Nullable} from "../../../typings/common";
+import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
@@ -7,9 +8,6 @@ import {
     YscopeFieldFormatter,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
-import {
-    StructuredIrNamespaceKeys
-} from "../../../typings/decoders";
 import {LogEvent} from "../../../typings/logs";
 import {
     getFormattedField,
