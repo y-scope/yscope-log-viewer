@@ -30,21 +30,32 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
 
 
 /**
+ * Retrieves the fields from the appropriate namespace of a structured IR log event based on the
+ * prefix of the parsed key.
  *
  * @param logEvent
  * @param structuredIrNamespaceKeys
- * @param hasAutoPrefix
+ * @param parsedKey
+ * @returns The fields.
+ * @throws {Error} If the namespace key is missing or the fields are not a valid JsonObject.
  */
-const getFieldsByNamespace = (logEvent: LogEvent, structuredIrNamespaceKeys: StructuredIrNamespaceKeys, hasAutoPrefix: boolean): JsonObject => {
-    const namespaceKey = hasAutoPrefix ?
-        structuredIrNamespaceKeys.auto :
-        structuredIrNamespaceKeys.user;
+const getFieldsByNamespace = (
+    logEvent: LogEvent,
+    structuredIrNamespaceKeys: StructuredIrNamespaceKeys,
+    parsedKey: ParsedKey
+): JsonObject => {
+    const namespaceKey = parsedKey.hasAutoPrefix
+        ? structuredIrNamespaceKeys.auto
+        : structuredIrNamespaceKeys.user;
     const fields = logEvent.fields[namespaceKey];
-    if ("undefined" === typeof fields) {
+
+    if (typeof fields === "undefined") {
         throw new Error("Structured IR log event is missing namespace key");
     }
-    if (false === isJsonObject(fields)) {
-        throw new Error("Structured IR log event is corrupted");
+    if (false == isJsonObject(fields)) {
+        throw new Error(
+            "Fields from nested namespace in structured IR log event are not a valid JSON object"
+        );
     }
 
     return fields;
@@ -64,31 +75,19 @@ const getFormattedField = (
     logEvent: LogEvent,
     fieldPlaceholder: YscopeFieldPlaceholder
 ): string => {
-    let fields: JsonObject;
-    if (null === structuredIrNamespaceKeys) {
-        ({ fields } = logEvent);
-    } else {
-        fields = getFieldsByNamespace(
-            logEvent,
-            structuredIrNamespaceKeys,
-            fieldPlaceholder.parsedKey.hasAutoPrefix
-        );
-    }
+    const fields = structuredIrNamespaceKeys === null
+        ? logEvent.fields
+        : getFieldsByNamespace(logEvent, structuredIrNamespaceKeys, fieldPlaceholder.parsedKey);
 
-    const nestedValue = getNestedJsonValue(
-        fields,
-        fieldPlaceholder.parsedKey.splitKey
-    );
+    const nestedValue = getNestedJsonValue(fields, fieldPlaceholder.parsedKey.splitKey);
 
-    if ("undefined" === typeof nestedValue) {
+    if (typeof nestedValue === "undefined") {
         return "";
     }
 
-    const formattedField = fieldPlaceholder.fieldFormatter ?
-        fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
-        jsonValueToString(nestedValue);
-
-    return formattedField;
+    return fieldPlaceholder.fieldFormatter
+        ? fieldPlaceholder.fieldFormatter.formatField(nestedValue)
+        : jsonValueToString(nestedValue);
 };
 
 /**

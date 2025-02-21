@@ -19,10 +19,10 @@ interface StructuredIrReaderOptions {
 }
 
 /**
- *
  * @param decoderOptions
+ * @return The structured IR reader options.
  */
-const getStructuredIrReaderOptions = (
+const createStructuredIrReaderOptions = (
     decoderOptions: DecoderOptions,
 ): StructuredIrReaderOptions => {
     return {
@@ -32,25 +32,28 @@ const getStructuredIrReaderOptions = (
 };
 
 /**
- * Extracts structured IR namespace keys from the module.
- *
- * @param module The module containing the keys.
- * @return The structured IR namespace keys.
+ * @param ffi_module
+ * @return The Structured IR namespace keys from "clp-ffi-js".
  */
-const getStructuredIrNamespaceKeys = (module: MainModule): StructuredIrNamespaceKeys => {
-    if ("string" !== typeof module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY ||
-        "string" !== typeof module.MERGED_KV_PAIRS_USER_GENERATED_KEY) {
-        throw new Error("Merged key pair values are not strings.");
+const getStructuredIrNamespaceKeys = (ffi_module: MainModule): StructuredIrNamespaceKeys => {
+    const { MERGED_KV_PAIRS_AUTO_GENERATED_KEY, MERGED_KV_PAIRS_USER_GENERATED_KEY } = ffi_module;
+
+    if (typeof MERGED_KV_PAIRS_AUTO_GENERATED_KEY !== "string") {
+        throw new Error("Invalid type for MERGED_KV_PAIRS_AUTO_GENERATED_KEY.");
+    }
+
+    if (typeof MERGED_KV_PAIRS_USER_GENERATED_KEY !== "string") {
+        throw new Error("Invalid type for MERGED_KV_PAIRS_USER_GENERATED_KEY.");
     }
 
     return {
-        auto: module.MERGED_KV_PAIRS_AUTO_GENERATED_KEY,
-        user: module.MERGED_KV_PAIRS_USER_GENERATED_KEY,
+        auto: MERGED_KV_PAIRS_AUTO_GENERATED_KEY,
+        user: MERGED_KV_PAIRS_USER_GENERATED_KEY,
     };
 };
 
 export {
     CLP_IR_STREAM_TYPE,
     getStructuredIrNamespaceKeys,
-    getStructuredIrReaderOptions,
+    createStructuredIrReaderOptions,
 };

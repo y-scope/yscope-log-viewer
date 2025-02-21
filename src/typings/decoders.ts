@@ -8,7 +8,7 @@ interface LogEventCount {
 }
 
 /**
- * Parsed field placeholder from a YScope format string.
+ * Keys that delineate the auto-generated and user-generated namespaces in structured IR log events.
  */
 interface StructuredIrNamespaceKeys {
     auto: string;

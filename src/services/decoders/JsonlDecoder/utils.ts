@@ -8,6 +8,7 @@ import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
 } from "../../../typings/logs";
+import {escapeThenParseFilterKey} from "../../../utils/decoders";
 
 
 /**
@@ -77,8 +78,29 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
 
     return dayjsTimestamp;
 };
+
+/**
+ * @param logLevelKey
+ * @param timestampKey
+ * @return An array containing the parsed log level key and timestamp key.
+ */
+const parseFilterKeys = (logLevelKey: string, timestampKey: string): [string[], string[]] => {
+    const parsedLogLevelKey = escapeThenParseFilterKey(logLevelKey);
+    const parsedTimestampKey = escapeThenParseFilterKey(timestampKey);
+
+    if (parsedLogLevelKey.hasAutoPrefix || parsedTimestampKey.hasAutoPrefix) {
+        throw new Error(
+            "`@` is a reserved symbol and must be escaped with `\\` " +
+            "for JSONL logs."
+        );
+    }
+
+    return [parsedLogLevelKey.splitKey, parsedTimestampKey.splitKey];
+};
+
 export {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
+    parseFilterKeys,
 };

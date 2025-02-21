@@ -24,7 +24,7 @@ import {
 import {
     CLP_IR_STREAM_TYPE,
     getStructuredIrNamespaceKeys,
-    getStructuredIrReaderOptions,
+    createStructuredIrReaderOptions,
 } from "./utils";
 
 
@@ -71,7 +71,7 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
-        const readerOptions = getStructuredIrReaderOptions(decoderOptions);
+        const readerOptions = createStructuredIrReaderOptions(decoderOptions);
         const streamReader = new module.ClpStreamReader(dataArray, readerOptions);
         const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
             CLP_IR_STREAM_TYPE.STRUCTURED :

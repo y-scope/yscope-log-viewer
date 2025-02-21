@@ -34,8 +34,8 @@ class YscopeFormatter implements Formatter {
         this.#structuredIrNamespaceKeys = options.structuredIrNamespaceKeys ?? null;
 
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
-            console.warn("Unicode replacement character `U+FFFD` is found in Decoder format" +
-            ' string; character is replaced with "\\".');
+            console.warn("Unicode replacement character `U+FFFD` found in format string; " +
+                         `it will be replaced with "\\"`);
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);

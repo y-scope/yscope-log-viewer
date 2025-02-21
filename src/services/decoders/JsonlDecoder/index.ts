@@ -16,7 +16,6 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
-import {escapeThenParseFilterKey} from "../../../utils/decoders";
 import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {postFormatPopup} from "../../MainWorker";
@@ -24,6 +23,7 @@ import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
+    parseFilterKeys,
 } from "./utils";
 
 
@@ -55,17 +55,11 @@ class JsonlDecoder implements Decoder {
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
 
-        const logLevelKey = escapeThenParseFilterKey(decoderOptions.logLevelKey);
-        const timestampKey = escapeThenParseFilterKey(decoderOptions.timestampKey);
-        if (logLevelKey.hasAutoPrefix || timestampKey.hasAutoPrefix) {
-            throw new Error(
-                "`@` is a reserved symbol for filter keys and must be escaped with `\\` " +
-                "for JSONL logs."
-            );
-        }
+        [this.#logLevelSplitKey, this.#timestampSplitKey] = parseFilterKeys(
+            decoderOptions.logLevelKey,
+            decoderOptions.timestampKey
+        );
 
-        this.#logLevelSplitKey = logLevelKey.splitKey;
-        this.#timestampSplitKey = timestampKey.splitKey;
         this.#formatter = new YscopeFormatter({
             formatString: decoderOptions.formatString,
         });
@@ -181,7 +175,10 @@ class JsonlDecoder implements Decoder {
             if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
-            level = convertToLogLevelValue(getNestedJsonValue(fields, this.#logLevelSplitKey));
+            level = convertToLogLevelValue(getNestedJsonValue(
+                fields,
+                this.#logLevelSplitKey
+            ));
             timestamp = convertToDayjsTimestamp(getNestedJsonValue(
                 fields,
                 this.#timestampSplitKey
