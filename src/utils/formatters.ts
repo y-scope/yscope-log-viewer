@@ -7,8 +7,8 @@ import {JsonValue} from "../typings/js";
 
 
 /**
- * Removes all backslashes from a string. Purpose is to remove escape character in front of brace
- * and colon characters.
+ * Removes all backslashes from a string. Purpose is to remove escape character preceding
+ * other reserved characters.
  *
  * @param str
  * @return Modified string.
