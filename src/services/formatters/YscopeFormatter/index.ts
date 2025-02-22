@@ -10,12 +10,14 @@ import {
 import {LogEvent} from "../../../typings/logs";
 import {
     getFormattedField,
-    jsonValueToString,
-    removeEscapeCharacters,
-    replaceDoubleBacklash,
     splitFieldPlaceholder,
     YSCOPE_FIELD_FORMATTER_MAP,
 } from "./utils";
+import {
+    jsonValueToString,
+    removeEscapeCharacters,
+    replaceDoubleBacklash,
+} from "../../../utils/formatters";
 
 
 /**
@@ -29,8 +31,8 @@ class YscopeFormatter implements Formatter {
 
     constructor (options: FormatterOptionsType) {
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
-            console.warn("Unicode replacement character `U+FFFD` is found in Decoder Format" +
-            ' String, which will appear as "\\".');
+            console.warn("Unicode replacement character `U+FFFD` found in format string; " +
+                         "it will be replaced with \"\\\"");
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);
@@ -62,9 +64,9 @@ class YscopeFormatter implements Formatter {
     }
 
     /**
-     * Parses field placeholders in format string. For each field placeholder, creates a
-     * corresponding `YscopeFieldFormatter` using the placeholder's field name, formatter type,
-     * and formatter options. Each `YscopeFieldFormatter` is then stored on the
+     * Parses field placeholders in format string. For each field, creates a corresponding
+     * `YscopeFieldPlaceholder` using the placeholder's parsed key, formatter type,
+     * and formatter options. Each `YscopeFieldPlaceholder` is then stored on the
      * class-level array `#fieldPlaceholders`.
      *
      * @throws Error if `FIELD_PLACEHOLDER_REGEX` does not contain a capture group.
