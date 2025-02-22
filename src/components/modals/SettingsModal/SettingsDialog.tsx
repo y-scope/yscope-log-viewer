@@ -18,6 +18,7 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../contexts/NotificationContextProvider";
+import {StateContext} from "../../../contexts/StateContextProvider";
 import {Nullable} from "../../../typings/common";
 import {
     CONFIG_KEY,
@@ -25,6 +26,7 @@ import {
 } from "../../../typings/config";
 import {LOG_LEVEL} from "../../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
+import {ACTION_NAME} from "../../../utils/actions";
 import {
     getConfig,
     setConfig,
@@ -32,7 +34,12 @@ import {
 import ThemeSwitchFormField from "./ThemeSwitchFormField";
 
 
-const CONFIG_FORM_FIELDS = [
+/**
+ * Gets form fields information for user input of configuration values.
+ *
+ * @return A list of form fields information.
+ */
+const getConfigFormFields = () => [
     {
         helperText: (
             <span>
@@ -96,6 +103,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
     const {postPopUp} = useContext(NotificationContext);
+    const {loadPageByAction, setIsSettingsModalOpen} = useContext(StateContext);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -125,9 +133,14 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                 title: "Unable to apply config.",
             });
         } else {
-            window.location.reload();
+            loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
+            setIsSettingsModalOpen(false);
         }
-    }, [postPopUp]);
+    }, [
+        loadPageByAction,
+        postPopUp,
+        setIsSettingsModalOpen,
+    ]);
 
     return (
         <form
@@ -145,7 +158,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                 </DialogTitle>
                 <DialogContent>
                     <ThemeSwitchFormField/>
-                    {CONFIG_FORM_FIELDS.map((field, index) => (
+                    {getConfigFormFields().map((field, index) => (
                         <FormControl
                             className={"config-form-control"}
                             key={index}
@@ -168,7 +181,7 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
                         color={"primary"}
                         type={"submit"}
                     >
-                        Apply & Reload
+                        Apply
                     </Button>
                     <Button
                         color={"neutral"}
