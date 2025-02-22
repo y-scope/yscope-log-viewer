@@ -9,15 +9,15 @@ import {
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
 import {
-    getFormattedField,
-    splitFieldPlaceholder,
-    YSCOPE_FIELD_FORMATTER_MAP,
-} from "./utils";
-import {
     jsonValueToString,
     removeEscapeCharacters,
     replaceDoubleBacklash,
 } from "../../../utils/formatters";
+import {
+    getFormattedField,
+    splitFieldPlaceholder,
+    YSCOPE_FIELD_FORMATTER_MAP,
+} from "./utils";
 
 
 /**
@@ -65,7 +65,7 @@ class YscopeFormatter implements Formatter {
 
     /**
      * Parses field placeholders in format string. For each field, creates a corresponding
-     * `YscopeFieldPlaceholder` using the placeholder's parsed key, formatter type,
+     * `YscopeFieldPlaceholder` using the placeholder's field name, formatter type,
      * and formatter options. Each `YscopeFieldPlaceholder` is then stored on the
      * class-level array `#fieldPlaceholders`.
      *

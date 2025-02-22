@@ -6,13 +6,13 @@ import {
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
-import {getNestedJsonValue} from "../../../utils/js";
-import RoundFormatter from "./FieldFormatters/RoundFormatter";
-import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 import {
     jsonValueToString,
     removeEscapeCharacters,
 } from "../../../utils/formatters";
+import {getNestedJsonValue} from "../../../utils/js";
+import RoundFormatter from "./FieldFormatters/RoundFormatter";
+import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
 
 /**
