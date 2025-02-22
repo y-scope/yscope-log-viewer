@@ -80,9 +80,12 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
 };
 
 /**
+ * Parses the log level key and timestamp key.
+ *
  * @param logLevelKey
  * @param timestampKey
  * @return An array containing the parsed log level key and timestamp key.
+ * @throws {Error} If the keys contain reserved symbols.
  */
 const parseFilterKeys = (logLevelKey: string, timestampKey: string): [string[], string[]] => {
     const parsedLogLevelKey = processThenParseFilterKey(logLevelKey);
@@ -95,7 +98,10 @@ const parseFilterKeys = (logLevelKey: string, timestampKey: string): [string[], 
         );
     }
 
-    return [parsedLogLevelKey.splitKey, parsedTimestampKey.splitKey];
+    return [
+        parsedLogLevelKey.splitKey,
+        parsedTimestampKey.splitKey,
+    ];
 };
 
 export {

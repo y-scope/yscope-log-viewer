@@ -23,8 +23,8 @@ import {
 } from "../JsonlDecoder/utils";
 import {
     CLP_IR_STREAM_TYPE,
-    getStructuredIrNamespaceKeys,
     createStructuredIrReaderOptions,
+    getStructuredIrNamespaceKeys,
 } from "./utils";
 
 
@@ -81,7 +81,8 @@ class ClpIrDecoder implements Decoder {
             streamType,
             streamReader,
             decoderOptions,
-            getStructuredIrNamespaceKeys(module));
+            getStructuredIrNamespaceKeys(module)
+        );
     }
 
     getEstimatedNumEvents (): number {

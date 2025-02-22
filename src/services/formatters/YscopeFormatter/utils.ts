@@ -36,7 +36,7 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
  * @param logEvent
  * @param structuredIrNamespaceKeys
  * @param parsedKey
- * @returns The extracted fields.
+ * @return The extracted fields.
  * @throws {Error} If the namespace key is missing from structured IR log event or the
  * extracted fields are not a valid JsonObject.
  */
@@ -45,15 +45,15 @@ const getFieldsByNamespace = (
     structuredIrNamespaceKeys: StructuredIrNamespaceKeys,
     parsedKey: ParsedKey
 ): JsonObject => {
-    const namespaceKey = parsedKey.hasAutoPrefix
-        ? structuredIrNamespaceKeys.auto
-        : structuredIrNamespaceKeys.user;
+    const namespaceKey = parsedKey.hasAutoPrefix ?
+        structuredIrNamespaceKeys.auto :
+        structuredIrNamespaceKeys.user;
     const fields = logEvent.fields[namespaceKey];
 
-    if (typeof fields === "undefined") {
+    if ("undefined" === typeof fields) {
         throw new Error("Structured IR log event is missing namespace key");
     }
-    if (false == isJsonObject(fields)) {
+    if (false === isJsonObject(fields)) {
         throw new Error(
             "Fields from nested namespace in structured IR log event are not a valid JSON object"
         );
@@ -76,19 +76,19 @@ const getFormattedField = (
     logEvent: LogEvent,
     fieldPlaceholder: YscopeFieldPlaceholder
 ): string => {
-    const fields = structuredIrNamespaceKeys === null
-        ? logEvent.fields
-        : getFieldsByNamespace(logEvent, structuredIrNamespaceKeys, fieldPlaceholder.parsedKey);
+    const fields = null === structuredIrNamespaceKeys ?
+        logEvent.fields :
+        getFieldsByNamespace(logEvent, structuredIrNamespaceKeys, fieldPlaceholder.parsedKey);
 
     const nestedValue = getNestedJsonValue(fields, fieldPlaceholder.parsedKey.splitKey);
 
-    if (typeof nestedValue === "undefined") {
+    if ("undefined" === typeof nestedValue) {
         return "";
     }
 
-    return fieldPlaceholder.fieldFormatter
-        ? fieldPlaceholder.fieldFormatter.formatField(nestedValue)
-        : jsonValueToString(nestedValue);
+    return fieldPlaceholder.fieldFormatter ?
+        fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
+        jsonValueToString(nestedValue);
 };
 
 /**
@@ -117,7 +117,10 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
  * - formatterOptions: The formatter options, or `null` if not provided.
  * @throws {Error} If the field name could not be parsed.
  */
-const splitFieldPlaceholder = (placeholderString: string, structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>): {
+const splitFieldPlaceholder = (
+    placeholderString: string,
+    structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>
+): {
     parsedKey: ParsedKey;
     formatterName: Nullable<string>;
     formatterOptions: Nullable<string>;

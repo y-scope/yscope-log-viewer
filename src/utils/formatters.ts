@@ -77,12 +77,14 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
  * Parses a key into its hierarchical components and determines if it is prefixed with
  * `AUTO_GENERATED_KEY_PREFIX`. If the prefix is present, it is removed.
  *
- * @param key
+ * @param key The key to be parsed.
  * @return The parsed key.
  */
 const parseKey = (key: string): ParsedKey => {
     const hasAutoPrefix = AUTO_GENERATED_KEY_PREFIX === key.charAt(0);
-    const keyWithoutAutoPrefix = hasAutoPrefix ? key.substring(1) : key;
+    const keyWithoutAutoPrefix = hasAutoPrefix ?
+        key.substring(1) :
+        key;
     const splitKey = keyWithoutAutoPrefix.split(PERIOD_REGEX).map(removeEscapeCharacters);
 
     return {

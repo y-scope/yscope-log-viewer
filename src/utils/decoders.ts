@@ -11,14 +11,15 @@ import {
 /**
  * Preprocesses filter key to facilitate parsing, then parses the key.
  *
- * @param filterKey - The key to be processed and parsed.
- * @returns The parsed key object.
+ * @param filterKey The key to be processed and parsed.
+ * @return The parsed key object.
  */
 const processThenParseFilterKey = (filterKey: string): ParsedKey => {
     if (filterKey.includes(REPLACEMENT_CHARACTER)) {
         console.warn("Unicode replacement character `U+FFFD` found in filter key; " +
-            `it will be replaced with "\\"`);
+            "it will be replaced with \"\\\"");
     }
+
     return parseKey(replaceDoubleBacklash(filterKey));
 };
 
