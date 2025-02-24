@@ -220,7 +220,8 @@ const getWindowUrlHashParams = () => {
     }
     const isCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
     if (null !== isCaseSensitive) {
-        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] = "true" === isCaseSensitive.toLowerCase();
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
+            "true" === isCaseSensitive.toLowerCase();
     }
     const isRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
     if (null !== isRegex) {

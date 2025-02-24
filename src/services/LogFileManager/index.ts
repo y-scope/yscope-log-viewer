@@ -291,8 +291,6 @@ class LogFileManager {
      *
      * @param queryArgs
      * @param queryArgs.queryString
-     * @param queryArgs.isRegex
-     * @param queryArgs.isCaseSensitive
      * @param queryArgs.queryIsRegex
      * @param queryArgs.queryIsCaseSensitive
      * @throws {SyntaxError} if the query regex string is invalid.
