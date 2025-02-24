@@ -485,6 +485,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [uiState]);
 
+    // On `timestamp` update, findNearestLogEventByTimestamp and clear itself from URL.
     useEffect(() => {
         if (null === mainWorkerRef.current || null === timestamp) {
             return;
