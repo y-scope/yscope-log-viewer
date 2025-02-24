@@ -2,19 +2,21 @@ import {Nullable} from "../../../typings/common";
 import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
     COLON_REGEX,
+    DOUBLE_BACKSLASH,
+    PERIOD_REGEX,
     ParsedKey,
+    AUTO_GENERATED_KEY_PREFIX,
+    REPLACEMENT_CHARACTER,
+    SINGLE_BACKSLASH,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogEvent} from "../../../typings/logs";
 import {
-    jsonValueToString,
-    parseKey,
-    removeEscapeCharacters,
-    replaceDoubleBacklash,
-} from "../../../utils/formatters";
-import {getNestedJsonValue} from "../../../utils/js";
+    getNestedJsonValue,
+    jsonValueToString
+} from "../../../utils/js";
 import {isJsonObject} from "../../decoders/JsonlDecoder/utils";
 import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
@@ -28,6 +30,54 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
     round: RoundFormatter,
 });
 
+/**
+ * Removes all backslashes from a string. Purpose is to remove escape character preceding
+ * other reserved characters.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const removeBackslash = (str: string): string => {
+    return str.replaceAll(SINGLE_BACKSLASH, "");
+};
+
+/**
+ * Replaces all replacement characters with a single backslash. Purpose is to remove, albeit
+ * indirectly through intermediate replacement character, escape character in front of a backslash
+ * character.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const replaceReplacementCharacter = (str: string): string => {
+    return str.replaceAll(REPLACEMENT_CHARACTER, "\\");
+};
+
+/**
+ * Removes escape characters from a string.
+ *
+ * @param str
+ * @return Modified string.
+ */
+const removeEscapeCharacters = (str: string): string => {
+    // `removeBackslash()`, which removes all  backlashes, is called before
+    // `replaceReplacementCharacter()` to prevent removal of escaped backslashes.
+    return replaceReplacementCharacter(removeBackslash(str));
+};
+
+/**
+ * Replaces all escaped backslashes with replacement character. Replacement character is a rare
+ * character that is unlikely to be in user string. Writing regex to distinguish between
+ * a single escape character ("\") and an escaped backslash ("\\") is challenging especially
+ * when they are in series. It is simpler to just replace escaped backslashes with a rare character
+ * and add them back after parsing user string with regex is finished.
+ *
+ * @param string
+ * @return Modified string.
+ */
+const replaceDoubleBacklash = (string: string): string => {
+    return string.replaceAll(DOUBLE_BACKSLASH, REPLACEMENT_CHARACTER);
+};
 
 /**
  * Retrieves fields from auto-generated or user-generated namespace of a structured IR log
@@ -106,6 +156,26 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
 };
 
 /**
+ * Parses a key into its hierarchical components and determines if it is prefixed with
+ * `AUTO_GENERATED_KEY_PREFIX`. If the prefix is present, it is removed.
+ *
+ * @param key The key to be parsed.
+ * @return The parsed key.
+ */
+const parseKey = (key: string): ParsedKey => {
+    const hasAutoPrefix = AUTO_GENERATED_KEY_PREFIX === key.charAt(0);
+    const keyWithoutAutoPrefix = hasAutoPrefix ?
+        key.substring(1) :
+        key;
+    const splitKey = keyWithoutAutoPrefix.split(PERIOD_REGEX).map(removeEscapeCharacters);
+
+    return {
+        hasAutoPrefix,
+        splitKey,
+    };
+};
+
+/**
  * Splits a field placeholder string into its components: parsed key, formatter name, and formatter
  * options.
  *
@@ -160,8 +230,8 @@ const splitFieldPlaceholder = (
 
 
 export {
+    parseKey,
     getFormattedField,
-    jsonValueToString,
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,

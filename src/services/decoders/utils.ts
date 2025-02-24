@@ -1,12 +1,11 @@
 import {
     ParsedKey,
     REPLACEMENT_CHARACTER,
-} from "../typings/formatters";
+} from "../../typings/formatters";
 import {
     parseKey,
     replaceDoubleBacklash,
-} from "./formatters";
-
+} from "../formatters/YscopeFormatter/utils";
 
 /**
  * Preprocesses filter key to facilitate parsing, then parses the key.
