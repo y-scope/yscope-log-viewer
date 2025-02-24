@@ -13,10 +13,15 @@ import {
     Tooltip,
 } from "@mui/joy";
 
+import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {
+    copyPermalinkToClipboard,
+    UrlContext,
+} from "../../../../../contexts/UrlContextProvider";
 import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
@@ -62,20 +67,30 @@ const getIsRegex =
  *
  * @return
  */
+// eslint max-lines-per-function ["error", { "max": 140 }]
+// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
+    const {queryString: urlQueryString} = useContext(UrlContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
-    const [queryString, setQueryString] = useState<string>("");
+    const [queryString, setQueryString] = useState<string>(urlQueryString ?? "");
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
     };
+    const handleShareButtonClick = () => {
+        copyPermalinkToClipboard({}, {
+            queryString: queryString,
+            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
+            queryIsRegex: getIsRegex(queryOptions),
+        });
+    };
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
-            isCaseSensitive: getIsCaseSensitive(queryOptions),
-            isRegex: getIsRegex(queryOptions),
+            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
+            queryIsRegex: getIsRegex(queryOptions),
             queryString: queryString,
             ...newArgs,
         });
@@ -92,8 +107,8 @@ const SearchTabPanel = () => {
     ) => {
         setQueryOptions(newOptions);
         handleQuerySubmit({
-            isCaseSensitive: getIsCaseSensitive(newOptions),
-            isRegex: getIsRegex(newOptions),
+            queryIsCaseSensitive: getIsCaseSensitive(newOptions),
+            queryIsRegex: getIsRegex(newOptions),
         });
     };
 
@@ -104,16 +119,24 @@ const SearchTabPanel = () => {
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton
-                    title={isAllExpanded ?
-                        "Collapse all" :
-                        "Expand all"}
-                    onClick={handleCollapseAllButtonClick}
-                >
-                    {isAllExpanded ?
-                        <UnfoldLessIcon/> :
-                        <UnfoldMoreIcon/>}
-                </PanelTitleButton>
+                <>
+                    <PanelTitleButton
+                        title={isAllExpanded ?
+                            "Collapse all" :
+                            "Expand all"}
+                        onClick={handleCollapseAllButtonClick}
+                    >
+                        {isAllExpanded ?
+                            <UnfoldLessIcon/> :
+                            <UnfoldMoreIcon/>}
+                    </PanelTitleButton>
+                    <PanelTitleButton
+                        title={"Copy URL with search parameters"}
+                        onClick={handleShareButtonClick}
+                    >
+                        <ShareIcon/>
+                    </PanelTitleButton>
+                </>
             }
         >
             <Box className={"search-tab-container"}>
@@ -123,6 +146,7 @@ const SearchTabPanel = () => {
                         maxRows={7}
                         placeholder={"Search"}
                         size={"sm"}
+                        value={queryString}
                         endDecorator={
                             <ToggleButtonGroup
                                 disabled={isQueryInputBoxDisabled}
