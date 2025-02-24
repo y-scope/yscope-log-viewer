@@ -66,19 +66,19 @@ const SearchTabPanel = () => {
     };
 
     const handleCaseButtonPressed = () => {
-        setIsCaseSensitive(!isCaseSensitive);
         handleQuerySubmit({
-            isCaseSensitive: isCaseSensitive,
+            isCaseSensitive: !isCaseSensitive,
             isRegex: isRegex,
         });
+        setIsCaseSensitive(!isCaseSensitive);
     };
 
     const handleRegexButtonPressed = () => {
-        setIsRegex(!isRegex);
         handleQuerySubmit({
             isCaseSensitive: isCaseSensitive,
-            isRegex: isRegex,
+            isRegex: !isRegex,
         });
+        setIsRegex(!isRegex);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
@@ -115,18 +115,13 @@ const SearchTabPanel = () => {
                                 <Tooltip title={"Match case"}>
                                     <span>
                                         <IconButton
-                                            aria-pressed={String(isCaseSensitive)}
                                             className={"query-option-button"}
                                             disabled={isQueryInputBoxDisabled}
                                             size={"sm"}
                                             variant={"plain"}
-                                            sx={(theme) => ({
-                                                "&[aria-pressed=\"true\"]": {
-                                                    ...theme.variants.outlinedActive.neutral,
-                                                    borderColor:
-                                                    theme.vars.palette.neutral.outlinedHoverBorder,
-                                                },
-                                            })}
+                                            aria-pressed={isCaseSensitive ?
+                                                "true" :
+                                                "false"}
                                             onClick={handleCaseButtonPressed}
                                         >
                                             Aa
@@ -137,18 +132,13 @@ const SearchTabPanel = () => {
                                 <Tooltip title={"Use regular expression"}>
                                     <span>
                                         <IconButton
-                                            aria-pressed={String(isRegex)}
                                             className={"query-option-button"}
                                             disabled={isQueryInputBoxDisabled}
                                             size={"sm"}
                                             variant={"plain"}
-                                            sx={(theme) => ({
-                                                "&[aria-pressed=\"true\"]": {
-                                                    ...theme.variants.outlinedActive.neutral,
-                                                    borderColor:
-                                                    theme.vars.palette.neutral.outlinedHoverBorder,
-                                                },
-                                            })}
+                                            aria-pressed={isRegex ?
+                                                "true" :
+                                                "false"}
                                             onClick={handleRegexButtonPressed}
                                         >
                                             .*
