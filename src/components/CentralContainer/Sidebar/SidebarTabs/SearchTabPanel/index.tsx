@@ -117,7 +117,6 @@ const SearchTabPanel = () => {
                                         <IconButton
                                             className={"query-option-button"}
                                             disabled={isQueryInputBoxDisabled}
-                                            size={"sm"}
                                             variant={"plain"}
                                             aria-pressed={isCaseSensitive ?
                                                 "true" :
@@ -134,7 +133,6 @@ const SearchTabPanel = () => {
                                         <IconButton
                                             className={"query-option-button"}
                                             disabled={isQueryInputBoxDisabled}
-                                            size={"sm"}
                                             variant={"plain"}
                                             aria-pressed={isRegex ?
                                                 "true" :
