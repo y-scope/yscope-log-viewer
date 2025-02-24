@@ -3,11 +3,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-}
 
-.settings-dialog-title-text {
-    flex-grow: 1;
-    font-size: 2rem;
+    font-size: 2rem !important;
 }
 
 .config-form-control {
