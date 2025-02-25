@@ -77,6 +77,13 @@ const getConfigFormFields = () => [
         type: "text",
     },
     {
+        helperText: "Day.js format string for timestamp",
+        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampFormatString,
+        label: "View: Timestamp Format String",
+        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
+        type: "string",
+    },
+    {
         helperText: "Number of log messages to display per page.",
         initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
         label: "View: Page size",
@@ -113,12 +120,15 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
         const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
         const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
         const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const timestampFormatString = getFormDataValue(
+            LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
+        );
         const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
         let error: Nullable<string> = null;
         error ||= setConfig({
             key: CONFIG_KEY.DECODER_OPTIONS,
-            value: {formatString, logLevelKey, timestampKey},
+            value: {formatString, logLevelKey, timestampKey, timestampFormatString},
         });
         error ||= setConfig({
             key: CONFIG_KEY.PAGE_SIZE,
