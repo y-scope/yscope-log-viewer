@@ -13,7 +13,7 @@
   },
   "Kafka": {
     "config": {
-      "decoderOptions/formatString": "{d:timestamp} {p} {c}:{L} - {m}",
+      "decoderOptions/formatString": "{ts:timestamp} {p} {c} - {message}",
       "decoderOptions/logLevelKey": "p",
       "decoderOptions/timestampKey": "d",
       "pageSize": 10000
