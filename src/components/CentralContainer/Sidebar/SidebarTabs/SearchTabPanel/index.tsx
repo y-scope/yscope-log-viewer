@@ -6,11 +6,9 @@ import React, {
 import {
     AccordionGroup,
     Box,
-    IconButton,
     LinearProgress,
     Stack,
     Textarea,
-    Tooltip,
 } from "@mui/joy";
 
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
@@ -30,6 +28,7 @@ import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ResultsGroup from "./ResultsGroup";
+import ToggleIconButton from "./ToggleIconButton";
 
 import "./index.css";
 
@@ -39,7 +38,6 @@ import "./index.css";
  *
  * @return
  */
-// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
@@ -112,39 +110,25 @@ const SearchTabPanel = () => {
                                 direction={"row"}
                                 spacing={0.25}
                             >
-                                <Tooltip title={"Match case"}>
-                                    <span>
-                                        <IconButton
-                                            className={"query-option-button"}
-                                            disabled={isQueryInputBoxDisabled}
-                                            size={"sm"}
-                                            variant={"plain"}
-                                            aria-pressed={isCaseSensitive ?
-                                                "true" :
-                                                "false"}
-                                            onClick={handleCaseButtonPressed}
-                                        >
-                                            Aa
-                                        </IconButton>
-                                    </span>
-                                </Tooltip>
+                                <ToggleIconButton
+                                    className={"query-option-button"}
+                                    disabled={isQueryInputBoxDisabled}
+                                    isPressed={isCaseSensitive}
+                                    size={"sm"}
+                                    text={"Aa"}
+                                    tooltipTitle={"Match case"}
+                                    variant={"plain"}
+                                    onClick={handleCaseButtonPressed}/>
 
-                                <Tooltip title={"Use regular expression"}>
-                                    <span>
-                                        <IconButton
-                                            className={"query-option-button"}
-                                            disabled={isQueryInputBoxDisabled}
-                                            size={"sm"}
-                                            variant={"plain"}
-                                            aria-pressed={isRegex ?
-                                                "true" :
-                                                "false"}
-                                            onClick={handleRegexButtonPressed}
-                                        >
-                                            .*
-                                        </IconButton>
-                                    </span>
-                                </Tooltip>
+                                <ToggleIconButton
+                                    className={"query-option-button"}
+                                    disabled={isQueryInputBoxDisabled}
+                                    isPressed={isRegex}
+                                    size={"sm"}
+                                    text={".*"}
+                                    tooltipTitle={"Use regular expression"}
+                                    variant={"plain"}
+                                    onClick={handleRegexButtonPressed}/>
                             </Stack>
                         }
                         slotProps={{
