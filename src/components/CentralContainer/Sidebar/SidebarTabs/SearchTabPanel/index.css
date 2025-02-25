@@ -17,6 +17,11 @@
 }
 
 .query-option-button {
+    width: 1.5rem !important;
+    min-width: 0 !important;
+    height: 1.5rem !important;
+    min-height: 0 !important;
+
     font-family: Inter, sans-serif !important;
 }
 
