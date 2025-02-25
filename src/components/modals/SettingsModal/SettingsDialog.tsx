@@ -120,7 +120,9 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
         const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
         const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
         const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-        const timestampFormatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING);
+        const timestampFormatString = getFormDataValue(
+            LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
+        );
         const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
         let error: Nullable<string> = null;

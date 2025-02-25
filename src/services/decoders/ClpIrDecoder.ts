@@ -99,6 +99,18 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
+    formatResults (results: DecodeResult[]): Nullable<DecodeResult[]> {
+        for (const r of results) {
+            const [
+                message, timestamp,
+            ] = r;
+            const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
+            r[0] = formattedTimestamp + message;
+        }
+
+        return results;
+    }
+
     decodeRange (
         beginIdx: number,
         endIdx: number,
@@ -119,15 +131,7 @@ class ClpIrDecoder implements Decoder {
                 console.error("Formatter is not set for structured logs.");
             }
 
-            for (const r of results) {
-                const [
-                    message, timestamp,
-                ] = r;
-                const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
-                r[0] = formattedTimestamp + message;
-            }
-
-            return results;
+            return this.formatResults(results);
         }
 
         for (const r of results) {
