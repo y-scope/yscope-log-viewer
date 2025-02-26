@@ -6,8 +6,8 @@ import {
 
 
 interface ToggleIconButtonProps extends IconButtonProps {
-    isChecked: boolean;
     children: React.ReactNode;
+    isChecked: boolean;
     tooltipTitle: string;
 }
 

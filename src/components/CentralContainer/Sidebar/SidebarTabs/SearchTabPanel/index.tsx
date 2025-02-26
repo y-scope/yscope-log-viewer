@@ -66,7 +66,7 @@ const SearchTabPanel = () => {
 
     const handleCaseSensitivityButtonClick = () => {
         handleQuerySubmit({
-            isCaseSensitive: isCaseSensitive,
+            isCaseSensitive: !isCaseSensitive,
         });
         setIsCaseSensitive(!isCaseSensitive);
     };
