@@ -1,5 +1,6 @@
 import React, {
     useContext,
+    useEffect,
     useState,
 } from "react";
 
@@ -46,11 +47,33 @@ import "./index.css";
 // eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
-    const {queryString: urlQueryString} = useContext(UrlContext);
+    const {
+        queryString: urlQueryString,
+        queryIsCaseSensitive: urlQueryIsCaseSensitive,
+        queryIsRegex: urlQueryIsRegex,
+    } = useContext(UrlContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
-    const [queryString, setQueryString] = useState<string>(urlQueryString ?? "");
+    const [queryString, setQueryString] = useState<string>("");
     const [queryIsCaseSensitive, setQueryIsCaseSensitive] = useState<boolean>(false);
     const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (null !== urlQueryString) {
+            setQueryString(urlQueryString);
+        }
+    }, [urlQueryString]);
+
+    useEffect(() => {
+        if (null !== urlQueryIsCaseSensitive) {
+            setQueryIsCaseSensitive(urlQueryIsCaseSensitive);
+        }
+    }, [urlQueryIsCaseSensitive]);
+
+    useEffect(() => {
+        if (null !== urlQueryIsRegex) {
+            setQueryIsRegex(urlQueryIsRegex);
+        }
+    }, [urlQueryIsRegex]);
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);

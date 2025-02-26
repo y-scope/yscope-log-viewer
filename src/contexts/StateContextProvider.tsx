@@ -285,7 +285,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
+    const startQuery = useCallback((queryArgs: {
+        queryString: string;
+        queryIsCaseSensitive: boolean;
+        queryIsRegex: boolean;
+    }) => {
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -511,16 +515,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         if (uiState === UI_STATE.READY) {
             if (
                 URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
-                URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive &&
-                URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex
+                null !== queryIsCaseSensitive &&
+                null !== queryIsRegex
             ) {
                 startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
             }
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
-                [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
-                    URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
-                [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
+                [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: null,
+                [HASH_PARAM_NAMES.QUERY_IS_REGEX]: null,
             });
         }
     }, [

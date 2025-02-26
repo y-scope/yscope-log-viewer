@@ -31,8 +31,8 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
-    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: null,
-    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: null,
+    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
+    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
     [HASH_PARAM_NAMES.QUERY_STRING]: null,
 });
 
@@ -218,11 +218,17 @@ const getWindowUrlHashParams = () => {
             null :
             parsed;
     }
+    const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
+    if (null !== queryString) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;
+    }
+
     const isCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
     if (null !== isCaseSensitive) {
         urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
             "true" === isCaseSensitive.toLowerCase();
     }
+
     const isRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
     if (null !== isRegex) {
         urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === isRegex.toLowerCase();
