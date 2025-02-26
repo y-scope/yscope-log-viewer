@@ -6,11 +6,9 @@ import React, {
 import {
     AccordionGroup,
     Box,
-    IconButton,
     LinearProgress,
+    Stack,
     Textarea,
-    ToggleButtonGroup,
-    Tooltip,
 } from "@mui/joy";
 
 import ShareIcon from "@mui/icons-material/Share";
@@ -35,46 +33,24 @@ import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ResultsGroup from "./ResultsGroup";
+import ToggleIconButton from "./ToggleIconButton";
 
 import "./index.css";
 
-
-enum QUERY_OPTION {
-    IS_CASE_SENSITIVE = "isCaseSensitive",
-    IS_REGEX = "isRegex",
-}
-
-/**
- * Determines if the query is case-sensitive based on the provided query options.
- *
- * @param queryOptions
- * @return True if the query is case-sensitive.
- */
-const getIsCaseSensitive =
-    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_CASE_SENSITIVE);
-
-/**
- * Determines if the query is a regular expression based on the provided query options.
- *
- * @param queryOptions
- * @return True if the query is a regular expression.
- */
-const getIsRegex =
-    (queryOptions: QUERY_OPTION[]) => queryOptions.includes(QUERY_OPTION.IS_REGEX);
 
 /**
  * Displays a panel for submitting queries and viewing query results.
  *
  * @return
  */
-// eslint max-lines-per-function ["error", { "max": 140 }]
 // eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const {queryString: urlQueryString} = useContext(UrlContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
-    const [queryOptions, setQueryOptions] = useState<QUERY_OPTION[]>([]);
     const [queryString, setQueryString] = useState<string>(urlQueryString ?? "");
+    const [queryIsCaseSensitive, setQueryIsCaseSensitive] = useState<boolean>(false);
+    const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
@@ -82,15 +58,15 @@ const SearchTabPanel = () => {
     const handleShareButtonClick = () => {
         copyPermalinkToClipboard({}, {
             queryString: queryString,
-            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
-            queryIsRegex: getIsRegex(queryOptions),
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
         });
     };
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
-            queryIsCaseSensitive: getIsCaseSensitive(queryOptions),
-            queryIsRegex: getIsRegex(queryOptions),
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
             queryString: queryString,
             ...newArgs,
         });
@@ -101,15 +77,14 @@ const SearchTabPanel = () => {
         handleQuerySubmit({queryString: ev.target.value});
     };
 
-    const handleQueryOptionsChange = (
-        _: React.MouseEvent<HTMLElement>,
-        newOptions: QUERY_OPTION[]
-    ) => {
-        setQueryOptions(newOptions);
-        handleQuerySubmit({
-            queryIsCaseSensitive: getIsCaseSensitive(newOptions),
-            queryIsRegex: getIsRegex(newOptions),
-        });
+    const handleCaseSensitivityButtonClick = () => {
+        handleQuerySubmit({queryIsCaseSensitive: !queryIsCaseSensitive});
+        setQueryIsCaseSensitive(!queryIsCaseSensitive);
+    };
+
+    const handleRegexButtonClick = () => {
+        handleQuerySubmit({queryIsRegex: !queryIsRegex});
+        setQueryIsRegex(!queryIsRegex);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
@@ -148,36 +123,34 @@ const SearchTabPanel = () => {
                         size={"sm"}
                         value={queryString}
                         endDecorator={
-                            <ToggleButtonGroup
-                                disabled={isQueryInputBoxDisabled}
-                                size={"sm"}
+                            <Stack
+                                direction={"row"}
                                 spacing={0.25}
-                                value={queryOptions}
-                                variant={"plain"}
-                                onChange={handleQueryOptionsChange}
                             >
-                                <Tooltip title={"Match case"}>
-                                    <span>
-                                        <IconButton
-                                            className={"query-option-button"}
-                                            value={QUERY_OPTION.IS_CASE_SENSITIVE}
-                                        >
-                                            Aa
-                                        </IconButton>
-                                    </span>
-                                </Tooltip>
+                                <ToggleIconButton
+                                    className={"query-option-button"}
+                                    disabled={isQueryInputBoxDisabled}
+                                    isChecked={queryIsCaseSensitive}
+                                    size={"sm"}
+                                    tooltipTitle={"Match case"}
+                                    variant={"plain"}
+                                    onClick={handleCaseSensitivityButtonClick}
+                                >
+                                    Aa
+                                </ToggleIconButton>
 
-                                <Tooltip title={"Use regular expression"}>
-                                    <span>
-                                        <IconButton
-                                            className={"query-option-button"}
-                                            value={QUERY_OPTION.IS_REGEX}
-                                        >
-                                            .*
-                                        </IconButton>
-                                    </span>
-                                </Tooltip>
-                            </ToggleButtonGroup>
+                                <ToggleIconButton
+                                    className={"query-option-button"}
+                                    disabled={isQueryInputBoxDisabled}
+                                    isChecked={queryIsRegex}
+                                    size={"sm"}
+                                    tooltipTitle={"Use regular expression"}
+                                    variant={"plain"}
+                                    onClick={handleRegexButtonClick}
+                                >
+                                    .*
+                                </ToggleIconButton>
+                            </Stack>
                         }
                         slotProps={{
                             textarea: {
