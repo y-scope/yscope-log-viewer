@@ -38,6 +38,7 @@ import "./index.css";
  *
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
@@ -113,22 +114,26 @@ const SearchTabPanel = () => {
                                 <ToggleIconButton
                                     className={"query-option-button"}
                                     disabled={isQueryInputBoxDisabled}
-                                    isPressed={isCaseSensitive}
+                                    isChecked={isCaseSensitive}
                                     size={"sm"}
-                                    text={"Aa"}
                                     tooltipTitle={"Match case"}
                                     variant={"plain"}
-                                    onClick={handleCaseButtonPressed}/>
+                                    onClick={handleCaseButtonPressed}
+                                >
+                                    Aa
+                                </ToggleIconButton>
 
                                 <ToggleIconButton
                                     className={"query-option-button"}
                                     disabled={isQueryInputBoxDisabled}
-                                    isPressed={isRegex}
+                                    isChecked={isRegex}
                                     size={"sm"}
-                                    text={".*"}
                                     tooltipTitle={"Use regular expression"}
                                     variant={"plain"}
-                                    onClick={handleRegexButtonPressed}/>
+                                    onClick={handleRegexButtonPressed}
+                                >
+                                    .*
+                                </ToggleIconButton>
                             </Stack>
                         }
                         slotProps={{

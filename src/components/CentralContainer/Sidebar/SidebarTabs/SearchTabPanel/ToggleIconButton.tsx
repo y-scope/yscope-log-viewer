@@ -6,8 +6,8 @@ import {
 
 
 interface ToggleIconButtonProps extends IconButtonProps {
-    isPressed: boolean;
-    text: string;
+    isChecked: boolean;
+    children: React.ReactNode;
     tooltipTitle: string;
 }
 
@@ -15,15 +15,15 @@ interface ToggleIconButtonProps extends IconButtonProps {
  * An icon button that can visually show icon pressed status.
  *
  * @param props
+ * @param props.children
+ * @param props.isChecked
  * @param props.tooltipTitle
- * @param props.text
- * @param props.isPressed
  * @param props.rest
  * @return
  */
 const ToggleIconButton = ({
-    isPressed,
-    text,
+    children,
+    isChecked,
     tooltipTitle,
     ...rest
 }: ToggleIconButtonProps) => {
@@ -31,12 +31,14 @@ const ToggleIconButton = ({
         <Tooltip
             title={tooltipTitle}
         >
-            <IconButton
-                aria-pressed={isPressed}
-                {...rest}
-            >
-                {text}
-            </IconButton>
+            <span>
+                <IconButton
+                    aria-pressed={isChecked}
+                    {...rest}
+                >
+                    {children}
+                </IconButton>
+            </span>
         </Tooltip>
     );
 };
