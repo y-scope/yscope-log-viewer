@@ -1,4 +1,4 @@
-import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
+import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js/worker";
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../typings/common";
@@ -13,7 +13,7 @@ import {Formatter} from "../../typings/formatters";
 import {JsonObject} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import YscopeFormatter from "../formatters/YscopeFormatter";
-import {postFormatPopup} from "../MainWorker";
+import {postFormatPopup} from "../MainWorker.worker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
