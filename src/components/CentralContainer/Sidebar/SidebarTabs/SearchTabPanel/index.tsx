@@ -1,5 +1,6 @@
 import React, {
     useContext,
+    useEffect,
     useState,
 } from "react";
 
@@ -11,10 +12,15 @@ import {
     Textarea,
 } from "@mui/joy";
 
+import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {
+    copyPermalinkToClipboard,
+    UrlContext,
+} from "../../../../../contexts/UrlContextProvider";
 import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
@@ -38,21 +44,52 @@ import "./index.css";
  *
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
+    const {
+        queryString: urlQueryString,
+        queryIsCaseSensitive: urlQueryIsCaseSensitive,
+        queryIsRegex: urlQueryIsRegex,
+    } = useContext(UrlContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
     const [queryString, setQueryString] = useState<string>("");
-    const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(false);
-    const [isRegex, setIsRegex] = useState<boolean>(false);
+    const [queryIsCaseSensitive, setQueryIsCaseSensitive] = useState<boolean>(false);
+    const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (null !== urlQueryString) {
+            setQueryString(urlQueryString);
+        }
+    }, [urlQueryString]);
+
+    useEffect(() => {
+        if (null !== urlQueryIsCaseSensitive) {
+            setQueryIsCaseSensitive(urlQueryIsCaseSensitive);
+        }
+    }, [urlQueryIsCaseSensitive]);
+
+    useEffect(() => {
+        if (null !== urlQueryIsRegex) {
+            setQueryIsRegex(urlQueryIsRegex);
+        }
+    }, [urlQueryIsRegex]);
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
     };
+    const handleShareButtonClick = () => {
+        copyPermalinkToClipboard({}, {
+            queryString: queryString,
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
+        });
+    };
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
-            isCaseSensitive: isCaseSensitive,
-            isRegex: isRegex,
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
             queryString: queryString,
             ...newArgs,
         });
@@ -64,13 +101,13 @@ const SearchTabPanel = () => {
     };
 
     const handleCaseSensitivityButtonClick = () => {
-        handleQuerySubmit({isCaseSensitive: !isCaseSensitive});
-        setIsCaseSensitive(!isCaseSensitive);
+        handleQuerySubmit({queryIsCaseSensitive: !queryIsCaseSensitive});
+        setQueryIsCaseSensitive(!queryIsCaseSensitive);
     };
 
     const handleRegexButtonClick = () => {
-        handleQuerySubmit({isRegex: !isRegex});
-        setIsRegex(!isRegex);
+        handleQuerySubmit({queryIsRegex: !queryIsRegex});
+        setQueryIsRegex(!queryIsRegex);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
@@ -80,16 +117,24 @@ const SearchTabPanel = () => {
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton
-                    title={isAllExpanded ?
-                        "Collapse all" :
-                        "Expand all"}
-                    onClick={handleCollapseAllButtonClick}
-                >
-                    {isAllExpanded ?
-                        <UnfoldLessIcon/> :
-                        <UnfoldMoreIcon/>}
-                </PanelTitleButton>
+                <>
+                    <PanelTitleButton
+                        title={isAllExpanded ?
+                            "Collapse all" :
+                            "Expand all"}
+                        onClick={handleCollapseAllButtonClick}
+                    >
+                        {isAllExpanded ?
+                            <UnfoldLessIcon/> :
+                            <UnfoldMoreIcon/>}
+                    </PanelTitleButton>
+                    <PanelTitleButton
+                        title={"Copy URL with search parameters"}
+                        onClick={handleShareButtonClick}
+                    >
+                        <ShareIcon/>
+                    </PanelTitleButton>
+                </>
             }
         >
             <Box className={"search-tab-container"}>
@@ -99,6 +144,7 @@ const SearchTabPanel = () => {
                         maxRows={7}
                         placeholder={"Search"}
                         size={"sm"}
+                        value={queryString}
                         endDecorator={
                             <Stack
                                 direction={"row"}
@@ -107,7 +153,7 @@ const SearchTabPanel = () => {
                                 <ToggleIconButton
                                     className={"query-option-button"}
                                     disabled={isQueryInputBoxDisabled}
-                                    isChecked={isCaseSensitive}
+                                    isChecked={queryIsCaseSensitive}
                                     size={"sm"}
                                     tooltipTitle={"Match case"}
                                     variant={"plain"}
@@ -119,7 +165,7 @@ const SearchTabPanel = () => {
                                 <ToggleIconButton
                                     className={"query-option-button"}
                                     disabled={isQueryInputBoxDisabled}
-                                    isChecked={isRegex}
+                                    isChecked={queryIsRegex}
                                     size={"sm"}
                                     tooltipTitle={"Use regular expression"}
                                     variant={"plain"}
