@@ -38,7 +38,6 @@ import "./index.css";
  *
  * @return
  */
-// eslint-disable-next-line max-lines-per-function
 const SearchTabPanel = () => {
     const {queryProgress, queryResults, startQuery, uiState} = useContext(StateContext);
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
@@ -65,16 +64,12 @@ const SearchTabPanel = () => {
     };
 
     const handleCaseSensitivityButtonClick = () => {
-        handleQuerySubmit({
-            isCaseSensitive: !isCaseSensitive,
-        });
+        handleQuerySubmit({isCaseSensitive: !isCaseSensitive});
         setIsCaseSensitive(!isCaseSensitive);
     };
 
     const handleRegexButtonClick = () => {
-        handleQuerySubmit({
-            isRegex: !isRegex,
-        });
+        handleQuerySubmit({isRegex: !isRegex});
         setIsRegex(!isRegex);
     };
 
