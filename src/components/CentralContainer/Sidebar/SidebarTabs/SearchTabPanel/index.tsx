@@ -64,17 +64,15 @@ const SearchTabPanel = () => {
         handleQuerySubmit({queryString: ev.target.value});
     };
 
-    const handleCaseButtonPressed = () => {
+    const handleCaseSensitivityButtonClick = () => {
         handleQuerySubmit({
-            isCaseSensitive: !isCaseSensitive,
-            isRegex: isRegex,
+            isCaseSensitive: isCaseSensitive,
         });
         setIsCaseSensitive(!isCaseSensitive);
     };
 
-    const handleRegexButtonPressed = () => {
+    const handleRegexButtonClick = () => {
         handleQuerySubmit({
-            isCaseSensitive: isCaseSensitive,
             isRegex: !isRegex,
         });
         setIsRegex(!isRegex);
@@ -118,7 +116,7 @@ const SearchTabPanel = () => {
                                     size={"sm"}
                                     tooltipTitle={"Match case"}
                                     variant={"plain"}
-                                    onClick={handleCaseButtonPressed}
+                                    onClick={handleCaseSensitivityButtonClick}
                                 >
                                     Aa
                                 </ToggleIconButton>
@@ -130,7 +128,7 @@ const SearchTabPanel = () => {
                                     size={"sm"}
                                     tooltipTitle={"Use regular expression"}
                                     variant={"plain"}
-                                    onClick={handleRegexButtonPressed}
+                                    onClick={handleRegexButtonClick}
                                 >
                                     .*
                                 </ToggleIconButton>
