@@ -16,12 +16,14 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
+import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
+    parseFilterKeys,
 } from "./utils";
 
 
@@ -34,9 +36,9 @@ class JsonlDecoder implements Decoder {
 
     #dataArray: Nullable<Uint8Array>;
 
-    #logLevelKey: string;
+    #logLevelSplitKey: string[];
 
-    #timestampKey: string;
+    #timestampSplitKey: string[];
 
     #logEvents: LogEvent[] = [];
 
@@ -52,9 +54,15 @@ class JsonlDecoder implements Decoder {
      */
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
-        this.#logLevelKey = decoderOptions.logLevelKey;
-        this.#timestampKey = decoderOptions.timestampKey;
-        this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+
+        [this.#logLevelSplitKey, this.#timestampSplitKey] = parseFilterKeys(
+            decoderOptions.logLevelKey,
+            decoderOptions.timestampKey
+        );
+
+        this.#formatter = new YscopeFormatter({
+            formatString: decoderOptions.formatString,
+        });
         if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
         }
@@ -86,7 +94,9 @@ class JsonlDecoder implements Decoder {
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
-        this.#formatter = new YscopeFormatter({formatString: options.formatString});
+        this.#formatter = new YscopeFormatter({
+            formatString: options.formatString,
+        });
 
         return true;
     }
@@ -165,8 +175,14 @@ class JsonlDecoder implements Decoder {
             if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
-            level = convertToLogLevelValue(fields[this.#logLevelKey]);
-            timestamp = convertToDayjsTimestamp(fields[this.#timestampKey]);
+            level = convertToLogLevelValue(getNestedJsonValue(
+                fields,
+                this.#logLevelSplitKey
+            ));
+            timestamp = convertToDayjsTimestamp(getNestedJsonValue(
+                fields,
+                this.#timestampSplitKey
+            ));
         } catch (e) {
             if (0 === line.length) {
                 return;

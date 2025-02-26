@@ -1,4 +1,5 @@
 import {Nullable} from "../typings/common";
+import {StructuredIrNamespaceKeys} from "./decoders";
 import {JsonValue} from "./js";
 import {LogEvent} from "./logs";
 
@@ -19,9 +20,11 @@ import {LogEvent} from "./logs";
  *
  * All three as may contain any character, except that colons (:), right braces (}),
  * and backslashes (\) must be escaped with a backslash.
+ * @property [structuredIrNamespaceKeys]
  */
 interface YscopeFormatterOptionsType {
     formatString: string;
+    structuredIrNamespaceKeys?: StructuredIrNamespaceKeys;
 }
 
 type FormatterOptionsType = YscopeFormatterOptionsType;
@@ -55,11 +58,23 @@ interface YscopeFieldFormatterMap {
     [key: string]: new (options: Nullable<string>) => YscopeFieldFormatter;
 }
 
+
+/**
+ * Parsed key from YScope format string.
+ *
+ * @property hasAutoPrefix whether the key is prefixed with `AUTO_GENERATED_KEY_PREFIX`.
+ * @property splitKey The key split into its hierarchical components.
+ */
+type ParsedKey = {
+    hasAutoPrefix: boolean;
+    splitKey: string[];
+};
+
 /**
  * Parsed field placeholder from a YScope format string.
  */
 type YscopeFieldPlaceholder = {
-    fieldNameKeys: string[];
+    parsedKey: ParsedKey;
     fieldFormatter: Nullable<YscopeFieldFormatter>;
 
     // Location of field placeholder in format string including braces.
@@ -73,6 +88,11 @@ type YscopeFieldPlaceholder = {
  * Unicode replacement character `U+FFFD` to substitute escaped backslash (`\\`) in format string.
  */
 const REPLACEMENT_CHARACTER = "�";
+
+/**
+ * Symbol used to denote auto-generated keys in the format string.
+ */
+const AUTO_GENERATED_KEY_PREFIX = "@";
 
 /**
  * Used to remove single backlash in format string.
@@ -104,12 +124,15 @@ const PERIOD_REGEX = Object.freeze(/(?<!\\)\./);
 export type {
     Formatter,
     FormatterOptionsType,
+    ParsedKey,
+    StructuredIrNamespaceKeys,
     YscopeFieldFormatter,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 };
 
 export {
+    AUTO_GENERATED_KEY_PREFIX,
     COLON_REGEX,
     DOUBLE_BACKSLASH,
     FIELD_PLACEHOLDER_REGEX,

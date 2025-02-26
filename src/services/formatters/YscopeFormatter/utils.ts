@@ -1,16 +1,21 @@
 import {Nullable} from "../../../typings/common";
+import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
     COLON_REGEX,
-    DOUBLE_BACKSLASH,
-    PERIOD_REGEX,
-    REPLACEMENT_CHARACTER,
-    SINGLE_BACKSLASH,
+    ParsedKey,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
-import {JsonValue} from "../../../typings/js";
+import {JsonObject} from "../../../typings/js";
 import {LogEvent} from "../../../typings/logs";
+import {
+    jsonValueToString,
+    parseKey,
+    removeEscapeCharacters,
+    replaceDoubleBacklash,
+} from "../../../utils/formatters";
 import {getNestedJsonValue} from "../../../utils/js";
+import {isJsonObject} from "../../decoders/JsonlDecoder/utils";
 import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
 
@@ -25,91 +30,65 @@ const YSCOPE_FIELD_FORMATTER_MAP: YscopeFieldFormatterMap = Object.freeze({
 
 
 /**
- * Removes all backslashes from a string. Purpose is to remove escape character in front of brace
- * and colon characters.
+ * Retrieves fields from auto-generated or user-generated namespace of a structured IR log
+ * event based on the prefix of the parsed key.
  *
- * @param str
- * @return Modified string.
+ * @param logEvent
+ * @param structuredIrNamespaceKeys
+ * @param parsedKey
+ * @return The extracted fields.
+ * @throws {Error} If the namespace key is missing from structured IR log event or the
+ * extracted fields are not a valid JsonObject.
  */
-const removeBackslash = (str: string): string => {
-    return str.replaceAll(SINGLE_BACKSLASH, "");
-};
+const getFieldsByNamespace = (
+    logEvent: LogEvent,
+    structuredIrNamespaceKeys: StructuredIrNamespaceKeys,
+    parsedKey: ParsedKey
+): JsonObject => {
+    const namespaceKey = parsedKey.hasAutoPrefix ?
+        structuredIrNamespaceKeys.auto :
+        structuredIrNamespaceKeys.user;
+    const fields = logEvent.fields[namespaceKey];
 
-/**
- * Replaces all replacement characters in format string with a single backslash. Purpose is to
- * remove, albeit indirectly through intermediate replacement character, escape character in
- * front of a backslash character.
- *
- * @param str
- * @return Modified string.
- */
-const replaceReplacementCharacter = (str: string): string => {
-    return str.replaceAll(REPLACEMENT_CHARACTER, "\\");
-};
+    if ("undefined" === typeof fields) {
+        throw new Error("Structured IR log event is missing namespace key");
+    }
+    if (false === isJsonObject(fields)) {
+        throw new Error(
+            "Fields from nested namespace in structured IR log event are not a valid JSON object"
+        );
+    }
 
-/**
- * Removes escape characters from a string.
- *
- * @param str
- * @return Modified string.
- */
-const removeEscapeCharacters = (str: string): string => {
-    // `removeBackslash()`, which removes all  backlashes, is called before
-    // `replaceReplacementCharacter()` to prevent removal of escaped backslashes.
-    return replaceReplacementCharacter(removeBackslash(str));
-};
-
-/**
- * Replaces all escaped backslashes in format string with replacement character.
- * Replacement character is a rare character that is unlikely to be in user format string.
- * Writing regex to distinguish between a single escape character ("\") and an escaped backslash
- * ("\\") is challenging especially when they are in series. It is simpler to just replace
- * escaped backslashes with a rare character and add them back after parsing field placeholder
- * with regex is finished.
- *
- * @param formatString
- * @return Modified format string.
- */
-const replaceDoubleBacklash = (formatString: string): string => {
-    return formatString.replaceAll(DOUBLE_BACKSLASH, REPLACEMENT_CHARACTER);
-};
-
-
-/**
- * Converts a JSON value to its string representation.
- *
- * @param input
- * @return
- */
-const jsonValueToString = (input: JsonValue | undefined): string => {
-    // Behaviour is different for `undefined`.
-    return "object" === typeof input ?
-        JSON.stringify(input) :
-        String(input);
+    return fields;
 };
 
 /**
  * Gets a formatted field. Specifically, retrieves a field from a log event using a placeholder's
- * `fieldNameKeys`. The field is then formatted using the placeholder's `fieldFormatter`.
+ * `parsedKey`. The field is then formatted using the placeholder's `fieldFormatter`.
  *
+ * @param structuredIrNamespaceKeys
  * @param logEvent
  * @param fieldPlaceholder
  * @return The formatted field as a string.
  */
 const getFormattedField = (
+    structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>,
     logEvent: LogEvent,
     fieldPlaceholder: YscopeFieldPlaceholder
 ): string => {
-    const nestedValue = getNestedJsonValue(logEvent.fields, fieldPlaceholder.fieldNameKeys);
+    const fields = null === structuredIrNamespaceKeys ?
+        logEvent.fields :
+        getFieldsByNamespace(logEvent, structuredIrNamespaceKeys, fieldPlaceholder.parsedKey);
+
+    const nestedValue = getNestedJsonValue(fields, fieldPlaceholder.parsedKey.splitKey);
+
     if ("undefined" === typeof nestedValue) {
         return "";
     }
 
-    const formattedField = fieldPlaceholder.fieldFormatter ?
+    return fieldPlaceholder.fieldFormatter ?
         fieldPlaceholder.fieldFormatter.formatField(nestedValue) :
         jsonValueToString(nestedValue);
-
-    return formattedField;
 };
 
 /**
@@ -127,18 +106,22 @@ const validateComponent = (component: string | undefined): Nullable<string> => {
 };
 
 /**
- * Splits a field placeholder string into its components: field name, formatter name, and formatter
+ * Splits a field placeholder string into its components: parsed key, formatter name, and formatter
  * options.
  *
  * @param placeholderString
+ * @param structuredIrNamespaceKeys
  * @return - An object containing:
- * - fieldNameKeys: An array of strings representing the field name split by periods.
+ * - parsedKey: The parsed key.
  * - formatterName: The formatter name, or `null` if not provided.
  * - formatterOptions: The formatter options, or `null` if not provided.
  * @throws {Error} If the field name could not be parsed.
  */
-const splitFieldPlaceholder = (placeholderString: string): {
-    fieldNameKeys: string[];
+const splitFieldPlaceholder = (
+    placeholderString: string,
+    structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>
+): {
+    parsedKey: ParsedKey;
     formatterName: Nullable<string>;
     formatterOptions: Nullable<string>;
 } => {
@@ -154,10 +137,13 @@ const splitFieldPlaceholder = (placeholderString: string): {
         throw Error("Field name could not be parsed");
     }
 
-    // Splits field name into an array of field name keys to support nested fields.
-    let fieldNameKeys = fieldName.split(PERIOD_REGEX);
-
-    fieldNameKeys = fieldNameKeys.map((key) => removeEscapeCharacters(key));
+    const parsedKey: ParsedKey = parseKey(fieldName);
+    if (null === structuredIrNamespaceKeys && parsedKey.hasAutoPrefix) {
+        throw new Error(
+            "`@` is a reserved symbol and must be escaped with `\\` " +
+            "for JSONL logs."
+        );
+    }
 
     formatterName = validateComponent(formatterName);
     if (null !== formatterName) {
@@ -169,7 +155,7 @@ const splitFieldPlaceholder = (placeholderString: string): {
         formatterOptions = removeEscapeCharacters(formatterOptions);
     }
 
-    return {fieldNameKeys, formatterName, formatterOptions};
+    return {parsedKey, formatterName, formatterOptions};
 };
 
 
