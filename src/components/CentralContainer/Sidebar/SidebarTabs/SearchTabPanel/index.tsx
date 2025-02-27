@@ -1,6 +1,7 @@
 import React, {
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 
@@ -63,27 +64,40 @@ const SearchTabPanel = () => {
     const [queryIsCaseSensitive, setQueryIsCaseSensitive] = useState<boolean>(false);
     const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
 
+    const queryIsCaseSensitiveRef = useRef(false);
+    const queryIsRegexRef = useRef(false);
+
+    useEffect(() => {
+        queryIsCaseSensitiveRef.current = urlQueryIsCaseSensitive ?? false;
+    }, [urlQueryIsCaseSensitive]);
+
+    useEffect(() => {
+        queryIsRegexRef.current = urlQueryIsRegex ?? false;
+    }, [urlQueryIsRegex]);
+
     useEffect(() => {
         if (uiState === UI_STATE.READY) {
             if (null !== urlQueryString) {
                 setQueryString(urlQueryString);
-                setQueryIsCaseSensitive(urlQueryIsCaseSensitive ?? false);
-                setQueryIsRegex(urlQueryIsRegex ?? false);
+                setQueryIsCaseSensitive(queryIsCaseSensitiveRef.current);
+                setQueryIsRegex(queryIsRegexRef.current);
 
                 startQuery({
-                    queryIsCaseSensitive: urlQueryIsCaseSensitive ?? false,
-                    queryIsRegex: urlQueryIsRegex ?? false,
+                    queryIsCaseSensitive: queryIsCaseSensitiveRef.current,
+                    queryIsRegex: queryIsRegexRef.current,
                     queryString: urlQueryString,
                 });
 
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
-                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
+                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
+                        URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
                     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
                 });
             }
         }
     }, [
+        startQuery,
         uiState,
         urlQueryString,
     ]);
