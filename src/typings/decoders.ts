@@ -107,5 +107,4 @@ export type {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
-    StructuredIrNamespaceKeys,
 };

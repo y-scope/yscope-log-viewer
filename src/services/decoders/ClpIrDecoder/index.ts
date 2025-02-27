@@ -9,9 +9,7 @@ import {
     FilteredLogEventMap,
     LogEventCount,
 } from "../../../typings/decoders";
-import {
-    Formatter,
-} from "../../../typings/formatters";
+import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogLevelFilter} from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
@@ -22,8 +20,8 @@ import {
 } from "../JsonlDecoder/utils";
 import {
     CLP_IR_STREAM_TYPE,
-    StructuredIrNamespaceKeys,
     getStructuredIrNamespaceKeys,
+    StructuredIrNamespaceKeys,
 } from "./utils";
 
 

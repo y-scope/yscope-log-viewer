@@ -1,11 +1,10 @@
 import {Nullable} from "../../../typings/common";
-import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
+    AUTO_GENERATED_KEY_PREFIX,
     COLON_REGEX,
     DOUBLE_BACKSLASH,
-    PERIOD_REGEX,
     ParsedFieldName,
-    AUTO_GENERATED_KEY_PREFIX,
+    PERIOD_REGEX,
     REPLACEMENT_CHARACTER,
     SINGLE_BACKSLASH,
     YscopeFieldFormatterMap,
@@ -15,8 +14,9 @@ import {JsonObject} from "../../../typings/js";
 import {LogEvent} from "../../../typings/logs";
 import {
     getNestedJsonValue,
-    jsonValueToString
+    jsonValueToString,
 } from "../../../utils/js";
+import {StructuredIrNamespaceKeys} from "../../decoders/ClpIrDecoder/utils";
 import {isJsonObject} from "../../decoders/JsonlDecoder/utils";
 import RoundFormatter from "./FieldFormatters/RoundFormatter";
 import TimestampFormatter from "./FieldFormatters/TimestampFormatter";
@@ -85,7 +85,7 @@ const replaceDoubleBacklash = (str: string): string => {
  *
  * @param logEvent
  * @param structuredIrNamespaceKeys
- * @param ParsedFieldName
+ * @param parsedFieldName
  * @return The extracted fields.
  * @throws {Error} If the namespace key is missing from structured IR log event or the
  * extracted fields are not a valid JsonObject.
@@ -114,7 +114,7 @@ const getFieldsByNamespace = (
 
 /**
  * Gets a formatted field. Specifically, retrieves a field from a log event using a placeholder's
- * `ParsedFieldName`. The field is then formatted using the placeholder's `fieldFormatter`.
+ * `parsedFieldName`. The field is then formatted using the placeholder's `fieldFormatter`.
  *
  * @param structuredIrNamespaceKeys
  * @param logEvent
@@ -176,8 +176,8 @@ const parseKey = (key: string): ParsedFieldName => {
 };
 
 /**
- * Splits a field placeholder string into its components: parsed field name, formatter name, and formatter
- * options.
+ * Splits a field placeholder string into its components: parsed field name, formatter name, and
+ * formatter options.
  *
  * @param placeholderString
  * @param structuredIrNamespaceKeys
@@ -230,8 +230,8 @@ const splitFieldPlaceholder = (
 
 
 export {
-    parseKey,
     getFormattedField,
+    parseKey,
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,

@@ -1,5 +1,4 @@
 import {Nullable} from "../../../typings/common";
-import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 import {
     FIELD_PLACEHOLDER_REGEX,
     Formatter,
@@ -10,6 +9,7 @@ import {
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
 import {jsonValueToString} from "../../../utils/js";
+import {StructuredIrNamespaceKeys} from "../../decoders/ClpIrDecoder/utils";
 import {
     getFormattedField,
     removeEscapeCharacters,
@@ -35,7 +35,7 @@ class YscopeFormatter implements Formatter {
 
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
             console.warn("Unicode replacement character `U+FFFD` found in format string; " +
-                         `it will be replaced with "\\"`);
+                         "it will be replaced with \"\\\"");
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);

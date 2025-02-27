@@ -1,5 +1,5 @@
+import {StructuredIrNamespaceKeys} from "../services/decoders/ClpIrDecoder/utils";
 import {Nullable} from "../typings/common";
-import {StructuredIrNamespaceKeys} from "./decoders";
 import {JsonValue} from "./js";
 import {LogEvent} from "./logs";
 

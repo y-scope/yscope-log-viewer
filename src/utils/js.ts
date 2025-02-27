@@ -42,5 +42,5 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
 
 export {
     getNestedJsonValue,
-    jsonValueToString
+    jsonValueToString,
 };

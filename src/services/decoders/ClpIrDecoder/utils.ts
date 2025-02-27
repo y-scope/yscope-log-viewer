@@ -1,8 +1,6 @@
 import {MainModule} from "clp-ffi-js";
 
-import {
-    StructuredIrNamespaceKeys,
-} from "../../../typings/decoders";
+import {StructuredIrNamespaceKeys} from "../../../typings/decoders";
 
 
 enum CLP_IR_STREAM_TYPE {
@@ -43,9 +41,7 @@ const getStructuredIrNamespaceKeys = (ffiModule: MainModule): StructuredIrNamesp
 };
 
 
-export type {
-    StructuredIrNamespaceKeys,
-};
+export type {StructuredIrNamespaceKeys};
 
 
 export {
