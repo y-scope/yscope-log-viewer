@@ -8,14 +8,6 @@ interface LogEventCount {
 }
 
 /**
- * Keys that delineate the auto-generated and user-generated namespaces in structured IR log events.
- */
-interface StructuredIrNamespaceKeys {
-    auto: string;
-    user: string;
-}
-
-/**
  * @property formatString The format string to use to serialize records as plain text.
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.

@@ -9,9 +9,9 @@ import {
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
+import {jsonValueToString} from "../../../utils/js";
 import {
     getFormattedField,
-    jsonValueToString,
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,
@@ -35,7 +35,7 @@ class YscopeFormatter implements Formatter {
 
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
             console.warn("Unicode replacement character `U+FFFD` found in format string; " +
-                         "it will be replaced with \"\\\"");
+                         `it will be replaced with "\\"`);
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);

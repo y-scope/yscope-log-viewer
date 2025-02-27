@@ -11,7 +11,6 @@ import {
 } from "../../../typings/decoders";
 import {
     Formatter,
-    StructuredIrNamespaceKeys,
 } from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogLevelFilter} from "../../../typings/logs";
@@ -23,6 +22,7 @@ import {
 } from "../JsonlDecoder/utils";
 import {
     CLP_IR_STREAM_TYPE,
+    StructuredIrNamespaceKeys,
     createStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
 } from "./utils";

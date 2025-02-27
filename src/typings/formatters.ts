@@ -125,7 +125,6 @@ export type {
     Formatter,
     FormatterOptionsType,
     ParsedKey,
-    StructuredIrNamespaceKeys,
     YscopeFieldFormatter,
     YscopeFieldFormatterMap,
     YscopeFieldPlaceholder,

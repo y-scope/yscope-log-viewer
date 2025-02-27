@@ -5,12 +5,20 @@ import {
     StructuredIrNamespaceKeys,
 } from "../../../typings/decoders";
 import {ParsedKey} from "../../../typings/formatters";
-import {processThenParseFilterKey} from "../../../utils/decoders";
+import {processThenParseFilterKey} from "../utils";
 
 
 enum CLP_IR_STREAM_TYPE {
     STRUCTURED = "structured",
     UNSTRUCTURED = "unstructured",
+}
+
+/**
+ * Keys that delineate the auto-generated and user-generated namespaces in structured IR log events.
+ */
+interface StructuredIrNamespaceKeys {
+    auto: string;
+    user: string;
 }
 
 interface StructuredIrReaderOptions {
@@ -56,6 +64,12 @@ const getStructuredIrNamespaceKeys = (ffiModule: MainModule): StructuredIrNamesp
         user: MERGED_KV_PAIRS_USER_GENERATED_KEY,
     };
 };
+
+
+export type {
+    StructuredIrNamespaceKeys,
+};
+
 
 export {
     CLP_IR_STREAM_TYPE,
