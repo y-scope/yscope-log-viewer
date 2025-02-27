@@ -71,11 +71,12 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
-        const readerOptions = createStructuredIrReaderOptions(decoderOptions);
-        const streamReader = new module.ClpStreamReader(dataArray, readerOptions);
+        const streamReader = new module.ClpStreamReader(dataArray, decoderOptions);
         const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
             CLP_IR_STREAM_TYPE.STRUCTURED :
             CLP_IR_STREAM_TYPE.UNSTRUCTURED;
+
+
 
         return new ClpIrDecoder(
             streamType,

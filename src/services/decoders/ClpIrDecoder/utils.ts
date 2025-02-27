@@ -1,11 +1,8 @@
 import {MainModule} from "clp-ffi-js";
 
 import {
-    DecoderOptions,
     StructuredIrNamespaceKeys,
 } from "../../../typings/decoders";
-import {ParsedKey} from "../../../typings/formatters";
-import {processThenParseFilterKey} from "../utils";
 
 
 enum CLP_IR_STREAM_TYPE {
@@ -20,26 +17,6 @@ interface StructuredIrNamespaceKeys {
     auto: string;
     user: string;
 }
-
-interface StructuredIrReaderOptions {
-    logLevelKey: ParsedKey;
-    timestampKey: ParsedKey;
-}
-
-/**
- * Creates structured IR reader options using decoder options.
- *
- * @param decoderOptions
- * @return
- */
-const createStructuredIrReaderOptions = (
-    decoderOptions: DecoderOptions,
-): StructuredIrReaderOptions => {
-    return {
-        logLevelKey: processThenParseFilterKey(decoderOptions.logLevelKey),
-        timestampKey: processThenParseFilterKey(decoderOptions.timestampKey),
-    };
-};
 
 /**
  * Retrieves the structured IR namespace keys from the "clp-ffi-js" module.
@@ -73,6 +50,5 @@ export type {
 
 export {
     CLP_IR_STREAM_TYPE,
-    createStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
 };

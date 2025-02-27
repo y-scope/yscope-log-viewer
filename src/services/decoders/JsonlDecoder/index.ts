@@ -36,9 +36,9 @@ class JsonlDecoder implements Decoder {
 
     #dataArray: Nullable<Uint8Array>;
 
-    #logLevelSplitKey: string[];
+    #logLevelKey: string;
 
-    #timestampSplitKey: string[];
+    #timestampKey: string;
 
     #logEvents: LogEvent[] = [];
 
@@ -55,14 +55,9 @@ class JsonlDecoder implements Decoder {
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
 
-        [this.#logLevelSplitKey, this.#timestampSplitKey] = parseFilterKeys(
-            decoderOptions.logLevelKey,
-            decoderOptions.timestampKey
-        );
-
-        this.#formatter = new YscopeFormatter({
-            formatString: decoderOptions.formatString,
-        });
+        this.#logLevelKey = decoderOptions.logLevelKey;
+        this.#timestampKey = decoderOptions.timestampKey;
+        this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
         if (0 === decoderOptions.formatString.length) {
             postFormatPopup();
         }
@@ -175,14 +170,8 @@ class JsonlDecoder implements Decoder {
             if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
-            level = convertToLogLevelValue(getNestedJsonValue(
-                fields,
-                this.#logLevelSplitKey
-            ));
-            timestamp = convertToDayjsTimestamp(getNestedJsonValue(
-                fields,
-                this.#timestampSplitKey
-            ));
+            level = convertToLogLevelValue(fields[this.#logLevelKey]);
+            timestamp = convertToDayjsTimestamp(fields[this.#timestampKey]);
         } catch (e) {
             if (0 === line.length) {
                 return;
