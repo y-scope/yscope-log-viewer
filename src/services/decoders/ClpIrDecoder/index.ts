@@ -23,7 +23,6 @@ import {
 import {
     CLP_IR_STREAM_TYPE,
     StructuredIrNamespaceKeys,
-    createStructuredIrReaderOptions,
     getStructuredIrNamespaceKeys,
 } from "./utils";
 
@@ -75,8 +74,6 @@ class ClpIrDecoder implements Decoder {
         const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
             CLP_IR_STREAM_TYPE.STRUCTURED :
             CLP_IR_STREAM_TYPE.UNSTRUCTURED;
-
-
 
         return new ClpIrDecoder(
             streamType,
@@ -168,5 +165,6 @@ class ClpIrDecoder implements Decoder {
         return results;
     }
 }
+
 
 export default ClpIrDecoder;

@@ -79,34 +79,8 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
     return dayjsTimestamp;
 };
 
-/**
- * Parses the log level key and timestamp key.
- *
- * @param logLevelKey
- * @param timestampKey
- * @return An array containing the parsed log level key and timestamp key.
- * @throws {Error} If the keys contain reserved symbols.
- */
-const parseFilterKeys = (logLevelKey: string, timestampKey: string): [string[], string[]] => {
-    const parsedLogLevelKey = processThenParseFilterKey(logLevelKey);
-    const parsedTimestampKey = processThenParseFilterKey(timestampKey);
-
-    if (parsedLogLevelKey.hasAutoPrefix || parsedTimestampKey.hasAutoPrefix) {
-        throw new Error(
-            "`@` is a reserved symbol and must be escaped with `\\` " +
-            "for JSONL logs."
-        );
-    }
-
-    return [
-        parsedLogLevelKey.splitKey,
-        parsedTimestampKey.splitKey,
-    ];
-};
-
 export {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
-    parseFilterKeys,
 };

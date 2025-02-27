@@ -16,14 +16,12 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
-import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
-    parseFilterKeys,
 } from "./utils";
 
 
@@ -54,7 +52,6 @@ class JsonlDecoder implements Decoder {
      */
     constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
         this.#dataArray = dataArray;
-
         this.#logLevelKey = decoderOptions.logLevelKey;
         this.#timestampKey = decoderOptions.timestampKey;
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
@@ -89,10 +86,7 @@ class JsonlDecoder implements Decoder {
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
-        this.#formatter = new YscopeFormatter({
-            formatString: options.formatString,
-        });
-
+        this.#formatter = new YscopeFormatter({formatString: options.formatString});
         return true;
     }
 
