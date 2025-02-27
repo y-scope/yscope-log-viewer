@@ -30,10 +30,7 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
-import {
-    HASH_PARAM_NAMES,
-    SEARCH_PARAM_NAMES,
-} from "../typings/url";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -252,10 +249,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {
         filePath,
-        queryIsCaseSensitive,
-        queryIsRegex,
         logEventNum,
-        queryString,
     } = useContext(UrlContext);
 
     // States
@@ -510,29 +504,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             setLogData(STATE_DEFAULT.logData);
         }
     }, [uiState]);
-
-    useEffect(() => {
-        if (uiState === UI_STATE.READY) {
-            if (
-                URL_HASH_PARAMS_DEFAULT.queryString !== queryString &&
-                null !== queryIsCaseSensitive &&
-                null !== queryIsRegex
-            ) {
-                startQuery({queryString, queryIsCaseSensitive, queryIsRegex});
-            }
-            updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
-                [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: null,
-                [HASH_PARAM_NAMES.QUERY_IS_REGEX]: null,
-            });
-        }
-    }, [
-        queryString,
-        queryIsCaseSensitive,
-        queryIsRegex,
-        startQuery,
-        uiState,
-    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {

@@ -19,17 +19,23 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import {StateContext} from "../../../../../contexts/StateContextProvider";
 import {
     copyPermalinkToClipboard,
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
     UrlContext,
 } from "../../../../../contexts/UrlContextProvider";
 import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
 } from "../../../../../typings/query";
-import {UI_ELEMENT} from "../../../../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {HASH_PARAM_NAMES} from "../../../../../typings/url";
 import {isDisabled} from "../../../../../utils/states";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
@@ -58,28 +64,36 @@ const SearchTabPanel = () => {
     const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
 
     useEffect(() => {
-        if (null !== urlQueryString) {
-            setQueryString(urlQueryString);
-        }
-    }, [urlQueryString]);
+        if (uiState === UI_STATE.READY) {
+            if (null !== urlQueryString) {
+                setQueryString(urlQueryString);
+                setQueryIsCaseSensitive(urlQueryIsCaseSensitive ?? false);
+                setQueryIsRegex(urlQueryIsRegex ?? false);
 
-    useEffect(() => {
-        if (null !== urlQueryIsCaseSensitive) {
-            setQueryIsCaseSensitive(urlQueryIsCaseSensitive);
-        }
-    }, [urlQueryIsCaseSensitive]);
+                startQuery({
+                    queryIsCaseSensitive: urlQueryIsCaseSensitive ?? false,
+                    queryIsRegex: urlQueryIsRegex ?? false,
+                    queryString: urlQueryString,
+                });
 
-    useEffect(() => {
-        if (null !== urlQueryIsRegex) {
-            setQueryIsRegex(urlQueryIsRegex);
+                updateWindowUrlHashParams({
+                    [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
+                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
+                    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
+                });
+            }
         }
-    }, [urlQueryIsRegex]);
+    }, [
+        uiState,
+        urlQueryString,
+    ]);
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
     };
     const handleShareButtonClick = () => {
         copyPermalinkToClipboard({}, {
+            logEventNum: null,
             queryString: queryString,
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,

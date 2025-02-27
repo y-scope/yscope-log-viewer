@@ -104,7 +104,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHashParams = new URLSearchParams(window.location.hash.substring(1));
     for (const [key, value] of Object.entries(updates)) {
-        if (null === value) {
+        if (null === value || false === value) {
             newHashParams.delete(key);
         } else {
             newHashParams.set(key, String(value));
