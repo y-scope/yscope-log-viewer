@@ -8,9 +8,10 @@ import {
     YscopeFieldPlaceholder,
 } from "../../../typings/formatters";
 import {LogEvent} from "../../../typings/logs";
+import {jsonValueToString} from "../../../utils/js";
+import {StructuredIrNamespaceKeys} from "../../decoders/ClpIrDecoder/utils";
 import {
     getFormattedField,
-    jsonValueToString,
     removeEscapeCharacters,
     replaceDoubleBacklash,
     splitFieldPlaceholder,
@@ -25,12 +26,16 @@ import {
 class YscopeFormatter implements Formatter {
     readonly #processedFormatString: string;
 
+    readonly #structuredIrNamespaceKeys: Nullable<StructuredIrNamespaceKeys>;
+
     #fieldPlaceholders: YscopeFieldPlaceholder[] = [];
 
     constructor (options: FormatterOptionsType) {
+        this.#structuredIrNamespaceKeys = options.structuredIrNamespaceKeys ?? null;
+
         if (options.formatString.includes(REPLACEMENT_CHARACTER)) {
-            console.warn("Unicode replacement character `U+FFFD` is found in Decoder Format" +
-            ' String, which will appear as "\\".');
+            console.warn("Unicode replacement character `U+FFFD` found in format string; " +
+                         "it will be replaced with \"\\\"");
         }
 
         this.#processedFormatString = replaceDoubleBacklash(options.formatString);
@@ -51,7 +56,11 @@ class YscopeFormatter implements Formatter {
                 this.#processedFormatString.slice(lastIndex, fieldPlaceholder.range.start);
 
             formattedLogFragments.push(removeEscapeCharacters(formatStringFragment));
-            formattedLogFragments.push(getFormattedField(logEvent, fieldPlaceholder));
+            formattedLogFragments.push(getFormattedField(
+                this.#structuredIrNamespaceKeys,
+                logEvent,
+                fieldPlaceholder
+            ));
             lastIndex = fieldPlaceholder.range.end;
         }
 
@@ -62,9 +71,9 @@ class YscopeFormatter implements Formatter {
     }
 
     /**
-     * Parses field placeholders in format string. For each field placeholder, creates a
-     * corresponding `YscopeFieldFormatter` using the placeholder's field name, formatter type,
-     * and formatter options. Each `YscopeFieldFormatter` is then stored on the
+     * Parses field placeholders in format string. For each field, creates a corresponding
+     * `YscopeFieldPlaceholder` using the placeholder's parsed field name, formatter type,
+     * and formatter options. Each `YscopeFieldPlaceholder` is then stored on the
      * class-level array `#fieldPlaceholders`.
      *
      * @throws Error if `FIELD_PLACEHOLDER_REGEX` does not contain a capture group.
@@ -81,8 +90,8 @@ class YscopeFormatter implements Formatter {
                 throw Error("Field placeholder regex is invalid and does not have a capture group");
             }
 
-            const {fieldNameKeys, formatterName, formatterOptions} =
-                splitFieldPlaceholder(groupMatch);
+            const {parsedFieldName, formatterName, formatterOptions} =
+                splitFieldPlaceholder(groupMatch, this.#structuredIrNamespaceKeys);
 
             let fieldFormatter: Nullable<YscopeFieldFormatter> = null;
             if (null !== formatterName) {
@@ -94,7 +103,7 @@ class YscopeFormatter implements Formatter {
             }
 
             this.#fieldPlaceholders.push({
-                fieldNameKeys: fieldNameKeys,
+                parsedFieldName: parsedFieldName,
                 fieldFormatter: fieldFormatter,
                 range: {
                     start: match.index,

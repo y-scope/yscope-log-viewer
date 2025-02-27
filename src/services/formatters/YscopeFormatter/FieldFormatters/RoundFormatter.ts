@@ -1,7 +1,7 @@
 import {Nullable} from "../../../../typings/common";
 import {YscopeFieldFormatter} from "../../../../typings/formatters";
 import {JsonValue} from "../../../../typings/js";
-import {jsonValueToString} from "../utils";
+import {jsonValueToString} from "../../../../utils/js";
 
 
 /**

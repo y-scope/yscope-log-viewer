@@ -1,46 +1,53 @@
 import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
 import {Dayjs} from "dayjs";
 
-import {Nullable} from "../../typings/common";
+import {Nullable} from "../../../typings/common";
 import {
     Decoder,
     DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
-} from "../../typings/decoders";
-import {Formatter} from "../../typings/formatters";
-import {JsonObject} from "../../typings/js";
-import {LogLevelFilter} from "../../typings/logs";
-import YscopeFormatter from "../formatters/YscopeFormatter";
-import {postFormatPopup} from "../MainWorker";
+} from "../../../typings/decoders";
+import {Formatter} from "../../../typings/formatters";
+import {JsonObject} from "../../../typings/js";
+import {LogLevelFilter} from "../../../typings/logs";
+import YscopeFormatter from "../../formatters/YscopeFormatter";
+import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
-} from "./JsonlDecoder/utils";
+} from "../JsonlDecoder/utils";
+import {
+    CLP_IR_STREAM_TYPE,
+    getStructuredIrNamespaceKeys,
+    StructuredIrNamespaceKeys,
+} from "./utils";
 
-
-enum CLP_IR_STREAM_TYPE {
-    STRUCTURED = "structured",
-    UNSTRUCTURED = "unstructured",
-}
 
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
+    readonly #structuredIrNamespaceKeys: StructuredIrNamespaceKeys;
+
     #formatter: Nullable<Formatter> = null;
 
     constructor (
         streamType: CLP_IR_STREAM_TYPE,
         streamReader: ClpStreamReader,
-        decoderOptions: DecoderOptions
+        decoderOptions: DecoderOptions,
+        structuredIrNamespaceKeys: StructuredIrNamespaceKeys
     ) {
         this.#streamType = streamType;
         this.#streamReader = streamReader;
+        this.#structuredIrNamespaceKeys = structuredIrNamespaceKeys;
         if (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
-            this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+            this.#formatter = new YscopeFormatter({
+                formatString: decoderOptions.formatString,
+                structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
+            });
             if (0 === decoderOptions.formatString.length) {
                 postFormatPopup();
             }
@@ -66,7 +73,12 @@ class ClpIrDecoder implements Decoder {
             CLP_IR_STREAM_TYPE.STRUCTURED :
             CLP_IR_STREAM_TYPE.UNSTRUCTURED;
 
-        return new ClpIrDecoder(streamType, streamReader, decoderOptions);
+        return new ClpIrDecoder(
+            streamType,
+            streamReader,
+            decoderOptions,
+            getStructuredIrNamespaceKeys(module)
+        );
     }
 
     getEstimatedNumEvents (): number {
@@ -91,7 +103,10 @@ class ClpIrDecoder implements Decoder {
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
-        this.#formatter = new YscopeFormatter({formatString: options.formatString});
+        this.#formatter = new YscopeFormatter({
+            formatString: options.formatString,
+            structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
+        });
 
         return true;
     }
