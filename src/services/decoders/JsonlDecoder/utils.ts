@@ -8,7 +8,6 @@ import {
     INVALID_TIMESTAMP_VALUE,
     LOG_LEVEL,
 } from "../../../typings/logs";
-import {processThenParseFilterKey} from "../../../utils/decoders";
 
 
 /**
@@ -78,7 +77,6 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
 
     return dayjsTimestamp;
 };
-
 export {
     convertToDayjsTimestamp,
     convertToLogLevelValue,

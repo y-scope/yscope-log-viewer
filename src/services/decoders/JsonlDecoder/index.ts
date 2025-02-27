@@ -87,6 +87,7 @@ class JsonlDecoder implements Decoder {
 
     setFormatterOptions (options: DecoderOptions): boolean {
         this.#formatter = new YscopeFormatter({formatString: options.formatString});
+
         return true;
     }
 
