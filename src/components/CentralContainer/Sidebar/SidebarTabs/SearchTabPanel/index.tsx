@@ -76,7 +76,11 @@ const SearchTabPanel = () => {
     }, [urlQueryIsRegex]);
 
     useEffect(() => {
-        if (uiState === UI_STATE.READY) {
+        if (uiState === UI_STATE.FILE_LOADING) {
+            setQueryString("");
+            setQueryIsCaseSensitive(false);
+            setQueryIsRegex(false);
+        } else if (uiState === UI_STATE.READY) {
             if (null !== urlQueryString) {
                 setQueryString(urlQueryString);
                 setQueryIsCaseSensitive(queryIsCaseSensitiveRef.current);
