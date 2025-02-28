@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 600] */
+/* eslint max-lines: ["error", 650] */
 import React, {
     createContext,
     useCallback,
@@ -247,14 +247,17 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {
+        filePath,
+        logEventNum,
+    } = useContext(UrlContext);
 
     // States
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [isSettingsModalOpen, setIsSettingsModalOpen] =
         useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
-    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -275,6 +278,20 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
+
+    const startQuery = useCallback((queryArgs: {
+        queryString: string;
+        queryIsCaseSensitive: boolean;
+        queryIsRegex: boolean;
+    }) => {
+        setQueryResults(STATE_DEFAULT.queryResults);
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
+    }, []);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -368,16 +385,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [postPopUp]);
 
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
-        setQueryResults(STATE_DEFAULT.queryResults);
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
-    }, []);
-
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -406,6 +413,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
+        setQueryResults(STATE_DEFAULT.queryResults);
+        setQueryProgress(QUERY_PROGRESS_VALUE_MIN);
 
         // Cache `fileSrc` for reloads.
         fileSrcRef.current = fileSrc;
