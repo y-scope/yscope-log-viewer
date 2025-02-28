@@ -11,6 +11,7 @@ enum ACTION_NAME {
     LAST_PAGE = "lastPage",
     PAGE_TOP = "pageTop",
     PAGE_BOTTOM = "pageBottom",
+    RELOAD = "reload",
 }
 
 interface EditorAction {
@@ -69,6 +70,7 @@ type NavigationActionsMap = {
     [ACTION_NAME.PREV_PAGE]: null;
     [ACTION_NAME.NEXT_PAGE]: null;
     [ACTION_NAME.LAST_PAGE]: null;
+    [ACTION_NAME.RELOAD]: null;
 };
 
 type NavigationAction = {
