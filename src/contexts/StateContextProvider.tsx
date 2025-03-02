@@ -278,19 +278,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const uiStateRef = useRef<UI_STATE>(uiState);
 
     const changeActiveTabName = useCallback((tabName: TAB_NAME) => {
-        setActiveTabName((oldTabName) => {
-            if (oldTabName === tabName) {
-                // Close the panel
-                setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: TAB_NAME.NONE});
-
-                return TAB_NAME.NONE;
-            }
-
-            setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
-
-            return tabName;
-        });
+        setActiveTabName(tabName);
+        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
     }, []);
+
+    const handleFormatPopupPrimaryAction = useCallback(() => {
+        changeActiveTabName(TAB_NAME.SETTINGS);
+    }, [changeActiveTabName]);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -313,9 +307,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     primaryAction: {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
-                        onClick: () => {
-                            changeActiveTabName(TAB_NAME.SETTINGS);
-                        },
+                        onClick: handleFormatPopupPrimaryAction,
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
                     title: "A format string has not been configured",
@@ -383,7 +375,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 break;
         }
     }, [
-        changeActiveTabName,
+        handleFormatPopupPrimaryAction,
         postPopUp,
     ]);
 

@@ -59,8 +59,13 @@ const SidebarTabs = ({
             case TAB_NAME.DOCUMENTATION:
                 openInNewTab(DOCUMENTATION_URL);
                 break;
-            default:
-                changeActiveTabName(tabName);
+            default: {
+                const newTabName = (activeTabName === tabName) ?
+                    TAB_NAME.NONE :
+                    tabName;
+
+                changeActiveTabName(newTabName);
+            }
         }
     };
 
