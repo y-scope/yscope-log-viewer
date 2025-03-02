@@ -15,6 +15,7 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
+import {StateContext} from "../../../../../contexts/StateContextProvider";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -26,6 +27,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {ACTION_NAME} from "../../../../../utils/actions";
 import {
     getConfig,
     setConfig,
@@ -36,11 +38,17 @@ import ThemeSwitchFormField from "./ThemeSwitchFormField";
 import "./index.css";
 
 
-const CONFIG_FORM_FIELDS = [
+/**
+ * Gets form fields information for user input of configuration values.
+ *
+ * @return A list of form fields information.
+ */
+const getConfigFormFields = () => [
     {
         helperText: (
             <span>
-                {"[JSON] Format string for formatting a JSON log event as plain text. See the "}
+                [JSON] Format string for formatting a JSON log event as plain text. See the
+                {" "}
                 <Link
                     href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
                     level={"body-sm"}
@@ -49,7 +57,8 @@ const CONFIG_FORM_FIELDS = [
                 >
                     format string syntax docs
                 </Link>
-                {" or leave this blank to display the entire log event."}
+                {" "}
+                or leave this blank to display the entire log event.
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
@@ -98,41 +107,42 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
+    const {loadPageByAction} = useContext(StateContext);
 
-    const handleConfigFormSubmit = useCallback(
-        (ev: React.FormEvent) => {
-            ev.preventDefault();
-            const formData = new FormData(ev.target as HTMLFormElement);
-            const getFormDataValue = (key: string) => formData.get(key) as string;
+    const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
+        ev.preventDefault();
+        const formData = new FormData(ev.target as HTMLFormElement);
+        const getFormDataValue = (key: string) => formData.get(key) as string;
 
-            const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
-            const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-            const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
-            const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
+        const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
+        const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
+        const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
-            let error: Nullable<string> = null;
-            error ||= setConfig({
-                key: CONFIG_KEY.DECODER_OPTIONS,
-                value: {formatString, logLevelKey, timestampKey},
+        let error: Nullable<string> = null;
+        error ||= setConfig({
+            key: CONFIG_KEY.DECODER_OPTIONS,
+            value: {formatString, logLevelKey, timestampKey},
+        });
+        error ||= setConfig({
+            key: CONFIG_KEY.PAGE_SIZE,
+            value: Number(pageSize),
+        });
+
+        if (null !== error) {
+            postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: error,
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Unable to apply config.",
             });
-            error ||= setConfig({
-                key: CONFIG_KEY.PAGE_SIZE,
-                value: Number(pageSize),
-            });
-
-            if (null !== error) {
-                postPopUp({
-                    level: LOG_LEVEL.ERROR,
-                    message: error,
-                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                    title: "Unable to apply config.",
-                });
-            } else {
-                window.location.reload();
-            }
-        },
-        [postPopUp],
-    );
+        } else {
+            loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
+        }
+    }, [
+        loadPageByAction,
+        postPopUp,
+    ]);
 
     return (
         <CustomTabPanel
@@ -147,7 +157,7 @@ const SettingsTabPanel = () => {
             >
                 <Box className={"settings-form-fields-container"}>
                     <ThemeSwitchFormField/>
-                    {CONFIG_FORM_FIELDS.map((field, index) => (
+                    {getConfigFormFields().map((field, index) => (
                         <FormControl key={index}>
                             <FormLabel>
                                 {field.label}
@@ -167,7 +177,7 @@ const SettingsTabPanel = () => {
                     color={"primary"}
                     type={"submit"}
                 >
-                    Apply & Reload
+                    Apply
                 </Button>
                 <Button
                     color={"neutral"}

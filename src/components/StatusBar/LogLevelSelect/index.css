@@ -23,9 +23,3 @@
 .log-level-select-listbox {
     max-height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height)) !important;
 }
-
-.log-level-select-option-text-tooltip {
-    /* Disable pointer events to prevent tooltips from blocking interaction with underlying
-      elements. */
-    pointer-events: none;
-}
