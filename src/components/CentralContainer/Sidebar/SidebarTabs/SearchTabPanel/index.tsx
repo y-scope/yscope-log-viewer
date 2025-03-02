@@ -1,5 +1,7 @@
 import React, {
+    useCallback,
     useContext,
+    useEffect,
     useState,
 } from "react";
 
@@ -19,12 +21,16 @@ import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
 } from "../../../../../typings/query";
-import {UI_ELEMENT} from "../../../../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
 import {isDisabled} from "../../../../../utils/states";
+import {defer} from "../../../../../utils/time";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ResultsGroup from "./ResultsGroup";
@@ -49,14 +55,19 @@ const SearchTabPanel = () => {
         setIsAllExpanded((v) => !v);
     };
 
-    const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
+    const handleQuerySubmit = useCallback((newArgs?: Partial<QueryArgs>) => {
         startQuery({
             isCaseSensitive: isCaseSensitive,
             isRegex: isRegex,
             queryString: queryString,
             ...newArgs,
         });
-    };
+    }, [
+        isCaseSensitive,
+        isRegex,
+        queryString,
+        startQuery,
+    ]);
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
@@ -74,6 +85,15 @@ const SearchTabPanel = () => {
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
+
+    useEffect(() => {
+        if (uiState === UI_STATE.FILTER_CHANGING) {
+            defer(handleQuerySubmit);
+        }
+    }, [
+        handleQuerySubmit,
+        uiState,
+    ]);
 
     return (
         <CustomTabPanel

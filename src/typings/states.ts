@@ -14,6 +14,11 @@ enum UI_STATE {
     FILE_LOADING,
 
     /**
+     * When a log filter (e.g., the log-level filter) change request is pending response.
+     */
+    FILTER_CHANGING,
+
+    /**
      * When a fast request is pending response. In this state, UI elements are not visually
      * disabled but instead ignore pointer events. Rapidly disabling/enabling UI elements is
      * jarring to the user.
@@ -76,6 +81,16 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
         [UI_ELEMENT.NAVIGATION_BAR]: false,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: false,
+        [UI_ELEMENT.PROGRESS_BAR]: true,
+        [UI_ELEMENT.QUERY_INPUT_BOX]: false,
+    },
+    [UI_STATE.FILTER_CHANGING]: {
+        [UI_ELEMENT.DRAG_AND_DROP]: true,
+        [UI_ELEMENT.EXPORT_LOGS_BUTTON]: true,
+        [UI_ELEMENT.LOG_EVENT_NUM_DISPLAY]: true,
+        [UI_ELEMENT.LOG_LEVEL_FILTER]: false,
+        [UI_ELEMENT.NAVIGATION_BAR]: true,
+        [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
         [UI_ELEMENT.PROGRESS_BAR]: true,
         [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },
