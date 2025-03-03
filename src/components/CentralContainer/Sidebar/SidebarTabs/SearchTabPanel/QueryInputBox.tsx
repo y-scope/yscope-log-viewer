@@ -116,4 +116,5 @@ const QueryInputBox = () => {
     );
 };
 
+
 export default QueryInputBox;
