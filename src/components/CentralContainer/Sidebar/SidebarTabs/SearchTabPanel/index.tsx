@@ -30,7 +30,6 @@ import {
     TAB_NAME,
 } from "../../../../../typings/tab";
 import {isDisabled} from "../../../../../utils/states";
-import {defer} from "../../../../../utils/time";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import ResultsGroup from "./ResultsGroup";
@@ -87,8 +86,11 @@ const SearchTabPanel = () => {
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
     useEffect(() => {
+        // NOTE: When `uiState` transitions to `UI_STATE.FILTER_CHANGING`, the request to update
+        // the filter in the MainWorker should have already been sent. At this point, any new
+        // requests added to the MainWorker's message queue will use the updated filter.
         if (uiState === UI_STATE.FILTER_CHANGING) {
-            defer(handleQuerySubmit);
+            handleQuerySubmit();
         }
     }, [
         handleQuerySubmit,
