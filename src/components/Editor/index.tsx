@@ -40,6 +40,86 @@ import "./index.css";
 
 
 /**
+ * Gets the begin line number of the log event hovered by mouse in editor.
+ *
+ * @param editor
+ * @param beginLineNumToLogEventNumRefCurrent
+ * @return the begin line number of the hovered log event
+ */
+const getHoveredLogEventNum = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
+) : Nullable<number> => {
+    const hoveredLineNum = editor.getPosition()?.lineNumber;
+    if ("undefined" === typeof hoveredLineNum) {
+        return null;
+    }
+
+    const hoveredLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
+        beginLineNumToLogEventNumRefCurrent,
+        hoveredLineNum
+    );
+
+    if (null === hoveredLogEventNum) {
+        // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
+        // is either uninitialized or holds the value from the last loaded page.
+        return null;
+    }
+
+    return hoveredLogEventNum;
+};
+
+/**
+ * Handles copy log event action in the editor.
+ *
+ * @param editor
+ * @param beginLineNumToLogEventNumRefCurrent
+ */
+const handleCopyLogEventAction = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
+) => {
+    const hoveredLogEventNum = getHoveredLogEventNum(
+        editor,
+        beginLineNumToLogEventNumRefCurrent,
+    );
+
+    if (null === hoveredLogEventNum) {
+        return;
+    }
+    const hoveredLogEventLineNum = getMapKeyByValue(
+        beginLineNumToLogEventNumRefCurrent,
+        hoveredLogEventNum
+    );
+
+    if (null === hoveredLogEventLineNum) {
+        // unreachable
+        return;
+    }
+    const nextLogEventLineNum = getMapKeyByValue(
+        beginLineNumToLogEventNumRefCurrent,
+        hoveredLogEventNum + 1
+    );
+
+    const model : Nullable<monaco.editor.ITextModel> = editor.getModel();
+    if (null === model) {
+        return;
+    }
+    const maxLineNum: number = model.getLineCount();
+    const startLineNumber: number = hoveredLogEventLineNum;
+    const endLineNumber: number = null === nextLogEventLineNum ?
+        maxLineNum - 1 :
+        nextLogEventLineNum - 1;
+    const endMaxColumn:number = model.getLineMaxColumn(endLineNumber);
+
+    editor.setSelection(new monaco.Range(startLineNumber, 0, endLineNumber, endMaxColumn));
+
+    // Monaco editor uses `document.execCommand` instead of the Clipboard API to copy text.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    editor.getContainerDomNode().ownerDocument.execCommand("copy");
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
@@ -78,6 +158,11 @@ const Editor = () => {
                     break;
                 }
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+                break;
+            }
+            case ACTION_NAME.COPY_LOG_EVENT: {
+                const beginLineNumToLogEventNumRefCurrent = beginLineNumToLogEventNumRef.current;
+                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRefCurrent);
                 break;
             }
             default:

@@ -12,12 +12,14 @@ enum ACTION_NAME {
     PAGE_TOP = "pageTop",
     PAGE_BOTTOM = "pageBottom",
     RELOAD = "reload",
+    COPY_LOG_EVENT = "copyLogEvent",
 }
 
 interface EditorAction {
     actionName: Nullable<ACTION_NAME>;
     label: string;
     keyBindings: monaco.KeyCode[];
+    contextMenuGroupId?: string;
 }
 
 /**
@@ -59,6 +61,12 @@ const EDITOR_ACTIONS : EditorAction[] = [
         actionName: ACTION_NAME.PAGE_BOTTOM,
         label: "Bottom of page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
+    },
+    {
+        actionName: ACTION_NAME.COPY_LOG_EVENT,
+        label: "Copy log event",
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyC],
+        contextMenuGroupId: "copy_log_event",
     },
 ];
 
