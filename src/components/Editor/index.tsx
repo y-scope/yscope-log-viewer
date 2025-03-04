@@ -48,8 +48,8 @@ import "./index.css";
  */
 const getSelectedLogEventNum = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
-) : Nullable<number> => {
+    beginLineNumToLogEventNumRefCurrent: BeginLineNumToLogEventNumMap
+): Nullable<number> => {
     const selectedLineNum = editor.getPosition()?.lineNumber;
     if ("undefined" === typeof selectedLineNum) {
         return null;
@@ -77,7 +77,7 @@ const getSelectedLogEventNum = (
  */
 const handleCopyLogEventAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
+    beginLineNumToLogEventNumRefCurrent: BeginLineNumToLogEventNumMap
 ) => {
     const selectedLogEventNum = getSelectedLogEventNum(
         editor,
@@ -101,7 +101,7 @@ const handleCopyLogEventAction = (
         selectedLogEventNum + 1
     );
 
-    const model : Nullable<monaco.editor.ITextModel> = editor.getModel();
+    const model: Nullable<monaco.editor.ITextModel> = editor.getModel();
     if (null === model) {
         return;
     }
@@ -110,8 +110,8 @@ const handleCopyLogEventAction = (
     const endLineNumberMaybeNegative: number = null === nextLogEventLineNum ?
         maxLineNum - 1 :
         nextLogEventLineNum - 1;
-    const endLineNumber:number = Math.max(startLineNumber, endLineNumberMaybeNegative);
-    const endMaxColumn:number = model.getLineMaxColumn(endLineNumber);
+    const endLineNumber: number = Math.max(startLineNumber, endLineNumberMaybeNegative);
+    const endMaxColumn: number = model.getLineMaxColumn(endLineNumber);
 
     editor.setSelection(new monaco.Range(startLineNumber, 0, endLineNumber, endMaxColumn));
 
