@@ -30,7 +30,7 @@
     "@mui/icons-material": "^6.4.1",
     "@mui/joy": "^5.0.0-beta.51",
     "axios": "^1.7.9",
-    "clp-ffi-js": "^0.3.4",
+    "clp-ffi-js": "^0.3.5",
     "dayjs": "^1.11.13",
     "monaco-editor": "0.50.0",
     "react": "^19.0.0",
