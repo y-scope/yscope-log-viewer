@@ -1,4 +1,4 @@
-import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
+import clpFfiJsModuleInit, {ClpStreamReader, MainModule} from "clp-ffi-js";
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
@@ -35,15 +35,17 @@ class ClpIrDecoder implements Decoder {
     #formatter: Nullable<Formatter> = null;
 
     constructor (
-        streamType: CLP_IR_STREAM_TYPE,
-        streamReader: ClpStreamReader,
-        decoderOptions: DecoderOptions,
-        structuredIrNamespaceKeys: StructuredIrNamespaceKeys
+        ffiModule: MainModule,
+        dataArray: Uint8Array,
+        decoderOptions: DecoderOptions
     ) {
-        this.#streamType = streamType;
-        this.#streamReader = streamReader;
-        this.#structuredIrNamespaceKeys = structuredIrNamespaceKeys;
-        if (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
+        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, decoderOptions);
+        this.#streamType = this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
+            CLP_IR_STREAM_TYPE.STRUCTURED :
+            CLP_IR_STREAM_TYPE.UNSTRUCTURED;
+        this.#structuredIrNamespaceKeys = getStructuredIrNamespaceKeys(ffiModule);
+
+        if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
             this.#formatter = new YscopeFormatter({
                 formatString: decoderOptions.formatString,
                 structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
@@ -68,17 +70,7 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
-        const streamReader = new module.ClpStreamReader(dataArray, decoderOptions);
-        const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
-            CLP_IR_STREAM_TYPE.STRUCTURED :
-            CLP_IR_STREAM_TYPE.UNSTRUCTURED;
-
-        return new ClpIrDecoder(
-            streamType,
-            streamReader,
-            decoderOptions,
-            getStructuredIrNamespaceKeys(module)
-        );
+        return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
     getEstimatedNumEvents (): number {
