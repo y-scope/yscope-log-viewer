@@ -1,4 +1,7 @@
-import clpFfiJsModuleInit, {ClpStreamReader, MainModule} from "clp-ffi-js";
+import clpFfiJsModuleInit, {
+    ClpStreamReader,
+    MainModule,
+} from "clp-ffi-js";
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
@@ -40,9 +43,10 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ) {
         this.#streamReader = new ffiModule.ClpStreamReader(dataArray, decoderOptions);
-        this.#streamType = this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
-            CLP_IR_STREAM_TYPE.STRUCTURED :
-            CLP_IR_STREAM_TYPE.UNSTRUCTURED;
+        this.#streamType =
+            this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
+                CLP_IR_STREAM_TYPE.STRUCTURED :
+                CLP_IR_STREAM_TYPE.UNSTRUCTURED;
         this.#structuredIrNamespaceKeys = getStructuredIrNamespaceKeys(ffiModule);
 
         if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
