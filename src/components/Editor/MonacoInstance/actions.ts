@@ -155,7 +155,7 @@ const setupCustomActions = (
     actions: EditorAction[],
     onCustomAction: CustomActionCallback
 ) => {
-    actions.forEach(({actionName, label, keyBindings, contextMenuGroupId}) => {
+    actions.forEach(({actionName, label, keyBindings, contextMenuGroupId, contextMenuOrder}) => {
         if (null === actionName) {
             return;
         }
@@ -168,8 +168,11 @@ const setupCustomActions = (
             },
         };
 
-        if ("undefined" !== typeof contextMenuGroupId) {
+        if (null !== contextMenuGroupId) {
             descriptor.contextMenuGroupId = contextMenuGroupId;
+        }
+        if (null !== contextMenuOrder) {
+            descriptor.contextMenuOrder = contextMenuOrder;
         }
         editor.addAction(descriptor);
     });

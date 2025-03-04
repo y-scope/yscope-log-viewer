@@ -17,9 +17,10 @@ enum ACTION_NAME {
 
 interface EditorAction {
     actionName: Nullable<ACTION_NAME>;
+    contextMenuGroupId: Nullable<string>;
+    contextMenuOrder: Nullable<number>;
     label: string;
     keyBindings: monaco.KeyCode[];
-    contextMenuGroupId?: string;
 }
 
 /**
@@ -64,9 +65,10 @@ const EDITOR_ACTIONS : EditorAction[] = [
     },
     {
         actionName: ACTION_NAME.COPY_LOG_EVENT,
-        label: "Copy log event",
+        contextMenuGroupId: "9_cutcopypaste",
+        contextMenuOrder: 2,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyC],
-        contextMenuGroupId: "copy_log_event",
+        label: "Copy Log Event",
     },
 ];
 
