@@ -40,33 +40,33 @@ import "./index.css";
 
 
 /**
- * Gets the begin line number of the log event hovered by mouse in editor.
+ * Gets the begin line number of the log event selected by mouse in editor.
  *
  * @param editor
  * @param beginLineNumToLogEventNumRefCurrent
- * @return the begin line number of the hovered log event
+ * @return the begin line number of the selected log event
  */
-const getHoveredLogEventNum = (
+const getSelectedLogEventNum = (
     editor: monaco.editor.IStandaloneCodeEditor,
     beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
 ) : Nullable<number> => {
-    const hoveredLineNum = editor.getPosition()?.lineNumber;
-    if ("undefined" === typeof hoveredLineNum) {
+    const selectedLineNum = editor.getPosition()?.lineNumber;
+    if ("undefined" === typeof selectedLineNum) {
         return null;
     }
 
-    const hoveredLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
+    const selectedLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
         beginLineNumToLogEventNumRefCurrent,
-        hoveredLineNum
+        selectedLineNum
     );
 
-    if (null === hoveredLogEventNum) {
+    if (null === selectedLogEventNum) {
         // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
         // is either uninitialized or holds the value from the last loaded page.
         return null;
     }
 
-    return hoveredLogEventNum;
+    return selectedLogEventNum;
 };
 
 /**
@@ -79,26 +79,26 @@ const handleCopyLogEventAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
     beginLineNumToLogEventNumRefCurrent : BeginLineNumToLogEventNumMap
 ) => {
-    const hoveredLogEventNum = getHoveredLogEventNum(
+    const selectedLogEventNum = getSelectedLogEventNum(
         editor,
         beginLineNumToLogEventNumRefCurrent,
     );
 
-    if (null === hoveredLogEventNum) {
+    if (null === selectedLogEventNum) {
         return;
     }
-    const hoveredLogEventLineNum = getMapKeyByValue(
+    const selectedLogEventLineNum = getMapKeyByValue(
         beginLineNumToLogEventNumRefCurrent,
-        hoveredLogEventNum
+        selectedLogEventNum
     );
 
-    if (null === hoveredLogEventLineNum) {
+    if (null === selectedLogEventLineNum) {
         // unreachable
         return;
     }
     const nextLogEventLineNum = getMapKeyByValue(
         beginLineNumToLogEventNumRefCurrent,
-        hoveredLogEventNum + 1
+        selectedLogEventNum + 1
     );
 
     const model : Nullable<monaco.editor.ITextModel> = editor.getModel();
@@ -106,7 +106,7 @@ const handleCopyLogEventAction = (
         return;
     }
     const maxLineNum: number = model.getLineCount();
-    const startLineNumber: number = hoveredLogEventLineNum;
+    const startLineNumber: number = selectedLogEventLineNum;
     const endLineNumberMaybeNegative: number = null === nextLogEventLineNum ?
         maxLineNum - 1 :
         nextLogEventLineNum - 1;
