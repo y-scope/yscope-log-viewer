@@ -107,9 +107,10 @@ const handleCopyLogEventAction = (
     }
     const maxLineNum: number = model.getLineCount();
     const startLineNumber: number = hoveredLogEventLineNum;
-    const endLineNumber: number = null === nextLogEventLineNum ?
+    const endLineNumberMaybeNegative: number = null === nextLogEventLineNum ?
         maxLineNum - 1 :
         nextLogEventLineNum - 1;
+    const endLineNumber:number = Math.max(startLineNumber, endLineNumberMaybeNegative);
     const endMaxColumn:number = model.getLineMaxColumn(endLineNumber);
 
     editor.setSelection(new monaco.Range(startLineNumber, 0, endLineNumber, endMaxColumn));
