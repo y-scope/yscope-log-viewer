@@ -81,7 +81,7 @@ const handleCopyLogEventAction = (
 ) => {
     const selectedLogEventNum = getSelectedLogEventNum(
         editor,
-        beginLineNumToLogEventNumRefCurrent,
+        beginLineNumToLogEventNum,
     );
 
     if (null === selectedLogEventNum) {
