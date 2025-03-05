@@ -19,8 +19,8 @@ interface EditorAction {
     actionName: Nullable<ACTION_NAME>;
     contextMenuGroupId: Nullable<string>;
     contextMenuOrder: Nullable<number>;
-    label: string;
     keyBindings: monaco.KeyCode[];
+    label: string;
 }
 
 /**
