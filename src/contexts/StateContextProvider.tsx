@@ -462,7 +462,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        uiStateRef.current = UI_STATE.FAST_LOADING;
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [loadFile]);
