@@ -44,7 +44,7 @@ import "./index.css";
  *
  * @param editor
  * @param beginLineNumToLogEventNumRefCurrent
- * @return the begin line number of the selected log event
+ * @return the beginning line number of the selected log event.
  */
 const getSelectedLogEventNum = (
     editor: monaco.editor.IStandaloneCodeEditor,
