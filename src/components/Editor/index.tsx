@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {
     useCallback,
     useContext,
@@ -19,6 +20,10 @@ import {
     CONFIG_KEY,
     THEME_NAME,
 } from "../../typings/config";
+import {
+    LlmState,
+    SetLlmStateCallback,
+} from "../../typings/llm.js";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -33,6 +38,7 @@ import {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
+import {requestLlm} from "../../utils/llm";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -127,14 +133,74 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
 };
 
 /**
+ * Handles ask llm action in the editor.
+ *
+ * @param editor
+ * @param beginLineNumToLogEventNum
+ * @param llmState
+ * @param setLlmState
+ * @throws {Error} if the editor's model cannot be retrieved.
+ */
+const handleAskLlmAction = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
+    llmState: LlmState,
+    setLlmState: SetLlmStateCallback,
+) => {
+    const selection = editor.getSelection();
+    if (null === selection) {
+        return;
+    }
+    let logText: string | null;
+    if (selection.startLineNumber === selection.endLineNumber &&
+        selection.startColumn === selection.endColumn) {
+        const {eventNum} = getConfig(CONFIG_KEY.LLM_OPTIONS);
+        const eventBefore = Math.floor(eventNum / 2);
+        const selectedLogEventNum = getSelectedLogEventNum(
+            editor,
+            beginLineNumToLogEventNum,
+        );
+
+        if (null === selectedLogEventNum) {
+            return;
+        }
+
+        const startLineNumber: number = getMapKeyByValue(
+            beginLineNumToLogEventNum,
+            selectedLogEventNum - eventBefore
+        ) ?? 0;
+        const endLineNumber: number = getMapKeyByValue(
+            beginLineNumToLogEventNum,
+            selectedLogEventNum - eventBefore + eventNum
+        ) ?? Infinity;
+
+        logText = editor.getModel()?.getValueInRange({startLineNumber: startLineNumber,
+            startColumn: 0,
+            endLineNumber: endLineNumber - 1,
+            endColumn: Infinity}) ?? null;
+    } else {
+        logText = editor.getModel()?.getValueInRange(selection) ?? null;
+    }
+    if (null === logText) {
+        throw new Error("Unable to get the text model.");
+    }
+    requestLlm(logText, llmState, setLlmState);
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, logData, loadPageByAction} = useContext(StateContext);
+    const {beginLineNumToLogEventNum,
+        llmState,
+        logData,
+        loadPageByAction,
+        setLlmState} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
@@ -144,6 +210,7 @@ const Editor = () => {
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
+    const llmStateRef = useRef(llmState);
 
     const handleEditorCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
@@ -173,10 +240,19 @@ const Editor = () => {
             case ACTION_NAME.WORD_WRAP:
                 handleWordWrapAction(editor);
                 break;
+            case ACTION_NAME.ASK_LLM:
+                handleAskLlmAction(
+                    editor,
+                    beginLineNumToLogEventNumRef.current,
+                    llmStateRef.current,
+                    setLlmState,
+                );
+                break;
             default:
                 break;
         }
-    }, [loadPageByAction]);
+    }, [loadPageByAction,
+        setLlmState]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -250,6 +326,11 @@ const Editor = () => {
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
+
+    // Synchronize `llmStateRef` with `llmState`.
+    useEffect(() => {
+        llmStateRef.current = llmState;
+    }, [llmState]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

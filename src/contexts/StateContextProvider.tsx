@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 600] */
+/* eslint max-lines: ["error", 700] */
 import React, {
     createContext,
     useCallback,
@@ -16,6 +16,10 @@ import LogExportManager, {
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {
+    LLM_STATE_DEFAULT,
+    LlmState,
+} from "../typings/llm";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -72,6 +76,7 @@ interface StateContextType {
     exportProgress: Nullable<number>;
     fileName: string;
     uiState: UI_STATE;
+    llmState: LlmState;
     logData: string;
     numEvents: number;
     numPages: number;
@@ -85,6 +90,7 @@ interface StateContextType {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
+    setLlmState: (llmState: LlmState) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -98,6 +104,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    llmState: LLM_STATE_DEFAULT,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -112,6 +119,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     loadFile: () => null,
     loadPageByAction: () => null,
     setActiveTabName: () => null,
+    setLlmState: () => null,
     startQuery: () => null,
 });
 
@@ -255,6 +263,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [llmState, setLlmState] = useState<LlmState>(STATE_DEFAULT.llmState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -565,6 +574,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                llmState: llmState,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -579,6 +589,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setActiveTabName: setActiveTabName,
+                setLlmState: setLlmState,
                 startQuery: startQuery,
             }}
         >

@@ -9,6 +9,7 @@ import {
 } from "@mui/joy";
 import SvgIcon from "@mui/material/SvgIcon";
 
+import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
@@ -17,6 +18,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
 import {openInNewTab} from "../../../../utils/url";
+import AskLlmTabPanel from "./AskLlmTabPanel";
 import FileInfoTabPanel from "./FileInfoTabPanel";
 import SearchTabPanel from "./SearchTabPanel";
 import SettingsTabPanel from "./SettingsTabPanel";
@@ -36,6 +38,7 @@ const TABS_INFO_LIST: Readonly<Array<{
 }>> = Object.freeze([
     {tabName: TAB_NAME.FILE_INFO, Icon: InfoOutlinedIcon},
     {tabName: TAB_NAME.SEARCH, Icon: SearchIcon},
+    {tabName: TAB_NAME.ASK_LLM, Icon: AutoAwesomeOutlinedIcon},
 ]);
 
 interface SidebarTabsProps {
@@ -103,6 +106,7 @@ const SidebarTabs = ({
             </TabList>
             <FileInfoTabPanel/>
             <SearchTabPanel/>
+            <AskLlmTabPanel/>
             <SettingsTabPanel/>
         </Tabs>
     );
