@@ -9,7 +9,6 @@ import {
     LogEventCount,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
-import {getNestedJsonValue} from "../../../utils/js";
 import {JsonValue} from "../../../typings/js";
 import {
     INVALID_TIMESTAMP_VALUE,
@@ -17,16 +16,15 @@ import {
     LogEvent,
     LogLevelFilter,
 } from "../../../typings/logs";
+import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {postFormatPopup} from "../../MainWorker";
+import {parseFilterKeys} from "../utils";
 import {
     convertToDayjsTimestamp,
     convertToLogLevelValue,
     isJsonObject,
 } from "./utils";
-import {
-    parseFilterKeys,
-} from "../utils";
 
 
 /**

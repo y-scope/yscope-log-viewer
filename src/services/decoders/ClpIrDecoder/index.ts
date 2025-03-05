@@ -21,14 +21,12 @@ import {
     convertToDayjsTimestamp,
     isJsonObject,
 } from "../JsonlDecoder/utils";
+import {parseFilterKeys} from "../utils";
 import {
     CLP_IR_STREAM_TYPE,
     getStructuredIrNamespaceKeys,
     StructuredIrNamespaceKeys,
 } from "./utils";
-import {
-    parseFilterKeys,
-} from "../utils";
 
 
 class ClpIrDecoder implements Decoder {
