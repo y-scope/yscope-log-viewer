@@ -161,11 +161,9 @@ const Editor = () => {
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 break;
             }
-            case ACTION_NAME.COPY_LOG_EVENT: {
-                const beginLineNumToLogEventNumRefCurrent = beginLineNumToLogEventNumRef.current;
-                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRefCurrent);
+            case ACTION_NAME.COPY_LOG_EVENT:
+                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
-            }
             default:
                 break;
         }
