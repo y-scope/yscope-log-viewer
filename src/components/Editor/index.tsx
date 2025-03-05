@@ -43,12 +43,12 @@ import "./index.css";
  * Gets the beginning line number of the log event selected by mouse in editor.
  *
  * @param editor
- * @param beginLineNumToLogEventNumRefCurrent
+ * @param beginLineNumToLogEventNum
  * @return the beginning line number of the selected log event.
  */
 const getSelectedLogEventNum = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    beginLineNumToLogEventNumRefCurrent: BeginLineNumToLogEventNumMap
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
 ): Nullable<number> => {
     const selectedLineNum = editor.getPosition()?.lineNumber;
     if ("undefined" === typeof selectedLineNum) {
@@ -66,6 +66,7 @@ const getSelectedLogEventNum = (
  *
  * @param editor
  * @param beginLineNumToLogEventNum
+ * @throws Error
  */
 const handleCopyLogEventAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
