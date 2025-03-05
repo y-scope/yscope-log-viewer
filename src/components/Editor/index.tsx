@@ -66,7 +66,7 @@ const getSelectedLogEventNum = (
  *
  * @param editor
  * @param beginLineNumToLogEventNum
- * @throws Error
+ * @throws {Error} if the editor's model cannot be retrieved.
  */
 const handleCopyLogEventAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
