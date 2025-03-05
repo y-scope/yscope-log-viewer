@@ -89,23 +89,15 @@ const handleCopyLogEventAction = (
             " the next log event.");
     }
 
-    const model: Nullable<monaco.editor.ITextModel> = editor.getModel();
-    if (null === model) {
-        return;
-    }
-    const maxLineNum: number = model.getLineCount();
-    const startLineNumber: number = selectedLogEventLineNum;
-    const endLineNumberMaybeNegative: number = null === nextLogEventLineNum ?
-        maxLineNum - 1 :
-        nextLogEventLineNum - 1;
-    const endLineNumber: number = Math.max(startLineNumber, endLineNumberMaybeNegative);
-    const endMaxColumn: number = model.getLineMaxColumn(endLineNumber);
+    const selectionRange = new monaco.Range(
+        selectedLogEventLineNum,
+        0,
+        nextLogEventLineNum - 1,
+        Infinity
+    );
 
-    editor.setSelection(new monaco.Range(startLineNumber, 0, endLineNumber, endMaxColumn));
-
-    // Monaco editor uses `document.execCommand` instead of the Clipboard API to copy text.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    editor.getContainerDomNode().ownerDocument.execCommand("copy");
+    editor.setSelection(selectionRange);
+    editor.trigger(handleCopyLogEventAction.name, "editor.action.clipboardCopyAction", null);
 };
 
 /**
