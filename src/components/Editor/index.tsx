@@ -93,6 +93,7 @@ const handleCopyLogEventAction = (
     if (null !== nextLogEventLineNum) {
         endLineNumber = nextLogEventLineNum - 1;
     } else {
+        // Handle the case when this is the last log event in the file.
         const model = editor.getModel();
         if (null === model) {
             throw new Error("Unable to get the text model.");
