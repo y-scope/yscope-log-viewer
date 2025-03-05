@@ -437,6 +437,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        if (UI_STATE.FAST_LOADING === uiStateRef.current) {
+            console.warn("Page load in progress, skipping navigation action.");
+
+            return;
+        }
+
         if (navAction.code === ACTION_NAME.RELOAD) {
             if (null === fileSrcRef.current || null === logEventNumRef.current) {
                 throw new Error(`Unexpected fileSrc=${JSON.stringify(fileSrcRef.current)
@@ -456,7 +462,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-
+        uiStateRef.current = UI_STATE.FAST_LOADING;
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [loadFile]);
