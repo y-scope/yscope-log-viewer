@@ -85,15 +85,25 @@ const handleCopyLogEventAction = (
     const nextLogEventLineNum =
         getMapKeyByValue(beginLineNumToLogEventNum, selectedLogEventNum + 1);
 
-    if (null === selectedLogEventLineNum || null === nextLogEventLineNum) {
-        throw new Error("Unable to get the beginning line number of the selected log event or" +
-            " the next log event.");
+    if (null === selectedLogEventLineNum) {
+        throw new Error("Unable to get the beginning line number of the selected log event.");
+    }
+
+    let endLineNumber: number;
+    if (null !== nextLogEventLineNum) {
+        endLineNumber = nextLogEventLineNum - 1;
+    } else {
+        const model = editor.getModel();
+        if (null === model) {
+            throw new Error("Unable to get the text model.");
+        }
+        endLineNumber = model.getLineCount() - 1;
     }
 
     const selectionRange = new monaco.Range(
         selectedLogEventLineNum,
         0,
-        nextLogEventLineNum - 1,
+        endLineNumber,
         Infinity
     );
 
