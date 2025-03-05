@@ -26,6 +26,9 @@ import {
     getStructuredIrNamespaceKeys,
     StructuredIrNamespaceKeys,
 } from "./utils";
+import {
+    parseFilterKeys,
+} from "../utils";
 
 
 class ClpIrDecoder implements Decoder {
@@ -42,7 +45,8 @@ class ClpIrDecoder implements Decoder {
         dataArray: Uint8Array,
         decoderOptions: DecoderOptions
     ) {
-        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, decoderOptions);
+        const readerOptions = parseFilterKeys(decoderOptions, true);
+        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, readerOptions);
         this.#streamType =
             this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
                 CLP_IR_STREAM_TYPE.STRUCTURED :
