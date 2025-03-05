@@ -79,19 +79,15 @@ const handleCopyLogEventAction = (
     if (null === selectedLogEventNum) {
         return;
     }
-    const selectedLogEventLineNum = getMapKeyByValue(
-        beginLineNumToLogEventNumRefCurrent,
-        selectedLogEventNum
-    );
+    const selectedLogEventLineNum =
+        getMapKeyByValue(beginLineNumToLogEventNum, selectedLogEventNum);
+    const nextLogEventLineNum =
+        getMapKeyByValue(beginLineNumToLogEventNum, selectedLogEventNum + 1);
 
-    if (null === selectedLogEventLineNum) {
-        // unreachable
-        return;
+    if (null === selectedLogEventLineNum || null === nextLogEventLineNum) {
+        throw new Error("Unable to get the beginning line number of the selected log event or" +
+            " the next log event.");
     }
-    const nextLogEventLineNum = getMapKeyByValue(
-        beginLineNumToLogEventNumRefCurrent,
-        selectedLogEventNum + 1
-    );
 
     const model: Nullable<monaco.editor.ITextModel> = editor.getModel();
     if (null === model) {
