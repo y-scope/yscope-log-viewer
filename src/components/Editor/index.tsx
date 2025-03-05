@@ -55,18 +55,10 @@ const getSelectedLogEventNum = (
         return null;
     }
 
-    const selectedLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
-        beginLineNumToLogEventNumRefCurrent,
+    return getMapValueWithNearestLessThanOrEqualKey(
+        beginLineNumToLogEventNum,
         selectedLineNum
     );
-
-    if (null === selectedLogEventNum) {
-        // Unable to find logEventLineNum from logEventNum because `beginLineNumToLogEventNum`
-        // is either uninitialized or holds the value from the last loaded page.
-        return null;
-    }
-
-    return selectedLogEventNum;
 };
 
 /**
