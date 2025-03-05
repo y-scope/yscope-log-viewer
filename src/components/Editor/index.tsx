@@ -77,7 +77,7 @@ const getSelectedLogEventNum = (
  */
 const handleCopyLogEventAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
-    beginLineNumToLogEventNumRefCurrent: BeginLineNumToLogEventNumMap
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
 ) => {
     const selectedLogEventNum = getSelectedLogEventNum(
         editor,
