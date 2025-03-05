@@ -1,46 +1,59 @@
-import clpFfiJsModuleInit, {ClpStreamReader} from "clp-ffi-js";
+import clpFfiJsModuleInit, {
+    ClpStreamReader,
+    MainModule,
+} from "clp-ffi-js";
 import {Dayjs} from "dayjs";
 
-import {Nullable} from "../../typings/common";
+import {Nullable} from "../../../typings/common";
 import {
     Decoder,
     DecodeResult,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
-} from "../../typings/decoders";
-import {Formatter} from "../../typings/formatters";
-import {JsonObject} from "../../typings/js";
-import {LogLevelFilter} from "../../typings/logs";
-import YscopeFormatter from "../formatters/YscopeFormatter";
-import {postFormatPopup} from "../MainWorker";
+} from "../../../typings/decoders";
+import {Formatter} from "../../../typings/formatters";
+import {JsonObject} from "../../../typings/js";
+import {LogLevelFilter} from "../../../typings/logs";
+import YscopeFormatter from "../../formatters/YscopeFormatter";
+import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
-} from "./JsonlDecoder/utils";
+} from "../JsonlDecoder/utils";
+import {
+    CLP_IR_STREAM_TYPE,
+    getStructuredIrNamespaceKeys,
+    StructuredIrNamespaceKeys,
+} from "./utils";
 
-
-enum CLP_IR_STREAM_TYPE {
-    STRUCTURED = "structured",
-    UNSTRUCTURED = "unstructured",
-}
 
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
     readonly #streamType: CLP_IR_STREAM_TYPE;
 
+    readonly #structuredIrNamespaceKeys: StructuredIrNamespaceKeys;
+
     #formatter: Nullable<Formatter> = null;
 
     constructor (
-        streamType: CLP_IR_STREAM_TYPE,
-        streamReader: ClpStreamReader,
+        ffiModule: MainModule,
+        dataArray: Uint8Array,
         decoderOptions: DecoderOptions
     ) {
-        this.#streamType = streamType;
-        this.#streamReader = streamReader;
-        if (streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
-            this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, decoderOptions);
+        this.#streamType =
+            this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
+                CLP_IR_STREAM_TYPE.STRUCTURED :
+                CLP_IR_STREAM_TYPE.UNSTRUCTURED;
+        this.#structuredIrNamespaceKeys = getStructuredIrNamespaceKeys(ffiModule);
+
+        if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
+            this.#formatter = new YscopeFormatter({
+                formatString: decoderOptions.formatString,
+                structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
+            });
             if (0 === decoderOptions.formatString.length) {
                 postFormatPopup();
             }
@@ -61,12 +74,7 @@ class ClpIrDecoder implements Decoder {
         decoderOptions: DecoderOptions
     ): Promise<ClpIrDecoder> {
         const module = await clpFfiJsModuleInit();
-        const streamReader = new module.ClpStreamReader(dataArray, decoderOptions);
-        const streamType = streamReader.getIrStreamType() === module.IrStreamType.STRUCTURED ?
-            CLP_IR_STREAM_TYPE.STRUCTURED :
-            CLP_IR_STREAM_TYPE.UNSTRUCTURED;
-
-        return new ClpIrDecoder(streamType, streamReader, decoderOptions);
+        return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
     getEstimatedNumEvents (): number {
@@ -91,7 +99,10 @@ class ClpIrDecoder implements Decoder {
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
-        this.#formatter = new YscopeFormatter({formatString: options.formatString});
+        this.#formatter = new YscopeFormatter({
+            formatString: options.formatString,
+            structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
+        });
 
         return true;
     }
