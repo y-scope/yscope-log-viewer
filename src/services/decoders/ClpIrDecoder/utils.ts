@@ -40,8 +40,6 @@ const getStructuredIrNamespaceKeys = (ffiModule: MainModule): StructuredIrNamesp
 
 
 export type {StructuredIrNamespaceKeys};
-
-
 export {
     CLP_IR_STREAM_TYPE,
     getStructuredIrNamespaceKeys,
