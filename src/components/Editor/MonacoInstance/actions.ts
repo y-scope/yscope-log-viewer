@@ -155,26 +155,19 @@ const setupCustomActions = (
     actions: EditorAction[],
     onCustomAction: CustomActionCallback
 ) => {
-    actions.forEach(({actionName, label, keyBindings, contextMenuGroupId, contextMenuOrder}) => {
+    actions.forEach(({actionName, label, keyBindings, ...rest}) => {
         if (null === actionName) {
             return;
         }
-        const descriptor: monaco.editor.IActionDescriptor = {
+        editor.addAction({
             id: actionName,
-            label: label,
             keybindings: keyBindings,
+            label: label,
             run: () => {
                 onCustomAction(editor, actionName);
             },
-        };
-
-        if (null !== contextMenuGroupId) {
-            descriptor.contextMenuGroupId = contextMenuGroupId;
-        }
-        if (null !== contextMenuOrder) {
-            descriptor.contextMenuOrder = contextMenuOrder;
-        }
-        editor.addAction(descriptor);
+            ...rest,
+        });
     });
 };
 

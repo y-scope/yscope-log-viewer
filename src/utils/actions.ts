@@ -17,8 +17,8 @@ enum ACTION_NAME {
 
 interface EditorAction {
     actionName: Nullable<ACTION_NAME>;
-    contextMenuGroupId: Nullable<string>;
-    contextMenuOrder: Nullable<number>;
+    contextMenuGroupId?: string;
+    contextMenuOrder?: number;
     keyBindings: monaco.KeyCode[];
     label: string;
 }
@@ -30,50 +30,36 @@ interface EditorAction {
 const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: null,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyCode.Backquote],
         label: "Focus on Editor",
     },
     {
         actionName: ACTION_NAME.FIRST_PAGE,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
         label: "First page",
     },
     {
         actionName: ACTION_NAME.PREV_PAGE,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
         label: "Previous page",
     },
     {
         actionName: ACTION_NAME.NEXT_PAGE,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
         label: "Next page",
     },
     {
         actionName: ACTION_NAME.LAST_PAGE,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
         label: "Last page",
     },
     {
         actionName: ACTION_NAME.PAGE_TOP,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
         label: "Top of page",
     },
     {
         actionName: ACTION_NAME.PAGE_BOTTOM,
-        contextMenuGroupId: null,
-        contextMenuOrder: null,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
         label: "Bottom of page",
     },
