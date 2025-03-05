@@ -40,7 +40,7 @@ import "./index.css";
 
 
 /**
- * Gets the begin line number of the log event selected by mouse in editor.
+ * Gets the beginning line number of the log event selected by mouse in editor.
  *
  * @param editor
  * @param beginLineNumToLogEventNumRefCurrent
