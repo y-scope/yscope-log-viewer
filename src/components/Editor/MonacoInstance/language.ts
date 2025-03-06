@@ -21,7 +21,7 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_INFO,
                 ],
                 [
-                    "WARN",
+                    /\b(WARN|WARNING)\b/,
                     TOKEN_NAME.CUSTOM_WARN,
                 ],
                 [
