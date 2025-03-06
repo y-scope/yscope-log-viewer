@@ -1,0 +1,16 @@
+.settings-tab-container {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    height: 100%;
+}
+
+.settings-form-fields-container {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 0.75rem;
+}
