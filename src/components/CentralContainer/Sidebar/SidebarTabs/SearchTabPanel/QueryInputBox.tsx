@@ -1,5 +1,7 @@
 import React, {
+    useCallback,
     useContext,
+    useEffect,
     useState,
 } from "react";
 
@@ -14,7 +16,10 @@ import {
     QUERY_PROGRESS_VALUE_MAX,
     QueryArgs,
 } from "../../../../../typings/query";
-import {UI_ELEMENT} from "../../../../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
 import ToggleIconButton from "./ToggleIconButton";
 
@@ -33,14 +38,19 @@ const QueryInputBox = () => {
     const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(false);
     const [isRegex, setIsRegex] = useState<boolean>(false);
 
-    const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
+    const handleQuerySubmit = useCallback((newArgs?: Partial<QueryArgs>) => {
         startQuery({
             isCaseSensitive: isCaseSensitive,
             isRegex: isRegex,
             queryString: queryString,
             ...newArgs,
         });
-    };
+    }, [
+        isCaseSensitive,
+        isRegex,
+        queryString,
+        startQuery,
+    ]);
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
@@ -56,6 +66,18 @@ const QueryInputBox = () => {
         handleQuerySubmit({isRegex: !isRegex});
         setIsRegex(!isRegex);
     };
+
+    useEffect(() => {
+        // NOTE: When `uiState` transitions to `UI_STATE.FILTER_CHANGING`, the request to update
+        // the filter in the MainWorker should have already been sent. At this point, any new
+        // requests added to the MainWorker's message queue will use the updated filter.
+        if (uiState === UI_STATE.FILTER_CHANGING) {
+            handleQuerySubmit();
+        }
+    }, [
+        handleQuerySubmit,
+        uiState,
+    ]);
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
