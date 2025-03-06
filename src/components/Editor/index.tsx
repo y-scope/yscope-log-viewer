@@ -40,6 +40,79 @@ import "./index.css";
 
 
 /**
+ * Gets the beginning line number of the log event selected by mouse in editor.
+ *
+ * @param editor
+ * @param beginLineNumToLogEventNum
+ * @return the beginning line number of the selected log event.
+ */
+const getSelectedLogEventNum = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
+): Nullable<number> => {
+    const selectedLineNum = editor.getPosition()?.lineNumber;
+    if ("undefined" === typeof selectedLineNum) {
+        return null;
+    }
+
+    return getMapValueWithNearestLessThanOrEqualKey(
+        beginLineNumToLogEventNum,
+        selectedLineNum
+    );
+};
+
+/**
+ * Handles copy log event action in the editor.
+ *
+ * @param editor
+ * @param beginLineNumToLogEventNum
+ * @throws {Error} if the editor's model cannot be retrieved.
+ */
+const handleCopyLogEventAction = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap
+) => {
+    const selectedLogEventNum = getSelectedLogEventNum(
+        editor,
+        beginLineNumToLogEventNum,
+    );
+
+    if (null === selectedLogEventNum) {
+        return;
+    }
+    const selectedLogEventLineNum =
+        getMapKeyByValue(beginLineNumToLogEventNum, selectedLogEventNum);
+    const nextLogEventLineNum =
+        getMapKeyByValue(beginLineNumToLogEventNum, selectedLogEventNum + 1);
+
+    if (null === selectedLogEventLineNum) {
+        throw new Error("Unable to get the beginning line number of the selected log event.");
+    }
+
+    let endLineNumber: number;
+    if (null !== nextLogEventLineNum) {
+        endLineNumber = nextLogEventLineNum - 1;
+    } else {
+        // Handle the case when this is the last log event in the file.
+        const model = editor.getModel();
+        if (null === model) {
+            throw new Error("Unable to get the text model.");
+        }
+        endLineNumber = model.getLineCount() - 1;
+    }
+
+    const selectionRange = new monaco.Range(
+        selectedLogEventLineNum,
+        0,
+        endLineNumber,
+        Infinity
+    );
+
+    editor.setSelection(selectionRange);
+    editor.trigger(handleCopyLogEventAction.name, "editor.action.clipboardCopyAction", null);
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
@@ -80,6 +153,9 @@ const Editor = () => {
                 goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
                 break;
             }
+            case ACTION_NAME.COPY_LOG_EVENT:
+                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
+                break;
             default:
                 break;
         }

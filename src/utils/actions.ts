@@ -12,12 +12,15 @@ enum ACTION_NAME {
     PAGE_TOP = "pageTop",
     PAGE_BOTTOM = "pageBottom",
     RELOAD = "reload",
+    COPY_LOG_EVENT = "copyLogEvent",
 }
 
 interface EditorAction {
     actionName: Nullable<ACTION_NAME>;
-    label: string;
+    contextMenuGroupId?: string;
+    contextMenuOrder?: number;
     keyBindings: monaco.KeyCode[];
+    label: string;
 }
 
 /**
@@ -27,38 +30,45 @@ interface EditorAction {
 const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: null,
-        label: "Focus on Editor",
         keyBindings: [monaco.KeyCode.Backquote],
+        label: "Focus on Editor",
     },
     {
         actionName: ACTION_NAME.FIRST_PAGE,
-        label: "First page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
+        label: "First page",
     },
     {
         actionName: ACTION_NAME.PREV_PAGE,
-        label: "Previous page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
+        label: "Previous page",
     },
     {
         actionName: ACTION_NAME.NEXT_PAGE,
-        label: "Next page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
+        label: "Next page",
     },
     {
         actionName: ACTION_NAME.LAST_PAGE,
-        label: "Last page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
+        label: "Last page",
     },
     {
         actionName: ACTION_NAME.PAGE_TOP,
-        label: "Top of page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
+        label: "Top of page",
     },
     {
         actionName: ACTION_NAME.PAGE_BOTTOM,
-        label: "Bottom of page",
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
+        label: "Bottom of page",
+    },
+    {
+        actionName: ACTION_NAME.COPY_LOG_EVENT,
+        contextMenuGroupId: "9_cutcopypaste",
+        contextMenuOrder: 2,
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyC],
+        label: "Copy Log Event",
     },
 ];
 

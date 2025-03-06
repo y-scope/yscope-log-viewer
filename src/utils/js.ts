@@ -27,4 +27,20 @@ const getNestedJsonValue = (fields: JsonObject, keys: string[]): JsonValue | und
     return result;
 };
 
-export {getNestedJsonValue};
+/**
+ * Converts a JSON value to its string representation.
+ *
+ * @param input
+ * @return
+ */
+const jsonValueToString = (input: JsonValue | undefined): string => {
+    // Behaviour is different for `undefined`.
+    return "object" === typeof input ?
+        JSON.stringify(input) :
+        String(input);
+};
+
+export {
+    getNestedJsonValue,
+    jsonValueToString,
+};
