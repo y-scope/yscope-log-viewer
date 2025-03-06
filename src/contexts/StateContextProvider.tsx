@@ -11,8 +11,8 @@ import React, {
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 import LogExportManager, {
-    EXPORT_LOG_PROGRESS_VALUE_MAX,
-    EXPORT_LOG_PROGRESS_VALUE_MIN,
+    EXPORT_LOGS_PROGRESS_VALUE_MAX,
+    EXPORT_LOGS_PROGRESS_VALUE_MIN,
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
@@ -284,8 +284,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
-                    if (EXPORT_LOG_PROGRESS_VALUE_MAX === progress) {
+                    if (EXPORT_LOGS_PROGRESS_VALUE_MAX === progress) {
                         setUiState(UI_STATE.READY);
+                    } else {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        workerPostReq(mainWorkerRef.current!, WORKER_REQ_CODE.EXPORT_LOGS, {
+                            decodedEventIdx: args.nextDecodedEventIdx,
+                        });
                     }
                 }
                 break;
@@ -385,7 +390,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
         setUiState(UI_STATE.SLOW_LOADING);
-        setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
+        setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName
@@ -393,7 +398,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOGS,
-            null
+            {decodedEventIdx: 0}
         );
     }, [
         numEvents,

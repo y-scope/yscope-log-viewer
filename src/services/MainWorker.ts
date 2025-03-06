@@ -58,7 +58,7 @@ const postFormatPopup = () => {
 
 // eslint-disable-next-line no-warning-comments
 // TODO: Break this function up into smaller functions.
-// eslint-disable-next-line max-lines-per-function,max-statements
+// eslint-disable-next-line max-lines-per-function
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
@@ -69,14 +69,15 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }
-                let decodedEventIdx = 0;
-                while (decodedEventIdx < LOG_FILE_MANAGER.numEvents) {
-                    postResp(
-                        WORKER_RESP_CODE.CHUNK_DATA,
-                        LOG_FILE_MANAGER.loadChunk(decodedEventIdx)
-                    );
-                    decodedEventIdx += EXPORT_LOGS_CHUNK_SIZE;
-                }
+                const {decodedEventIdx} = args;
+                postResp(
+                    WORKER_RESP_CODE.CHUNK_DATA,
+                    {
+                        logs: LOG_FILE_MANAGER.loadChunk(decodedEventIdx),
+                        nextDecodedEventIdx: decodedEventIdx + EXPORT_LOGS_CHUNK_SIZE,
+                    }
+
+                );
                 break;
             }
             case WORKER_REQ_CODE.LOAD_FILE: {
