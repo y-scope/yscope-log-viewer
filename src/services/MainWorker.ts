@@ -65,7 +65,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
 
     try {
         switch (code) {
-            case WORKER_REQ_CODE.EXPORT_LOG: {
+            case WORKER_REQ_CODE.EXPORT_LOGS: {
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");
                 }

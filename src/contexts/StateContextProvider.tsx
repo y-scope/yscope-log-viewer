@@ -392,7 +392,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         );
         workerPostReq(
             mainWorkerRef.current,
-            WORKER_REQ_CODE.EXPORT_LOG,
+            WORKER_REQ_CODE.EXPORT_LOGS,
             null
         );
     }, [
