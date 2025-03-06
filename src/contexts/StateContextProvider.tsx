@@ -327,9 +327,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     case UI_STATE.FAST_LOADING:
                         setUiState(UI_STATE.READY);
                         break;
-                    case UI_STATE.SLOW_LOADING:
-                        setUiState(UI_STATE.READY);
-                        break;
                     case UI_STATE.FILE_LOADING:
                         setUiState(UI_STATE.UNOPENED);
                         break;
@@ -389,7 +386,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        setUiState(UI_STATE.SLOW_LOADING);
+        setUiState(UI_STATE.FAST_LOADING);
         setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
