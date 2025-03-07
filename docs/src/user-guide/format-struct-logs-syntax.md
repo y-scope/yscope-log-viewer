@@ -24,8 +24,10 @@ Defines the key of the field whose value should replace the placeholder.
 
 * Nested fields can be specified using periods (`.`) to denote hierarchy.
   * E.g., the field `{"a:" {"b": 0}}` may be denoted by `a.b`.
-* CLP IR auto-generated keys can specified by adding a `@` prefix to the field name.
-  * E.g., the auto-generated field `timestamp` may be denoted by `@timestamp`.
+* Auto-generated fields in a
+[Key-Value Pair IR Stream](https://docs.yscope.com/clp/main/dev-guide/design-key-value-pair-ir-stream.html)
+can be specified using `@` as a prefix.
+  * E.g., the auto-generated field `ts` may be denoted by `@ts`.
 * Field names can contain any character, except the following characters must be escaped with a
   backslash:
   * `.`
@@ -66,7 +68,8 @@ a newline.
 
 ## Examples
 
-### Example 1
+### JSON Example
+
 Consider the following JSON log event:
 ```
 {
@@ -98,30 +101,36 @@ The formatted string will be:
 ```
 2015-03-23 19:29:48.942 INFO {0} latency=56 org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties
 ```
-### Example 2
 
-Consider the following Key-Value Pair CLP IR log event:
+### Key-Value Pair IR Example
+
+Consider the following Key-Value Pair IR log event:
 ```
 {
   "auto-generated": {
-    "ts": 1732733160216,
-    "level": "INFO",
+    "ts": 1741371422000
   },
   "user-generated": {
-    "message": "Accepted socket connection from /192.168.1.100:50002"
-  },
+    "message": "Callback registered to fire in 5 seconds:",
+    "ts": 1741371427000
+  }
 }
 ```
 
 We can format this using the following YScope format string:
 
 ```
-{@ts:timestamp} {@level} {message}
+{@ts:timestamp} {message} {ts:timestamp}
 ```
+
+* In the first placeholder, we have the auto-generated field name `@ts`. The `@` prefix
+  specifies the field is from the auto-generated namespace.
+* The second and third placeholders refer to the message and timestamp fields in the
+  user-generated namespace, respectively.
 
 The formatted string will be:
 ```
-2024-11-27T18:46:00Z INFO Accepted socket connection from /192.168.1.100:50002
+2025-03-07T18:17:02Z Callback registered to fire in 5 seconds: 2025-03-07T18:17:07Z
 ```
 
 For a list of currently supported formatters, see [Formatters](format-struct-logs-formatters).
