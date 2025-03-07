@@ -2,7 +2,7 @@ import clpFfiJsModuleInit, {
     ClpStreamReader,
     MainModule,
 } from "clp-ffi-js";
-import {Dayjs} from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
 import {
@@ -37,6 +37,8 @@ class ClpIrDecoder implements Decoder {
 
     #formatter: Nullable<Formatter> = null;
 
+    #timestampFormatString: string;
+
     constructor (
         ffiModule: MainModule,
         dataArray: Uint8Array,
@@ -48,6 +50,7 @@ class ClpIrDecoder implements Decoder {
                 CLP_IR_STREAM_TYPE.STRUCTURED :
                 CLP_IR_STREAM_TYPE.UNSTRUCTURED;
         this.#structuredIrNamespaceKeys = getStructuredIrNamespaceKeys(ffiModule);
+        this.#timestampFormatString = decoderOptions.timestampFormatString;
 
         if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
             this.#formatter = new YscopeFormatter({
@@ -107,6 +110,19 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
+    formatResults (results: DecodeResult[]): Nullable<DecodeResult[]> {
+        for (const r of results) {
+            const [
+                message, timestamp,
+            ] = r;
+
+            const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
+            r[0] = formattedTimestamp + message;
+        }
+
+        return results;
+    }
+
     decodeRange (
         beginIdx: number,
         endIdx: number,
@@ -128,7 +144,7 @@ class ClpIrDecoder implements Decoder {
                 console.error("Formatter is not set for structured logs.");
             }
 
-            return results;
+            return this.formatResults(results);
         }
 
         for (const r of results) {
