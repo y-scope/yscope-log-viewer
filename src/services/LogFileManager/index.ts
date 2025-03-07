@@ -195,9 +195,7 @@ class LogFileManager {
      * @return An object containing the log events as a string.
      * @throws {Error} if any error occurs when decoding the log events.
      */
-    loadChunk (beginLogEventIdx: number): {
-        logs: string;
-    } {
+    loadChunk (beginLogEventIdx: number): string {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
         const results = this.#decoder.decodeRange(
             beginLogEventIdx,
@@ -213,9 +211,7 @@ class LogFileManager {
 
         const messages = results.map(([msg]) => msg);
 
-        return {
-            logs: messages.join(""),
-        };
+        return messages.join("");
     }
 
     /**

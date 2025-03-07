@@ -79,7 +79,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
  * Enum of the protocol code for communications between the renderer and MainWorker.
  */
 enum WORKER_REQ_CODE {
-    EXPORT_LOG = "exportLog",
+    EXPORT_LOGS = "exportLogs",
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
     SET_FILTER = "setFilter",
@@ -96,7 +96,9 @@ enum WORKER_RESP_CODE {
 }
 
 type WorkerReqMap = {
-    [WORKER_REQ_CODE.EXPORT_LOG]: null;
+    [WORKER_REQ_CODE.EXPORT_LOGS]: {
+        decodedEventIdx: number;
+    };
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType;
         pageSize: number;
@@ -120,6 +122,7 @@ type WorkerReqMap = {
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string;
+        nextDecodedEventIdx: number;
     };
     [WORKER_RESP_CODE.FORMAT_POPUP]: null;
     [WORKER_RESP_CODE.LOG_FILE_INFO]: {

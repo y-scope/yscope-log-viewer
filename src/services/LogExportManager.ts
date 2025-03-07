@@ -1,8 +1,8 @@
 import {downloadBlob} from "../utils/file";
 
 
-const EXPORT_LOG_PROGRESS_VALUE_MIN = 0;
-const EXPORT_LOG_PROGRESS_VALUE_MAX = 1;
+const EXPORT_LOGS_PROGRESS_VALUE_MIN = 0;
+const EXPORT_LOGS_PROGRESS_VALUE_MAX = 1;
 
 /**
  * Manager for exporting logs as a file.
@@ -40,14 +40,14 @@ class LogExportManager {
         if (0 === this.#numChunks) {
             this.#download();
 
-            return EXPORT_LOG_PROGRESS_VALUE_MAX;
+            return EXPORT_LOGS_PROGRESS_VALUE_MAX;
         }
         this.#chunks.push(chunk);
         if (this.#chunks.length === this.#numChunks) {
             this.#download();
             this.#chunks.length = 0;
 
-            return EXPORT_LOG_PROGRESS_VALUE_MAX;
+            return EXPORT_LOGS_PROGRESS_VALUE_MAX;
         }
 
         return this.#chunks.length / this.#numChunks;
@@ -64,6 +64,6 @@ class LogExportManager {
 
 export default LogExportManager;
 export {
-    EXPORT_LOG_PROGRESS_VALUE_MAX,
-    EXPORT_LOG_PROGRESS_VALUE_MIN,
+    EXPORT_LOGS_PROGRESS_VALUE_MAX,
+    EXPORT_LOGS_PROGRESS_VALUE_MIN,
 };
