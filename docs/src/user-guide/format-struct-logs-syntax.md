@@ -80,14 +80,14 @@ Consider the following JSON log event:
     "msecs": 56400,
     "secs": 56.4,
   },
-  "an.odd.key{name}": "org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties"
+  "@an.odd.key{name}": "org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties"
 }
 ```
 
 We can format this using the following YScope format string:
 
 ```
-{ts:timestamp:YYYY-MM-DD HH\:mm\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {an\.odd\.key\{name\}}
+{ts:timestamp:YYYY-MM-DD HH\:mm\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {\@an\.odd\.key\{name\}}
 ```
 
 * In the first placeholder, we have the field name `ts`, a formatter called `timestamp`, and
