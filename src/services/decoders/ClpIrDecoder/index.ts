@@ -21,6 +21,7 @@ import {
     convertToDayjsTimestamp,
     isJsonObject,
 } from "../JsonlDecoder/utils";
+import {parseFilterKeys} from "../utils";
 import {
     CLP_IR_STREAM_TYPE,
     getStructuredIrNamespaceKeys,
@@ -44,7 +45,8 @@ class ClpIrDecoder implements Decoder {
         dataArray: Uint8Array,
         decoderOptions: DecoderOptions
     ) {
-        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, decoderOptions);
+        const readerOptions = parseFilterKeys(decoderOptions, true);
+        this.#streamReader = new ffiModule.ClpStreamReader(dataArray, readerOptions);
         this.#streamType =
             this.#streamReader.getIrStreamType() === ffiModule.IrStreamType.STRUCTURED ?
                 CLP_IR_STREAM_TYPE.STRUCTURED :
