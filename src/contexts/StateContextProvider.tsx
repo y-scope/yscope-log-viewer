@@ -269,6 +269,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
+    const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -407,6 +408,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
 
+        // Cache `fileSrc` for reloads.
+        fileSrcRef.current = fileSrc;
+
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
@@ -432,6 +436,19 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        if (navAction.code === ACTION_NAME.RELOAD) {
+            if (null === fileSrcRef.current || null === logEventNumRef.current) {
+                throw new Error(`Unexpected fileSrc=${JSON.stringify(fileSrcRef.current)
+                }, logEventNum=${logEventNumRef.current} when reloading.`);
+            }
+            loadFile(fileSrcRef.current, {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNumRef.current},
+            });
+
+            return;
+        }
+
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
@@ -441,7 +458,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
-    }, []);
+    }, [loadFile]);
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {

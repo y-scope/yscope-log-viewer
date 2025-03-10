@@ -1,5 +1,7 @@
 import axios, {AxiosError} from "axios";
 
+import {JsonValue} from "../typings/js";
+
 
 /**
  * Converts an Axios error into a custom Error object.
@@ -31,6 +33,29 @@ const convertAxiosError = (e: AxiosError): Error => {
 };
 
 /**
+ * Downloads and parses JSON from the specified remote URL.
+ *
+ * @param remoteUrl
+ * @return The parsed response. If the HTTP response body is not JSON, the body is gracefully
+ * returned as a string.
+ * @throws {Error} if the download fails.
+ */
+const getJsonObjectFrom = async (remoteUrl: string)
+: Promise<JsonValue> => {
+    try {
+        const {data} = await axios.get<JsonValue>(remoteUrl, {
+            responseType: "json",
+        });
+
+        return data;
+    } catch (e) {
+        throw (e instanceof AxiosError) ?
+            convertAxiosError(e) :
+            e;
+    }
+};
+
+/**
  * Downloads (bypassing any caching) a file as a Uint8Array.
  *
  * @param fileUrl
@@ -57,5 +82,7 @@ const getUint8ArrayFrom = async (fileUrl: string)
     }
 };
 
-
-export {getUint8ArrayFrom};
+export {
+    getJsonObjectFrom,
+    getUint8ArrayFrom,
+};
