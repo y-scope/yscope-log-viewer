@@ -128,6 +128,15 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
+    /**
+     * See {@link Decoder.decodeRange}.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @param useFilter
+     * @return
+     * @throws {Error} if the formatter is not set for structured logs.
+     */
     decodeRange (
         beginIdx: number,
         endIdx: number,
@@ -146,7 +155,7 @@ class ClpIrDecoder implements Decoder {
             if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
                 // eslint-disable-next-line no-warning-comments
                 // TODO: Revisit when we allow displaying structured logs without a formatter.
-                console.error("Formatter is not set for structured logs.");
+                throw new Error("Formatter is not set for structured logs.");
             }
 
             return ClpIrDecoder.#formatUnstructuredResults(results);
