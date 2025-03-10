@@ -33,7 +33,7 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_FATAL,
                 ],
                 [
-                    /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z?/,
+                    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}/,
                     TOKEN_NAME.CUSTOM_DATE,
                 ],
                 [
