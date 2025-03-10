@@ -1,7 +1,4 @@
-import React, {
-    useContext,
-    useState,
-} from "react";
+import React, {useContext} from "react";
 
 import {
     LinearProgress,
@@ -21,22 +18,44 @@ import ToggleIconButton from "./ToggleIconButton";
 import "./QueryInputBox.css";
 
 
+interface queryStates {
+    queryString: string;
+    // eslint-disable-next-line react/boolean-prop-naming
+    queryIsCaseSensitive: boolean;
+    // eslint-disable-next-line react/boolean-prop-naming
+    queryIsRegex: boolean;
+    setQueryString: (queryString: string) => void;
+    setQueryIsCaseSensitive: (queryIsCaseSensitive: boolean) => void;
+    setQueryIsRegex: (queryIsRegex: boolean) => void;
+}
+
 /**
  * Provides a text input and optional toggles for submitting search queries.
  *
+ * @param props
+ * @param props.queryString
+ * @param props.queryIsCaseSensitive
+ * @param props.queryIsRegex
+ * @param props.setQueryString
+ * @param props.setQueryIsCaseSensitive
+ * @param props.setQueryIsRegex
  * @return
  */
-const QueryInputBox = () => {
+const QueryInputBox = ({
+    queryString,
+    queryIsCaseSensitive,
+    queryIsRegex,
+    setQueryString,
+    setQueryIsCaseSensitive,
+    setQueryIsRegex,
+}: queryStates) => {
     const {queryProgress, startQuery, uiState} = useContext(StateContext);
 
-    const [queryString, setQueryString] = useState<string>("");
-    const [isCaseSensitive, setIsCaseSensitive] = useState<boolean>(false);
-    const [isRegex, setIsRegex] = useState<boolean>(false);
 
     const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
         startQuery({
-            isCaseSensitive: isCaseSensitive,
-            isRegex: isRegex,
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
             queryString: queryString,
             ...newArgs,
         });
@@ -48,13 +67,13 @@ const QueryInputBox = () => {
     };
 
     const handleCaseSensitivityButtonClick = () => {
-        handleQuerySubmit({isCaseSensitive: !isCaseSensitive});
-        setIsCaseSensitive(!isCaseSensitive);
+        handleQuerySubmit({queryIsCaseSensitive: !queryIsCaseSensitive});
+        setQueryIsCaseSensitive(!queryIsCaseSensitive);
     };
 
     const handleRegexButtonClick = () => {
-        handleQuerySubmit({isRegex: !isRegex});
-        setIsRegex(!isRegex);
+        handleQuerySubmit({queryIsRegex: !queryIsRegex});
+        setQueryIsRegex(!queryIsRegex);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
@@ -74,7 +93,7 @@ const QueryInputBox = () => {
                         <ToggleIconButton
                             className={"query-option-button"}
                             disabled={isQueryInputBoxDisabled}
-                            isChecked={isCaseSensitive}
+                            isChecked={queryIsCaseSensitive}
                             size={"sm"}
                             tooltipTitle={"Match case"}
                             variant={"plain"}
@@ -86,7 +105,7 @@ const QueryInputBox = () => {
                         <ToggleIconButton
                             className={"query-option-button"}
                             disabled={isQueryInputBoxDisabled}
-                            isChecked={isRegex}
+                            isChecked={queryIsRegex}
                             size={"sm"}
                             tooltipTitle={"Use regular expression"}
                             variant={"plain"}
