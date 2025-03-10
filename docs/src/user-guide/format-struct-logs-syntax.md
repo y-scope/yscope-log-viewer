@@ -26,8 +26,8 @@ Defines the key of the field whose value should replace the placeholder.
   * E.g., the field `{"a:" {"b": 0}}` may be denoted by `a.b`.
 * Auto-generated fields in a
 [Key-Value Pair IR Stream](https://docs.yscope.com/clp/main/dev-guide/design-key-value-pair-ir-stream.html)
-can be specified using `@` as a prefix.
-  * E.g., the auto-generated field `ts` may be denoted by `@ts`.
+  can be specified by using `@` as a prefix.
+  * E.g., the auto-generated field `ts` would be specified as `@ts`.
 * Field names can contain any character, except the following characters must be escaped with a
   backslash:
   * `.`
@@ -68,10 +68,10 @@ a newline.
 
 ## Examples
 
-### JSON Example
+### Formatting JSON logs events
 
 Consider the following JSON log event:
-```
+```json
 {
   "ts": 1427153388942,
   "level": "INFO",
@@ -102,10 +102,17 @@ The formatted string will be:
 2015-03-23 19:29:48.942 INFO {0} latency=56 org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties
 ```
 
-### Key-Value Pair IR Example
+### Formatting kv-pair IR log events
 
-Consider the following Key-Value Pair IR log event:
-```
+Consider the following kv-pair IR log event:
+
+:::{note}
+In the example below, for simplicity, we render the log event as JSON with the auto-generated
+kv-pairs under the `auto-generated` key, and the user-generated kv-pairs under the `user-generated`
+key, but these keys don't exist in the log event.
+:::
+
+```json
 {
   "auto-generated": {
     "ts": 1741371422000
@@ -123,10 +130,10 @@ We can format this using the following YScope format string:
 {@ts:timestamp} {message} {ts:timestamp}
 ```
 
-* In the first placeholder, we have the auto-generated field name `@ts`. The `@` prefix
-  specifies the field is from the auto-generated namespace.
-* The second and third placeholders refer to the message and timestamp fields in the
-  user-generated namespace, respectively.
+* In the first placeholder, we have the auto-generated field name `@ts`. The `@` prefix specifies
+  that the field is from the auto-generated namespace.
+* The second and third placeholders refer to the `message` and `ts` fields in the user-generated
+  namespace.
 
 The formatted string will be:
 ```
