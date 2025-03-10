@@ -24,9 +24,8 @@ Defines the key of the field whose value should replace the placeholder.
 
 * Nested fields can be specified using periods (`.`) to denote hierarchy.
   * E.g., the field `{"a:" {"b": 0}}` may be denoted by `a.b`.
-* Auto-generated fields in a
-[Key-Value Pair IR Stream](https://docs.yscope.com/clp/main/dev-guide/design-key-value-pair-ir-stream.html)
-  can be specified by using `@` as a prefix.
+* Auto-generated fields in a [Key-Value Pair IR Stream][kvPairIr] can be specified by using `@` as a
+prefix.
   * E.g., the auto-generated field `ts` would be specified as `@ts`.
 * Field names can contain any character, except the following characters must be escaped with a
   backslash:
@@ -46,6 +45,8 @@ The name of the formatter to apply to the value before inserting it into the str
   * `}`
   * `:`
   * `\`
+
+For a list of currently supported formatters, see [Formatters](format-struct-logs-formatters).
 
 ### formatter-options (optional)
 Defines any options for the formatter denoted by `formatter-name`.
@@ -90,8 +91,8 @@ We can format this using the following YScope format string:
 {ts:timestamp:YYYY-MM-DD HH\:mm\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {\@an\.odd\.key\{name\}}
 ```
 
-* In the first placeholder, we have the field name `ts`, a formatter called `timestamp`, and
-  the formatter's options which are a date format string.
+* In the first placeholder, we have the field name `ts`, a formatter called `timestamp`, and the
+ formatter's options which are a date format string.
 * The second and third placeholders simply stringify the values of the given fields.
 * The fourth placeholder uses the `round` formatter to round a nested field's value; this
   placeholder doesn't specify any formatter options, so the defaults will be used.
@@ -140,4 +141,4 @@ The formatted string will be:
 2025-03-07T18:17:02Z Callback registered to fire in 5 seconds: 2025-03-07T18:17:07Z
 ```
 
-For a list of currently supported formatters, see [Formatters](format-struct-logs-formatters).
+[kvPairIr]: https://docs.yscope.com/clp/main/dev-guide/design-key-value-pair-ir-stream.html
