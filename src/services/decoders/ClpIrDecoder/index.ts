@@ -79,6 +79,25 @@ class ClpIrDecoder implements Decoder {
         return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
+    /**
+     * Formats unstructured log events by prepending the timestamp to each message.
+     *
+     * @param results
+     * @return The formatted log events.
+     */
+    static #formatUnstructuredResults = (results: DecodeResult[]): DecodeResult[] => {
+        for (const r of results) {
+            const [
+                message, timestamp,
+            ] = r;
+
+            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
+            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+        }
+
+        return results;
+    };
+
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
     }
@@ -130,7 +149,7 @@ class ClpIrDecoder implements Decoder {
                 console.error("Formatter is not set for structured logs.");
             }
 
-            return results;
+            return ClpIrDecoder.#formatUnstructuredResults(results);
         }
 
         for (const r of results) {
