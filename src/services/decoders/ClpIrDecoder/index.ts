@@ -82,11 +82,11 @@ class ClpIrDecoder implements Decoder {
     /**
      * Formats unstructured log events by prepending a formatted timestamp to each message.
      *
-     * @param results
+     * @param logEvents
      * @return The formatted log events.
      */
-    static #formatUnstructuredResults = (results: DecodeResult[]): DecodeResult[] => {
-        for (const r of results) {
+    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
+        for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
@@ -95,7 +95,7 @@ class ClpIrDecoder implements Decoder {
             r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
         }
 
-        return results;
+        return logEvents;
     };
 
     getEstimatedNumEvents (): number {
