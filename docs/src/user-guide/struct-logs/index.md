@@ -19,10 +19,3 @@ Specifying keys
 A guide on how to specify keys in YScope syntax.
 :::
 ::::
-
-:::{toctree}
-:hidden:
-
-format/index
-specifying-keys
-:::
