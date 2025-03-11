@@ -1,11 +1,12 @@
 # Specifying keys
 
-Viewing structured logs requires the user to specify keys for:
+Viewing structured logs requires specifying keys for:
 * The format string
 * Authoritative fields such as the log level and timestamp
 
-Both options are found the settings dialog ({fas}`gear`). See below for the key syntax.
+Both options are found the settings dialog ({fas}`gear`).
 
-```{include} key-syntax.md
+## Syntax
 
-```
+:::{include} key-syntax.md
+:::

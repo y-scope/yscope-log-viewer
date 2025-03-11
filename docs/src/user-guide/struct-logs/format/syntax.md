@@ -22,9 +22,8 @@ three components:
 ### field-key (required)
 Defines the key of the field whose value should replace the placeholder.
 
-```{include} ../key-syntax.md
-
-```
+:::{include} ../key-syntax.md
+:::
 
 ### formatter-name (optional)
 The name of the formatter to apply to the value before inserting it into the string.
@@ -69,7 +68,7 @@ Consider the following JSON log event:
   "thread": 0,
   "latency": {
     "msecs": 56400,
-    "secs": 56.4,
+    "secs": 56.4
   },
   "@an.odd.key{name}": "org.apache.hadoop.metrics2.impl.MetricsConfig: loaded properties from hadoop-metrics2.properties"
 }
@@ -115,7 +114,7 @@ key, but these keys don't exist in the log event.
 }
 ```
 
-We can format this using the following YScope format string:
+We can format this using the following format string:
 
 ```
 {@ts:timestamp} {message} {ts:timestamp}

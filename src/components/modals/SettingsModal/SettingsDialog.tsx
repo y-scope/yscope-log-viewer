@@ -44,7 +44,7 @@ const getConfigFormFields = () => [
         helperText: (
             <span>
                 [Structured] Format string for formatting a structured log event as plain text.
-                See
+                Leave blank to display the entire log event. See
                 {" "}
                 <Link
                     href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/format/index.html"}
@@ -55,7 +55,7 @@ const getConfigFormFields = () => [
                     here
                 </Link>
                 {" "}
-                for syntax or leave this blank to display the entire log event.
+                for syntax.
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,

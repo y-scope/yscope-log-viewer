@@ -36,10 +36,8 @@ For reference docs, see:
 * [Format string syntax](syntax)
 * [Formatters](formatters)
 
-
 :::{toctree}
 :hidden:
-:caption: Cluster setup
 
 syntax
 formatters

@@ -3,8 +3,7 @@
 * Auto-generated keys in a [Key-Value Pair IR Stream][kv-pair-ir] can be specified by using `@` as
   a prefix.
   * E.g., the auto-generated key `ts` would be specified as `@ts`.
-* Keys can contain any character, except the following characters must be escaped with a
-  backslash:
+* Keys can contain any character, except the following characters must be escaped with a backslash:
   * `.`
   * `@`
   * `{`

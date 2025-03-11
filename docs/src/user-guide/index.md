@@ -17,7 +17,7 @@ A guide to viewing log files in the log viewer.
 :link: struct-logs/index
 Working with structured logs
 ^^^
-A guide to working with structured logs.
+Guides and reference docs for working with structured logs.
 :::
 
 :::{grid-item-card}
