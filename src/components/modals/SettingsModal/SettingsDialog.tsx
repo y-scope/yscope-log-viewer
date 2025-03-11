@@ -69,7 +69,7 @@ const getConfigFormFields = () => [
                 [Structured] Key that maps to each log event&apos;s log level. See
                 {" "}
                 <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html"}
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html#syntax"}
                     level={"body-sm"}
                     rel={"noopener"}
                     target={"_blank"}
@@ -91,7 +91,7 @@ const getConfigFormFields = () => [
                 [Structured] Key that maps to each log event&apos;s timestamp. See
                 {" "}
                 <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html"}
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html#syntax"}
                     level={"body-sm"}
                     rel={"noopener"}
                     target={"_blank"}

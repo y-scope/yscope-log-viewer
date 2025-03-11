@@ -1,6 +1,6 @@
 # Overview
 
-The following are guides for working with structured logs.
+The guides below describe how to configure the log viewer to work with structured logs.
 
 ::::{grid} 1 1 2 2
 :gutter: 2
@@ -9,13 +9,13 @@ The following are guides for working with structured logs.
 :link: format/index
 Formatting as plain text
 ^^^
-A guide to formatting logs as plain text with a format string.
+How to format structured logs as plain text, using a format string.
 :::
 
 :::{grid-item-card}
 :link: specifying-keys
 Specifying keys
 ^^^
-A guide on how to specify keys in YScope syntax.
+How to specify keys when configuring the log viewer.
 :::
 ::::
