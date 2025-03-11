@@ -1,4 +1,4 @@
-# Structured log guides
+# Overview
 
 The following are guides for working with structured logs.
 

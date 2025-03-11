@@ -41,6 +41,8 @@ quick-start
 :glob:
 
 struct-logs/index
+struct-logs/format/index
+struct-logs/specifying-keys
 :::
 
 :::{toctree}

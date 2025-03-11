@@ -74,7 +74,7 @@ Consider the following JSON log event:
 }
 ```
 
-We can format this using the following YScope format string:
+We can format this using the following format string:
 
 ```
 {ts:timestamp:YYYY-MM-DD HH\:mm\:ss.SSS} {level} \{{thread}\} latency={latency.secs:round} {\@an\.odd\.key\{name\}}
