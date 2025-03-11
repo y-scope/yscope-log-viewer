@@ -14,10 +14,10 @@ A guide to viewing log files in the log viewer.
 :::
 
 :::{grid-item-card}
-:link: format-struct-logs-overview
-Formatting structured logs
+:link: struct-logs/index
+Working with structured logs
 ^^^
-A guide to formatting structured (e.g. JSON) logs as plain text.
+A guide to working with structured logs.
 :::
 
 :::{grid-item-card}
@@ -37,12 +37,10 @@ quick-start
 
 :::{toctree}
 :hidden:
-:caption: Formatting structured logs
+:caption: Working with structured logs
 :glob:
 
-format-struct-logs-overview
-format-struct-logs-syntax
-format-struct-logs-formatters
+struct-logs/index
 :::
 
 :::{toctree}

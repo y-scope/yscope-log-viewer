@@ -2,10 +2,6 @@
 
 The log viewer offers two ways to filter logs by their level.
 
-For JSON logs, you can enable filtering by entering the log level key in the settings ({fas}`gear`)
-dialog. The syntax for the key is the same as the field name in the
- [format string](format-struct-logs-syntax).
-
 ## Severity-based filtering
 You can filter for log events at or above a selected level by clicking the level's name. For
 example, selecting INFO shows INFO, WARN, ERROR, and FATAL logs.

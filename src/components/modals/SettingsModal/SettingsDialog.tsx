@@ -43,18 +43,19 @@ const getConfigFormFields = () => [
     {
         helperText: (
             <span>
-                [JSON] Format string for formatting a JSON log event as plain text. See the
+                [Structured] Format string for formatting a structured log event as plain text.
+                See
                 {" "}
                 <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/format/index.html"}
                     level={"body-sm"}
                     rel={"noopener"}
                     target={"_blank"}
                 >
-                    format string syntax docs
+                    here
                 </Link>
                 {" "}
-                or leave this blank to display the entire log event.
+                for syntax or leave this blank to display the entire log event.
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
@@ -63,14 +64,44 @@ const getConfigFormFields = () => [
         type: "text",
     },
     {
-        helperText: "[JSON] Key to extract the log level from.",
+        helperText: (
+            <span>
+                [Structured] Key to extract the log level from. See
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html"}
+                    level={"body-sm"}
+                    rel={"noopener"}
+                    target={"_blank"}
+                >
+                    here
+                </Link>
+                {" "}
+                for syntax.
+            </span>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
         label: "Decoder: Log level key",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
         type: "text",
     },
     {
-        helperText: "[JSON] Key to extract the log timestamp from.",
+        helperText: (
+            <span>
+                [Structured] Key to extract the timestamp from. See
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html"}
+                    level={"body-sm"}
+                    rel={"noopener"}
+                    target={"_blank"}
+                >
+                    here
+                </Link>
+                {" "}
+                for syntax.
+            </span>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
         label: "Decoder: Timestamp key",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
