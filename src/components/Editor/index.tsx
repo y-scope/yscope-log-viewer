@@ -156,6 +156,15 @@ const Editor = () => {
             case ACTION_NAME.COPY_LOG_EVENT:
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
+            case ACTION_NAME.WORD_WRAP: {
+                const currentWordWrap = editor.getRawOptions().wordWrap;
+                const newWordWrap = "on" === currentWordWrap ?
+                    "off" :
+                    "on";
+
+                editor.updateOptions({wordWrap: newWordWrap});
+                break;
+            }
             default:
                 break;
         }

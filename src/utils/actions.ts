@@ -13,6 +13,7 @@ enum ACTION_NAME {
     PAGE_BOTTOM = "pageBottom",
     RELOAD = "reload",
     COPY_LOG_EVENT = "copyLogEvent",
+    WORD_WRAP = "wordWrap",
 }
 
 interface EditorAction {
@@ -69,6 +70,11 @@ const EDITOR_ACTIONS : EditorAction[] = [
         contextMenuOrder: 2,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyC],
         label: "Copy Log Event",
+    },
+    {
+        actionName: ACTION_NAME.WORD_WRAP,
+        keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
+        label: "Toggle Word Wrap",
     },
 ];
 
