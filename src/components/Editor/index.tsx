@@ -113,6 +113,7 @@ const handleCopyLogEventAction = (
 };
 
 /**
+ * Toggles the word wrap setting in the editor between "on" and "off".
  *
  * @param editor
  */

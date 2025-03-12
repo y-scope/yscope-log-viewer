@@ -74,7 +74,7 @@ const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: ACTION_NAME.WORD_WRAP,
         keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
-        label: "Toggle Word Wrap",
+        label: "Toggle word wrap",
     },
 ];
 
