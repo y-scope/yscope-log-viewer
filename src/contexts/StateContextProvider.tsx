@@ -437,8 +437,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (UI_STATE.FAST_LOADING === uiStateRef.current) {
-            console.warn("Page load in progress, skipping navigation action.");
+        if (UI_STATE.READY !== uiStateRef.current) {
+            console.warn("Skipping navigation: page load in progress.");
 
             return;
         }
@@ -462,6 +462,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
+
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor);
     }, [loadFile]);
