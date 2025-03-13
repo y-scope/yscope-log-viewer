@@ -113,6 +113,20 @@ const handleCopyLogEventAction = (
 };
 
 /**
+ * Toggles the word wrap setting in the editor between "on" and "off".
+ *
+ * @param editor
+ */
+const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
+    const currentWordWrap = editor.getRawOptions().wordWrap;
+    const newWordWrap = "on" === currentWordWrap ?
+        "off" :
+        "on";
+
+    editor.updateOptions({wordWrap: newWordWrap});
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
@@ -155,6 +169,9 @@ const Editor = () => {
             }
             case ACTION_NAME.COPY_LOG_EVENT:
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
+                break;
+            case ACTION_NAME.WORD_WRAP:
+                handleWordWrapAction(editor);
                 break;
             default:
                 break;
