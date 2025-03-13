@@ -96,9 +96,7 @@ enum WORKER_RESP_CODE {
 }
 
 type WorkerReqMap = {
-    [WORKER_REQ_CODE.EXPORT_LOGS]: {
-        decodedEventIdx: number;
-    };
+    [WORKER_REQ_CODE.EXPORT_LOGS]: null;
     [WORKER_REQ_CODE.LOAD_FILE]: {
         fileSrc: FileSrcType;
         pageSize: number;
@@ -122,7 +120,6 @@ type WorkerReqMap = {
 type WorkerRespMap = {
     [WORKER_RESP_CODE.CHUNK_DATA]: {
         logs: string;
-        nextDecodedEventIdx: number;
     };
     [WORKER_RESP_CODE.FORMAT_POPUP]: null;
     [WORKER_RESP_CODE.LOG_FILE_INFO]: {

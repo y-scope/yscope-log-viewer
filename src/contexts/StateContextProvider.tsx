@@ -286,11 +286,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     setExportProgress(progress);
                     if (EXPORT_LOGS_PROGRESS_VALUE_MAX === progress) {
                         setUiState(UI_STATE.READY);
-                    } else {
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        workerPostReq(mainWorkerRef.current!, WORKER_REQ_CODE.EXPORT_LOGS, {
-                            decodedEventIdx: args.nextDecodedEventIdx,
-                        });
                     }
                 }
                 break;
@@ -386,7 +381,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        setUiState(UI_STATE.FAST_LOADING);
+        setUiState(UI_STATE.READY);
         setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
@@ -395,7 +390,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(
             mainWorkerRef.current,
             WORKER_REQ_CODE.EXPORT_LOGS,
-            {decodedEventIdx: 0}
+            null
         );
     }, [
         numEvents,
