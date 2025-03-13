@@ -12,6 +12,7 @@ import {
     WorkerResp,
 } from "../typings/worker";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
+import {defer} from "../utils/time";
 import LogFileManager from "./LogFileManager";
 
 
@@ -56,27 +57,41 @@ const postFormatPopup = () => {
     postResp(WORKER_RESP_CODE.FORMAT_POPUP, null);
 };
 
+/**
+ * Exports current log chunk to string, and schedule the next chunk of logs to be exported.
+ *
+ * @param decodedEventIdx
+ * @throws {Error} if the log file manager hasn't been initialized.
+ */
+const exportLogsHelper = (decodedEventIdx: number) => {
+    if (null === LOG_FILE_MANAGER) {
+        throw new Error("Log file manager hasn't been initialized");
+    }
+    if (decodedEventIdx >= LOG_FILE_MANAGER.numEvents) {
+        return;
+    }
+    postResp(
+        WORKER_RESP_CODE.CHUNK_DATA,
+        {
+            logs: LOG_FILE_MANAGER.loadChunk(decodedEventIdx),
+        }
+    );
+    defer(() => {
+        exportLogsHelper(decodedEventIdx + EXPORT_LOGS_CHUNK_SIZE);
+    });
+};
+
 // eslint-disable-next-line no-warning-comments
 // TODO: Break this function up into smaller functions.
-// eslint-disable-next-line max-lines-per-function,max-statements
+// eslint-disable-next-line max-lines-per-function
 onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     const {code, args} = ev.data;
     console.log(`[Renderer -> MainWorker] code=${code}: args=${JSON.stringify(args)}`);
 
     try {
         switch (code) {
-            case WORKER_REQ_CODE.EXPORT_LOG: {
-                if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
-                }
-                let decodedEventIdx = 0;
-                while (decodedEventIdx < LOG_FILE_MANAGER.numEvents) {
-                    postResp(
-                        WORKER_RESP_CODE.CHUNK_DATA,
-                        LOG_FILE_MANAGER.loadChunk(decodedEventIdx)
-                    );
-                    decodedEventIdx += EXPORT_LOGS_CHUNK_SIZE;
-                }
+            case WORKER_REQ_CODE.EXPORT_LOGS: {
+                exportLogsHelper(0);
                 break;
             }
             case WORKER_REQ_CODE.LOAD_FILE: {
