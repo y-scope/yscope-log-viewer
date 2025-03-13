@@ -61,6 +61,7 @@ const postFormatPopup = () => {
  * Exports current log chunk to string, and schedule the next chunk of logs to be exported.
  *
  * @param decodedEventIdx
+ * @throws {Error} if the log file manager hasn't been initialized.
  */
 const exportLogsHelper = (decodedEventIdx: number) => {
     if (null === LOG_FILE_MANAGER) {
