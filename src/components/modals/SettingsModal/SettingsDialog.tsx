@@ -77,11 +77,11 @@ const getConfigFormFields = () => [
         type: "text",
     },
     {
-        helperText: "Day.js format string for timestamp",
+        helperText: "[Unstructured-IR] Format string for timestamps in Day.js format.",
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampFormatString,
-        label: "View: Timestamp Format String",
+        label: "Decoder: Timestamp format string",
         name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
-        type: "string",
+        type: "text",
     },
     {
         helperText: "Number of log messages to display per page.",
@@ -119,16 +119,16 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
 
         const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
         const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
-        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
         const timestampFormatString = getFormDataValue(
             LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
         );
+        const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
         const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
         let error: Nullable<string> = null;
         error ||= setConfig({
             key: CONFIG_KEY.DECODER_OPTIONS,
-            value: {formatString, logLevelKey, timestampKey, timestampFormatString},
+            value: {formatString, logLevelKey, timestampFormatString, timestampKey},
         });
         error ||= setConfig({
             key: CONFIG_KEY.PAGE_SIZE,

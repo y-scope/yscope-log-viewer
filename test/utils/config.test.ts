@@ -57,8 +57,8 @@ const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
             expected: {
                 formatString: null,
                 logLevelKey: "Log level key cannot be empty.",
-                timestampKey: "Timestamp key cannot be empty.",
                 timestampFormatString: "Timestamp format string cannot be empty.",
+                timestampKey: "Timestamp key cannot be empty.",
             }[key],
         }));
 
@@ -148,13 +148,13 @@ describe("setConfig", () => {
         expect(localStorage.getItem(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY)).toBe(
             VALID_DECODER_OPTIONS.logLevelKey
         );
-        expect(localStorage.getItem(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY)).toBe(
-            VALID_DECODER_OPTIONS.timestampKey
-        );
         expect(localStorage.getItem(
             LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
         )).toBe(
             VALID_DECODER_OPTIONS.timestampFormatString
+        );
+        expect(localStorage.getItem(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY)).toBe(
+            VALID_DECODER_OPTIONS.timestampKey
         );
     });
 

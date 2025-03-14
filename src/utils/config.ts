@@ -27,8 +27,8 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.DECODER_OPTIONS]: {
         formatString: "",
         logLevelKey: "log.level",
+        timestampFormatString: "YYYY-MM-DDTHH:mm:ss.SSSZ",
         timestampKey: "@timestamp",
-        timestampFormatString: "YYYY-MM-DDTHH:mm:ssZ",
     },
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
@@ -48,12 +48,12 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
     let result = null;
     switch (key) {
         case CONFIG_KEY.DECODER_OPTIONS:
-            if (0 === value.timestampKey.length) {
-                result = "Timestamp key cannot be empty.";
-            } else if (0 === value.logLevelKey.length) {
+            if (0 === value.logLevelKey.length) {
                 result = "Log level key cannot be empty.";
             } else if (0 === value.timestampFormatString.length) {
                 result = "Timestamp format string cannot be empty.";
+            } else if (0 === value.timestampKey.length) {
+                result = "Timestamp key cannot be empty.";
             }
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
@@ -102,12 +102,12 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 value.logLevelKey
             );
             window.localStorage.setItem(
-                LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
-                value.timestampKey
-            );
-            window.localStorage.setItem(
                 LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
                 value.timestampFormatString
+            );
+            window.localStorage.setItem(
+                LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
+                value.timestampKey
             );
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
@@ -148,11 +148,11 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 logLevelKey: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY
                 ),
-                timestampKey: window.localStorage.getItem(
-                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
-                ),
                 timestampFormatString: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
+                ),
+                timestampKey: window.localStorage.getItem(
+                    LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
             } as DecoderOptions;
             break;
