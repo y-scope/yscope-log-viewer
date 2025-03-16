@@ -437,12 +437,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (UI_STATE.READY !== uiStateRef.current) {
-            console.warn("Skipping navigation: page load in progress.");
-
-            return;
-        }
-
         if (navAction.code === ACTION_NAME.RELOAD) {
             if (null === fileSrcRef.current || null === logEventNumRef.current) {
                 throw new Error(`Unexpected fileSrc=${JSON.stringify(fileSrcRef.current)
@@ -452,6 +446,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
             });
+
+            return;
+        }
+
+        if (UI_STATE.READY !== uiStateRef.current) {
+            console.warn("Skipping navigation: page load in progress.");
 
             return;
         }
