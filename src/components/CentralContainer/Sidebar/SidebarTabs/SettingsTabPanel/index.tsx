@@ -83,8 +83,8 @@ const getConfigFormFields = () => [
     {
         helperText: "[Unstructured-IR] Format string for timestamps in Day.js format.",
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampFormatString,
+        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
         label: "Decoder: Timestamp format string",
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING,
         type: "text",
     },
     {

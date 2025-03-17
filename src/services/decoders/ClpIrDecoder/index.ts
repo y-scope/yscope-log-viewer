@@ -82,25 +82,6 @@ class ClpIrDecoder implements Decoder {
         return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
-    /**
-     * Formats unstructured log events by prepending a formatted timestamp to each message.
-     *
-     * @param logEvents
-     * @return The formatted log events.
-     */
-    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
-        for (const r of logEvents) {
-            const [
-                message, timestamp,
-            ] = r;
-
-            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
-            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
-        }
-
-        return logEvents;
-    };
-
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
     }
@@ -193,13 +174,14 @@ class ClpIrDecoder implements Decoder {
     }
 
     /**
-     * Formats all log messages to have a prepended dayjs formatted timestamp
+     * Formats all log messages by prepending a dayjs formatted timestamp to beginning or each
+     * message
      *
-     * @param results The input array of log events returned from the decodeRange
-     * @return The updated results array with prepended formatted timestamp
+     * @param logEvents
+     * @return The formatted log events.
      */
-    #formatResults (results: DecodeResult[]): Nullable<DecodeResult[]> {
-        for (const r of results) {
+    #formatResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
+        for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
@@ -208,7 +190,7 @@ class ClpIrDecoder implements Decoder {
             r[0] = formattedTimestamp + message;
         }
 
-        return results;
+        return logEvents;
     }
 }
 
