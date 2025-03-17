@@ -64,7 +64,7 @@ class OpenAiDeltaStream extends TransformStream<string, string> {
                 if ("" === chunk || OPEN_AI_STREAMING_DONE_PREFIX === chunk) {
                     return;
                 }
-                if (!chunk.startsWith(OPEN_AI_STREAMING_PREFIX)) {
+                if (false === chunk.startsWith(OPEN_AI_STREAMING_PREFIX)) {
                     return;
                 }
                 const openAiResponse: OpenAiStreamingResponse =
