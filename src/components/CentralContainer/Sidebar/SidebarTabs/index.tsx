@@ -52,7 +52,7 @@ interface SidebarTabsProps {
 const SidebarTabs = ({
     ref,
 }: SidebarTabsProps) => {
-    const {activeTabName, changeActiveTabName} = useContext(StateContext);
+    const {activeTabName, setActiveTabName} = useContext(StateContext);
 
     const handleTabButtonClick = (tabName: TAB_NAME) => {
         switch (tabName) {
@@ -64,7 +64,7 @@ const SidebarTabs = ({
                     TAB_NAME.NONE :
                     tabName;
 
-                changeActiveTabName(newTabName);
+                setActiveTabName(newTabName);
             }
         }
     };

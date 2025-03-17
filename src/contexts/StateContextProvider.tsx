@@ -50,7 +50,6 @@ import {
 import {
     EXPORT_LOGS_CHUNK_SIZE,
     getConfig,
-    setConfig,
 } from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -81,11 +80,11 @@ interface StateContextType {
     queryProgress: number;
     queryResults: QueryResults;
 
-    changeActiveTabName: (tabName: TAB_NAME) => void;
     exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
+    setActiveTabName: (tabName: TAB_NAME) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -108,11 +107,11 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
-    changeActiveTabName: () => null,
     exportLogs: () => null,
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    setActiveTabName: () => null,
     startQuery: () => null,
 });
 
@@ -277,14 +276,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
-    const changeActiveTabName = useCallback((tabName: TAB_NAME) => {
-        setActiveTabName(tabName);
-        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: tabName});
-    }, []);
-
     const handleFormatPopupPrimaryAction = useCallback(() => {
-        changeActiveTabName(TAB_NAME.SETTINGS);
-    }, [changeActiveTabName]);
+        setActiveTabName(TAB_NAME.SETTINGS);
+    }, []);
 
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
@@ -574,11 +568,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 queryResults: queryResults,
                 uiState: uiState,
 
-                changeActiveTabName: changeActiveTabName,
                 exportLogs: exportLogs,
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                setActiveTabName: setActiveTabName,
                 startQuery: startQuery,
             }}
         >

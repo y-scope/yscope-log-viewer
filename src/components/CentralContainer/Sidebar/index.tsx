@@ -6,7 +6,9 @@ import {
 } from "react";
 
 import {StateContext} from "../../../contexts/StateContextProvider";
+import {CONFIG_KEY} from "../../../typings/config";
 import {TAB_NAME} from "../../../typings/tab";
+import {setConfig} from "../../../utils/config";
 import {clamp} from "../../../utils/math";
 import ResizeHandle from "./ResizeHandle";
 import SidebarTabs from "./SidebarTabs";
@@ -44,14 +46,14 @@ const setPanelWidth = (newValue: number) => {
  * @return
  */
 const Sidebar = () => {
-    const {activeTabName, changeActiveTabName} = useContext(StateContext);
+    const {activeTabName, setActiveTabName} = useContext(StateContext);
     const tabListRef = useRef<HTMLDivElement>(null);
 
     const handleResizeHandleRelease = useCallback(() => {
         if (getPanelWidth() === tabListRef.current?.clientWidth) {
-            changeActiveTabName(TAB_NAME.NONE);
+            setActiveTabName(TAB_NAME.NONE);
         }
-    }, [changeActiveTabName]);
+    }, [setActiveTabName]);
 
     const handleResize = useCallback((resizeHandlePosition: number) => {
         if (null === tabListRef.current) {
@@ -96,8 +98,10 @@ const Sidebar = () => {
         };
     }, []);
 
-    // On `activeTabName` update, update panel width.
+    // On `activeTabName` update, update INITIAL_TAB_NAME in config and adjust panel width.
     useEffect(() => {
+        setConfig({key: CONFIG_KEY.INITIAL_TAB_NAME, value: activeTabName});
+
         if (null === tabListRef.current) {
             console.error("Unexpected null tabListRef.current");
 
