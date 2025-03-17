@@ -455,6 +455,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        if (UI_STATE.READY !== uiStateRef.current) {
+            console.warn("Skipping navigation: page load in progress.");
+
+            return;
+        }
+
         const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
