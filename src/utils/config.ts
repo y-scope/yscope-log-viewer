@@ -64,7 +64,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             // This config option is not intended for direct user input.
             break;
         case CONFIG_KEY.PAGE_SIZE:
-            if (1 >= value || MAX_PAGE_SIZE < value) {
+            if (0 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
