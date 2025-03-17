@@ -63,7 +63,7 @@ const postFormatPopup = () => {
  * @param decodedEventIdx
  * @throws {Error} if the log file manager hasn't been initialized.
  */
-const exportLogsHelper = (decodedEventIdx: number) => {
+const exportLogChunkAndScheduleNext = (decodedEventIdx: number) => {
     if (null === LOG_FILE_MANAGER) {
         throw new Error("Log file manager hasn't been initialized");
     }
@@ -77,7 +77,7 @@ const exportLogsHelper = (decodedEventIdx: number) => {
         }
     );
     defer(() => {
-        exportLogsHelper(decodedEventIdx + EXPORT_LOGS_CHUNK_SIZE);
+        exportLogChunkAndScheduleNext(decodedEventIdx + EXPORT_LOGS_CHUNK_SIZE);
     });
 };
 
@@ -91,7 +91,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     try {
         switch (code) {
             case WORKER_REQ_CODE.EXPORT_LOGS: {
-                exportLogsHelper(0);
+                exportLogChunkAndScheduleNext(0);
                 break;
             }
             case WORKER_REQ_CODE.LOAD_FILE: {

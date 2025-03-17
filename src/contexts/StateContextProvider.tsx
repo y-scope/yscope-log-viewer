@@ -10,10 +10,7 @@ import React, {
 
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import LogExportManager, {
-    EXPORT_LOGS_PROGRESS_VALUE_MAX,
-    EXPORT_LOGS_PROGRESS_VALUE_MIN,
-} from "../services/LogExportManager";
+import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {
@@ -284,9 +281,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
-                    if (EXPORT_LOGS_PROGRESS_VALUE_MAX === progress) {
-                        setUiState(UI_STATE.READY);
-                    }
                 }
                 break;
             case WORKER_RESP_CODE.FORMAT_POPUP:
@@ -381,7 +375,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        setUiState(UI_STATE.READY);
         setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),

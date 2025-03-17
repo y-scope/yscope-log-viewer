@@ -192,7 +192,7 @@ class LogFileManager {
      * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
      *
      * @param beginLogEventIdx
-     * @return An object containing the log events as a string.
+     * @return The log events as a string.
      * @throws {Error} if any error occurs when decoding the log events.
      */
     loadChunk (beginLogEventIdx: number): string {
