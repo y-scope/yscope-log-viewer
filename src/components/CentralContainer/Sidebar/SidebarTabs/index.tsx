@@ -1,5 +1,5 @@
 import {
-    forwardRef,
+    Ref,
     useContext,
 } from "react";
 
@@ -17,9 +17,9 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import {StateContext} from "../../../../contexts/StateContextProvider";
 import {TAB_NAME} from "../../../../typings/tab";
 import {openInNewTab} from "../../../../utils/url";
-import SettingsModal from "../../../modals/SettingsModal";
 import FileInfoTabPanel from "./FileInfoTabPanel";
 import SearchTabPanel from "./SearchTabPanel";
+import SettingsTabPanel from "./SettingsTabPanel";
 import TabButton from "./TabButton";
 
 import "./index.css";
@@ -39,84 +39,73 @@ const TABS_INFO_LIST: Readonly<Array<{
 ]);
 
 interface SidebarTabsProps {
-    activeTabName: TAB_NAME;
-    onActiveTabNameChange: (newValue: TAB_NAME) => void;
+    ref: Ref<HTMLDivElement>;
 }
 
 /**
  * Displays a set of tabs in a vertical orientation.
  *
- * @param tabListRef Reference object used to access the TabList DOM element.
+ * @param props
+ * @param props.ref Reference object used to access the TabList DOM element.
  * @return
  */
-const SidebarTabs = forwardRef<HTMLDivElement, SidebarTabsProps>((
-    {
-        activeTabName,
-        onActiveTabNameChange,
-    },
-    tabListRef
-) => {
-    const {isSettingsModalOpen, setIsSettingsModalOpen} = useContext(StateContext);
-
-    const handleSettingsModalClose = () => {
-        setIsSettingsModalOpen(false);
-    };
+const SidebarTabs = ({
+    ref,
+}: SidebarTabsProps) => {
+    const {activeTabName, setActiveTabName} = useContext(StateContext);
 
     const handleTabButtonClick = (tabName: TAB_NAME) => {
         switch (tabName) {
-            case TAB_NAME.SETTINGS:
-                setIsSettingsModalOpen(true);
-                break;
             case TAB_NAME.DOCUMENTATION:
                 openInNewTab(DOCUMENTATION_URL);
                 break;
-            default:
-                onActiveTabNameChange(tabName);
+            default: {
+                const newTabName = (activeTabName === tabName) ?
+                    TAB_NAME.NONE :
+                    tabName;
+
+                setActiveTabName(newTabName);
+            }
         }
     };
 
     return (
-        <>
-            <Tabs
-                className={"sidebar-tabs"}
-                orientation={"vertical"}
-                value={activeTabName}
-                variant={"plain"}
+        <Tabs
+            className={"sidebar-tabs"}
+            orientation={"vertical"}
+            value={activeTabName}
+            variant={"plain"}
+        >
+            <TabList
+                ref={ref}
+                size={"lg"}
             >
-                <TabList
-                    ref={tabListRef}
-                    size={"lg"}
-                >
-                    {TABS_INFO_LIST.map(({tabName, Icon}) => (
-                        <TabButton
-                            Icon={Icon}
-                            key={tabName}
-                            tabName={tabName}
-                            onTabButtonClick={handleTabButtonClick}/>
-                    ))}
-
-                    {/* Forces the help and settings tabs to the bottom of the sidebar. */}
-                    <div className={"sidebar-tab-list-spacing"}/>
-
+                {TABS_INFO_LIST.map(({tabName, Icon}) => (
                     <TabButton
-                        Icon={HelpOutlineIcon}
-                        tabName={TAB_NAME.DOCUMENTATION}
+                        Icon={Icon}
+                        key={tabName}
+                        tabName={tabName}
                         onTabButtonClick={handleTabButtonClick}/>
+                ))}
 
-                    <TabButton
-                        Icon={SettingsOutlinedIcon}
-                        tabName={TAB_NAME.SETTINGS}
-                        onTabButtonClick={handleTabButtonClick}/>
-                </TabList>
-                <FileInfoTabPanel/>
-                <SearchTabPanel/>
-            </Tabs>
-            <SettingsModal
-                isOpen={isSettingsModalOpen}
-                onClose={handleSettingsModalClose}/>
-        </>
+                {/* Forces the help and settings tabs to the bottom of the sidebar. */}
+                <div className={"sidebar-tab-list-spacing"}/>
+
+                <TabButton
+                    Icon={HelpOutlineIcon}
+                    tabName={TAB_NAME.DOCUMENTATION}
+                    onTabButtonClick={handleTabButtonClick}/>
+
+                <TabButton
+                    Icon={SettingsOutlinedIcon}
+                    tabName={TAB_NAME.SETTINGS}
+                    onTabButtonClick={handleTabButtonClick}/>
+            </TabList>
+            <FileInfoTabPanel/>
+            <SearchTabPanel/>
+            <SettingsTabPanel/>
+        </Tabs>
     );
-});
+};
 
-SidebarTabs.displayName = "SidebarTabs";
 export default SidebarTabs;

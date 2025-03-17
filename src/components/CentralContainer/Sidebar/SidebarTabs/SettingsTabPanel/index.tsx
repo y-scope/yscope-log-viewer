@@ -1,37 +1,41 @@
 import React, {
-    forwardRef,
     useCallback,
     useContext,
 } from "react";
 
 import {
+    Box,
     Button,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
+    Divider,
     FormControl,
     FormHelperText,
     FormLabel,
     Input,
     Link,
-    ModalDialog,
 } from "@mui/joy";
 
-import {NotificationContext} from "../../../contexts/NotificationContextProvider";
-import {StateContext} from "../../../contexts/StateContextProvider";
-import {Nullable} from "../../../typings/common";
+import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
+import {StateContext} from "../../../../../contexts/StateContextProvider";
+import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
     LOCAL_STORAGE_KEY,
-} from "../../../typings/config";
-import {LOG_LEVEL} from "../../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
-import {ACTION_NAME} from "../../../utils/actions";
+} from "../../../../../typings/config";
+import {LOG_LEVEL} from "../../../../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../../../../typings/notifications";
+import {
+    TAB_DISPLAY_NAMES,
+    TAB_NAME,
+} from "../../../../../typings/tab";
+import {ACTION_NAME} from "../../../../../utils/actions";
 import {
     getConfig,
     setConfig,
-} from "../../../utils/config";
+} from "../../../../../utils/config";
+import CustomTabPanel from "../CustomTabPanel";
 import ThemeSwitchFormField from "./ThemeSwitchFormField";
+
+import "./index.css";
 
 
 /**
@@ -58,22 +62,22 @@ const getConfigFormFields = () => [
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
+        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
         label: "Decoder: Format string",
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
         type: "text",
     },
     {
         helperText: "[JSON] Key to extract the log level from.",
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
+        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
         label: "Decoder: Log level key",
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
         type: "text",
     },
     {
         helperText: "[JSON] Key to extract the log timestamp from.",
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
+        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
         label: "Decoder: Timestamp key",
-        name: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
         type: "text",
     },
     {
@@ -86,8 +90,8 @@ const getConfigFormFields = () => [
     {
         helperText: "Number of log messages to display per page.",
         initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
+        key: LOCAL_STORAGE_KEY.PAGE_SIZE,
         label: "View: Page size",
-        name: LOCAL_STORAGE_KEY.PAGE_SIZE,
         type: "number",
     },
 ];
@@ -104,13 +108,13 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 };
 
 /**
- * Renders a settings dialog for configurations.
+ * Displays a setting tab panel for configurations.
  *
  * @return
  */
-const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
+const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {loadPageByAction, setIsSettingsModalOpen} = useContext(StateContext);
+    const {loadPageByAction} = useContext(StateContext);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -144,67 +148,56 @@ const SettingsDialog = forwardRef<HTMLFormElement>((_, ref) => {
             });
         } else {
             loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
-            setIsSettingsModalOpen(false);
         }
     }, [
         loadPageByAction,
         postPopUp,
-        setIsSettingsModalOpen,
     ]);
 
     return (
-        <form
-            ref={ref}
-            tabIndex={-1}
-            onReset={handleConfigFormReset}
-            onSubmit={handleConfigFormSubmit}
+        <CustomTabPanel
+            tabName={TAB_NAME.SETTINGS}
+            title={TAB_DISPLAY_NAMES[TAB_NAME.SETTINGS]}
         >
-            <ModalDialog
-                minWidth={"md"}
-                size={"lg"}
+            <form
+                className={"settings-tab-container"}
+                tabIndex={-1}
+                onReset={handleConfigFormReset}
+                onSubmit={handleConfigFormSubmit}
             >
-                <DialogTitle className={"settings-dialog-title"}>
-                    Settings
-                </DialogTitle>
-                <DialogContent>
+                <Box className={"settings-form-fields-container"}>
                     <ThemeSwitchFormField/>
                     {getConfigFormFields().map((field, index) => (
-                        <FormControl
-                            className={"config-form-control"}
-                            key={index}
-                        >
+                        <FormControl key={index}>
                             <FormLabel>
                                 {field.label}
                             </FormLabel>
                             <Input
                                 defaultValue={field.initialValue}
-                                name={field.name}
+                                name={field.key}
                                 type={field.type}/>
                             <FormHelperText>
                                 {field.helperText}
                             </FormHelperText>
                         </FormControl>
                     ))}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color={"primary"}
-                        type={"submit"}
-                    >
-                        Apply
-                    </Button>
-                    <Button
-                        color={"neutral"}
-                        type={"reset"}
-                    >
-                        Reset Default
-                    </Button>
-                </DialogActions>
-            </ModalDialog>
-        </form>
+                </Box>
+                <Divider/>
+                <Button
+                    color={"primary"}
+                    type={"submit"}
+                >
+                    Apply
+                </Button>
+                <Button
+                    color={"neutral"}
+                    type={"reset"}
+                >
+                    Reset Default
+                </Button>
+            </form>
+        </CustomTabPanel>
     );
-});
+};
 
-SettingsDialog.displayName = "SettingsDialog";
-
-export default SettingsDialog;
+export default SettingsTabPanel;

@@ -82,6 +82,25 @@ class ClpIrDecoder implements Decoder {
         return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
+    /**
+     * Formats unstructured log events by prepending a formatted timestamp to each message.
+     *
+     * @param logEvents
+     * @return The formatted log events.
+     */
+    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
+        for (const r of logEvents) {
+            const [
+                message, timestamp,
+            ] = r;
+
+            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
+            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+        }
+
+        return logEvents;
+    };
+
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
     }
@@ -112,6 +131,15 @@ class ClpIrDecoder implements Decoder {
         return true;
     }
 
+    /**
+     * See {@link Decoder.decodeRange}.
+     *
+     * @param beginIdx
+     * @param endIdx
+     * @param useFilter
+     * @return
+     * @throws {Error} if the formatter is not set for structured logs.
+     */
     decodeRange (
         beginIdx: number,
         endIdx: number,
@@ -130,7 +158,7 @@ class ClpIrDecoder implements Decoder {
             if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
                 // eslint-disable-next-line no-warning-comments
                 // TODO: Revisit when we allow displaying structured logs without a formatter.
-                console.error("Formatter is not set for structured logs.");
+                throw new Error("Formatter is not set for structured logs.");
             }
 
             return this.#formatResults(results);
