@@ -14,7 +14,7 @@ interface OpenAiStreamingResponseChoice {
 
 interface OpenAiStreamingResponse {
     id: string;
-    objet: string;
+    object: string;
     model: string;
     created: number;
     choices: OpenAiStreamingResponseChoice[];

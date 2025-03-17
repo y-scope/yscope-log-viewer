@@ -64,7 +64,7 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             // This config option is not intended for direct user input.
             break;
         case CONFIG_KEY.PAGE_SIZE:
-            if (0 >= value || MAX_PAGE_SIZE < value) {
+            if (1 >= value || MAX_PAGE_SIZE < value) {
                 result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
@@ -180,7 +180,7 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                 ),
                 eventNum: Number(window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM
-                ) ?? "2"),
+                ) ?? "11"),
                 prompt: window.localStorage.getItem(
                     LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT
                 ),

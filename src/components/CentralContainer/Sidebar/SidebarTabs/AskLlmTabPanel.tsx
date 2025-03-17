@@ -76,6 +76,7 @@ const AskLlmTabPanel = () => {
             );
             break;
         default:
+            // unreachable
             break;
     }
 

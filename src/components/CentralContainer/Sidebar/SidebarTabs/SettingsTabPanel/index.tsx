@@ -90,22 +90,22 @@ const getConfigFormFields = () => [
     {
         helperText: "The endpoint for accessing the LLM model.",
         initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).endpoint,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT,
         label: "LLM: Endpoint",
-        name: LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT,
         type: "string",
     },
     {
         helperText: "The number of events to send to the LLM.",
         initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).eventNum,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM,
         label: "LLM: Number of events",
-        name: LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM,
         type: "number",
     },
     {
         helperText: "The prompt to be used with the LLM models.",
         initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).prompt,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT,
         label: "LLM: Prompt",
-        name: LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT,
         type: "string",
     },
 ];

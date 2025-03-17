@@ -1,4 +1,3 @@
-import React from "react";
 import Markdown from "react-markdown";
 
 import {
@@ -7,6 +6,7 @@ import {
     Typography,
     TypographyProps,
 } from "@mui/joy";
+import rehypeSanitize from "rehype-sanitize";
 
 import "./LlmMessageListItem.css";
 import "github-markdown-css";
@@ -59,7 +59,9 @@ const LlmMessageListItem = ({content,
                             LLM_REQUEST_STYLES :
                             null)}}
                 >
-                    <Markdown>
+                    <Markdown
+                        rehypePlugins={[rehypeSanitize]}
+                    >
                         {content + (isStreaming ?
                             "\u26AB" :
                             "")}
