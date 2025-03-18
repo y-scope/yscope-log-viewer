@@ -37,6 +37,23 @@ import {
 } from "./utils";
 
 
+interface LogFileManagerConstructorParams {
+    decoder: Decoder;
+    fileName: string;
+    onDiskFileSizeInBytes: number;
+    pageSize: number;
+    onExportChunk: (logs: string) => void;
+    onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
+}
+
+interface LogFileManagerParams {
+    fileSrc: FileSrcType;
+    pageSize: number;
+    decoderOptions: DecoderOptions;
+    onExportChunk: (logs: string) => void;
+    onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
+}
+
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
 /**
@@ -53,6 +70,8 @@ class LogFileManager {
 
     readonly #onDiskFileSizeInBytes: number;
 
+    readonly #onExportChunk: (logs: string) => void;
+
     readonly #onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
 
     #decoder: Decoder;
@@ -68,19 +87,22 @@ class LogFileManager {
      * @param params.fileName
      * @param params.onDiskFileSizeInBytes
      * @param params.pageSize Page size for setting up pagination.
+     * @param params.onExportChunk
      * @param params.onQueryResults
      */
-    constructor ({decoder, fileName, onDiskFileSizeInBytes, pageSize, onQueryResults}: {
-        decoder: Decoder;
-        fileName: string;
-        onDiskFileSizeInBytes: number;
-        pageSize: number;
-        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
-    }) {
+    constructor ({
+        decoder,
+        fileName,
+        onDiskFileSizeInBytes,
+        pageSize,
+        onExportChunk,
+        onQueryResults,
+    }: LogFileManagerConstructorParams) {
         this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
         this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
+        this.#onExportChunk = onExportChunk;
         this.#onQueryResults = onQueryResults;
 
         // Build index for the entire file.
@@ -108,19 +130,22 @@ class LogFileManager {
     /**
      * Creates a new LogFileManager.
      *
-     * @param fileSrc The source of the file to load. This can be a string representing a URL, or a
-     * File object.
-     * @param pageSize Page size for setting up pagination.
-     * @param decoderOptions Initial decoder options.
-     * @param onQueryResults
+     * @param params
+     * @param params.fileSrc The source of the file to load.
+     * This can be a string representing a URL, or a File object.
+     * @param params.pageSize Page size for setting up pagination.
+     * @param params.decoderOptions Initial decoder options.
+     * @param params.onExportChunk
+     * @param params.onQueryResults
      * @return A Promise that resolves to the created LogFileManager instance.
      */
-    static async create (
-        fileSrc: FileSrcType,
-        pageSize: number,
-        decoderOptions: DecoderOptions,
-        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
-    ): Promise<LogFileManager> {
+    static async create ({
+        fileSrc,
+        pageSize,
+        decoderOptions,
+        onExportChunk,
+        onQueryResults,
+    }: LogFileManagerParams): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
@@ -130,6 +155,7 @@ class LogFileManager {
             onDiskFileSizeInBytes: fileData.length,
             pageSize: pageSize,
 
+            onExportChunk: onExportChunk,
             onQueryResults: onQueryResults,
         });
     }
@@ -187,15 +213,14 @@ class LogFileManager {
     }
 
     /**
-     * Loads log events in the range
+     * Loads log events in the range and sends them to the renderer. The range is defined as
      * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
      * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
      *
      * @param beginLogEventIdx
-     * @return The log events as a string.
      * @throws {Error} if any error occurs when decoding the log events.
      */
-    loadChunk (beginLogEventIdx: number): string {
+    exportChunkAndScheduleNext (beginLogEventIdx: number) {
         const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
         const results = this.#decoder.decodeRange(
             beginLogEventIdx,
@@ -210,8 +235,13 @@ class LogFileManager {
         }
 
         const messages = results.map(([msg]) => msg);
+        this.#onExportChunk(messages.join(""));
 
-        return messages.join("");
+        if (endLogEventIdx < this.#numEvents) {
+            defer(() => {
+                this.exportChunkAndScheduleNext(endLogEventIdx);
+            });
+        }
     }
 
     /**
@@ -324,45 +354,6 @@ class LogFileManager {
     }
 
     /**
-     * Processes decoded log events and populates the results map with matched entries.
-     *
-     * @param decodedEvents
-     * @param queryRegex
-     * @param results The map to store query results.
-     */
-    #processQueryDecodedEvents (
-        decodedEvents: DecodeResult[],
-        queryRegex: RegExp,
-        results: QueryResults
-    ): void {
-        for (const [message, , , logEventNum] of decodedEvents) {
-            const matchResult = message.match(queryRegex);
-            if (null === matchResult || "number" !== typeof matchResult.index) {
-                continue;
-            }
-
-            const pageNum = Math.ceil(logEventNum / this.#pageSize);
-            if (false === results.has(pageNum)) {
-                results.set(pageNum, []);
-            }
-
-            results.get(pageNum)?.push({
-                logEventNum: logEventNum,
-                message: message,
-                matchRange: [
-                    matchResult.index,
-                    matchResult.index + matchResult[0].length,
-                ],
-            });
-
-            this.#queryCount++;
-            if (this.#queryCount >= MAX_QUERY_RESULT_COUNT) {
-                break;
-            }
-        }
-    }
-
-    /**
      * Queries a chunk of log events, sends the results, and schedules the next chunk query if more
      * log events remain.
      *
@@ -416,6 +407,45 @@ class LogFileManager {
             defer(() => {
                 this.#queryChunkAndScheduleNext(queryId, chunkEndIdx, queryRegex);
             });
+        }
+    }
+
+    /**
+     * Processes decoded log events and populates the results map with matched entries.
+     *
+     * @param decodedEvents
+     * @param queryRegex
+     * @param results The map to store query results.
+     */
+    #processQueryDecodedEvents (
+        decodedEvents: DecodeResult[],
+        queryRegex: RegExp,
+        results: QueryResults
+    ): void {
+        for (const [message, , , logEventNum] of decodedEvents) {
+            const matchResult = message.match(queryRegex);
+            if (null === matchResult || "number" !== typeof matchResult.index) {
+                continue;
+            }
+
+            const pageNum = Math.ceil(logEventNum / this.#pageSize);
+            if (false === results.has(pageNum)) {
+                results.set(pageNum, []);
+            }
+
+            results.get(pageNum)?.push({
+                logEventNum: logEventNum,
+                message: message,
+                matchRange: [
+                    matchResult.index,
+                    matchResult.index + matchResult[0].length,
+                ],
+            });
+
+            this.#queryCount++;
+            if (this.#queryCount >= MAX_QUERY_RESULT_COUNT) {
+                break;
+            }
         }
     }
 

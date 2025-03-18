@@ -11,8 +11,6 @@ import {
     WORKER_RESP_CODE,
     WorkerResp,
 } from "../typings/worker";
-import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
-import {defer} from "../utils/time";
 import LogFileManager from "./LogFileManager";
 
 
@@ -50,35 +48,20 @@ const onQueryResults = (queryProgress: number, queryResults: QueryResults) => {
 };
 
 /**
+ * Post a response for a chunk of exported logs.
+ *
+ * @param logs
+ */
+const onExportChunk = (logs: string) => {
+    postResp(WORKER_RESP_CODE.CHUNK_DATA, {logs});
+};
+
+/**
  * Sends a message to the renderer to open a pop-up which prompts user to replace the default
  * format string.
  */
 const postFormatPopup = () => {
     postResp(WORKER_RESP_CODE.FORMAT_POPUP, null);
-};
-
-/**
- * Exports current log chunk to string, and schedule the next chunk of logs to be exported.
- *
- * @param decodedEventIdx
- * @throws {Error} if the log file manager hasn't been initialized.
- */
-const exportLogChunkAndScheduleNext = (decodedEventIdx: number) => {
-    if (null === LOG_FILE_MANAGER) {
-        throw new Error("Log file manager hasn't been initialized");
-    }
-    if (decodedEventIdx >= LOG_FILE_MANAGER.numEvents) {
-        return;
-    }
-    postResp(
-        WORKER_RESP_CODE.CHUNK_DATA,
-        {
-            logs: LOG_FILE_MANAGER.loadChunk(decodedEventIdx),
-        }
-    );
-    defer(() => {
-        exportLogChunkAndScheduleNext(decodedEventIdx + EXPORT_LOGS_CHUNK_SIZE);
-    });
 };
 
 // eslint-disable-next-line no-warning-comments
@@ -91,16 +74,20 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
     try {
         switch (code) {
             case WORKER_REQ_CODE.EXPORT_LOGS: {
-                exportLogChunkAndScheduleNext(0);
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+                LOG_FILE_MANAGER.exportChunkAndScheduleNext(0);
                 break;
             }
             case WORKER_REQ_CODE.LOAD_FILE: {
-                LOG_FILE_MANAGER = await LogFileManager.create(
-                    args.fileSrc,
-                    args.pageSize,
-                    args.decoderOptions,
-                    onQueryResults
-                );
+                LOG_FILE_MANAGER = await LogFileManager.create({
+                    decoderOptions: args.decoderOptions,
+                    fileSrc: args.fileSrc,
+                    onExportChunk: onExportChunk,
+                    onQueryResults: onQueryResults,
+                    pageSize: args.pageSize,
+                });
 
                 postResp(WORKER_RESP_CODE.LOG_FILE_INFO, {
                     fileName: LOG_FILE_MANAGER.fileName,
