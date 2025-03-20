@@ -2,7 +2,7 @@ import clpFfiJsModuleInit, {
     ClpStreamReader,
     MainModule,
 } from "clp-ffi-js";
-import dayjs, {Dayjs} from "dayjs";
+import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
 import {
@@ -142,7 +142,7 @@ class ClpIrDecoder implements Decoder {
                 throw new Error("Formatter is not set for structured logs.");
             }
 
-            return this.#formatResults(results);
+            return this.#formatUnstructuredResults(results);
         }
 
         for (const r of results) {
@@ -174,19 +174,21 @@ class ClpIrDecoder implements Decoder {
     }
 
     /**
-     * Formats all log messages by prepending a dayjs formatted timestamp to beginning or each
-     * message
+     * Formats unstructured log messages by prepending a formatted timestamp to each message
      *
      * @param logEvents
      * @return The formatted log events.
      */
-    #formatResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
+    #formatUnstructuredResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
         for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
 
-            const formattedTimestamp = dayjs(timestamp).format(this.#timestampFormatString);
+            const formattedTimestamp = convertToDayjsTimestamp(timestamp).format(
+                this.#timestampFormatString
+            );
+
             r[0] = formattedTimestamp + message;
         }
 
