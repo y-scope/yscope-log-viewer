@@ -34,6 +34,12 @@ const VALID_DECODER_OPTIONS: DecoderOptions = {
  */
 const VALID_PAGE_SIZE = 5000;
 
+
+/**
+ * Sample page size that is expected to pass validation.
+ */
+const VALID_LLM_EVENT_NUM = 3;
+
 /**
  * Runs a set of negative config test cases using the given function. Prevents duplication of
  * negative test cases for `setConfig` and `testConfig` functions.
@@ -91,6 +97,18 @@ const runNegativeCases = (func: (input: ConfigUpdate) => Nullable<string>) => {
 
         consoleSpy.mockRestore();
     });
+
+    it("should return an error message for invalid llm event num", () => {
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
+        const result = func({
+            key: CONFIG_KEY.LLM_OPTIONS,
+            value: {endpoint: "", eventNum: -1, prompt: ""},
+        });
+
+        expect(result).not.toBeNull();
+        consoleSpy.mockRestore();
+    });
 };
 
 describe("testConfig", () => {
@@ -120,6 +138,15 @@ describe("testConfig", () => {
         const result = testConfig({
             key: CONFIG_KEY.PAGE_SIZE,
             value: 1,
+        });
+
+        expect(result).toBeNull();
+    });
+
+    it("should return null for valid llm event number", () => {
+        const result = testConfig({
+            key: CONFIG_KEY.LLM_OPTIONS,
+            value: {endpoint: "", eventNum: 1, prompt: ""},
         });
 
         expect(result).toBeNull();
@@ -166,6 +193,18 @@ describe("setConfig", () => {
             key: CONFIG_KEY.THEME,
             value: THEME_NAME.SYSTEM,
         })).toThrow(UNMANAGED_THEME_THROWABLE);
+    });
+
+    it("should store llm options in localStorage", () => {
+        const result = setConfig({
+            key: CONFIG_KEY.LLM_OPTIONS,
+            value: {endpoint: "", eventNum: VALID_LLM_EVENT_NUM, prompt: ""},
+        });
+
+        expect(result).toBeNull();
+        expect(localStorage.getItem(LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM)).toBe(
+            VALID_LLM_EVENT_NUM.toString()
+        );
     });
 });
 

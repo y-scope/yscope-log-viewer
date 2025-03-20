@@ -59,6 +59,7 @@ import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
 } from "../utils/data";
+import {requestLlm} from "../utils/llm";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import {
@@ -89,6 +90,8 @@ interface StateContextType {
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
+    requestLlmWithLoadRange: (beginLogEventNum: number,
+        endLogEventNum:number) => null;
     setActiveTabName: (tabName: TAB_NAME) => void;
     setLlmState: (llmState: LlmState) => void;
     startQuery: (queryArgs: QueryArgs) => void;
@@ -118,6 +121,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    requestLlmWithLoadRange: () => null,
     setActiveTabName: () => null,
     setLlmState: () => null,
     startQuery: () => null,
@@ -278,6 +282,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
+    const llmStateRef = useRef(llmState);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -372,6 +377,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         return v;
                     });
                 }
+                break;
+            case WORKER_RESP_CODE.RANGE_DATA:
+                requestLlm(args.logs, llmStateRef.current, setLlmState);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -492,10 +500,32 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         });
     }, []);
 
+    const requestLlmWithLoadRange =
+     useCallback((
+         beginLogEventNum: number,
+         endLogEventNum:number
+     ) => {
+         if (null === mainWorkerRef.current) {
+             return;
+         }
+         workerPostReq(
+             mainWorkerRef.current,
+             WORKER_REQ_CODE.LOAD_RANGE,
+             {beginLogEventIdx: beginLogEventNum,
+                 endLogEventIdx: endLogEventNum}
+         );
+     }, []);
+
+
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    // Synchronize `llmStateRef` with `llmState`.
+    useEffect(() => {
+        llmStateRef.current = llmState;
+    }, [llmState]);
 
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
@@ -588,6 +618,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                requestLlmWithLoadRange: requestLlmWithLoadRange,
                 setActiveTabName: setActiveTabName,
                 setLlmState: setLlmState,
                 startQuery: startQuery,

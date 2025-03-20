@@ -188,20 +188,21 @@ class LogFileManager {
 
     /**
      * Loads log events in the range
-     * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
-     * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
+     * [`beginLogEventIdx`, `endLogEventIdx`).
      *
      * @param beginLogEventIdx
+     * @param endLogEventIdx
      * @return An object containing the log events as a string.
      * @throws {Error} if any error occurs when decoding the log events.
      */
-    loadChunk (beginLogEventIdx: number): {
+    loadRange (beginLogEventIdx: number, endLogEventIdx: number): {
         logs: string;
     } {
-        const endLogEventIdx = Math.min(beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE, this.#numEvents);
+        const validBeginLogEventIdx = Math.max(0, beginLogEventIdx);
+        const validEndLogEventIdx = Math.min(endLogEventIdx, this.#numEvents);
         const results = this.#decoder.decodeRange(
-            beginLogEventIdx,
-            endLogEventIdx,
+            validBeginLogEventIdx,
+            validEndLogEventIdx,
             false,
         );
 
@@ -216,6 +217,21 @@ class LogFileManager {
         return {
             logs: messages.join(""),
         };
+    }
+
+    /**
+     * Loads log events in the range
+     * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
+     * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
+     *
+     * @param beginLogEventIdx
+     * @return An object containing the log events as a string.
+     * @throws {Error} if any error occurs when decoding the log events.
+     */
+    loadChunk (beginLogEventIdx: number): {
+        logs: string;
+    } {
+        return this.loadRange(beginLogEventIdx, beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE);
     }
 
     /**

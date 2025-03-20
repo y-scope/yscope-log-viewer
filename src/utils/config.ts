@@ -63,15 +63,15 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
         case CONFIG_KEY.INITIAL_TAB_NAME:
             // This config option is not intended for direct user input.
             break;
-        case CONFIG_KEY.PAGE_SIZE:
-            if (0 >= value || MAX_PAGE_SIZE < value) {
-                result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
-            }
-            break;
         case CONFIG_KEY.LLM_OPTIONS:
             if (0 > value.eventNum || MAX_LLM_EVENT_NUM < value.eventNum) {
                 result = "The number of events must be greater than or equal to 1 and less than " +
                     `${MAX_LLM_EVENT_NUM + 1}.`;
+            }
+            break;
+        case CONFIG_KEY.PAGE_SIZE:
+            if (0 >= value || MAX_PAGE_SIZE < value) {
+                result = `Page size must be greater than 0 and less than ${MAX_PAGE_SIZE + 1}.`;
             }
             break;
         case CONFIG_KEY.THEME:

@@ -107,6 +107,15 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                     LOG_FILE_MANAGER.loadPage(args.cursor)
                 );
                 break;
+            case WORKER_REQ_CODE.LOAD_RANGE:
+                if (null === LOG_FILE_MANAGER) {
+                    throw new Error("Log file manager hasn't been initialized");
+                }
+                postResp(
+                    WORKER_RESP_CODE.RANGE_DATA,
+                    LOG_FILE_MANAGER.loadRange(args.beginLogEventIdx, args.endLogEventIdx)
+                );
+                break;
             case WORKER_REQ_CODE.SET_FILTER:
                 if (null === LOG_FILE_MANAGER) {
                     throw new Error("Log file manager hasn't been initialized");

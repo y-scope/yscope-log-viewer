@@ -1,4 +1,5 @@
 /* eslint max-lines: ["error", 400] */
+/* eslint-disable max-params */
 import {
     useCallback,
     useContext,
@@ -132,12 +133,14 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
     editor.updateOptions({wordWrap: newWordWrap});
 };
 
+
 /**
  * Handles ask llm action in the editor.
  *
  * @param editor
  * @param beginLineNumToLogEventNum
  * @param llmState
+ * @param requestLlmWithLoadRange
  * @param setLlmState
  * @throws {Error} if the editor's model cannot be retrieved.
  */
@@ -145,6 +148,7 @@ const handleAskLlmAction = (
     editor: monaco.editor.IStandaloneCodeEditor,
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap,
     llmState: LlmState,
+    requestLlmWithLoadRange: ((beginLogEventNum:number, endLogEventNum:number) =>void),
     setLlmState: SetLlmStateCallback,
 ) => {
     const selection = editor.getSelection();
@@ -154,6 +158,7 @@ const handleAskLlmAction = (
     let logText: string | null;
     if (selection.startLineNumber === selection.endLineNumber &&
         selection.startColumn === selection.endColumn) {
+        // no selected text
         const {eventNum} = getConfig(CONFIG_KEY.LLM_OPTIONS);
         const eventBefore = Math.floor(eventNum / 2);
         const selectedLogEventNum = getSelectedLogEventNum(
@@ -164,27 +169,20 @@ const handleAskLlmAction = (
         if (null === selectedLogEventNum) {
             return;
         }
+        const beginLogEventNum =
+            selectedLogEventNum - eventBefore;
+        const endLogEventNum =
+            selectedLogEventNum - eventBefore + eventNum;
 
-        const startLineNumber: number = getMapKeyByValue(
-            beginLineNumToLogEventNum,
-            selectedLogEventNum - eventBefore
-        ) ?? 0;
-        const endLineNumber: number = getMapKeyByValue(
-            beginLineNumToLogEventNum,
-            selectedLogEventNum - eventBefore + eventNum
-        ) ?? Infinity;
-
-        logText = editor.getModel()?.getValueInRange({startLineNumber: startLineNumber,
-            startColumn: 0,
-            endLineNumber: endLineNumber - 1,
-            endColumn: Infinity}) ?? null;
+        requestLlmWithLoadRange(beginLogEventNum - 1, endLogEventNum - 1);
     } else {
+        // has selected text
         logText = editor.getModel()?.getValueInRange(selection) ?? null;
+        if (null === logText) {
+            throw new Error("Unable to get the text model.");
+        }
+        requestLlm(logText, llmState, setLlmState);
     }
-    if (null === logText) {
-        throw new Error("Unable to get the text model.");
-    }
-    requestLlm(logText, llmState, setLlmState);
 };
 
 /**
@@ -200,6 +198,7 @@ const Editor = () => {
         llmState,
         logData,
         loadPageByAction,
+        requestLlmWithLoadRange,
         setLlmState} = useContext(StateContext);
     const {logEventNum} = useContext(UrlContext);
 
@@ -245,6 +244,7 @@ const Editor = () => {
                     editor,
                     beginLineNumToLogEventNumRef.current,
                     llmStateRef.current,
+                    requestLlmWithLoadRange,
                     setLlmState,
                 );
                 break;
@@ -252,6 +252,7 @@ const Editor = () => {
                 break;
         }
     }, [loadPageByAction,
+        requestLlmWithLoadRange,
         setLlmState]);
 
     /**
