@@ -37,23 +37,6 @@ import {
 } from "./utils";
 
 
-interface LogFileManagerConstructorParams {
-    decoder: Decoder;
-    fileName: string;
-    onDiskFileSizeInBytes: number;
-    pageSize: number;
-    onExportChunk: (logs: string) => void;
-    onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
-}
-
-interface LogFileManagerParams {
-    fileSrc: FileSrcType;
-    pageSize: number;
-    decoderOptions: DecoderOptions;
-    onExportChunk: (logs: string) => void;
-    onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
-}
-
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
 /**
@@ -97,7 +80,14 @@ class LogFileManager {
         pageSize,
         onExportChunk,
         onQueryResults,
-    }: LogFileManagerConstructorParams) {
+    }: {
+        decoder: Decoder;
+        fileName: string;
+        onDiskFileSizeInBytes: number;
+        pageSize: number;
+        onExportChunk: (logs: string) => void;
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
+    }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
         this.#pageSize = pageSize;
@@ -145,7 +135,13 @@ class LogFileManager {
         decoderOptions,
         onExportChunk,
         onQueryResults,
-    }: LogFileManagerParams): Promise<LogFileManager> {
+    }: {
+        fileSrc: FileSrcType;
+        pageSize: number;
+        decoderOptions: DecoderOptions;
+        onExportChunk: (logs: string) => void;
+        onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
+    }): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
         const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
 
