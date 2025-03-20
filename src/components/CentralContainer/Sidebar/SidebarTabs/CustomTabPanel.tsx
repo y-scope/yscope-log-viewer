@@ -38,6 +38,7 @@ const CustomTabPanel = ({
     return (
         <TabPanel
             className={"sidebar-tab-panel"}
+            sx={{width: "0"}}
             value={tabName}
         >
             <Box className={"sidebar-tab-panel-container"}>

@@ -87,6 +87,27 @@ const getConfigFormFields = () => [
         label: "View: Page size",
         type: "number",
     },
+    {
+        helperText: "The endpoint for accessing the LLM model.",
+        initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).endpoint,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT,
+        label: "LLM: Endpoint",
+        type: "string",
+    },
+    {
+        helperText: "The number of events to send to the LLM.",
+        initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).eventNum,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM,
+        label: "LLM: Number of events",
+        type: "number",
+    },
+    {
+        helperText: "The prompt to be used with the LLM models.",
+        initialValue: getConfig(CONFIG_KEY.LLM_OPTIONS).prompt,
+        key: LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT,
+        label: "LLM: Prompt",
+        type: "string",
+    },
 ];
 
 /**
@@ -118,6 +139,9 @@ const SettingsTabPanel = () => {
         const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
         const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
         const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
+        const endpoint = getFormDataValue(LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT);
+        const eventNum = getFormDataValue(LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM);
+        const prompt = getFormDataValue(LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT);
 
         let error: Nullable<string> = null;
         error ||= setConfig({
@@ -127,6 +151,12 @@ const SettingsTabPanel = () => {
         error ||= setConfig({
             key: CONFIG_KEY.PAGE_SIZE,
             value: Number(pageSize),
+        });
+        error ||= setConfig({
+            key: CONFIG_KEY.LLM_OPTIONS,
+            value: {endpoint: endpoint,
+                eventNum: Number(eventNum),
+                prompt: prompt},
         });
 
         if (null !== error) {

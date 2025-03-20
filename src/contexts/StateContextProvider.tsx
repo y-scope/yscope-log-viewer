@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 600] */
+/* eslint max-lines: ["error", 700] */
 import React, {
     createContext,
     useCallback,
@@ -16,6 +16,10 @@ import LogExportManager, {
 } from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {
+    LLM_STATE_DEFAULT,
+    LlmState,
+} from "../typings/llm";
 import {
     LOG_LEVEL,
     LogLevelFilter,
@@ -55,6 +59,7 @@ import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
 } from "../utils/data";
+import {requestLlm} from "../utils/llm";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import {
@@ -72,6 +77,7 @@ interface StateContextType {
     exportProgress: Nullable<number>;
     fileName: string;
     uiState: UI_STATE;
+    llmState: LlmState;
     logData: string;
     numEvents: number;
     numPages: number;
@@ -84,7 +90,10 @@ interface StateContextType {
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
+    requestLlmWithLoadRange: (beginLogEventNum: number,
+        endLogEventNum:number) => null;
     setActiveTabName: (tabName: TAB_NAME) => void;
+    setLlmState: (llmState: LlmState) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -98,6 +107,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    llmState: LLM_STATE_DEFAULT,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -111,7 +121,9 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
+    requestLlmWithLoadRange: () => null,
     setActiveTabName: () => null,
+    setLlmState: () => null,
     startQuery: () => null,
 });
 
@@ -255,6 +267,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [llmState, setLlmState] = useState<LlmState>(STATE_DEFAULT.llmState);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -269,6 +282,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
+    const llmStateRef = useRef(llmState);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -363,6 +377,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         return v;
                     });
                 }
+                break;
+            case WORKER_RESP_CODE.RANGE_DATA:
+                requestLlm(args.logs, llmStateRef.current, setLlmState);
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
@@ -483,10 +500,32 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         });
     }, []);
 
+    const requestLlmWithLoadRange =
+     useCallback((
+         beginLogEventNum: number,
+         endLogEventNum:number
+     ) => {
+         if (null === mainWorkerRef.current) {
+             return;
+         }
+         workerPostReq(
+             mainWorkerRef.current,
+             WORKER_REQ_CODE.LOAD_RANGE,
+             {beginLogEventIdx: beginLogEventNum,
+                 endLogEventIdx: endLogEventNum}
+         );
+     }, []);
+
+
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    // Synchronize `llmStateRef` with `llmState`.
+    useEffect(() => {
+        llmStateRef.current = llmState;
+    }, [llmState]);
 
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
@@ -565,6 +604,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                llmState: llmState,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -578,7 +618,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
+                requestLlmWithLoadRange: requestLlmWithLoadRange,
                 setActiveTabName: setActiveTabName,
+                setLlmState: setLlmState,
                 startQuery: startQuery,
             }}
         >

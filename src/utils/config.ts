@@ -7,11 +7,13 @@ import {
     THEME_NAME,
 } from "../typings/config";
 import {DecoderOptions} from "../typings/decoders";
+import {LlmOptions} from "../typings/llm";
 import {TAB_NAME} from "../typings/tab";
 
 
 const EXPORT_LOGS_CHUNK_SIZE = 10_000;
 const MAX_PAGE_SIZE = 1_000_000;
+const MAX_LLM_EVENT_NUM = 100;
 const QUERY_CHUNK_SIZE = 10_000;
 
 /**
@@ -32,6 +34,11 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,
     [CONFIG_KEY.PAGE_SIZE]: 10_000,
+    [CONFIG_KEY.LLM_OPTIONS]: {
+        endpoint: "llm/v1/chat/completions",
+        eventNum: 11,
+        prompt: "Analyze the following sequence of log events:",
+    },
 });
 
 /**
@@ -55,6 +62,12 @@ const testConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
             // This config option is not intended for direct user input.
+            break;
+        case CONFIG_KEY.LLM_OPTIONS:
+            if (0 > value.eventNum || MAX_LLM_EVENT_NUM < value.eventNum) {
+                result = "The number of events must be greater than or equal to 1 and less than " +
+                    `${MAX_LLM_EVENT_NUM + 1}.`;
+            }
             break;
         case CONFIG_KEY.PAGE_SIZE:
             if (0 >= value || MAX_PAGE_SIZE < value) {
@@ -103,6 +116,20 @@ const setConfig = ({key, value}: ConfigUpdate): Nullable<string> => {
                 value.timestampKey
             );
             break;
+        case CONFIG_KEY.LLM_OPTIONS:
+            window.localStorage.setItem(
+                LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT,
+                value.endpoint
+            );
+            window.localStorage.setItem(
+                LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM,
+                value.eventNum.toString()
+            );
+            window.localStorage.setItem(
+                LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT,
+                value.prompt
+            );
+            break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
             window.localStorage.setItem(CONFIG_KEY.INITIAL_TAB_NAME, value.toString());
             break;
@@ -145,6 +172,19 @@ const getConfig = <T extends CONFIG_KEY>(key: T): ConfigMap[T] => {
                     LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY
                 ),
             } as DecoderOptions;
+            break;
+        case CONFIG_KEY.LLM_OPTIONS:
+            value = {
+                endpoint: window.localStorage.getItem(
+                    LOCAL_STORAGE_KEY.LLM_OPTIONS_ENDPOINT
+                ),
+                eventNum: Number(window.localStorage.getItem(
+                    LOCAL_STORAGE_KEY.LLM_OPTIONS_EVENT_NUM
+                ) ?? "11"),
+                prompt: window.localStorage.getItem(
+                    LOCAL_STORAGE_KEY.LLM_OPTIONS_PROMPT
+                ),
+            } as LlmOptions;
             break;
         case CONFIG_KEY.INITIAL_TAB_NAME:
             value = window.localStorage.getItem(LOCAL_STORAGE_KEY.INITIAL_TAB_NAME);

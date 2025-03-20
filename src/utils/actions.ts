@@ -14,6 +14,7 @@ enum ACTION_NAME {
     RELOAD = "reload",
     COPY_LOG_EVENT = "copyLogEvent",
     WORD_WRAP = "wordWrap",
+    ASK_LLM = "askLlm",
 }
 
 interface EditorAction {
@@ -75,6 +76,12 @@ const EDITOR_ACTIONS : EditorAction[] = [
         actionName: ACTION_NAME.WORD_WRAP,
         keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
         label: "Toggle word wrap",
+    },
+    {
+        actionName: ACTION_NAME.ASK_LLM,
+        contextMenuGroupId: "ask_llm",
+        label: "Ask LLM",
+        keyBindings: [],
     },
 ];
 

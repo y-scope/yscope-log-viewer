@@ -82,6 +82,7 @@ enum WORKER_REQ_CODE {
     EXPORT_LOG = "exportLog",
     LOAD_FILE = "loadFile",
     LOAD_PAGE = "loadPage",
+    LOAD_RANGE = "loadRange",
     SET_FILTER = "setFilter",
     START_QUERY = "startQuery",
 }
@@ -93,6 +94,7 @@ enum WORKER_RESP_CODE {
     NOTIFICATION = "notification",
     PAGE_DATA = "pageData",
     QUERY_RESULT = "queryResult",
+    RANGE_DATA = "rangeData",
 }
 
 type WorkerReqMap = {
@@ -105,6 +107,10 @@ type WorkerReqMap = {
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
+    };
+    [WORKER_REQ_CODE.LOAD_RANGE]: {
+        beginLogEventIdx: number;
+        endLogEventIdx: number;
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
@@ -142,6 +148,9 @@ type WorkerRespMap = {
     [WORKER_RESP_CODE.QUERY_RESULT]: {
         progress: number;
         results: QueryResults;
+    };
+    [WORKER_RESP_CODE.RANGE_DATA]: {
+        logs: string;
     };
 };
 
