@@ -209,9 +209,8 @@ class LogFileManager {
     }
 
     /**
-     * Loads log events in the range and sends them to the renderer. The range is defined as
-     * [`beginLogEventIdx`, `beginLogEventIdx + EXPORT_LOGS_CHUNK_SIZE`), or all remaining log
-     * events if `EXPORT_LOGS_CHUNK_SIZE` log events aren't available.
+     * Exports a chunk of log events, sends the results to the renderer, and schedules the next
+     * chunk if more log events remain.
      *
      * @param beginLogEventIdx
      * @throws {Error} if any error occurs when decoding the log events.
