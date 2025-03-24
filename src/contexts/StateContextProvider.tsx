@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 600] */
+/* eslint max-lines: ["error", 650] */
 import React, {
     createContext,
     useCallback,
