@@ -31,6 +31,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.TIMESTAMP]: null,
 });
 
 /**
@@ -204,12 +205,19 @@ const getWindowUrlHashParams = () => {
     );
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
-    if (null !== logEventNum) {
-        const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-            null :
-            parsed;
+    const numberHashParamNames = [
+        HASH_PARAM_NAMES.LOG_EVENT_NUM,
+        HASH_PARAM_NAMES.TIMESTAMP,
+    ];
+
+    for (const paramName of numberHashParamNames) {
+        const hashParam = hashParams.get(paramName);
+        if (null !== hashParam) {
+            const parsed = Number(hashParam);
+            urlHashParams[paramName] = Number.isNaN(parsed) ?
+                null :
+                parsed;
+        }
     }
 
     return urlHashParams;
