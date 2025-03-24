@@ -277,6 +277,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setActiveTabName(TAB_NAME.SETTINGS);
     }, []);
 
+    const startQuery = useCallback((queryArgs: QueryArgs) => {
+        setQueryResults(STATE_DEFAULT.queryResults);
+        if (null === mainWorkerRef.current) {
+            console.error("Unexpected null mainWorkerRef.current");
+
+            return;
+        }
+        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
+    }, []);
+
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -364,16 +374,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         postPopUp,
     ]);
 
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
-        setQueryResults(STATE_DEFAULT.queryResults);
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
-    }, []);
-
     const exportLogs = useCallback(() => {
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
@@ -401,6 +401,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setLogData("Loading...");
         setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(STATE_DEFAULT.exportProgress);
+        setQueryResults(STATE_DEFAULT.queryResults);
+        setQueryProgress(QUERY_PROGRESS_VALUE_MIN);
 
         // Cache `fileSrc` for reloads.
         fileSrcRef.current = fileSrc;
