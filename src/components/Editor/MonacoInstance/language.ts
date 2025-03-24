@@ -21,7 +21,7 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_INFO,
                 ],
                 [
-                    "WARN",
+                    "WARNING|WARN",
                     TOKEN_NAME.CUSTOM_WARN,
                 ],
                 [
@@ -33,7 +33,7 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_FATAL,
                 ],
                 [
-                    /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3})Z?/,
+                    /\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?(?:[+-]\d{2}:?\d{2}|Z)?)?/,
                     TOKEN_NAME.CUSTOM_DATE,
                 ],
                 [
