@@ -280,11 +280,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setActiveTabName(TAB_NAME.SETTINGS);
     }, []);
 
-    const startQuery = useCallback((queryArgs: {
-        queryString: string;
-        queryIsCaseSensitive: boolean;
-        queryIsRegex: boolean;
-    }) => {
+    const startQuery = useCallback((queryArgs: QueryArgs) => {
         setQueryResults(STATE_DEFAULT.queryResults);
         if (null === mainWorkerRef.current) {
             console.error("Unexpected null mainWorkerRef.current");
