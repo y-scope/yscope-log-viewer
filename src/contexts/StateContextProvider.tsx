@@ -10,10 +10,7 @@ import React, {
 
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import LogExportManager, {
-    EXPORT_LOG_PROGRESS_VALUE_MAX,
-    EXPORT_LOG_PROGRESS_VALUE_MIN,
-} from "../services/LogExportManager";
+import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import MainWorker from "../services/MainWorker.worker?worker";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
@@ -31,6 +28,7 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
+import {TAB_NAME} from "../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -67,10 +65,10 @@ import {
 
 
 interface StateContextType {
+    activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    isSettingsModalOpen: boolean;
     uiState: UI_STATE;
     logData: string;
     numEvents: number;
@@ -84,7 +82,7 @@ interface StateContextType {
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
-    setIsSettingsModalOpen: (isOpen: boolean) => void;
+    setActiveTabName: (tabName: TAB_NAME) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -94,10 +92,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  * Default values of the state object.
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
+    activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    isSettingsModalOpen: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -111,7 +109,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     filterLogs: () => null,
     loadFile: () => null,
     loadPageByAction: () => null,
-    setIsSettingsModalOpen: () => null,
+    setActiveTabName: () => null,
     startQuery: () => null,
 });
 
@@ -251,10 +249,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
+    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] =
-        useState<boolean>(STATE_DEFAULT.isSettingsModalOpen);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
@@ -277,6 +274,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const pageNumRef = useRef<number>(pageNum);
     const uiStateRef = useRef<UI_STATE>(uiState);
 
+    const handleFormatPopupPrimaryAction = useCallback(() => {
+        setActiveTabName(TAB_NAME.SETTINGS);
+    }, []);
+
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -285,9 +286,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 if (null !== logExportManagerRef.current) {
                     const progress = logExportManagerRef.current.appendChunk(args.logs);
                     setExportProgress(progress);
-                    if (EXPORT_LOG_PROGRESS_VALUE_MAX === progress) {
-                        setUiState(UI_STATE.READY);
-                    }
                 }
                 break;
             case WORKER_RESP_CODE.FORMAT_POPUP:
@@ -298,9 +296,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     primaryAction: {
                         children: "Settings",
                         startDecorator: <SettingsOutlinedIcon/>,
-                        onClick: () => {
-                            setIsSettingsModalOpen(true);
-                        },
+                        onClick: handleFormatPopupPrimaryAction,
                     },
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
                     title: "A format string has not been configured",
@@ -321,9 +317,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
                 switch (uiStateRef.current) {
                     case UI_STATE.FAST_LOADING:
-                        setUiState(UI_STATE.READY);
-                        break;
-                    case UI_STATE.SLOW_LOADING:
                         setUiState(UI_STATE.READY);
                         break;
                     case UI_STATE.FILE_LOADING:
@@ -367,7 +360,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
                 break;
         }
-    }, [postPopUp]);
+    }, [
+        handleFormatPopupPrimaryAction,
+        postPopUp,
+    ]);
 
     const startQuery = useCallback((queryArgs: QueryArgs) => {
         setQueryResults(STATE_DEFAULT.queryResults);
@@ -385,15 +381,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
             return;
         }
-        setUiState(UI_STATE.SLOW_LOADING);
-        setExportProgress(EXPORT_LOG_PROGRESS_VALUE_MIN);
+        setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
         logExportManagerRef.current = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName
         );
         workerPostReq(
             mainWorkerRef.current,
-            WORKER_REQ_CODE.EXPORT_LOG,
+            WORKER_REQ_CODE.EXPORT_LOGS,
             null
         );
     }, [
@@ -445,6 +440,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
             });
+
+            return;
+        }
+
+        if (UI_STATE.READY !== uiStateRef.current) {
+            console.warn("Skipping navigation: page load in progress.");
 
             return;
         }
@@ -549,10 +550,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     return (
         <StateContext.Provider
             value={{
+                activeTabName: activeTabName,
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                isSettingsModalOpen: isSettingsModalOpen,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -566,7 +567,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 filterLogs: filterLogs,
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
-                setIsSettingsModalOpen: setIsSettingsModalOpen,
+                setActiveTabName: setActiveTabName,
                 startQuery: startQuery,
             }}
         >
