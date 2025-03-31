@@ -1,20 +1,18 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 
-import {ButtonGroup} from "@mui/joy";
+import { ButtonGroup } from "@mui/joy";
 
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
-import {StateContext} from "../../contexts/StateContextProvider";
-import {UI_ELEMENT} from "../../typings/states";
-import {ACTION_NAME} from "../../utils/actions";
-import {
-    ignorePointerIfFastLoading,
-    isDisabled,
-} from "../../utils/states";
+import { StateContext } from "../../contexts/StateContextProvider";
+import { UI_ELEMENT } from "../../typings/states";
+import { ACTION_NAME } from "../../utils/actions";
+import { ignorePointerIfFastLoading, isDisabled } from "../../utils/states";
 import MenuBarIconButton from "./MenuBarIconButton";
+import MenuBarToggleButton from "./MenuBarToggleButton";
 import PageNumInput from "./PageNumInput";
 
 
@@ -24,13 +22,27 @@ import PageNumInput from "./PageNumInput";
  * @return
  */
 const NavigationBar = () => {
-    const {uiState, loadPageByAction} = useContext(StateContext);
+    const {
+        isPretty,
+        uiState,
+        loadPageByAction,
+        setIsPretty,
+    } = useContext(StateContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
 
+        if (
+            actionName === ACTION_NAME.PRETTY_ON ||
+            actionName === ACTION_NAME.PRETTY_OFF
+        ) {
+            setIsPretty(!isPretty);
+        }
+
         // Ensure `actionName` is a valid navigation action code with no args.
         if (
+            actionName === ACTION_NAME.PRETTY_ON ||
+            actionName === ACTION_NAME.PRETTY_OFF ||
             actionName === ACTION_NAME.FIRST_PAGE ||
             actionName === ACTION_NAME.PREV_PAGE ||
             actionName === ACTION_NAME.NEXT_PAGE ||
@@ -47,6 +59,12 @@ const NavigationBar = () => {
             spacing={0.01}
             variant={"plain"}
         >
+            <MenuBarToggleButton
+                data-action-name={isPretty ? ACTION_NAME.PRETTY_OFF : ACTION_NAME.PRETTY_ON}
+                title={isPretty ? "Pretty On" : "Pretty Off"}
+                isActive={isPretty}
+                onClick={handleNavButtonClick}
+            />
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
                 title={"First page"}

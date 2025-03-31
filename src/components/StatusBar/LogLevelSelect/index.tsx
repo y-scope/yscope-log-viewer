@@ -153,7 +153,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, filterLogs} = useContext(StateContext);
+    const {uiState, isPretty, filterLogs} = useContext(StateContext);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
@@ -176,8 +176,9 @@ const LogLevelSelect = () => {
 
         filterLogs((0 === logLevels.length ?
             null :
-            logLevels));
+            logLevels), isPretty);
     }, [
+        isPretty,
         filterLogs,
         setSelectedLogLevels,
     ]);

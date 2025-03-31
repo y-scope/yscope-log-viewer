@@ -1,34 +1,17 @@
 /* eslint max-lines: ["error", 600] */
-import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
-import {Nullable} from "../typings/common";
-import {CONFIG_KEY} from "../typings/config";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "../typings/logs";
-import {
-    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
-} from "../typings/notifications";
-import {
-    QUERY_PROGRESS_VALUE_MIN,
-    QueryArgs,
-    QueryResults,
-} from "../typings/query";
-import {UI_STATE} from "../typings/states";
-import {TAB_NAME} from "../typings/tab";
-import {SEARCH_PARAM_NAMES} from "../typings/url";
+import LogExportManager, { EXPORT_LOGS_PROGRESS_VALUE_MIN } from "../services/LogExportManager";
+import { Nullable } from "../typings/common";
+import { CONFIG_KEY } from "../typings/config";
+import { LOG_LEVEL, LogLevelFilter } from "../typings/logs";
+import { DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS, LONG_AUTO_DISMISS_TIMEOUT_MILLIS } from "../typings/notifications";
+import { QUERY_PROGRESS_VALUE_MIN, QueryArgs, QueryResults } from "../typings/query";
+import { UI_STATE } from "../typings/states";
+import { TAB_NAME } from "../typings/tab";
+import { SEARCH_PARAM_NAMES } from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -38,22 +21,13 @@ import {
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
-    WorkerReq,
+    WorkerReq
 } from "../typings/worker";
-import {
-    ACTION_NAME,
-    NavigationAction,
-} from "../utils/actions";
-import {
-    EXPORT_LOGS_CHUNK_SIZE,
-    getConfig,
-} from "../utils/config";
-import {
-    findNearestLessThanOrEqualElement,
-    isWithinBounds,
-} from "../utils/data";
-import {clamp} from "../utils/math";
-import {NotificationContext} from "./NotificationContextProvider";
+import { ACTION_NAME, NavigationAction } from "../utils/actions";
+import { EXPORT_LOGS_CHUNK_SIZE, getConfig } from "../utils/config";
+import { findNearestLessThanOrEqualElement, isWithinBounds } from "../utils/data";
+import { clamp } from "../utils/math";
+import { NotificationContext } from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -68,7 +42,7 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    uiState: UI_STATE;
+    isPretty: boolean;
     logData: string;
     numEvents: number;
     numPages: number;
@@ -76,12 +50,14 @@ interface StateContextType {
     pageNum: number;
     queryProgress: number;
     queryResults: QueryResults;
+    uiState: UI_STATE;
 
     exportLogs: () => void;
-    filterLogs: (filter: LogLevelFilter) => void;
+    filterLogs: (filter: LogLevelFilter, isPretty: boolean) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
+    setIsPretty: (isPretty: boolean) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -95,6 +71,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
+    isPretty: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -109,6 +86,7 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     loadFile: () => null,
     loadPageByAction: () => null,
     setActiveTabName: () => null,
+    setIsPretty: () => null,
     startQuery: () => null,
 });
 
@@ -155,6 +133,11 @@ const getPageNumCursor = (
             // Clamp is to prevent someone from requesting non-existent page.
             newPageNum = clamp(navAction.args.pageNum, 1, numPages);
             break;
+        case ACTION_NAME.PRETTY_ON:
+        case ACTION_NAME.PRETTY_OFF:
+            position = EVENT_POSITION_ON_PAGE.TOP;
+            newPageNum = currentPageNum;
+            break;
         case ACTION_NAME.FIRST_PAGE:
             position = EVENT_POSITION_ON_PAGE.TOP;
             newPageNum = 1;
@@ -186,13 +169,16 @@ const getPageNumCursor = (
  *
  * @param worker
  * @param cursor
+ * @param isPretty is pretty-printing log messages enabled
  */
 const loadPageByCursor = (
     worker: Worker,
     cursor: CursorType,
+    isPretty: boolean,
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
+        isPretty: isPretty
     });
 };
 
@@ -252,6 +238,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
+    const [isPretty, setIsPretty] = useState<boolean>(STATE_DEFAULT.isPretty);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -459,10 +446,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
     }, [loadFile]);
 
-    const filterLogs = useCallback((filter: LogLevelFilter) => {
+    const filterLogs = useCallback((filter: LogLevelFilter, isPretty: boolean) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -470,6 +457,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: filter,
+            isPretty: isPretty
         });
     }, []);
 
@@ -497,6 +485,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
     }, [uiState]);
 
+    useEffect(() => {
+        if (null === mainWorkerRef.current) {
+            return;
+        }
+
+        const cursor: CursorType = {
+            code: CURSOR_CODE.PAGE_NUM,
+            args: {pageNum: pageNumRef.current, eventPositionOnPage: EVENT_POSITION_ON_PAGE.TOP},
+        };
+
+        setUiState(UI_STATE.FAST_LOADING);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
+    }, [
+        isPretty,
+    ]);
+
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (null === mainWorkerRef.current) {
@@ -523,10 +527,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
     }, [
-        numEvents,
         logEventNum,
+        numEvents,
     ]);
 
     // On `filePath` update, load file.
@@ -555,6 +559,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
+                isPretty: isPretty,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -569,6 +574,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setActiveTabName: setActiveTabName,
+                setIsPretty: setIsPretty,
                 startQuery: startQuery,
             }}
         >

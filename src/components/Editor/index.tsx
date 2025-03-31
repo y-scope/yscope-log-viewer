@@ -1,40 +1,18 @@
-import {
-    useCallback,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import {useColorScheme} from "@mui/joy";
+import { useColorScheme } from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {StateContext} from "../../contexts/StateContextProvider";
-import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../contexts/UrlContextProvider";
-import {Nullable} from "../../typings/common";
-import {
-    CONFIG_KEY,
-    THEME_NAME,
-} from "../../typings/config";
-import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
-import {
-    ACTION_NAME,
-    EDITOR_ACTIONS,
-} from "../../utils/actions";
-import {
-    CONFIG_DEFAULT,
-    getConfig,
-    setConfig,
-} from "../../utils/config";
-import {
-    getMapKeyByValue,
-    getMapValueWithNearestLessThanOrEqualKey,
-} from "../../utils/data";
+import { StateContext } from "../../contexts/StateContextProvider";
+import { updateWindowUrlHashParams, UrlContext } from "../../contexts/UrlContextProvider";
+import { Nullable } from "../../typings/common";
+import { CONFIG_KEY, THEME_NAME } from "../../typings/config";
+import { BeginLineNumToLogEventNumMap } from "../../typings/worker";
+import { ACTION_NAME, EDITOR_ACTIONS } from "../../utils/actions";
+import { CONFIG_DEFAULT, getConfig, setConfig } from "../../utils/config";
+import { getMapKeyByValue, getMapValueWithNearestLessThanOrEqualKey } from "../../utils/data";
 import MonacoInstance from "./MonacoInstance";
-import {goToPositionAndCenter} from "./MonacoInstance/utils";
+import { goToPositionAndCenter } from "./MonacoInstance/utils";
 
 import "./index.css";
 
@@ -150,6 +128,8 @@ const Editor = () => {
         actionName: ACTION_NAME
     ) => {
         switch (actionName) {
+            case ACTION_NAME.PRETTY_ON:
+            case ACTION_NAME.PRETTY_OFF:
             case ACTION_NAME.FIRST_PAGE:
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:

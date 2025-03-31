@@ -5,6 +5,8 @@ import {Nullable} from "../typings/common";
 
 enum ACTION_NAME {
     SPECIFIC_PAGE = "specificPage",
+    PRETTY_ON = "prettyOn",
+    PRETTY_OFF = "prettyOff",
     FIRST_PAGE = "firstPage",
     PREV_PAGE = "prevPage",
     NEXT_PAGE = "nextPage",
@@ -33,6 +35,16 @@ const EDITOR_ACTIONS : EditorAction[] = [
         actionName: null,
         keyBindings: [monaco.KeyCode.Backquote],
         label: "Focus on Editor",
+    },
+    {
+        actionName: ACTION_NAME.PRETTY_ON,
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP],
+        label: "Pretty On",
+    },
+    {
+        actionName: ACTION_NAME.PRETTY_OFF,
+        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP],
+        label: "Pretty Off",
     },
     {
         actionName: ACTION_NAME.FIRST_PAGE,
@@ -82,6 +94,8 @@ type NavigationActionsMap = {
     [ACTION_NAME.SPECIFIC_PAGE]: {
         pageNum: number;
     };
+    [ACTION_NAME.PRETTY_ON]: null;
+    [ACTION_NAME.PRETTY_OFF]: null;
     [ACTION_NAME.FIRST_PAGE]: null;
     [ACTION_NAME.PREV_PAGE]: null;
     [ACTION_NAME.NEXT_PAGE]: null;
