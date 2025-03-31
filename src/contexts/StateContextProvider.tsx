@@ -54,6 +54,7 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
+import exportStore from "./states/exportStore";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -66,7 +67,7 @@ import {
 interface StateContextType {
     activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-    exportProgress: Nullable<number>;
+    exportProgress: number;
     fileName: string;
     uiState: UI_STATE;
     logData: string;
@@ -93,7 +94,7 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
-    exportProgress: null,
+    exportProgress: 0,
     fileName: "",
     logData: "No file is open.",
     numEvents: 0,
@@ -249,8 +250,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
-    const [exportProgress, setExportProgress] =
-        useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
+    const {exportProgress, setExportProgress} = exportStore((state) => ({
+        exportProgress: state.exportProgress,
+        setExportProgress: state.setExportProgress,
+    }));
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
