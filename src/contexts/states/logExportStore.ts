@@ -1,13 +1,18 @@
 import {create} from "zustand";
 
+import LogExportManager from "../../services/LogExportManager";
+import {Nullable} from "../../typings/common";
 
-interface exportState {
+
+interface logExportState {
     exportProgress: number;
+    logExportManager: Nullable<LogExportManager>;
     setExportProgress: (newProgress: number) => void;
 }
 
-const useLogExportStore = create<exportState>((set) => ({
+const useLogExportStore = create<logExportState>((set) => ({
     exportProgress: 0,
+    logExportManager: null,
     setExportProgress: (newProgress) => {
         set({exportProgress: newProgress});
     },

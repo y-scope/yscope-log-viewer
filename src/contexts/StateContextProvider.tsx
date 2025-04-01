@@ -56,6 +56,10 @@ import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useLogExportStore from "./states/logExportStore";
 import {
+    LOG_FILE_DEFAULT,
+    useLogFileStore,
+} from "./states/logFileStore";
+import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,
@@ -67,14 +71,7 @@ import {
 interface StateContextType {
     activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-    exportProgress: number;
-    fileName: string;
     uiState: UI_STATE;
-    logData: string;
-    numEvents: number;
-    numPages: number;
-    onDiskFileSizeInBytes: number;
-    pageNum: number;
     queryProgress: number;
     queryResults: QueryResults;
 
@@ -94,13 +91,6 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
-    exportProgress: 0,
-    fileName: "",
-    logData: "No file is open.",
-    numEvents: 0,
-    numPages: 0,
-    onDiskFileSizeInBytes: 0,
-    pageNum: 0,
     queryProgress: QUERY_PROGRESS_VALUE_MIN,
     queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
@@ -251,15 +241,19 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
 
-    const exportProgress = useLogExportStore((state) => state.exportProgress);
+    const numEvents = useLogFileStore((state) => state.numEvents);
+    const fileName = useLogFileStore((state) => state.fileName);
+    const numPages = useLogFileStore((state) => state.numPages);
+    const pageNum = useLogFileStore((state) => state.pageNum);
     const setExportProgress = useLogExportStore((state) => state.setExportProgress);
-    const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
-    const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
-    const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
-    const [onDiskFileSizeInBytes, setOnDiskFileSizeInBytes] =
-        useState(STATE_DEFAULT.onDiskFileSizeInBytes);
-    const [pageNum, setPageNum] = useState<number>(STATE_DEFAULT.pageNum);
+    const setFileName = useLogFileStore((state) => state.setFileName);
+    const setLogData = useLogFileStore((state) => state.setLogData);
+    const setNumEvents = useLogFileStore((state) => state.setNumEvents);
+    const setNumPages = useLogFileStore((state) => state.setNumPages);
+    const setOnDiskFileSizeInBytes = useLogFileStore(
+        (state) => state.setOnDiskFileSizeInBytes
+    );
+    const setPageNum = useLogFileStore((state) => state.setPageNum);
     const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
     const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
     const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
@@ -401,8 +395,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FILE_LOADING);
         setFileName("Loading...");
         setLogData("Loading...");
-        setOnDiskFileSizeInBytes(STATE_DEFAULT.onDiskFileSizeInBytes);
-        setExportProgress(STATE_DEFAULT.exportProgress);
+        setOnDiskFileSizeInBytes(LOG_FILE_DEFAULT.onDiskFileSizeInBytes);
+        setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
 
         // Cache `fileSrc` for reloads.
         fileSrcRef.current = fileSrc;
@@ -494,8 +488,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         uiStateRef.current = uiState;
         if (uiState === UI_STATE.UNOPENED) {
-            setFileName(STATE_DEFAULT.fileName);
-            setLogData(STATE_DEFAULT.logData);
+            setFileName(LOG_FILE_DEFAULT.fileName);
+            setLogData(LOG_FILE_DEFAULT.logData);
         }
     }, [uiState]);
 
@@ -555,13 +549,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             value={{
                 activeTabName: activeTabName,
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
-                exportProgress: exportProgress,
-                fileName: fileName,
-                logData: logData,
-                numEvents: numEvents,
-                numPages: numPages,
-                onDiskFileSizeInBytes: onDiskFileSizeInBytes,
-                pageNum: pageNum,
                 queryProgress: queryProgress,
                 queryResults: queryResults,
                 uiState: uiState,

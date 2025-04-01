@@ -11,6 +11,7 @@ import {
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {useLogFileStore} from "../../contexts/states/logFileStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
@@ -28,7 +29,8 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {fileName, loadFile, uiState} = useContext(StateContext);
+    const {loadFile, uiState} = useContext(StateContext);
+    const fileName = useLogFileStore((state) => state.fileName);
 
     const handleOpenFile = () => {
         openFile((file) => {

@@ -8,6 +8,7 @@ import {
 import DownloadIcon from "@mui/icons-material/Download";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import useLogExportStore from "../../contexts/states/logExportStore";
 import {
     EXPORT_LOGS_PROGRESS_VALUE_MAX,
     EXPORT_LOGS_PROGRESS_VALUE_MIN,
@@ -26,7 +27,8 @@ import MenuBarIconButton from "./MenuBarIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress, uiState} = useContext(StateContext);
+    const {exportLogs, uiState} = useContext(StateContext);
+    const exportProgress = useLogExportStore((state) => state.exportProgress);
 
     return (
         <MenuBarIconButton

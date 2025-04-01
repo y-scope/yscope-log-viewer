@@ -11,6 +11,7 @@ import {
 } from "@mui/joy";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {useLogFileStore} from "../../contexts/states/logFileStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -30,7 +31,9 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPageByAction, numPages, pageNum, uiState} = useContext(StateContext);
+    const {loadPageByAction, uiState} = useContext(StateContext);
+    const numPages = useLogFileStore((state) => state.numPages);
+    const pageNum = useLogFileStore((state) => state.pageNum);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
