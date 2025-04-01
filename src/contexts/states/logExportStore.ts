@@ -6,11 +6,11 @@ interface exportState {
     setExportProgress: (newProgress: number) => void;
 }
 
-const exportStore = create<exportState>((set) => ({
+const useLogExportStore = create<exportState>((set) => ({
     exportProgress: 0,
     setExportProgress: (newProgress) => {
         set({exportProgress: newProgress});
     },
 }));
 
-export default exportStore;
+export default useLogExportStore;

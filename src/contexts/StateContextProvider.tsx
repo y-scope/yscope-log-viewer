@@ -54,7 +54,7 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
-import exportStore from "./states/exportStore";
+import useLogExportStore from "./states/logExportStore";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -250,10 +250,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
-    const {exportProgress, setExportProgress} = exportStore((state) => ({
-        exportProgress: state.exportProgress,
-        setExportProgress: state.setExportProgress,
-    }));
+
+    const exportProgress = useLogExportStore((state) => state.exportProgress);
+    const setExportProgress = useLogExportStore((state) => state.setExportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
