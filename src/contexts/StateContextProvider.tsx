@@ -403,9 +403,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            isPrettified: isPrettified ?? false,
         });
     }, [
         handleMainWorkerResp,
+        isPrettified
     ]);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {

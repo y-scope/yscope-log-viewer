@@ -96,7 +96,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
-                    LOG_FILE_MANAGER.loadPage(args.cursor, false)
+                    LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;
             }

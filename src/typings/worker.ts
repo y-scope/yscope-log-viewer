@@ -102,6 +102,7 @@ type WorkerReqMap = {
         pageSize: number;
         cursor: CursorType;
         decoderOptions: DecoderOptions;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
