@@ -33,12 +33,12 @@ const ExportLogsButton = () => {
             className={ignorePointerIfFastLoading(uiState)}
             title={"Export logs"}
             disabled={
-                (null !== exportProgress && EXPORT_LOGS_PROGRESS_VALUE_MAX !== exportProgress) ||
+                (0 !== exportProgress && EXPORT_LOGS_PROGRESS_VALUE_MAX !== exportProgress) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
             onClick={exportLogs}
         >
-            {null === exportProgress || EXPORT_LOGS_PROGRESS_VALUE_MIN === exportProgress ?
+            {0 === exportProgress || EXPORT_LOGS_PROGRESS_VALUE_MIN === exportProgress ?
                 <DownloadIcon/> :
                 <CircularProgress
                     determinate={true}
