@@ -244,12 +244,12 @@ class LogFileManager {
      * Loads a page of log events based on the provided cursor.
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
-     * @param isPretty Are the log messages pretty printed.
+     * @param isPrettified Are the log messages pretty printed.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPretty: boolean): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType, isPrettified: boolean): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -286,7 +286,7 @@ class LogFileManager {
                 logEventNum,
             ] = r;
 
-            const printedMsg = (isPretty) ? js_beautify(msg) + "\n" : msg;
+            const printedMsg = (isPrettified) ? js_beautify(msg) + "\n" : msg;
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;

@@ -128,8 +128,8 @@ const Editor = () => {
         actionName: ACTION_NAME
     ) => {
         switch (actionName) {
-            case ACTION_NAME.PRETTY_ON:
-            case ACTION_NAME.PRETTY_OFF:
+            case ACTION_NAME.PRETTIFY_ON:
+            case ACTION_NAME.PRETTIFY_OFF:
             case ACTION_NAME.FIRST_PAGE:
             case ACTION_NAME.PREV_PAGE:
             case ACTION_NAME.NEXT_PAGE:

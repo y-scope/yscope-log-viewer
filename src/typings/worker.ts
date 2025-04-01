@@ -105,12 +105,12 @@ type WorkerReqMap = {
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
-        isPretty: boolean;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
         logLevelFilter: LogLevelFilter;
-        isPretty: boolean;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;

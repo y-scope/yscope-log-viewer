@@ -106,7 +106,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 }
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
-                    LOG_FILE_MANAGER.loadPage(args.cursor, args.isPretty)
+                    LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;
             case WORKER_REQ_CODE.SET_FILTER:
@@ -117,7 +117,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
-                    LOG_FILE_MANAGER.loadPage(args.cursor, args.isPretty)
+                    LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;
             case WORKER_REQ_CODE.START_QUERY:

@@ -7,6 +7,7 @@ enum SEARCH_PARAM_NAMES {
 
 enum HASH_PARAM_NAMES {
     LOG_EVENT_NUM = "logEventNum",
+    IS_PRETTIFIED = "isPrettified",
 }
 
 interface UrlSearchParams {
@@ -14,7 +15,8 @@ interface UrlSearchParams {
 }
 
 interface UrlHashParams {
-    logEventNum: number;
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: number;
+    [HASH_PARAM_NAMES.IS_PRETTIFIED]: boolean;
 }
 
 type UrlSearchParamUpdatesType = {

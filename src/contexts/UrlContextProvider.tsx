@@ -31,6 +31,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.IS_PRETTIFIED]: null,
 });
 
 /**
@@ -210,6 +211,14 @@ const getWindowUrlHashParams = () => {
         urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
             null :
             parsed;
+    }
+
+    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
+    if (null !== isPrettified) {
+        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
+    } else {
+        // Default is disable prettifying
+        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = false;
     }
 
     return urlHashParams;

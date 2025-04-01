@@ -42,7 +42,6 @@ interface StateContextType {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     exportProgress: Nullable<number>;
     fileName: string;
-    isPretty: boolean;
     logData: string;
     numEvents: number;
     numPages: number;
@@ -53,11 +52,10 @@ interface StateContextType {
     uiState: UI_STATE;
 
     exportLogs: () => void;
-    filterLogs: (filter: LogLevelFilter, isPretty: boolean) => void;
+    filterLogs: (filter: LogLevelFilter, isPrettified: boolean) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
-    setIsPretty: (isPretty: boolean) => void;
     startQuery: (queryArgs: QueryArgs) => void;
 }
 
@@ -71,7 +69,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     beginLineNumToLogEventNum: new Map<number, number>(),
     exportProgress: null,
     fileName: "",
-    isPretty: false,
     logData: "No file is open.",
     numEvents: 0,
     numPages: 0,
@@ -86,7 +83,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     loadFile: () => null,
     loadPageByAction: () => null,
     setActiveTabName: () => null,
-    setIsPretty: () => null,
     startQuery: () => null,
 });
 
@@ -133,8 +129,9 @@ const getPageNumCursor = (
             // Clamp is to prevent someone from requesting non-existent page.
             newPageNum = clamp(navAction.args.pageNum, 1, numPages);
             break;
-        case ACTION_NAME.PRETTY_ON:
-        case ACTION_NAME.PRETTY_OFF:
+        case ACTION_NAME.PRETTIFY_ON:
+        case ACTION_NAME.PRETTIFY_OFF:
+            // When the prettifying is on, return to the top
             position = EVENT_POSITION_ON_PAGE.TOP;
             newPageNum = currentPageNum;
             break;
@@ -169,16 +166,16 @@ const getPageNumCursor = (
  *
  * @param worker
  * @param cursor
- * @param isPretty is pretty-printing log messages enabled
+ * @param isPrettified is pretty-printing log messages enabled
  */
 const loadPageByCursor = (
     worker: Worker,
     cursor: CursorType,
-    isPretty: boolean,
+    isPrettified: boolean,
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
-        isPretty: isPretty
+        isPrettified: isPrettified
     });
 };
 
@@ -231,14 +228,13 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
     const [exportProgress, setExportProgress] =
         useState<Nullable<number>>(STATE_DEFAULT.exportProgress);
     const [fileName, setFileName] = useState<string>(STATE_DEFAULT.fileName);
-    const [isPretty, setIsPretty] = useState<boolean>(STATE_DEFAULT.isPretty);
     const [logData, setLogData] = useState<string>(STATE_DEFAULT.logData);
     const [numEvents, setNumEvents] = useState<number>(STATE_DEFAULT.numEvents);
     const [numPages, setNumPages] = useState<number>(STATE_DEFAULT.numPages);
@@ -445,11 +441,25 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
-    }, [loadFile]);
+        if (navAction.code === ACTION_NAME.PRETTIFY_ON) {
+            updateWindowUrlHashParams({
+                isPrettified: true,
+            });
+            // Avoid redundant loadPageByCursor
+            return;
+        } else if (navAction.code === ACTION_NAME.PRETTIFY_OFF) {
+            updateWindowUrlHashParams({
+                isPrettified: false,
+            });
+            // Avoid redundant loadPageByCursor
+            return;
+        }
 
-    const filterLogs = useCallback((filter: LogLevelFilter, isPretty: boolean) => {
+        setUiState(UI_STATE.FAST_LOADING);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
+    }, [loadFile, isPrettified]);
+
+    const filterLogs = useCallback((filter: LogLevelFilter, isPrettified: boolean) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -457,7 +467,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: filter,
-            isPretty: isPretty
+            isPrettified: isPrettified
         });
     }, []);
 
@@ -496,9 +506,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
     }, [
-        isPretty,
+        isPrettified,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -527,7 +537,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPretty);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
     }, [
         logEventNum,
         numEvents,
@@ -559,7 +569,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
                 exportProgress: exportProgress,
                 fileName: fileName,
-                isPretty: isPretty,
                 logData: logData,
                 numEvents: numEvents,
                 numPages: numPages,
@@ -574,7 +583,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                 loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setActiveTabName: setActiveTabName,
-                setIsPretty: setIsPretty,
                 startQuery: startQuery,
             }}
         >

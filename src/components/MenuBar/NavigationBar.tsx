@@ -14,6 +14,7 @@ import { ignorePointerIfFastLoading, isDisabled } from "../../utils/states";
 import MenuBarIconButton from "./MenuBarIconButton";
 import MenuBarToggleButton from "./MenuBarToggleButton";
 import PageNumInput from "./PageNumInput";
+import { UrlContext } from "../../contexts/UrlContextProvider";
 
 
 /**
@@ -23,26 +24,18 @@ import PageNumInput from "./PageNumInput";
  */
 const NavigationBar = () => {
     const {
-        isPretty,
         uiState,
         loadPageByAction,
-        setIsPretty,
     } = useContext(StateContext);
+    const {isPrettified} = useContext(UrlContext);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
 
-        if (
-            actionName === ACTION_NAME.PRETTY_ON ||
-            actionName === ACTION_NAME.PRETTY_OFF
-        ) {
-            setIsPretty(!isPretty);
-        }
-
         // Ensure `actionName` is a valid navigation action code with no args.
         if (
-            actionName === ACTION_NAME.PRETTY_ON ||
-            actionName === ACTION_NAME.PRETTY_OFF ||
+            actionName === ACTION_NAME.PRETTIFY_ON ||
+            actionName === ACTION_NAME.PRETTIFY_OFF ||
             actionName === ACTION_NAME.FIRST_PAGE ||
             actionName === ACTION_NAME.PREV_PAGE ||
             actionName === ACTION_NAME.NEXT_PAGE ||
@@ -60,9 +53,9 @@ const NavigationBar = () => {
             variant={"plain"}
         >
             <MenuBarToggleButton
-                data-action-name={isPretty ? ACTION_NAME.PRETTY_OFF : ACTION_NAME.PRETTY_ON}
-                title={isPretty ? "Pretty On" : "Pretty Off"}
-                isActive={isPretty}
+                data-action-name={isPrettified ?? false ? ACTION_NAME.PRETTIFY_OFF : ACTION_NAME.PRETTIFY_ON}
+                title={isPrettified ?? false ? "Prettify On" : "Prettify Off"}
+                isActive={isPrettified ?? false}
                 onClick={handleNavButtonClick}
             />
             <MenuBarIconButton
