@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 
 import { ButtonGroup } from "@mui/joy";
 
+import { AutoFixHighRounded, AutoFixOffRounded } from "@mui/icons-material";
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
@@ -54,8 +55,10 @@ const NavigationBar = () => {
         >
             <MenuBarToggleButton
                 data-action-name={isPrettified ?? false ? ACTION_NAME.PRETTIFY_OFF : ACTION_NAME.PRETTIFY_ON}
-                title={isPrettified ?? false ? "Prettify On" : "Prettify Off"}
-                isActive={isPrettified ?? false}
+                title={isPrettified ?? false ? "Prettify Off" : "Prettify On"}
+                isActive={!(isPrettified ?? false)}
+                onIcon={<AutoFixHighRounded />}
+                offIcon={<AutoFixOffRounded />}
                 onClick={handleNavButtonClick}
             />
             <MenuBarIconButton
