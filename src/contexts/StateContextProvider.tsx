@@ -11,7 +11,7 @@ import { DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS, LONG_AUTO_DISMISS_TIMEOUT_MILLIS }
 import { QUERY_PROGRESS_VALUE_MIN, QueryArgs, QueryResults } from "../typings/query";
 import { UI_STATE } from "../typings/states";
 import { TAB_NAME } from "../typings/tab";
-import { SEARCH_PARAM_NAMES } from "../typings/url";
+import { HASH_PARAM_NAMES, SEARCH_PARAM_NAMES } from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -445,13 +445,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         if (navAction.code === ACTION_NAME.PRETTIFY_ON) {
             updateWindowUrlHashParams({
-                isPrettified: true,
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: true,
             });
             // Avoid redundant loadPageByCursor
             return;
         } else if (navAction.code === ACTION_NAME.PRETTIFY_OFF) {
             updateWindowUrlHashParams({
-                isPrettified: false,
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
             });
             // Avoid redundant loadPageByCursor
             return;
