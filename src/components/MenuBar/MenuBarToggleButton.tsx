@@ -4,7 +4,10 @@ import {
     Tooltip,
     TooltipTypeMap,
 } from "@mui/joy";
-import { Check, Close } from "@mui/icons-material";
+
+import Check from "@mui/icons-material/Check";
+import Close from "@mui/icons-material/Close";
+
 
 interface MenuBarToggleButtonProps extends IconButtonProps {
     tooltipPlacement?: TooltipTypeMap["props"]["placement"];
@@ -22,25 +25,30 @@ interface MenuBarToggleButtonProps extends IconButtonProps {
  * @param props.onIcon Icon when active.
  * @param props.offIcon Icon when inactive.
  * @param props.rest Other IconButton props.
+ * @param props.isActive
  * @return JSX.Element
  */
 const MenuBarToggleButton = ({
-                                 tooltipPlacement,
-                                 title,
-                                 isActive = false,
-                                 onIcon = <Check />, // Default on state icon
-                                 offIcon = <Close />, // Default off state icon
-                                 ...rest
-                             }: MenuBarToggleButtonProps) => {
-
+    tooltipPlacement,
+    title,
+    isActive = false,
+    onIcon = <Check/>,
+    offIcon = <Close/>,
+    ...rest
+}: MenuBarToggleButtonProps) => {
     return (
-        <Tooltip placement={tooltipPlacement ?? "bottom"} title={title}>
+        <Tooltip
+            placement={tooltipPlacement ?? "bottom"}
+            title={title}
+        >
             <span>
                 <IconButton
-                    size="sm"
+                    size={"sm"}
                     {...rest}
                 >
-                    {isActive ? onIcon : offIcon}
+                    {isActive ?
+                        onIcon :
+                        offIcon}
                 </IconButton>
             </span>
         </Tooltip>

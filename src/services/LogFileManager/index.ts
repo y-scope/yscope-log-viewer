@@ -1,4 +1,6 @@
 /* eslint max-lines: ["error", 500] */
+import js_beautify from "js-beautify";
+
 import {
     Decoder,
     DecodeResult,
@@ -36,7 +38,6 @@ import {
     loadFile,
 } from "./utils";
 
-import js_beautify from "js-beautify";
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
@@ -286,7 +287,10 @@ class LogFileManager {
                 logEventNum,
             ] = r;
 
-            const printedMsg = (isPrettified) ? js_beautify(msg) + "\n" : msg;
+            const printedMsg = (isPrettified) ?
+                `${js_beautify(msg)}\n` :
+                msg;
+
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
             currentLine += msg.split("\n").length - 1;

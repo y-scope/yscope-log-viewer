@@ -44,7 +44,6 @@ import {
 import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
-import { UrlContext } from "../../../contexts/UrlContextProvider";
 
 
 interface LogSelectOptionProps {
@@ -154,7 +153,6 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {isPrettified} = useContext(UrlContext);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const {uiState, filterLogs} = useContext(StateContext);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
@@ -178,9 +176,8 @@ const LogLevelSelect = () => {
 
         filterLogs((0 === logLevels.length ?
             null :
-            logLevels), isPrettified ?? false);
+            logLevels));
     }, [
-        isPrettified,
         filterLogs,
         setSelectedLogLevels,
     ]);

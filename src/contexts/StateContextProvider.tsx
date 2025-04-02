@@ -1,17 +1,37 @@
 /* eslint max-lines: ["error", 600] */
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import LogExportManager, { EXPORT_LOGS_PROGRESS_VALUE_MIN } from "../services/LogExportManager";
-import { Nullable } from "../typings/common";
-import { CONFIG_KEY } from "../typings/config";
-import { LOG_LEVEL, LogLevelFilter } from "../typings/logs";
-import { DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS, LONG_AUTO_DISMISS_TIMEOUT_MILLIS } from "../typings/notifications";
-import { QUERY_PROGRESS_VALUE_MIN, QueryArgs, QueryResults } from "../typings/query";
-import { UI_STATE } from "../typings/states";
-import { TAB_NAME } from "../typings/tab";
-import { HASH_PARAM_NAMES, SEARCH_PARAM_NAMES } from "../typings/url";
+import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
+import {Nullable} from "../typings/common";
+import {CONFIG_KEY} from "../typings/config";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "../typings/logs";
+import {
+    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
+    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+} from "../typings/notifications";
+import {
+    QUERY_PROGRESS_VALUE_MIN,
+    QueryArgs,
+    QueryResults,
+} from "../typings/query";
+import {UI_STATE} from "../typings/states";
+import {TAB_NAME} from "../typings/tab";
+import {
+    HASH_PARAM_NAMES,
+    SEARCH_PARAM_NAMES,
+} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -21,13 +41,22 @@ import {
     MainWorkerRespMessage,
     WORKER_REQ_CODE,
     WORKER_RESP_CODE,
-    WorkerReq
+    WorkerReq,
 } from "../typings/worker";
-import { ACTION_NAME, NavigationAction } from "../utils/actions";
-import { EXPORT_LOGS_CHUNK_SIZE, getConfig } from "../utils/config";
-import { findNearestLessThanOrEqualElement, isWithinBounds } from "../utils/data";
-import { clamp } from "../utils/math";
-import { NotificationContext } from "./NotificationContextProvider";
+import {
+    ACTION_NAME,
+    NavigationAction,
+} from "../utils/actions";
+import {
+    EXPORT_LOGS_CHUNK_SIZE,
+    getConfig,
+} from "../utils/config";
+import {
+    findNearestLessThanOrEqualElement,
+    isWithinBounds,
+} from "../utils/data";
+import {clamp} from "../utils/math";
+import {NotificationContext} from "./NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
@@ -52,7 +81,7 @@ interface StateContextType {
     uiState: UI_STATE;
 
     exportLogs: () => void;
-    filterLogs: (filter: LogLevelFilter, isPrettified: boolean) => void;
+    filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
@@ -175,7 +204,7 @@ const loadPageByCursor = (
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
-        isPrettified: isPrettified
+        isPrettified: isPrettified,
     });
 };
 
@@ -399,15 +428,15 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         );
         mainWorkerRef.current.onmessage = handleMainWorkerResp;
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_FILE, {
-            fileSrc: fileSrc,
-            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+            fileSrc: fileSrc,
+            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             isPrettified: isPrettified ?? false,
         });
     }, [
         handleMainWorkerResp,
-        isPrettified
+        isPrettified,
     ]);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
@@ -447,21 +476,22 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.IS_PRETTIFIED]: true,
             });
-            // Avoid redundant loadPageByCursor
+
             return;
         } else if (navAction.code === ACTION_NAME.PRETTIFY_OFF) {
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
             });
-            // Avoid redundant loadPageByCursor
+
             return;
         }
 
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
-    }, [loadFile, isPrettified]);
+    }, [loadFile,
+        isPrettified]);
 
-    const filterLogs = useCallback((filter: LogLevelFilter, isPrettified: boolean) => {
+    const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
             return;
         }
@@ -469,9 +499,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: filter,
-            isPrettified: isPrettified
+            isPrettified: isPrettified ?? false,
         });
-    }, []);
+    }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -541,6 +571,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
     }, [
+        isPrettified,
         logEventNum,
         numEvents,
     ]);

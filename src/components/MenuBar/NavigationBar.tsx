@@ -1,21 +1,25 @@
-import React, { useContext } from "react";
+import React, {useContext} from "react";
 
-import { ButtonGroup } from "@mui/joy";
+import {ButtonGroup} from "@mui/joy";
 
-import { AutoFixHighRounded, AutoFixOffRounded } from "@mui/icons-material";
+import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
+import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
-import { StateContext } from "../../contexts/StateContextProvider";
-import { UI_ELEMENT } from "../../typings/states";
-import { ACTION_NAME } from "../../utils/actions";
-import { ignorePointerIfFastLoading, isDisabled } from "../../utils/states";
+import {StateContext} from "../../contexts/StateContextProvider";
+import {UrlContext} from "../../contexts/UrlContextProvider";
+import {UI_ELEMENT} from "../../typings/states";
+import {ACTION_NAME} from "../../utils/actions";
+import {
+    ignorePointerIfFastLoading,
+    isDisabled,
+} from "../../utils/states";
 import MenuBarIconButton from "./MenuBarIconButton";
 import MenuBarToggleButton from "./MenuBarToggleButton";
 import PageNumInput from "./PageNumInput";
-import { UrlContext } from "../../contexts/UrlContextProvider";
 
 
 /**
@@ -54,13 +58,16 @@ const NavigationBar = () => {
             variant={"plain"}
         >
             <MenuBarToggleButton
-                data-action-name={isPrettified ?? false ? ACTION_NAME.PRETTIFY_OFF : ACTION_NAME.PRETTIFY_ON}
-                title={isPrettified ?? false ? "Prettify Off" : "Prettify On"}
                 isActive={!(isPrettified ?? false)}
-                onIcon={<AutoFixHighRounded />}
-                offIcon={<AutoFixOffRounded />}
+                offIcon={<AutoFixOffRoundedIcon/>}
+                data-action-name={isPrettified ?? false ?
+                    ACTION_NAME.PRETTIFY_OFF :
+                    ACTION_NAME.PRETTIFY_ON}
+                title={isPrettified ?? false ?
+                    "Prettify Off" :
+                    "Prettify On"}
                 onClick={handleNavButtonClick}
-            />
+                onIcon={<AutoFixHighRoundedIcon/>}/>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
                 title={"First page"}
