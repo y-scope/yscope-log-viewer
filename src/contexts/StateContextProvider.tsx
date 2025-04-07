@@ -389,6 +389,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [
         numEvents,
         fileName,
+        setExportProgress,
     ]);
 
     const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
