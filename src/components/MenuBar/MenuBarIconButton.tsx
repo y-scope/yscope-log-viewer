@@ -15,7 +15,7 @@ interface MenuBarIconButtonProps extends IconButtonProps {
  * An icon button for use in the menu bar.
  *
  * @param props
- * @param props.title Tooltip title.
+ * @param props.tooltipTitle Tooltip title, to discern with native HTML tooltip.
  * @param props.tooltipPlacement
  * @param props.rest
  * @return

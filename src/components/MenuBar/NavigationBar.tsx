@@ -57,9 +57,9 @@ const NavigationBar = () => {
             variant={"plain"}
         >
             <MenuBarToggleButton
+                data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 isActive={!isPrettified}
                 offIcon={<AutoFixOffRoundedIcon/>}
-                data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 tooltipTitle={isPrettified ?? false ?
                     "Prettify Off" :
                     "Prettify On"}

@@ -21,7 +21,7 @@ interface MenuBarToggleButtonProps extends IconButtonProps {
  * A toggle button for use in the menu bar.
  *
  * @param props
- * @param props.title Tooltip title.
+ * @param props.tooltipTitle Tooltip title, to discern with native HTML tooltip.
  * @param props.tooltipPlacement Tooltip position.
  * @param props.onIcon Icon when active.
  * @param props.offIcon Icon when inactive.
