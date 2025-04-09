@@ -11,6 +11,7 @@ import Close from "@mui/icons-material/Close";
 
 interface MenuBarToggleButtonProps extends IconButtonProps {
     tooltipPlacement?: TooltipTypeMap["props"]["placement"];
+    tooltipTitle?: string;
     isActive?: boolean;
     onIcon?: React.ReactNode;
     offIcon?: React.ReactNode;
@@ -30,7 +31,7 @@ interface MenuBarToggleButtonProps extends IconButtonProps {
  */
 const MenuBarToggleButton = ({
     tooltipPlacement,
-    title,
+    tooltipTitle,
     isActive = false,
     onIcon = <Check/>,
     offIcon = <Close/>,
@@ -39,7 +40,7 @@ const MenuBarToggleButton = ({
     return (
         <Tooltip
             placement={tooltipPlacement ?? "bottom"}
-            title={title}
+            title={tooltipTitle}
         >
             <span>
                 <IconButton
@@ -54,5 +55,6 @@ const MenuBarToggleButton = ({
         </Tooltip>
     );
 };
+
 
 export default MenuBarToggleButton;

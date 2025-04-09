@@ -60,21 +60,21 @@ const NavigationBar = () => {
                 isActive={!isPrettified}
                 offIcon={<AutoFixOffRoundedIcon/>}
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
-                title={isPrettified ?? false ?
+                tooltipTitle={isPrettified ?? false ?
                     "Prettify Off" :
                     "Prettify On"}
                 onClick={handleNavButtonClick}
                 onIcon={<AutoFixHighRoundedIcon/>}/>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
-                title={"First page"}
+                tooltipTitle={"First page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipPrevious/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.PREV_PAGE}
-                title={"Previous page"}
+                tooltipTitle={"Previous page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateBefore/>
@@ -84,14 +84,14 @@ const NavigationBar = () => {
 
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.NEXT_PAGE}
-                title={"Next page"}
+                tooltipTitle={"Next page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateNext/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.LAST_PAGE}
-                title={"Last page"}
+                tooltipTitle={"Last page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipNext/>

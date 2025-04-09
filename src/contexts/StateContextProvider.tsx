@@ -277,6 +277,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const beginLineNumToLogEventNumRef =
             useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
     const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
+    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
     const mainWorkerRef = useRef<null | Worker>(null);
@@ -430,8 +431,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
             fileSrc: fileSrc,
-            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             isPrettified: isPrettified ?? false,
+            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
         });
     }, [
         handleMainWorkerResp,
@@ -472,17 +473,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         if (navAction.code === ACTION_NAME.TOGGLE_PRETTIFY) {
+            isPrettifiedRef.current = !isPrettifiedRef.current;
             updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: isPrettifiedRef.current,
             });
 
             return;
         }
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
-    }, [loadFile,
-        isPrettified]);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current);
+    }, [loadFile]);
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
         if (null === mainWorkerRef.current) {
@@ -492,8 +493,13 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             logLevelFilter: filter,
-            isPrettified: isPrettified ?? false,
+            isPrettified: isPrettifiedRef.current,
         });
+    }, []);
+
+    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    useEffect(() => {
+        isPrettifiedRef.current = isPrettified ?? false;
     }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.

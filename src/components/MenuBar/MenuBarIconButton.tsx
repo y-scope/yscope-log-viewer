@@ -8,6 +8,7 @@ import {
 
 interface MenuBarIconButtonProps extends IconButtonProps {
     tooltipPlacement?: TooltipTypeMap["props"]["placement"];
+    tooltipTitle?: string;
 }
 
 /**
@@ -21,12 +22,12 @@ interface MenuBarIconButtonProps extends IconButtonProps {
  */
 const MenuBarIconButton = ({
     tooltipPlacement,
-    title,
+    tooltipTitle,
     ...rest
 }: MenuBarIconButtonProps) => (
     <Tooltip
         placement={tooltipPlacement ?? "bottom"}
-        title={title}
+        title={tooltipTitle}
     >
         <span>
             <IconButton
