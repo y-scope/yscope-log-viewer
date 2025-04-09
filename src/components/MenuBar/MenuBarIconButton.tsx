@@ -26,8 +26,8 @@ const MenuBarIconButton = ({
     ...rest
 }: MenuBarIconButtonProps) => (
     <Tooltip
-        placement={tooltipPlacement ?? "bottom"}
         title={tooltipTitle}
+        {... tooltipPlacement && {placement: tooltipPlacement}}
     >
         <span>
             <IconButton
