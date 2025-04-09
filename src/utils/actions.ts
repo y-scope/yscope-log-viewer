@@ -5,8 +5,7 @@ import {Nullable} from "../typings/common";
 
 enum ACTION_NAME {
     SPECIFIC_PAGE = "specificPage",
-    PRETTIFY_ON = "prettifyOn",
-    PRETTIFY_OFF = "prettifyOff",
+    TOGGLE_PRETTIFY = "togglePrettify",
     FIRST_PAGE = "firstPage",
     PREV_PAGE = "prevPage",
     NEXT_PAGE = "nextPage",
@@ -37,14 +36,9 @@ const EDITOR_ACTIONS : EditorAction[] = [
         label: "Focus on Editor",
     },
     {
-        actionName: ACTION_NAME.PRETTIFY_ON,
-        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP],
+        actionName: ACTION_NAME.TOGGLE_PRETTIFY,
+        keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF],
         label: "Prettify On",
-    },
-    {
-        actionName: ACTION_NAME.PRETTIFY_OFF,
-        keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP],
-        label: "Prettify Off",
     },
     {
         actionName: ACTION_NAME.FIRST_PAGE,
@@ -94,8 +88,7 @@ type NavigationActionsMap = {
     [ACTION_NAME.SPECIFIC_PAGE]: {
         pageNum: number;
     };
-    [ACTION_NAME.PRETTIFY_ON]: null;
-    [ACTION_NAME.PRETTIFY_OFF]: null;
+    [ACTION_NAME.TOGGLE_PRETTIFY]: null;
     [ACTION_NAME.FIRST_PAGE]: null;
     [ACTION_NAME.PREV_PAGE]: null;
     [ACTION_NAME.NEXT_PAGE]: null;

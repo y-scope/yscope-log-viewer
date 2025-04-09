@@ -1,5 +1,5 @@
 /* eslint max-lines: ["error", 500] */
-import js_beautify from "js-beautify";
+import JsBeautify from "js-beautify";
 
 import {
     Decoder,
@@ -288,7 +288,7 @@ class LogFileManager {
             ] = r;
 
             const printedMsg = (isPrettified) ?
-                `${js_beautify(msg)}\n` :
+                `${JsBeautify(msg)}\n` :
                 msg;
 
             messages.push(printedMsg);

@@ -39,8 +39,7 @@ const NavigationBar = () => {
 
         // Ensure `actionName` is a valid navigation action code with no args.
         if (
-            actionName === ACTION_NAME.PRETTIFY_ON ||
-            actionName === ACTION_NAME.PRETTIFY_OFF ||
+            actionName === ACTION_NAME.TOGGLE_PRETTIFY ||
             actionName === ACTION_NAME.FIRST_PAGE ||
             actionName === ACTION_NAME.PREV_PAGE ||
             actionName === ACTION_NAME.NEXT_PAGE ||
@@ -58,11 +57,9 @@ const NavigationBar = () => {
             variant={"plain"}
         >
             <MenuBarToggleButton
-                isActive={!(isPrettified ?? false)}
+                isActive={!isPrettified}
                 offIcon={<AutoFixOffRoundedIcon/>}
-                data-action-name={isPrettified ?? false ?
-                    ACTION_NAME.PRETTIFY_OFF :
-                    ACTION_NAME.PRETTIFY_ON}
+                data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 title={isPrettified ?? false ?
                     "Prettify Off" :
                     "Prettify On"}

@@ -158,8 +158,7 @@ const getPageNumCursor = (
             // Clamp is to prevent someone from requesting non-existent page.
             newPageNum = clamp(navAction.args.pageNum, 1, numPages);
             break;
-        case ACTION_NAME.PRETTIFY_ON:
-        case ACTION_NAME.PRETTIFY_OFF:
+        case ACTION_NAME.TOGGLE_PRETTIFY:
             // When the prettifying is on, return to the top
             position = EVENT_POSITION_ON_PAGE.TOP;
             newPageNum = currentPageNum;
@@ -472,15 +471,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (navAction.code === ACTION_NAME.PRETTIFY_ON) {
+        if (navAction.code === ACTION_NAME.TOGGLE_PRETTIFY) {
             updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: true,
-            });
-
-            return;
-        } else if (navAction.code === ACTION_NAME.PRETTIFY_OFF) {
-            updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
             });
 
             return;
@@ -533,8 +526,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         const cursor: CursorType = {
-            code: CURSOR_CODE.PAGE_NUM,
-            args: {pageNum: pageNumRef.current, eventPositionOnPage: EVENT_POSITION_ON_PAGE.TOP},
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: logEventNumRef.current ?? 1},
         };
 
         setUiState(UI_STATE.FAST_LOADING);
