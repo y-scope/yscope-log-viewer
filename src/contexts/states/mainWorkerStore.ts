@@ -8,6 +8,7 @@ import {
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useLogExportStore from "./logExportStore";
 import {useLogFileStore} from "./logFileStore";
+import {useQueryStore} from "./queryStore";
 
 
 /**
@@ -32,8 +33,7 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             const {logExportManager} = useLogExportStore.getState();
             if (null !== logExportManager) {
                 const progress = logExportManager.appendChunk(args.logs);
-                const {setExportProgress} = useLogExportStore.getState();
-                setExportProgress(progress);
+                useLogExportStore.getState().setExportProgress(progress);
             }
             break;
         }
@@ -50,6 +50,12 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             updateWindowUrlHashParams({
                 logEventNum: args.logEventNum,
             });
+            break;
+        }
+        case WORKER_RESP_CODE.QUERY_RESULT: {
+            const {setQueryProgress, mergeQueryResults} = useQueryStore.getState();
+            setQueryProgress(args.progress);
+            mergeQueryResults(args.results);
             break;
         }
         default:

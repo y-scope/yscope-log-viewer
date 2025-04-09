@@ -21,7 +21,7 @@ const LOG_FILE_DEFAULT = {
     pageNum: 0,
 };
 
-interface logFileState {
+interface LogFileState {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     fileName: string;
     logData: string;
@@ -40,7 +40,7 @@ interface logFileState {
     setPageNum: (newPageNum: number) => void;
 }
 
-const useLogFileStore = create<logFileState>((set) => ({
+const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {init} = useMainWorkerStore.getState();
