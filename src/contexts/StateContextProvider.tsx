@@ -551,7 +551,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current);
     }, [
         logEventNum,
         numEvents,
