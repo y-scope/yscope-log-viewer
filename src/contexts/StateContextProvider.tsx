@@ -28,10 +28,7 @@ import {
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
 import {TAB_NAME} from "../typings/tab";
-import {
-    HASH_PARAM_NAMES,
-    SEARCH_PARAM_NAMES,
-} from "../typings/url";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
@@ -157,11 +154,6 @@ const getPageNumCursor = (
 
             // Clamp is to prevent someone from requesting non-existent page.
             newPageNum = clamp(navAction.args.pageNum, 1, numPages);
-            break;
-        case ACTION_NAME.TOGGLE_PRETTIFY:
-            // When the prettifying is on, return to the top
-            position = EVENT_POSITION_ON_PAGE.TOP;
-            newPageNum = currentPageNum;
             break;
         case ACTION_NAME.FIRST_PAGE:
             position = EVENT_POSITION_ON_PAGE.TOP;
@@ -472,15 +464,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (navAction.code === ACTION_NAME.TOGGLE_PRETTIFY) {
-            isPrettifiedRef.current = !isPrettifiedRef.current;
-            updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: isPrettifiedRef.current,
-            });
-
-            return;
-        }
-
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current);
     }, [loadFile]);
@@ -570,7 +553,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
     }, [
-        isPrettified,
         logEventNum,
         numEvents,
     ]);

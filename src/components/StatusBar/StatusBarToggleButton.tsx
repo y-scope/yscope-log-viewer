@@ -29,7 +29,7 @@ interface MenuBarToggleButtonProps extends IconButtonProps {
  * @param props.isActive
  * @return JSX.Element
  */
-const MenuBarToggleButton = ({
+const StatusBarToggleButton = ({
     tooltipPlacement,
     tooltipTitle,
     isActive = false,
@@ -57,4 +57,4 @@ const MenuBarToggleButton = ({
 };
 
 
-export default MenuBarToggleButton;
+export default StatusBarToggleButton;
