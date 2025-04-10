@@ -9,11 +9,11 @@ import useMainWorkerStore from "./mainWorkerStore";
 
 
 const QUERY_DEFAULT = {
+    queryIsCaseSensitive: false,
+    queryIsRegex: false,
     queryProgress: 0,
     queryResults: new Map<number, QueryResultsType[]>(),
     queryString: "",
-    queryIsCaseSensitive: false,
-    queryIsRegex: false,
 };
 
 interface QueryState {
@@ -27,6 +27,9 @@ interface QueryState {
     mergeQueryResults: (newQueryResults: QueryResults) => void;
     startQuery: () => void;
     setQueryProgress: (newProgress: number) => void;
+    setQueryString: (newQueryString: string) => void;
+    setQueryIsCaseSensitive: (newQueryIsCaseSensitive: boolean) => void;
+    setQueryIsRegex: (newQueryIsRegex: boolean) => void;
 }
 
 const useQueryStore = create<QueryState>((set) => ({
@@ -51,6 +54,18 @@ const useQueryStore = create<QueryState>((set) => ({
             return {queryResults: mergedResults};
         });
     },
+    setQueryIsCaseSensitive: (newQueryIsCaseSensitive) => {
+        set({queryIsCaseSensitive: newQueryIsCaseSensitive});
+    },
+    setQueryIsRegex: (newQueryIsRegex) => {
+        set({queryIsRegex: newQueryIsRegex});
+    },
+    setQueryProgress: (newProgress) => {
+        set({queryProgress: newProgress});
+    },
+    setQueryString: (newQueryString) => {
+        set({queryString: newQueryString});
+    },
     startQuery: () => {
         const {
             clearQueryResults,
@@ -71,9 +86,6 @@ const useQueryStore = create<QueryState>((set) => ({
             queryIsCaseSensitive,
             queryIsRegex,
         } as StructuredSerializeOptions);
-    },
-    setQueryProgress: (newProgress) => {
-        set({queryProgress: newProgress});
     },
 }));
 
