@@ -1,7 +1,4 @@
-import {
-    useContext,
-    useMemo,
-} from "react";
+import {useMemo} from "react";
 
 import {
     Divider,
@@ -11,7 +8,7 @@ import {
 import AbcIcon from "@mui/icons-material/Abc";
 import StorageIcon from "@mui/icons-material/Storage";
 
-import {StateContext} from "../../../../contexts/StateContextProvider";
+import {useLogFileStore} from "../../../../contexts/states/logFileStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
@@ -27,7 +24,8 @@ import CustomTabPanel from "./CustomTabPanel";
  * @return
  */
 const FileInfoTabPanel = () => {
-    const {fileName, onDiskFileSizeInBytes} = useContext(StateContext);
+    const fileName = useLogFileStore((state) => state.fileName);
+    const onDiskFileSizeInBytes = useLogFileStore((state) => state.onDiskFileSizeInBytes);
 
     const isFileUnloaded = 0 === fileName.length;
     const formattedOnDiskSize = useMemo(

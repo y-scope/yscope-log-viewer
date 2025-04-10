@@ -10,6 +10,7 @@ import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {StateContext} from "../../contexts/StateContextProvider";
+import {useLogFileStore} from "../../contexts/states/logFileStore";
 import {
     updateWindowUrlHashParams,
     UrlContext,
@@ -134,7 +135,8 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, logData, loadPageByAction} = useContext(StateContext);
+    const {beginLineNumToLogEventNum, loadPageByAction} = useContext(StateContext);
+    const logData = useLogFileStore((state) => state.logData);
     const {logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
