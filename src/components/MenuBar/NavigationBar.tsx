@@ -29,8 +29,8 @@ const NavigationBar = () => {
         loadPageByAction,
     } = useContext(StateContext);
 
-    const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = event.currentTarget.dataset;
+    const handleNavButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        const {actionName} = ev.currentTarget.dataset;
 
         // Ensure `actionName` is a valid navigation action code with no args.
         if (

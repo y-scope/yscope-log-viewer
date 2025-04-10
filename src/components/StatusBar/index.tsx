@@ -42,8 +42,8 @@ const StatusBar = () => {
     const {uiState, numEvents} = useContext(StateContext);
     const {isPrettified, logEventNum} = useContext(UrlContext);
 
-    const handleStatusButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = event.currentTarget.dataset;
+    const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        const {actionName} = ev.currentTarget.dataset;
 
         switch (actionName) {
             case ACTION_NAME.TOGGLE_PRETTIFY:
@@ -56,6 +56,8 @@ const StatusBar = () => {
                 break;
         }
     };
+
+    const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 
     return (
         <Sheet className={"status-bar"}>
@@ -80,17 +82,20 @@ const StatusBar = () => {
                 </span>
             </Tooltip>
 
+            <LogLevelSelect/>
+
             <StatusBarToggleButton
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
-                isActive={!isPrettified}
-                offIcon={<AutoFixOffRoundedIcon/>}
+                disabled={isPrettifyButtonDisabled}
+                isActive={isPrettified ?? false}
+                icons={{
+                    active: <AutoFixHighRoundedIcon/>,
+                    inactive: <AutoFixOffRoundedIcon/>,
+                }}
                 tooltipTitle={isPrettified ?? false ?
-                    "Prettify Off" :
-                    "Prettify On"}
-                onClick={handleStatusButtonClick}
-                onIcon={<AutoFixHighRoundedIcon/>}/>
-
-            <LogLevelSelect/>
+                    "Turn off Prettify" :
+                    "Turn on Prettify"}
+                onClick={handleStatusButtonClick}/>
         </Sheet>
     );
 };

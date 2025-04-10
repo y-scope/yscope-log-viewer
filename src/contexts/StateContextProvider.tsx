@@ -423,12 +423,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: cursor,
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
             fileSrc: fileSrc,
-            isPrettified: isPrettified ?? false,
+            isPrettified: isPrettifiedRef.current,
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
         });
     }, [
         handleMainWorkerResp,
-        isPrettified,
     ]);
 
     const loadPageByAction = useCallback((navAction: NavigationAction) => {
