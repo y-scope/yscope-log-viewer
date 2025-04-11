@@ -1,4 +1,4 @@
-import {useContext} from "react";
+import React, {useContext} from "react";
 
 import {
     Button,
@@ -7,14 +7,21 @@ import {
     Typography,
 } from "@mui/joy";
 
+import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
+import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
+
 import {StateContext} from "../../contexts/StateContextProvider";
 import {
     copyPermalinkToClipboard,
+    updateWindowUrlHashParams,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
 import {UI_ELEMENT} from "../../typings/states";
+import {HASH_PARAM_NAMES} from "../../typings/url";
+import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
 import LogLevelSelect from "./LogLevelSelect";
+import StatusBarToggleButton from "./StatusBarToggleButton";
 
 import "./index.css";
 
@@ -33,7 +40,24 @@ const handleCopyLinkButtonClick = () => {
  */
 const StatusBar = () => {
     const {uiState, numEvents} = useContext(StateContext);
-    const {logEventNum} = useContext(UrlContext);
+    const {isPrettified, logEventNum} = useContext(UrlContext);
+
+    const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        const {actionName} = ev.currentTarget.dataset;
+
+        switch (actionName) {
+            case ACTION_NAME.TOGGLE_PRETTIFY:
+                updateWindowUrlHashParams({
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
+                });
+                break;
+            default:
+                console.error(`Unexpected action: ${actionName}`);
+                break;
+        }
+    };
+
+    const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 
     return (
         <Sheet className={"status-bar"}>
@@ -59,6 +83,19 @@ const StatusBar = () => {
             </Tooltip>
 
             <LogLevelSelect/>
+
+            <StatusBarToggleButton
+                data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
+                disabled={isPrettifyButtonDisabled}
+                isActive={isPrettified ?? false}
+                icons={{
+                    active: <AutoFixHighRoundedIcon/>,
+                    inactive: <AutoFixOffRoundedIcon/>,
+                }}
+                tooltipTitle={isPrettified ?? false ?
+                    "Turn off Prettify" :
+                    "Turn on Prettify"}
+                onClick={handleStatusButtonClick}/>
         </Sheet>
     );
 };

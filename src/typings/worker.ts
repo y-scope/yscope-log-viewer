@@ -102,13 +102,16 @@ type WorkerReqMap = {
         pageSize: number;
         cursor: CursorType;
         decoderOptions: DecoderOptions;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
         logLevelFilter: LogLevelFilter;
+        isPrettified: boolean;
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;

@@ -24,10 +24,13 @@ import PageNumInput from "./PageNumInput";
  * @return
  */
 const NavigationBar = () => {
-    const {uiState, loadPageByAction} = useContext(StateContext);
+    const {
+        uiState,
+        loadPageByAction,
+    } = useContext(StateContext);
 
-    const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = event.currentTarget.dataset;
+    const handleNavButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        const {actionName} = ev.currentTarget.dataset;
 
         // Ensure `actionName` is a valid navigation action code with no args.
         if (
@@ -49,14 +52,14 @@ const NavigationBar = () => {
         >
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
-                title={"First page"}
+                tooltipTitle={"First page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipPrevious/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.PREV_PAGE}
-                title={"Previous page"}
+                tooltipTitle={"Previous page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateBefore/>
@@ -66,14 +69,14 @@ const NavigationBar = () => {
 
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.NEXT_PAGE}
-                title={"Next page"}
+                tooltipTitle={"Next page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateNext/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.LAST_PAGE}
-                title={"Last page"}
+                tooltipTitle={"Last page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipNext/>
