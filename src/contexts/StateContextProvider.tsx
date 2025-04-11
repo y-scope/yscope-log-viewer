@@ -474,8 +474,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
         workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
-            logLevelFilter: filter,
             isPrettified: isPrettifiedRef.current,
+            logLevelFilter: filter,
         });
     }, []);
 

@@ -15,8 +15,8 @@ interface UrlSearchParams {
 }
 
 interface UrlHashParams {
-    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: number;
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: boolean;
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: number;
 }
 
 type UrlSearchParamUpdatesType = {
