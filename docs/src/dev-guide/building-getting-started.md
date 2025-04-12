@@ -44,13 +44,17 @@ To deploy the application, serve the contents of the `dist` directory using a st
 
 You can deploy the dist/ folder to any static hosting service such as:
 
-* **[GitHub Pages][github-pages]**
+* **[GitHub Pages][github-pages]** \
+  Forking this repository will automatically deploy the site to 
+  `https://<your-github-username>.github.io/yscope-log-viewer/` using GitHub Pages.
+  [An automatic deployment workflow][gh-workflow-deploy-gh-pages] deploys the application to 
+  GitHub Pages on every push to the main branch. Make sure to [enable GitHub Actions]
+  [enable-gh-actions] for your fork to activate the workflow.
 * **Netlify**, **Vercel**, or **Cloudflare Pages**
 * Traditional servers using **Nginx** or **Apache**
 * Object storage + CDN setups (e.g. **AWS S3** + **CloudFront**)
 
-Ensure your server or platform serves static assets with appropriate MIME types and routing rules as
-outlined below.
+Ensure your server or platform serves static assets with appropriate MIME types as outlined below.
 
 ### MIME Types
 
@@ -98,7 +102,9 @@ Serving over HTTP is generally discouraged in production environments for securi
 Whenever possible, host both the application and any log files on secure origins.
 
 [emscripten-issue-18468]: https://github.com/emscripten-core/emscripten/issues/18468
+[enable-gh-actions]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
 [github-pages]: https://pages.github.com/
+[gh-workflow-deploy-gh-pages]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/deploy-gh-pages.yaml
 [mdn-content-encoding]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding
 [mdn-mixed-context-restrictions]: https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content
 [nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
