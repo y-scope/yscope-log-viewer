@@ -68,10 +68,10 @@ detailed in [Emscripten issue #18468](https://github.com/emscripten-core/emscrip
 
 Modern web servers have incorporated this MIME type by default:
 
-* **Nginx** includes the correct MIME type starting from 1.21.0.
 * **Apache HTTP Server** relies on the system's `/etc/mime.types` file; Debian-based systems include
   the correct type in the media-types package version 3.62, which is available in Debian Buster /
   Ubuntu 20.04 LTS and later.
+* **Nginx** includes the correct MIME type starting from 1.21.0.
 
 If your server does not have this MIME type configured, you will need to manually add it.
 :::
