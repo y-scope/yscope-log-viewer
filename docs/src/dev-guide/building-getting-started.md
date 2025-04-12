@@ -54,7 +54,8 @@ outlined below.
 
 ### MIME Types
 
-The server should be configured to serve WebAssembly (`.wasm`) files with the correct MIME type.
+The server should be configured to serve WebAssembly (`.wasm`) files with MIME type
+`application/wasm`.
 
 :::{warning}
 Failing to do so can cause the Emscripten-generated JavaScript wrapper to make 
