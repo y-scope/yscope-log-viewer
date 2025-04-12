@@ -247,7 +247,7 @@ class JsonlDecoder implements Decoder {
 
         return [
             message,
-            timestamp,
+            BigInt(timestamp),
             logLevel,
             logEventIdx + 1,
         ];
