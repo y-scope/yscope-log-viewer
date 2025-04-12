@@ -48,8 +48,8 @@ You can deploy the dist/ folder to any static hosting service such as:
   Forking this repository will automatically deploy the site to 
   `https://<your-github-username>.github.io/yscope-log-viewer/` using GitHub Pages.
   [An automatic deployment workflow][gh-workflow-deploy-gh-pages] deploys the application to 
-  GitHub Pages on every push to the main branch. Make sure to [enable GitHub Actions]
-  [enable-gh-actions] for your fork to activate the workflow.
+  GitHub Pages on every push to the main branch. Make sure to 
+  [enable GitHub Actions][enable-gh-actions] for your fork to activate the workflow.
 * **Netlify**, **Vercel**, or **Cloudflare Pages**
 * Traditional servers using **Nginx** or **Apache**
 * Object storage + CDN setups (e.g. **AWS S3** + **CloudFront**)
