@@ -103,8 +103,8 @@ Whenever possible, host both the application and any log files on secure origins
 
 [emscripten-issue-18468]: https://github.com/emscripten-core/emscripten/issues/18468
 [enable-gh-actions]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
-[github-pages]: https://pages.github.com/
 [gh-workflow-deploy-gh-pages]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/deploy-gh-pages.yaml
+[github-pages]: https://pages.github.com/
 [mdn-content-encoding]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding
 [mdn-mixed-context-restrictions]: https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content
 [nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
