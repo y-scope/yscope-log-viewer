@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: "ubuntu-latest"
     outputs:
-      DIST_TAR_NAME: "${{steps.release-names.outputs.DIST_TAR_NAME}}"
-      VERSION: "${{steps.release-names.outputs.VERSION}}"
+      DIST_TAR_NAME: "${{needs.build.outputs.DIST_TAR_NAME}}"
+      VERSION: "${{needs.build.outputs.VERSION}}"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -52,7 +52,7 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
 
           echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.version}}.tar" >> \
+          echo "DIST_TAR_NAME=dist-${{needs.build.outputs.version}}.tar" >> \
             $GITHUB_OUTPUT
 
   release:
@@ -68,15 +68,15 @@ jobs:
 
       - name: "Rename build artifact"
         run: |
-          mv "artifact.tar" "${{steps.release-names.outputs.DIST_TAR_NAME}}"
+          mv "artifact.tar" "${{needs.build.outputs.DIST_TAR_NAME}}"
 
       - name: "Create GitHub Release"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          gh release create "v${{steps.release-names.outputs.VERSION}}" \
-            "${{steps.release-names.outputs.DIST_TAR_NAME}}" \
-            --title "Release v${{steps.release-names.outputs.VERSION}}" \
+          gh release create "v${{needs.build.outputs.VERSION}}" \
+            "${{needs.build.outputs.DIST_TAR_NAME}}" \
+            --title "Release v${{needs.build.outputs.VERSION}}" \
             --generate-notes \
             --fail-on-no-commits
 
