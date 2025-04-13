@@ -19,8 +19,8 @@ jobs:
   build:
     runs-on: "ubuntu-latest"
     outputs:
-      DIST_TAR_NAME: "${{needs.build.outputs.DIST_TAR_NAME}}"
-      VERSION: "${{needs.build.outputs.VERSION}}"
+      DIST_TAR_NAME: "${{steps.release-names.outputs.DIST_TAR_NAME}}"
+      VERSION: "${{steps.release-names.outputs.VERSION}}"
     steps:
       - uses: "actions/checkout@v4"
         with:
