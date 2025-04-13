@@ -52,7 +52,7 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
 
           echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.version}}.tar.zip" >> \
+          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.version}}.tar" >> \
             $GITHUB_OUTPUT
 
   release:
@@ -66,12 +66,9 @@ jobs:
         with:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
-      - run: "ls -la"
-      - run: "ls -la yscope-log-viewer"
-
       - name: "Rename build artifact"
         run: |
-          mv "${{env.G_DIST_ARTIFACT_NAME}}" "${DIST_TAR_NAME}"
+          mv "artifact.tar" "${DIST_TAR_NAME}"
 
       - name: "Create GitHub Release"
         env:
