@@ -59,9 +59,10 @@ jobs:
           BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
           DATE=$(date +'%Y%m%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
 
-          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "DIST_TAR_NAME=dist-${{steps.names.outputs.VERSION}}.tar" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "DIST_TAR_NAME=dist-${VERSION}.tar" >> "$GITHUB_OUTPUT"
 
       - uses: "actions/download-artifact@v4"
         with:
@@ -78,7 +79,7 @@ jobs:
             "${{steps.names.outputs.DIST_TAR_NAME}}" \
             --fail-on-no-commits \
             --generate-notes \
-            --title "Release v${{steps.names.outputs.VERSION}}"
+            --title "v${{steps.names.outputs.VERSION}}"
 
   deploy:
     needs: "release"
