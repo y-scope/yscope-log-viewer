@@ -68,15 +68,15 @@ jobs:
 
       - name: "Rename build artifact"
         run: |
-          mv "artifact.tar" "${DIST_TAR_NAME}"
+          mv "artifact.tar" "${{steps.release-names.outputs.DIST_TAR_NAME}}"
 
       - name: "Create GitHub Release"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          gh release create "v${VERSION}" \
-            "${DIST_TAR_NAME}" \
-            --title "Release v${VERSION}" \
+          gh release create "v${{steps.release-names.outputs.VERSION}}" \
+            "${{steps.release-names.outputs.DIST_TAR_NAME}}" \
+            --title "Release v${{steps.release-names.outputs.VERSION}}" \
             --generate-notes \
             --fail-on-no-commits
 
