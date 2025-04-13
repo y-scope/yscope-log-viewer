@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
 
+env:
+  G_DIST_ARTIFACT_NAME: "yscope-log-viewer-dist-${{github.sha}}"
+
 permissions: {}
 
 concurrency:
@@ -34,7 +37,40 @@ jobs:
       - name: "Upload static files as artifact"
         uses: "actions/upload-pages-artifact@v3"
         with:
+          name: "${{env.G_DIST_ARTIFACT_NAME}}"
           path: "./dist"
+
+  release:
+    needs: "build"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/download-artifact@v4"
+        with:
+          name: "${{env.G_DIST_ARTIFACT_NAME}}"
+
+      - name: "Determine release names"
+        run: |
+          PACKAGE_VERSION=$(jq -r ".version" "package.json")
+          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+          DATE=$(date +'%Y%m%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
+          DIST_TAR_NAME=dist-${VERSION}.tar.gz
+
+      - name: "Rename build artifact"
+        run: |
+          mv "${{env.G_DIST_ARTIFACT_NAME}}" "${DIST_TAR_NAME}"
+
+      - name: "Create GitHub Release"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          gh release create "v${VERSION}" \
+          "${DIST_TAR_NAME}" \
+          --title "Release v${VERSION}" \
+          --generate-notes \
+          --fail-on-no-commits
 
   deploy:
     needs: "build"
@@ -52,3 +88,5 @@ jobs:
       - name: "Deploy to GitHub Pages"
         id: "deployment"
         uses: "actions/deploy-pages@v4"
+        with:
+          artifact_name: "${{env.G_DIST_ARTIFACT_NAME}}"
