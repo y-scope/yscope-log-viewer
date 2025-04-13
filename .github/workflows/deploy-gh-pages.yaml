@@ -67,7 +67,7 @@ jobs:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
       - name: "Rename build artifact"
-        run: "mv 'artifact.tar' '${DIST_TAR_NAME}'"
+        run: 'mv "artifact.tar" "${DIST_TAR_NAME}"'
 
       - name: "Create GitHub Release"
         env:
