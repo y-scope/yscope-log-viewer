@@ -8,46 +8,18 @@ import React, {
     useState,
 } from "react";
 
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-
-import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
-import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "../typings/logs";
-import {
-    DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
-} from "../typings/notifications";
-import {
-    QUERY_PROGRESS_VALUE_MIN,
-    QueryArgs,
-    QueryResults,
-} from "../typings/query";
+import {LogLevelFilter} from "../typings/logs";
+import {QueryArgs} from "../typings/query";
 import {UI_STATE} from "../typings/states";
 import {TAB_NAME} from "../typings/tab";
-import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
-    BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
-    EVENT_POSITION_ON_PAGE,
-    FileSrcType,
-    MainWorkerRespMessage,
     WORKER_REQ_CODE,
-    WORKER_RESP_CODE,
-    WorkerReq,
 } from "../typings/worker";
-import {
-    ACTION_NAME,
-    NavigationAction,
-} from "../utils/actions";
-import {
-    EXPORT_LOGS_CHUNK_SIZE,
-    getConfig,
-} from "../utils/config";
+import {NavigationAction} from "../utils/actions";
+import {getConfig} from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
@@ -55,13 +27,12 @@ import {
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useLogExportStore from "./states/logExportStore";
-import {
-    LOG_FILE_DEFAULT,
-    useLogFileStore,
-} from "./states/logFileStore";
+import useLogFileStore from "./states/logFileStore";
+import useMainWorkerStore from "./states/mainWorkerStore";
+import {useQueryStore} from "./states/queryStore";
+import useUiStore from "./states/uiStore";
 import {
     updateWindowUrlHashParams,
-    updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
     UrlContext,
@@ -70,14 +41,10 @@ import {
 
 interface StateContextType {
     activeTabName: TAB_NAME;
-    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     uiState: UI_STATE;
-    queryProgress: number;
-    queryResults: QueryResults;
 
     exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
     startQuery: (queryArgs: QueryArgs) => void;
@@ -90,14 +57,10 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
-    beginLineNumToLogEventNum: new Map<number, number>(),
-    queryProgress: QUERY_PROGRESS_VALUE_MIN,
-    queryResults: new Map(),
     uiState: UI_STATE.UNOPENED,
 
     exportLogs: () => null,
     filterLogs: () => null,
-    loadFile: () => null,
     loadPageByAction: () => null,
     setActiveTabName: () => null,
     startQuery: () => null,
@@ -106,86 +69,6 @@ const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
 interface StateContextProviderProps {
     children: React.ReactNode;
 }
-
-/**
- * Sends a post message to a worker with the given code and arguments. This wrapper around
- * `worker.postMessage()` ensures type safety for both the request code and its corresponding
- * arguments.
- *
- * @param worker
- * @param code
- * @param args
- */
-const workerPostReq = <T extends WORKER_REQ_CODE>(
-    worker: Worker,
-    code: T,
-    args: WorkerReq<T>
-) => {
-    worker.postMessage({code, args});
-};
-
-/**
- * Returns a `PAGE_NUM` cursor based on a navigation action.
- *
- * @param navAction Action to navigate to a new page.
- * @param currentPageNum
- * @param numPages
- * @return `PAGE_NUM` cursor.
- */
-const getPageNumCursor = (
-    navAction: NavigationAction,
-    currentPageNum: number,
-    numPages: number
-): Nullable<CursorType> => {
-    let newPageNum: number;
-    let position: EVENT_POSITION_ON_PAGE;
-    switch (navAction.code) {
-        case ACTION_NAME.SPECIFIC_PAGE:
-            position = EVENT_POSITION_ON_PAGE.TOP;
-
-            // Clamp is to prevent someone from requesting non-existent page.
-            newPageNum = clamp(navAction.args.pageNum, 1, numPages);
-            break;
-        case ACTION_NAME.FIRST_PAGE:
-            position = EVENT_POSITION_ON_PAGE.TOP;
-            newPageNum = 1;
-            break;
-        case ACTION_NAME.PREV_PAGE:
-            position = EVENT_POSITION_ON_PAGE.BOTTOM;
-            newPageNum = clamp(currentPageNum - 1, 1, numPages);
-            break;
-        case ACTION_NAME.NEXT_PAGE:
-            position = EVENT_POSITION_ON_PAGE.TOP;
-            newPageNum = clamp(currentPageNum + 1, 1, numPages);
-            break;
-        case ACTION_NAME.LAST_PAGE:
-            position = EVENT_POSITION_ON_PAGE.BOTTOM;
-            newPageNum = numPages;
-            break;
-        default:
-            return null;
-    }
-
-    return {
-        code: CURSOR_CODE.PAGE_NUM,
-        args: {pageNum: newPageNum, eventPositionOnPage: position},
-    };
-};
-
-/**
- * Submits a `LOAD_PAGE` request to a worker.
- *
- * @param worker
- * @param cursor
- */
-const loadPageByCursor = (
-    worker: Worker,
-    cursor: CursorType,
-) => {
-    workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
-        cursor: cursor,
-    });
-};
 
 /**
  * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
@@ -233,7 +116,12 @@ const updateUrlIfEventOnPage = (
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-lines-per-function, max-statements
+
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
@@ -241,38 +129,25 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
 
+    const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
+    const exportLogs = useLogExportStore((state) => state.exportLogs);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
+    const mainWorker = useMainWorkerStore((state) => state.mainWorker);
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const fileName = useLogFileStore((state) => state.fileName);
-    const numPages = useLogFileStore((state) => state.numPages);
-    const pageNum = useLogFileStore((state) => state.pageNum);
-    const setExportProgress = useLogExportStore((state) => state.setExportProgress);
-    const setFileName = useLogFileStore((state) => state.setFileName);
-    const setLogData = useLogFileStore((state) => state.setLogData);
-    const setNumEvents = useLogFileStore((state) => state.setNumEvents);
-    const setNumPages = useLogFileStore((state) => state.setNumPages);
-    const setOnDiskFileSizeInBytes = useLogFileStore(
-        (state) => state.setOnDiskFileSizeInBytes
-    );
-    const setPageNum = useLogFileStore((state) => state.setPageNum);
-    const [queryProgress, setQueryProgress] = useState<number>(STATE_DEFAULT.queryProgress);
-    const [queryResults, setQueryResults] = useState<QueryResults>(STATE_DEFAULT.queryResults);
-    const [uiState, setUiState] = useState<UI_STATE>(STATE_DEFAULT.uiState);
+    const uiState = useUiStore((state) => state.uiState);
+    const setLogEventNum = useLogFileStore((state) => state.setLogEventNum);
+    const setUiState = useUiStore((state) => state.setUiState);
+    const startQuery = useQueryStore((state) => state.startQuery);
 
     // Refs
-    const beginLineNumToLogEventNumRef =
-            useRef<BeginLineNumToLogEventNumMap>(STATE_DEFAULT.beginLineNumToLogEventNum);
-    const fileSrcRef = useRef<Nullable<FileSrcType>>(null);
     const logEventNumRef = useRef(logEventNum);
-    const logExportManagerRef = useRef<null | LogExportManager>(null);
-    const mainWorkerRef = useRef<null | Worker>(null);
-    const numPagesRef = useRef<number>(numPages);
-    const pageNumRef = useRef<number>(pageNum);
-    const uiStateRef = useRef<UI_STATE>(uiState);
 
     const handleFormatPopupPrimaryAction = useCallback(() => {
         setActiveTabName(TAB_NAME.SETTINGS);
     }, []);
 
+    /*
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
@@ -359,144 +234,45 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         handleFormatPopupPrimaryAction,
         postPopUp,
     ]);
-
-    const startQuery = useCallback((queryArgs: QueryArgs) => {
-        setQueryResults(STATE_DEFAULT.queryResults);
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.START_QUERY, queryArgs);
-    }, []);
-
-    const exportLogs = useCallback(() => {
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-        setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
-        logExportManagerRef.current = new LogExportManager(
-            Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
-            fileName
-        );
-        workerPostReq(
-            mainWorkerRef.current,
-            WORKER_REQ_CODE.EXPORT_LOGS,
-            null
-        );
-    }, [
-        numEvents,
-        fileName,
-        setExportProgress,
-    ]);
-
-    const loadFile = useCallback((fileSrc: FileSrcType, cursor: CursorType) => {
-        setUiState(UI_STATE.FILE_LOADING);
-        setFileName("Loading...");
-        setLogData("Loading...");
-        setOnDiskFileSizeInBytes(LOG_FILE_DEFAULT.onDiskFileSizeInBytes);
-        setExportProgress(EXPORT_LOGS_PROGRESS_VALUE_MIN);
-
-        // Cache `fileSrc` for reloads.
-        fileSrcRef.current = fileSrc;
-
-        if ("string" !== typeof fileSrc) {
-            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
-        }
-        if (null !== mainWorkerRef.current) {
-            mainWorkerRef.current.terminate();
-        }
-        mainWorkerRef.current = new Worker(
-            new URL("../services/MainWorker.ts", import.meta.url)
-        );
-        mainWorkerRef.current.onmessage = handleMainWorkerResp;
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.LOAD_FILE, {
-            fileSrc: fileSrc,
-            pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-            cursor: cursor,
-            decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-        });
-    }, [
-        handleMainWorkerResp,
-    ]);
-
-    const loadPageByAction = useCallback((navAction: NavigationAction) => {
-        if (null === mainWorkerRef.current) {
-            console.error("Unexpected null mainWorkerRef.current");
-
-            return;
-        }
-
-        if (navAction.code === ACTION_NAME.RELOAD) {
-            if (null === fileSrcRef.current || null === logEventNumRef.current) {
-                throw new Error(`Unexpected fileSrc=${JSON.stringify(fileSrcRef.current)
-                }, logEventNum=${logEventNumRef.current} when reloading.`);
-            }
-            loadFile(fileSrcRef.current, {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNumRef.current},
-            });
-
-            return;
-        }
-
-        if (UI_STATE.READY !== uiStateRef.current) {
-            console.warn("Skipping navigation: page load in progress.");
-
-            return;
-        }
-
-        const cursor = getPageNumCursor(navAction, pageNumRef.current, numPagesRef.current);
-        if (null === cursor) {
-            console.error(`Error with nav action ${navAction.code}.`);
-
-            return;
-        }
-
-        setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor);
-    }, [loadFile]);
+     */
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
-        if (null === mainWorkerRef.current) {
+        if (null === mainWorker) {
             return;
         }
+
         setUiState(UI_STATE.FAST_LOADING);
-        workerPostReq(mainWorkerRef.current, WORKER_REQ_CODE.SET_FILTER, {
-            cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
-            logLevelFilter: filter,
+        mainWorker.postMessage({
+            code: WORKER_REQ_CODE.SET_FILTER,
+            args: {
+                cursor: {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: logEventNumRef.current ?? 1},
+                },
+                logLevelFilter: filter,
+            },
         });
-    }, []);
+    }, [
+        mainWorker,
+        setUiState,
+    ]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
-
-    // Synchronize `pageNumRef` with `pageNum`.
-    useEffect(() => {
-        pageNumRef.current = pageNum;
-    }, [pageNum]);
-
-    // Synchronize `numPagesRef` with `numPages`.
-    useEffect(() => {
-        numPagesRef.current = numPages;
-    }, [numPages]);
-
-    // Synchronize `uiStateRef` with `uiState`.
-    useEffect(() => {
-        uiStateRef.current = uiState;
-        if (uiState === UI_STATE.UNOPENED) {
-            setFileName(LOG_FILE_DEFAULT.fileName);
-            setLogData(LOG_FILE_DEFAULT.logData);
+        if (null !== logEventNum) {
+            setLogEventNum(logEventNum);
+        } else {
+            setLogEventNum(0);
         }
-    }, [uiState]);
+    }, [
+        logEventNum,
+        setLogEventNum,
+    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorkerRef.current) {
+        if (null === mainWorker) {
             return;
         }
 
@@ -505,7 +281,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         const logEventNumsOnPage: number [] =
-            Array.from(beginLineNumToLogEventNumRef.current.values());
+            Array.from(beginLineNumToLogEventNum.values());
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
@@ -520,10 +296,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor);
+        mainWorker.postMessage({
+            code: WORKER_REQ_CODE.LOAD_PAGE,
+            args: {cursor: cursor},
+        });
     }, [
-        numEvents,
+        beginLineNumToLogEventNum,
         logEventNum,
+        mainWorker,
+        numEvents,
+        setUiState,
     ]);
 
     // On `filePath` update, load file.
@@ -540,23 +322,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             };
         }
         loadFile(filePath, cursor);
-    }, [
-        filePath,
-        loadFile,
-    ]);
+    }, [filePath]);
 
     return (
         <StateContext.Provider
             value={{
                 activeTabName: activeTabName,
-                beginLineNumToLogEventNum: beginLineNumToLogEventNumRef.current,
-                queryProgress: queryProgress,
-                queryResults: queryResults,
                 uiState: uiState,
 
                 exportLogs: exportLogs,
                 filterLogs: filterLogs,
-                loadFile: loadFile,
                 loadPageByAction: loadPageByAction,
                 setActiveTabName: setActiveTabName,
                 startQuery: startQuery,

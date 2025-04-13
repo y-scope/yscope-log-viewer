@@ -1,5 +1,3 @@
-import {useContext} from "react";
-
 import {
     Box,
     Divider,
@@ -10,8 +8,8 @@ import {
 
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
-import {StateContext} from "../../contexts/StateContextProvider";
-import {useLogFileStore} from "../../contexts/states/logFileStore";
+import useLogFileStore from "../../contexts/states/logFileStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
@@ -29,7 +27,8 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
-    const {loadFile, uiState} = useContext(StateContext);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const uiState = useUiStore((state) => state.uiState);
     const fileName = useLogFileStore((state) => state.fileName);
 
     const handleOpenFile = () => {

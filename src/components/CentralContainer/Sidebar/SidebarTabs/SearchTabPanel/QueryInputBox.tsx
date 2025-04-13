@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React from "react";
 
 import {
     LinearProgress,
@@ -6,8 +6,8 @@ import {
     Textarea,
 } from "@mui/joy";
 
-import {StateContext} from "../../../../../contexts/StateContextProvider";
 import {useQueryStore} from "../../../../../contexts/states/queryStore";
+import useUiStore from "../../../../../contexts/states/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
@@ -22,16 +22,14 @@ import "./QueryInputBox.css";
  * @return
  */
 const QueryInputBox = () => {
-    const {queryProgress, uiState} = useContext(StateContext);
-
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
-    const {
-        setQueryString,
-        setQueryIsCaseSensitive,
-        setQueryIsRegex,
-        startQuery,
-    } = useQueryStore.getState();
+    const queryProgress = useQueryStore((state) => state.queryProgress);
+    const setQueryString = useQueryStore((state) => state.setQueryString);
+    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
+    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
+    const startQuery = useQueryStore((state) => state.startQuery);
+    const uiState = useUiStore((state) => state.uiState);
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);

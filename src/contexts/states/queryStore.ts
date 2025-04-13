@@ -81,11 +81,14 @@ const useQueryStore = create<QueryState>((set) => ({
 
             return;
         }
-        mainWorker.postMessage(WORKER_REQ_CODE.START_QUERY, {
-            queryString,
-            queryIsCaseSensitive,
-            queryIsRegex,
-        } as StructuredSerializeOptions);
+        mainWorker.postMessage({
+            code: WORKER_REQ_CODE.START_QUERY,
+            args: {
+                queryString,
+                queryIsCaseSensitive,
+                queryIsRegex,
+            },
+        });
     },
 }));
 

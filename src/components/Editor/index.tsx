@@ -9,8 +9,7 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {StateContext} from "../../contexts/StateContextProvider";
-import {useLogFileStore} from "../../contexts/states/logFileStore";
+import useLogFileStore from "../../contexts/states/logFileStore";
 import {
     updateWindowUrlHashParams,
     UrlContext,
@@ -135,14 +134,12 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, loadPageByAction} = useContext(StateContext);
+    const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
+    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
     const logData = useLogFileStore((state) => state.logData);
     const {logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
-    const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
-        beginLineNumToLogEventNum
-    );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
@@ -170,7 +167,7 @@ const Editor = () => {
                 break;
             }
             case ACTION_NAME.COPY_LOG_EVENT:
-                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
+                handleCopyLogEventAction(editor, beginLineNumToLogEventNum);
                 break;
             case ACTION_NAME.WORD_WRAP:
                 handleWordWrapAction(editor);
@@ -233,7 +230,7 @@ const Editor = () => {
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
         const newLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
-            beginLineNumToLogEventNumRef.current,
+            beginLineNumToLogEventNum,
             ev.position.lineNumber
         );
 
@@ -247,11 +244,6 @@ const Editor = () => {
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
     }, []);
-
-    // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
-    useEffect(() => {
-        beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
-    }, [beginLineNumToLogEventNum]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

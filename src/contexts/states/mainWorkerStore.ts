@@ -1,14 +1,16 @@
 import {create} from "zustand";
 
 import {Nullable} from "../../typings/common";
+import {UI_STATE} from "../../typings/states";
 import {
     MainWorkerRespMessage,
     WORKER_RESP_CODE,
 } from "../../typings/worker";
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useLogExportStore from "./logExportStore";
-import {useLogFileStore} from "./logFileStore";
+import useLogFileStore from "./logFileStore";
 import {useQueryStore} from "./queryStore";
+import useUiStore from "./uiStore";
 
 
 /**
@@ -26,6 +28,7 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
         setOnDiskFileSizeInBytes,
         setPageNum,
     } = useLogFileStore.getState();
+    const {setUiState} = useUiStore.getState();
     const {code, args} = ev.data;
     switch (code) {
         case WORKER_RESP_CODE.CHUNK_DATA:
@@ -42,7 +45,7 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             setNumEvents(args.numEvents);
             setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
             break;
-        case WORKER_RESP_CODE.PAGE_DATA: {
+        case WORKER_RESP_CODE.PAGE_DATA:
             setLogData(args.logs);
             setNumPages(args.numPages);
             setPageNum(args.pageNum);
@@ -50,8 +53,8 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             updateWindowUrlHashParams({
                 logEventNum: args.logEventNum,
             });
+            setUiState(UI_STATE.READY);
             break;
-        }
         case WORKER_RESP_CODE.QUERY_RESULT: {
             const {setQueryProgress, mergeQueryResults} = useQueryStore.getState();
             setQueryProgress(args.progress);
@@ -74,13 +77,11 @@ const useMainWorkerStore = create<MainWorkerState>((set) => ({
     mainWorker: null,
 
     destroy: () => {
-        const {mainWorker} = useMainWorkerStore.getState();
-        mainWorker?.terminate();
+        useMainWorkerStore.getState().mainWorker?.terminate();
         set({mainWorker: null});
     },
     init: () => {
-        const {destroy} = useMainWorkerStore.getState();
-        destroy();
+        useMainWorkerStore.getState().destroy();
 
         const mainWorker = new Worker(
             new URL("../../services/MainWorker.ts", import.meta.url)

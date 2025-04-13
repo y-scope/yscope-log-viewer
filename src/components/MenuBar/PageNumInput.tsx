@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 
 import {StateContext} from "../../contexts/StateContextProvider";
-import {useLogFileStore} from "../../contexts/states/logFileStore";
+import useLogFileStore from "../../contexts/states/logFileStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {

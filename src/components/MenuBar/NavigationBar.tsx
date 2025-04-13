@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React from "react";
 
 import {ButtonGroup} from "@mui/joy";
 
@@ -7,7 +7,8 @@ import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useLogFileStore from "../../contexts/states/logFileStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -24,7 +25,8 @@ import PageNumInput from "./PageNumInput";
  * @return
  */
 const NavigationBar = () => {
-    const {uiState, loadPageByAction} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
+    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
 
     const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = event.currentTarget.dataset;
