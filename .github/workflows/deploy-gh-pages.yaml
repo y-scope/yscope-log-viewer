@@ -53,33 +53,32 @@ jobs:
           submodules: "recursive"
 
       - name: "Determine release names"
+        id: "names"
         run: |
           PACKAGE_VERSION=$(jq -r ".version" "package.json")
           BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
           DATE=$(date +'%Y%m%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
 
-          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
-          DIST_TAR_NAME=dist-${VERSION}.tar
+          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "DIST_TAR_NAME=dist-${{steps.names.outputs.VERSION}}.tar" >> "$GITHUB_OUTPUT"
 
       - uses: "actions/download-artifact@v4"
         with:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
       - name: "Rename build artifact"
-        run: "mv 'artifact.tar' '${DIST_TAR_NAME}'"
+        run: "mv 'artifact.tar' '${{steps.names.outputs.DIST_TAR_NAME}}'"
 
       - name: "Create GitHub Release"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          ls -la
-          echo "Creating release v${VERSION}"
-          echo "archive name: ${DIST_TAR_NAME}"
-          gh release create "v${VERSION}" "${DIST_TAR_NAME}" \
+          gh release create "v${{steps.names.outputs.VERSION}}" \
+            "${{steps.names.outputs.DIST_TAR_NAME}}" \
             --fail-on-no-commits \
-            --generate-notes
-            --title "Release v${VERSION}" \
+            --generate-notes \
+            --title "Release v${{steps.names.outputs.VERSION}}"
 
   deploy:
     needs: "release"
