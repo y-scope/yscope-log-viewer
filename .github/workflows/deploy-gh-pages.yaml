@@ -66,6 +66,9 @@ jobs:
         with:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
+      - run: "ls -la"
+      - run: "ls -la yscope-log-viewer"
+
       - name: "Rename build artifact"
         run: |
           mv "${{env.G_DIST_ARTIFACT_NAME}}" "${DIST_TAR_NAME}"
