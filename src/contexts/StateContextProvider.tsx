@@ -29,7 +29,7 @@ import {NotificationContext} from "./NotificationContextProvider";
 import useLogExportStore from "./states/logExportStore";
 import useLogFileStore from "./states/logFileStore";
 import useMainWorkerStore from "./states/mainWorkerStore";
-import {useQueryStore} from "./states/queryStore";
+import useQueryStore from "./states/queryStore";
 import useUiStore from "./states/uiStore";
 import {
     updateWindowUrlHashParams,

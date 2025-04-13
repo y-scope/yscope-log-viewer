@@ -92,7 +92,4 @@ const useQueryStore = create<QueryState>((set) => ({
     },
 }));
 
-export {
-    QUERY_DEFAULT,
-    useQueryStore,
-};
+export default useQueryStore;

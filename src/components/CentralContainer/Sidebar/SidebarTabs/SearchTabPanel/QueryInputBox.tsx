@@ -6,7 +6,7 @@ import {
     Textarea,
 } from "@mui/joy";
 
-import {useQueryStore} from "../../../../../contexts/states/queryStore";
+import useQueryStore from "../../../../../contexts/states/queryStore";
 import useUiStore from "../../../../../contexts/states/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";

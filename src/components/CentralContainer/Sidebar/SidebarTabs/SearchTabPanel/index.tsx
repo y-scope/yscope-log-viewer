@@ -8,7 +8,7 @@ import {
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import {useQueryStore} from "../../../../../contexts/states/queryStore";
+import useQueryStore from "../../../../../contexts/states/queryStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
@@ -27,7 +27,7 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const {queryResults} = useQueryStore.getState();
+    const queryResults = useQueryStore((state) => state.queryResults);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 

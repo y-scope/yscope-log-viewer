@@ -9,7 +9,7 @@ import {
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useLogExportStore from "./logExportStore";
 import useLogFileStore from "./logFileStore";
-import {useQueryStore} from "./queryStore";
+import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
 
