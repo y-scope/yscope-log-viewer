@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: "ubuntu-latest"
+    outputs:
+      DIST_TAR_NAME: "${{steps.release-names.outputs.DIST_TAR_NAME}}"
+      VERSION: "${{steps.release-names.outputs.VERSION}}"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -40,23 +43,28 @@ jobs:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
           path: "./dist"
 
-  release:
-    needs: "build"
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: "actions/download-artifact@v4"
-        with:
-          name: "${{env.G_DIST_ARTIFACT_NAME}}"
-
       - name: "Determine release names"
+        id: "release-names"
         run: |
           PACKAGE_VERSION=$(jq -r ".version" "package.json")
           BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
           DATE=$(date +'%Y%m%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
 
-          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
-          DIST_TAR_NAME=dist-${VERSION}.tar.gz
+          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.version}}.tar.zip" >> \
+            $GITHUB_OUTPUT
+
+  release:
+    needs: "build"
+    runs-on: "ubuntu-latest"
+    permissions:
+      # To create a release
+      contents: "write"
+    steps:
+      - uses: "actions/download-artifact@v4"
+        with:
+          name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
       - name: "Rename build artifact"
         run: |
@@ -67,10 +75,10 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           gh release create "v${VERSION}" \
-          "${DIST_TAR_NAME}" \
-          --title "Release v${VERSION}" \
-          --generate-notes \
-          --fail-on-no-commits
+            "${DIST_TAR_NAME}" \
+            --title "Release v${VERSION}" \
+            --generate-notes \
+            --fail-on-no-commits
 
   deploy:
     needs: "build"
