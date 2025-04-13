@@ -18,9 +18,6 @@ concurrency:
 jobs:
   build:
     runs-on: "ubuntu-latest"
-    outputs:
-      DIST_TAR_NAME: "${{steps.release-names.outputs.DIST_TAR_NAME}}"
-      VERSION: "${{steps.release-names.outputs.VERSION}}"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -43,18 +40,6 @@ jobs:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
           path: "./dist"
 
-      - name: "Determine release names"
-        id: "release-names"
-        run: |
-          PACKAGE_VERSION=$(jq -r ".version" "package.json")
-          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
-          DATE=$(date +'%Y%m%d')
-          SHORT_SHA=$(git rev-parse --short HEAD)
-
-          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.VERSION}}.tar" >> \
-            "$GITHUB_OUTPUT"
-
   release:
     needs: "build"
     runs-on: "ubuntu-latest"
@@ -62,23 +47,36 @@ jobs:
       # To create a release
       contents: "write"
     steps:
+      - uses: "actions/checkout@v4"
+        with:
+          persist-credentials: false
+          submodules: "recursive"
+
+      - name: "Determine release names"
+        run: |
+          PACKAGE_VERSION=$(jq -r ".version" "package.json")
+          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+          DATE=$(date +'%Y%m%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
+          DIST_TAR_NAME=dist-${VERSION}.tar
+
       - uses: "actions/download-artifact@v4"
         with:
           name: "${{env.G_DIST_ARTIFACT_NAME}}"
 
       - name: "Rename build artifact"
-        run: |
-          mv "artifact.tar" "${{needs.build.outputs.DIST_TAR_NAME}}"
+        run: "mv 'artifact.tar' '${DIST_TAR_NAME}'"
 
       - name: "Create GitHub Release"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          gh release create "v${{needs.build.outputs.VERSION}}" \
-            "${{needs.build.outputs.DIST_TAR_NAME}}" \
-            --title "Release v${{needs.build.outputs.VERSION}}" \
-            --generate-notes \
-            --fail-on-no-commits
+          gh release create "v${VERSION}" "${DIST_TAR_NAME}" \
+            --fail-on-no-commits \
+            --generate-notes
+            --title "Release v${VERSION}" \
 
   deploy:
     needs: "build"
