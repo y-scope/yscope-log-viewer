@@ -52,7 +52,7 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
 
           echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "DIST_TAR_NAME=dist-${{needs.build.outputs.version}}.tar" >> \
+          echo "DIST_TAR_NAME=dist-${{steps.release-names.outputs.VERSION}}.tar" >> \
             "$GITHUB_OUTPUT"
 
   release:
