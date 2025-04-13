@@ -73,6 +73,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
+          echo "Creating release v${VERSION}"
+          echo "archive name: ${DIST_TAR_NAME}"
           gh release create "v${VERSION}" "${DIST_TAR_NAME}" \
             --fail-on-no-commits \
             --generate-notes
