@@ -51,9 +51,9 @@ jobs:
           DATE=$(date +'%Y%m%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
 
-          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
           echo "DIST_TAR_NAME=dist-${{needs.build.outputs.version}}.tar" >> \
-            $GITHUB_OUTPUT
+            "$GITHUB_OUTPUT"
 
   release:
     needs: "build"
