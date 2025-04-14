@@ -86,7 +86,6 @@ jobs:
       - uses: "actions/download-artifact@v4"
         with:
           name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
-          path: "${{needs.build.outputs.DIST_TAR_NAME}}"
 
       - name: "Create GitHub Release with automatically generated release notes"
         env:
