@@ -1,0 +1,115 @@
+name: "release"
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  G_RELEASE_ARTIFACT_NAME: "yscope-log-viewer-release-${{github.sha}}"
+
+permissions: {}
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+
+  # Cancel in-progress jobs for efficiency
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+    outputs:
+      DIST_TAR_NAME: "${{steps.names.outputs.DIST_TAR_NAME}}"
+      VERSION: "${{steps.names.outputs.VERSION}}"
+      VERSIONED_DIST_NAME: "${{steps.names.outputs.VERSIONED_DIST_NAME}}"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          persist-credentials: false
+          submodules: "recursive"
+
+      - uses: "actions/setup-node@v4"
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "./package-lock.json"
+
+      - run: "npm install"
+
+      - run: "npm run build"
+
+      - name: "Determine release names"
+        id: "names"
+        run: |
+          PACKAGE_VERSION=$(jq -r ".version" "package.json")
+          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+          DATE=$(date --utc +'%Y%m%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
+          VERSIONED_DIST_NAME=dist-${VERSION}
+
+          echo "DIST_TAR_NAME=${VERSIONED_DIST_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "VERSIONED_DIST_NAME=${VERSIONED_DIST_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: "Generate artifacts for GH Release"
+        run: |
+          tar --create \
+            --gzip \
+            --file "${{steps.names.outputs.DIST_TAR_NAME}}" \
+            --transform="s|^dist|${{steps.names.outputs.VERSIONED_DIST_NAME}}|" \
+            dist
+      - uses: "actions/upload-artifact@v4"
+        with:
+          name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
+          path: "${{steps.names.outputs.DIST_TAR_NAME}}"
+          if-no-files-found: "error"
+          retention-days: 1
+
+      - name: "Upload static files as GH Pages artifact"
+        uses: "actions/upload-pages-artifact@v3"
+        with:
+          path: "./dist"
+
+  release:
+    needs: "build"
+    runs-on: "ubuntu-latest"
+    permissions:
+      # To create a release
+      contents: "write"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          persist-credentials: false
+          submodules: "recursive"
+
+      - uses: "actions/download-artifact@v4"
+        with:
+          name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
+
+      - name: "Create GitHub Release with automatically generated release notes"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          gh release create "v${{needs.build.outputs.VERSION}}" \
+            "${{needs.build.outputs.DIST_TAR_NAME}}" \
+            --fail-on-no-commits \
+            --generate-notes \
+            --title "v${{needs.build.outputs.VERSION}}"
+
+  deploy:
+    needs: "release"
+    permissions:
+      # To deploy to Pages
+      pages: "write"
+
+      # To request a JWT from GitHub for certifying the origin of the deployment
+      id-token: "write"
+    runs-on: "ubuntu-latest"
+    environment:
+      name: "github-pages"
+      url: "${{steps.deployment.outputs.page_url}}"
+    steps:
+      - name: "Deploy to GitHub Pages"
+        id: "deployment"
+        uses: "actions/deploy-pages@v4"
