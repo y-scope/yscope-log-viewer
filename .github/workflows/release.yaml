@@ -71,7 +71,7 @@ jobs:
       - name: "Rename build artifact"
         run: "mv 'artifact.tar' '${{steps.names.outputs.DIST_TAR_NAME}}'"
 
-      - name: "Create GitHub Release"
+      - name: "Create GitHub Release with automatically generated release notes"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
