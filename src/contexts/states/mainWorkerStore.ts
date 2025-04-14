@@ -56,7 +56,11 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             setUiState(UI_STATE.READY);
             break;
         case WORKER_RESP_CODE.QUERY_RESULT: {
-            const {setQueryProgress, mergeQueryResults} = useQueryStore.getState();
+            const {clearQueryResults, setQueryProgress, mergeQueryResults} = useQueryStore.getState();
+            if (0 === args.progress) {
+                clearQueryResults();
+                break;
+            }
             setQueryProgress(args.progress);
             mergeQueryResults(args.results);
             break;
