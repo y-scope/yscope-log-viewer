@@ -100,12 +100,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
-            case WORKER_RESP_CODE.CHUNK_DATA:
-                if (null !== logExportManagerRef.current) {
-                    const progress = logExportManagerRef.current.appendChunk(args.logs);
-                    setExportProgress(progress);
-                }
-                break;
             case WORKER_RESP_CODE.FORMAT_POPUP:
                 postPopUp({
                     level: LOG_LEVEL.INFO,
@@ -119,11 +113,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
                     title: "A format string has not been configured",
                 });
-                break;
-            case WORKER_RESP_CODE.LOG_FILE_INFO:
-                setFileName(args.fileName);
-                setNumEvents(args.numEvents);
-                setOnDiskFileSizeInBytes(args.onDiskFileSizeInBytes);
                 break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({
@@ -144,35 +133,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
                         break;
                 }
 
-                break;
-            case WORKER_RESP_CODE.PAGE_DATA: {
-                setLogData(args.logs);
-                setNumPages(args.numPages);
-                setPageNum(args.pageNum);
-                beginLineNumToLogEventNumRef.current = args.beginLineNumToLogEventNum;
-                updateWindowUrlHashParams({
-                    logEventNum: args.logEventNum,
-                });
-                setUiState(UI_STATE.READY);
-                break;
-            }
-            case WORKER_RESP_CODE.QUERY_RESULT:
-                setQueryProgress(args.progress);
-                if (QUERY_PROGRESS_VALUE_MIN === args.progress) {
-                    setQueryResults(STATE_DEFAULT.queryResults);
-                } else {
-                    setQueryResults((v) => {
-                        v = structuredClone(v);
-                        args.results.forEach((resultsPerPage, queryPageNum) => {
-                            if (false === v.has(queryPageNum)) {
-                                v.set(queryPageNum, []);
-                            }
-                            v.get(queryPageNum)?.push(...resultsPerPage);
-                        });
-
-                        return v;
-                    });
-                }
                 break;
             default:
                 console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);

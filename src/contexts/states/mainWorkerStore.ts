@@ -40,6 +40,12 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
             }
             break;
         }
+        case WORKER_RESP_CODE.FORMAT_POPUP:
+            console.warn("Implement format popup!");
+            break;
+        case WORKER_RESP_CODE.NOTIFICATION:
+            console.warn("Implement notification!");
+            break;
         case WORKER_RESP_CODE.LOG_FILE_INFO:
             setFileName(args.fileName);
             setNumEvents(args.numEvents);
