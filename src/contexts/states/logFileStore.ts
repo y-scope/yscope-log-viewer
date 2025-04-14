@@ -2,7 +2,9 @@ import {create} from "zustand";
 
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
+import {LogLevelFilter} from "../../typings/logs";
 import {UI_STATE} from "../../typings/states";
+import {TAB_NAME} from "../../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../../typings/url";
 import {
     BeginLineNumToLogEventNumMap,
@@ -24,6 +26,7 @@ import useUiStore from "./uiStore";
 
 
 const LOG_FILE_DEFAULT = {
+    activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "Loading...",
     fileSrc: null,
@@ -36,6 +39,7 @@ const LOG_FILE_DEFAULT = {
 };
 
 interface LogFileState {
+    activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
@@ -46,8 +50,10 @@ interface LogFileState {
     onDiskFileSizeInBytes: number;
     pageNum: number;
 
+    filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
+    setActiveTabName: (tabName: TAB_NAME) => void;
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setFileName: (newFileName: string) => void;
     setLogData: (newLogData: string) => void;
@@ -108,6 +114,32 @@ const getPageNumCursor = (
 
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_DEFAULT,
+    filterLogs: (filter: LogLevelFilter) => {
+        const {mainWorker} = useMainWorkerStore.getState();
+        if (null === mainWorker) {
+            console.error("filterLogs: Main worker is not initialized.");
+
+            return;
+        }
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+        const {logEventNum} = get();
+
+        mainWorker.postMessage({
+            code: WORKER_REQ_CODE.SET_FILTER,
+            args: {
+                cursor: {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {
+                        eventNum: 0 === logEventNum ?
+                            1 :
+                            logEventNum,
+                    },
+                },
+                logLevelFilter: filter,
+            },
+        });
+    },
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         useUiStore.getState().setUiState(UI_STATE.FILE_LOADING);
         useMainWorkerStore.getState().init();
@@ -154,17 +186,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             return;
         }
 
-        /* seems like UI_STATE check is not needed
-        const {uiState} = useUIStore.getState();
-        if (UI_STATE.READY !== uiState) {
-            console.error("Unexpected UI state:", uiState);
-            console.warn("Skipping navigation: page load in progress.");
-
-            return;
-        }
-
-         */
-
         const {numPages, pageNum} = get();
         const cursor = getPageNumCursor(navAction, pageNum, numPages);
         if (null === cursor) {
@@ -181,6 +202,9 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 cursor: cursor,
             },
         });
+    },
+    setActiveTabName: (tabName: TAB_NAME) => {
+        set({activeTabName: tabName});
     },
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => {
         set({beginLineNumToLogEventNum: newMap});

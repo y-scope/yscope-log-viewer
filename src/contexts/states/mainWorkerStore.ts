@@ -77,15 +77,15 @@ interface MainWorkerState {
     init: () => void;
 }
 
-const useMainWorkerStore = create<MainWorkerState>((set) => ({
+const useMainWorkerStore = create<MainWorkerState>((set, get) => ({
     mainWorker: null,
 
     destroy: () => {
-        useMainWorkerStore.getState().mainWorker?.terminate();
+        get().mainWorker?.terminate();
         set({mainWorker: null});
     },
     init: () => {
-        useMainWorkerStore.getState().destroy();
+        get().destroy();
 
         const mainWorker = new Worker(
             new URL("../../services/MainWorker.ts", import.meta.url)

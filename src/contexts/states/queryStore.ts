@@ -32,7 +32,7 @@ interface QueryState {
     setQueryIsRegex: (newQueryIsRegex: boolean) => void;
 }
 
-const useQueryStore = create<QueryState>((set) => ({
+const useQueryStore = create<QueryState>((set, get) => ({
     ...QUERY_DEFAULT,
     clearQueryResults: () => {
         set({
@@ -72,7 +72,7 @@ const useQueryStore = create<QueryState>((set) => ({
             queryString,
             queryIsCaseSensitive,
             queryIsRegex,
-        } = useQueryStore.getState();
+        } = get();
 
         clearQueryResults();
         const {mainWorker} = useMainWorkerStore.getState();

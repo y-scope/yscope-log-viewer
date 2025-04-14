@@ -1,23 +1,16 @@
-/* eslint max-lines: ["error", 600] */
 import React, {
     createContext,
-    useCallback,
     useContext,
     useEffect,
     useRef,
-    useState,
 } from "react";
 
-import {CONFIG_KEY} from "../typings/config";
-import {LogLevelFilter} from "../typings/logs";
 import {UI_STATE} from "../typings/states";
-import {TAB_NAME} from "../typings/tab";
 import {
     CURSOR_CODE,
     CursorType,
     WORKER_REQ_CODE,
 } from "../typings/worker";
-import {getConfig} from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
@@ -35,24 +28,7 @@ import {
 } from "./UrlContextProvider";
 
 
-interface StateContextType {
-    activeTabName: TAB_NAME;
-
-    filterLogs: (filter: LogLevelFilter) => void;
-    setActiveTabName: (tabName: TAB_NAME) => void;
-}
-
-const StateContext = createContext<StateContextType>({} as StateContextType);
-
-/**
- * Default values of the state object.
- */
-const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
-    activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
-
-    filterLogs: () => null,
-    setActiveTabName: () => null,
-});
+const StateContext = createContext<null>(null);
 
 interface StateContextProviderProps {
     children: React.ReactNode;
@@ -109,8 +85,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
-    const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
-
     const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const mainWorker = useMainWorkerStore((state) => state.mainWorker);
@@ -120,10 +94,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
-
-    const handleFormatPopupPrimaryAction = useCallback(() => {
-        setActiveTabName(TAB_NAME.SETTINGS);
-    }, []);
 
     /*
     const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
@@ -214,27 +184,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     ]);
      */
 
-    const filterLogs = useCallback((filter: LogLevelFilter) => {
-        if (null === mainWorker) {
-            return;
-        }
-
-        setUiState(UI_STATE.FAST_LOADING);
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.SET_FILTER,
-            args: {
-                cursor: {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {eventNum: logEventNumRef.current ?? 1},
-                },
-                logLevelFilter: filter,
-            },
-        });
-    }, [
-        mainWorker,
-        setUiState,
-    ]);
-
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
@@ -305,18 +254,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadFile,
     ]);
 
-    return (
-        <StateContext.Provider
-            value={{
-                activeTabName: activeTabName,
-
-                filterLogs: filterLogs,
-                setActiveTabName: setActiveTabName,
-            }}
-        >
-            {children}
-        </StateContext.Provider>
-    );
+    return ({children});
 };
 
 
