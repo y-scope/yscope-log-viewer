@@ -91,6 +91,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setLogEventNum = useLogFileStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
+    const setPostPopUp = useLogFileStore((state) => state.setPostPopUp);
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
@@ -100,20 +101,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         const {code, args} = ev.data;
         console.log(`[MainWorker -> Renderer] code=${code}`);
         switch (code) {
-            case WORKER_RESP_CODE.FORMAT_POPUP:
-                postPopUp({
-                    level: LOG_LEVEL.INFO,
-                    message: "Adding a format string can enhance the readability of your" +
-                    " structured logs by customizing how fields are displayed.",
-                    primaryAction: {
-                        children: "Settings",
-                        startDecorator: <SettingsOutlinedIcon/>,
-                        onClick: handleFormatPopupPrimaryAction,
-                    },
-                    timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
-                    title: "A format string has not been configured",
-                });
-                break;
             case WORKER_RESP_CODE.NOTIFICATION:
                 postPopUp({
                     level: args.logLevel,
@@ -214,7 +201,16 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         loadFile,
     ]);
 
-    return ({children});
+    useEffect(() => {
+        setPostPopUp(postPopUp);
+    }, [postPopUp]);
+
+
+    return (
+        <StateContext.Provider value={null}>
+            {children}
+        </StateContext.Provider>
+    );
 };
 
 

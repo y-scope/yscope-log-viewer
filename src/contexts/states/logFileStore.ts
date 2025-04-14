@@ -3,6 +3,7 @@ import {create} from "zustand";
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
 import {LogLevelFilter} from "../../typings/logs";
+import {PopUpMessage} from "../../typings/notifications";
 import {UI_STATE} from "../../typings/states";
 import {TAB_NAME} from "../../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../../typings/url";
@@ -36,6 +37,8 @@ const LOG_FILE_DEFAULT = {
     numPages: 0,
     onDiskFileSizeInBytes: 0,
     pageNum: 0,
+    postPopUp: () => {
+    },
 };
 
 interface LogFileState {
@@ -49,6 +52,7 @@ interface LogFileState {
     numPages: number;
     onDiskFileSizeInBytes: number;
     pageNum: number;
+    postPopUp: (message: PopUpMessage) => void;
 
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
@@ -62,6 +66,7 @@ interface LogFileState {
     setNumPages: (newNumPages: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
     setPageNum: (newPageNum: number) => void;
+    setPostPopUp: (postPopUp: (message: PopUpMessage) => void) => void;
 }
 
 /**
@@ -229,6 +234,9 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
     },
     setPageNum: (newPageNum) => {
         set({pageNum: newPageNum});
+    },
+    setPostPopUp: (postPopUp) => {
+        set({postPopUp});
     },
 }));
 
