@@ -1,7 +1,4 @@
-import {
-    Ref,
-    useContext,
-} from "react";
+import {Ref} from "react";
 
 import {
     TabList,
@@ -14,7 +11,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import {StateContext} from "../../../../contexts/StateContextProvider";
+import useLogFileStore from "../../../../contexts/states/logFileStore";
 import {TAB_NAME} from "../../../../typings/tab";
 import {openInNewTab} from "../../../../utils/url";
 import FileInfoTabPanel from "./FileInfoTabPanel";
@@ -49,11 +46,9 @@ interface SidebarTabsProps {
  * @param props.ref Reference object used to access the TabList DOM element.
  * @return
  */
-const SidebarTabs = ({
-    ref,
-}: SidebarTabsProps) => {
-    const {activeTabName, setActiveTabName} = useContext(StateContext);
-
+const SidebarTabs = ({ref}: SidebarTabsProps) => {
+    const activeTabName = useLogFileStore((state) => state.activeTabName);
+    const setActiveTabName = useLogFileStore((state) => state.setActiveTabName);
     const handleTabButtonClick = (tabName: TAB_NAME) => {
         switch (tabName) {
             case TAB_NAME.DOCUMENTATION:
