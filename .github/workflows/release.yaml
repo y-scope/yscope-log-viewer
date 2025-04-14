@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 env:
-  G_DIST_ARTIFACT_NAME: "yscope-log-viewer-dist-${{github.sha}}"
+  G_RELEASE_ARTIFACT_NAME: "yscope-log-viewer-release-${{github.sha}}"
 
 permissions: {}
 
@@ -18,6 +18,10 @@ concurrency:
 jobs:
   build:
     runs-on: "ubuntu-latest"
+    outputs:
+      DIST_TAR_NAME: "${{steps.names.outputs.DIST_TAR_NAME}}"
+      VERSION: "${{steps.names.outputs.VERSION}}"
+      VERSIONED_DIST_NAME: "${{steps.names.outputs.VERSIONED_DIST_NAME}}"
     steps:
       - uses: "actions/checkout@v4"
         with:
@@ -34,10 +38,37 @@ jobs:
 
       - run: "npm run build"
 
-      - name: "Upload static files as artifact"
+      - name: "Determine release names"
+        id: "names"
+        run: |
+          PACKAGE_VERSION=$(jq -r ".version" "package.json")
+          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
+          DATE=$(date --utc +'%Y%m%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
+          VERSIONED_DIST_NAME=dist-${VERSION}
+
+          echo "DIST_TAR_NAME=${VERSIONED_DIST_NAME}.tar" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "VERSIONED_DIST_NAME=${VERSIONED_DIST_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: "Generate artifacts for GH Release"
+        run: |
+          tar --create \
+            --gzip \
+            --file "${{steps.names.outputs.DIST_TAR_NAME}}" \
+            --transform="s|^dist|${{steps.names.outputs.VERSIONED_DIST_NAME}}|" \
+            dist
+      - uses: "actions/upload-artifact@v4"
+        with:
+          name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
+          path: "${{steps.names.outputs.DIST_TAR_NAME}}"
+          if-no-files-found: "error"
+          retention-days: 1
+
+      - name: "Upload static files as GH Pages artifact"
         uses: "actions/upload-pages-artifact@v3"
         with:
-          name: "${{env.G_DIST_ARTIFACT_NAME}}"
           path: "./dist"
 
   release:
@@ -52,34 +83,20 @@ jobs:
           persist-credentials: false
           submodules: "recursive"
 
-      - name: "Determine release names"
-        id: "names"
-        run: |
-          PACKAGE_VERSION=$(jq -r ".version" "package.json")
-          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
-          DATE=$(date --utc +'%Y%m%d')
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
-
-          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "DIST_TAR_NAME=dist-${VERSION}.tar" >> "$GITHUB_OUTPUT"
-
       - uses: "actions/download-artifact@v4"
         with:
-          name: "${{env.G_DIST_ARTIFACT_NAME}}"
-
-      - name: "Rename build artifact"
-        run: "mv 'artifact.tar' '${{steps.names.outputs.DIST_TAR_NAME}}'"
+          name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
+          path: "${{needs.build.outputs.DIST_TAR_NAME}}"
 
       - name: "Create GitHub Release with automatically generated release notes"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          gh release create "v${{steps.names.outputs.VERSION}}" \
-            "${{steps.names.outputs.DIST_TAR_NAME}}" \
+          gh release create "v${{needs.build.outputs.VERSION}}" \
+            "${{needs.build.outputs.DIST_TAR_NAME}}" \
             --fail-on-no-commits \
             --generate-notes \
-            --title "v${{steps.names.outputs.VERSION}}"
+            --title "v${{needs.build.outputs.VERSION}}"
 
   deploy:
     needs: "release"
