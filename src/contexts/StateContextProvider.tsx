@@ -10,7 +10,6 @@ import React, {
 
 import {CONFIG_KEY} from "../typings/config";
 import {LogLevelFilter} from "../typings/logs";
-import {QueryArgs} from "../typings/query";
 import {UI_STATE} from "../typings/states";
 import {TAB_NAME} from "../typings/tab";
 import {
@@ -18,7 +17,6 @@ import {
     CursorType,
     WORKER_REQ_CODE,
 } from "../typings/worker";
-import {NavigationAction} from "../utils/actions";
 import {getConfig} from "../utils/config";
 import {
     findNearestLessThanOrEqualElement,
@@ -26,10 +24,8 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
-import useLogExportStore from "./states/logExportStore";
 import useLogFileStore from "./states/logFileStore";
 import useMainWorkerStore from "./states/mainWorkerStore";
-import useQueryStore from "./states/queryStore";
 import useUiStore from "./states/uiStore";
 import {
     updateWindowUrlHashParams,
@@ -41,13 +37,9 @@ import {
 
 interface StateContextType {
     activeTabName: TAB_NAME;
-    uiState: UI_STATE;
 
-    exportLogs: () => void;
     filterLogs: (filter: LogLevelFilter) => void;
-    loadPageByAction: (navAction: NavigationAction) => void;
     setActiveTabName: (tabName: TAB_NAME) => void;
-    startQuery: (queryArgs: QueryArgs) => void;
 }
 
 const StateContext = createContext<StateContextType>({} as StateContextType);
@@ -57,13 +49,9 @@ const StateContext = createContext<StateContextType>({} as StateContextType);
  */
 const STATE_DEFAULT: Readonly<StateContextType> = Object.freeze({
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
-    uiState: UI_STATE.UNOPENED,
 
-    exportLogs: () => null,
     filterLogs: () => null,
-    loadPageByAction: () => null,
     setActiveTabName: () => null,
-    startQuery: () => null,
 });
 
 interface StateContextProviderProps {
@@ -116,12 +104,6 @@ const updateUrlIfEventOnPage = (
  * @param props.children
  * @return
  */
-
-/**
- *
- * @param root0
- * @param root0.children
- */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {filePath, logEventNum} = useContext(UrlContext);
@@ -130,15 +112,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
 
     const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
-    const exportLogs = useLogExportStore((state) => state.exportLogs);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
     const mainWorker = useMainWorkerStore((state) => state.mainWorker);
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const uiState = useUiStore((state) => state.uiState);
     const setLogEventNum = useLogFileStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
-    const startQuery = useQueryStore((state) => state.startQuery);
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
@@ -322,19 +300,18 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             };
         }
         loadFile(filePath, cursor);
-    }, [filePath]);
+    }, [
+        filePath,
+        loadFile,
+    ]);
 
     return (
         <StateContext.Provider
             value={{
                 activeTabName: activeTabName,
-                uiState: uiState,
 
-                exportLogs: exportLogs,
                 filterLogs: filterLogs,
-                loadPageByAction: loadPageByAction,
                 setActiveTabName: setActiveTabName,
-                startQuery: startQuery,
             }}
         >
             {children}

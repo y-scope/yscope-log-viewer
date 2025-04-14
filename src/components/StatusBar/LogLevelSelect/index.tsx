@@ -26,6 +26,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 import {StateContext} from "../../../contexts/StateContextProvider";
+import useUiStore from "../../../contexts/states/uiStore";
 import {
     INVALID_LOG_LEVEL_VALUE,
     LOG_LEVEL,
@@ -153,7 +154,8 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, filterLogs} = useContext(StateContext);
+    const {filterLogs} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 

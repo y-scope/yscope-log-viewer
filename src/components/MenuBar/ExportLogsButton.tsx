@@ -1,5 +1,3 @@
-import {useContext} from "react";
-
 import {
     CircularProgress,
     Typography,
@@ -7,8 +5,8 @@ import {
 
 import DownloadIcon from "@mui/icons-material/Download";
 
-import {StateContext} from "../../contexts/StateContextProvider";
 import useLogExportStore from "../../contexts/states/logExportStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {
     EXPORT_LOGS_PROGRESS_VALUE_MAX,
     EXPORT_LOGS_PROGRESS_VALUE_MIN,
@@ -27,7 +25,8 @@ import MenuBarIconButton from "./MenuBarIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, uiState} = useContext(StateContext);
+    const exportLogs = useLogExportStore((state) => state.exportLogs);
+    const uiState = useUiStore((state) => state.uiState);
     const exportProgress = useLogExportStore((state) => state.exportProgress);
 
     return (

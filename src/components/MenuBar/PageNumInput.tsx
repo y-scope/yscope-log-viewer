@@ -1,5 +1,4 @@
 import React, {
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -10,8 +9,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import {StateContext} from "../../contexts/StateContextProvider";
 import useLogFileStore from "../../contexts/states/logFileStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -31,7 +30,8 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPageByAction, uiState} = useContext(StateContext);
+    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
+    const uiState = useUiStore((state) => state.uiState);
     const numPages = useLogFileStore((state) => state.numPages);
     const pageNum = useLogFileStore((state) => state.pageNum);
 

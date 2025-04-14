@@ -7,7 +7,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useLogFileStore from "../../contexts/states/logFileStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {
     copyPermalinkToClipboard,
     UrlContext,
@@ -32,7 +33,8 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {uiState, numEvents} = useContext(StateContext);
+    const numEvents = useLogFileStore((state) => state.numEvents);
+    const uiState = useUiStore((state) => state.uiState);
     const {logEventNum} = useContext(UrlContext);
 
     return (
