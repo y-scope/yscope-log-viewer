@@ -57,7 +57,7 @@ jobs:
         run: |
           PACKAGE_VERSION=$(jq -r ".version" "package.json")
           BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's|refs/heads/||')
-          DATE=$(date +'%Y%m%d')
+          DATE=$(date --utc +'%Y%m%d')
           SHORT_SHA=$(git rev-parse --short HEAD)
           VERSION=${PACKAGE_VERSION}-${BRANCH_NAME}+${DATE}.${SHORT_SHA}
 
