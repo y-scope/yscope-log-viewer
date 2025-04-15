@@ -1,4 +1,7 @@
-import {create} from "zustand";
+import {
+    create,
+    StateCreator,
+} from "zustand";
 
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
@@ -57,6 +60,9 @@ interface LogFileState {
     filterLogs: (filter: LogLevelFilter) => void;
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
+}
+
+interface LogFileSettersState {
     setActiveTabName: (tabName: TAB_NAME) => void;
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setFileName: (newFileName: string) => void;
@@ -117,8 +123,52 @@ const getPageNumCursor = (
     };
 };
 
-const useLogFileStore = create<LogFileState>((set, get) => ({
+/**
+ *
+ *Creates setters for the log file state.
+ *
+ * @param set Zustand set function.
+ * @return
+ */
+const createLogFileSetters = (
+    set: Parameters<StateCreator<LogFileState>>[0]
+): LogFileSettersState => ({
+    setActiveTabName: (tabName) => {
+        set({activeTabName: tabName});
+    },
+    setBeginLineNumToLogEventNum: (newMap) => {
+        set({beginLineNumToLogEventNum: newMap});
+    },
+    setFileName: (newFileName) => {
+        set({fileName: newFileName});
+    },
+    setLogData: (newLogData) => {
+        set({logData: newLogData});
+    },
+    setLogEventNum: (newLogEventNum) => {
+        set({logEventNum: newLogEventNum});
+    },
+    setNumEvents: (newNumEvents) => {
+        set({numEvents: newNumEvents});
+    },
+    setNumPages: (newNumPages) => {
+        set({numPages: newNumPages});
+    },
+    setOnDiskFileSizeInBytes: (newSize) => {
+        set({onDiskFileSizeInBytes: newSize});
+    },
+    setPageNum: (newPageNum) => {
+        set({pageNum: newPageNum});
+    },
+    setPostPopUp: (postPopUp) => {
+        set({postPopUp});
+    },
+});
+
+// eslint-disable-next-line max-lines-per-function
+const useLogFileStore = create<LogFileState & LogFileSettersState>((set, get) => ({
     ...LOG_FILE_DEFAULT,
+    ...createLogFileSetters(set),
     filterLogs: (filter: LogLevelFilter) => {
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
@@ -207,36 +257,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 cursor: cursor,
             },
         });
-    },
-    setActiveTabName: (tabName: TAB_NAME) => {
-        set({activeTabName: tabName});
-    },
-    setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => {
-        set({beginLineNumToLogEventNum: newMap});
-    },
-    setFileName: (newFileName) => {
-        set({fileName: newFileName});
-    },
-    setLogData: (newLogData) => {
-        set({logData: newLogData});
-    },
-    setLogEventNum: (newLogEventNum) => {
-        set({logEventNum: newLogEventNum});
-    },
-    setNumEvents: (newNumEvents) => {
-        set({numEvents: newNumEvents});
-    },
-    setNumPages: (newNumPages) => {
-        set({numPages: newNumPages});
-    },
-    setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes) => {
-        set({onDiskFileSizeInBytes: newOnDiskFileSizeInBytes});
-    },
-    setPageNum: (newPageNum) => {
-        set({pageNum: newPageNum});
-    },
-    setPostPopUp: (postPopUp) => {
-        set({postPopUp});
     },
 }));
 

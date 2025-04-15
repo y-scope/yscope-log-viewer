@@ -96,41 +96,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // Refs
     const logEventNumRef = useRef(logEventNum);
 
-    /*
-    const handleMainWorkerResp = useCallback((ev: MessageEvent<MainWorkerRespMessage>) => {
-        const {code, args} = ev.data;
-        console.log(`[MainWorker -> Renderer] code=${code}`);
-        switch (code) {
-            case WORKER_RESP_CODE.NOTIFICATION:
-                postPopUp({
-                    level: args.logLevel,
-                    message: args.message,
-                    timeoutMillis: DEFAULT_AUTO_DISMISS_TIMEOUT_MILLIS,
-                    title: "Action failed",
-                });
-
-                switch (uiStateRef.current) {
-                    case UI_STATE.FAST_LOADING:
-                        setUiState(UI_STATE.READY);
-                        break;
-                    case UI_STATE.FILE_LOADING:
-                        setUiState(UI_STATE.UNOPENED);
-                        break;
-                    default:
-                        break;
-                }
-
-                break;
-            default:
-                console.error(`Unexpected ev.data: ${JSON.stringify(ev.data)}`);
-                break;
-        }
-    }, [
-        handleFormatPopupPrimaryAction,
-        postPopUp,
-    ]);
-     */
-
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
@@ -203,7 +168,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     useEffect(() => {
         setPostPopUp(postPopUp);
-    }, [postPopUp]);
+    }, [
+        postPopUp,
+        setPostPopUp,
+    ]);
 
 
     return (
