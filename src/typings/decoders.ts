@@ -97,6 +97,7 @@ interface Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean
+        // TODO-ZZX: 新增参数，用来表示时区，给它一个默认值，UTC时区
     ): Nullable<DecodeResult[]>;
 }
 

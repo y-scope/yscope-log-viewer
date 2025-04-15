@@ -91,6 +91,7 @@ class ClpIrDecoder implements Decoder {
                 message, timestamp,
             ] = r;
 
+            // TODO-ZZX: 转成指定时区
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
         }
@@ -146,7 +147,7 @@ class ClpIrDecoder implements Decoder {
         // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
         const results =
             this.#streamReader.decodeRange(beginIdx, endIdx, useFilter) as Nullable<DecodeResult[]>;
-
+        
         if (null === results) {
             return null;
         }
@@ -167,6 +168,7 @@ class ClpIrDecoder implements Decoder {
                 timestamp,
                 level,
             ] = r;
+            // TODO-ZZX: 这里也得转换成指定的时区
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 

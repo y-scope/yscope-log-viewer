@@ -96,6 +96,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 });
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
+                    // TODO-ZZX: 从args里传入时区
                     LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;
@@ -106,6 +107,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 }
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
+                    // TODO-ZZX: 从args里传入时区
                     LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;
@@ -117,6 +119,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
+                    // TODO-ZZX: 从args里传入时区
                     LOG_FILE_MANAGER.loadPage(args.cursor, args.isPrettified)
                 );
                 break;

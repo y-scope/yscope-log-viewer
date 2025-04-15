@@ -196,6 +196,7 @@ const loadPageByCursor = (
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
         isPrettified: isPrettified,
+        // TODO-ZZX: 新增参数
     });
 };
 
@@ -424,6 +425,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
             fileSrc: fileSrc,
             isPrettified: isPrettifiedRef.current,
+            // TODO-ZZX: 新增参数，时区
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
         });
     }, [
@@ -476,6 +478,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             isPrettified: isPrettifiedRef.current,
             logLevelFilter: filter,
+            // TODO-ZZX: 新增参数
         });
     }, []);
 

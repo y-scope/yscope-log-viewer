@@ -246,6 +246,7 @@ class LogFileManager {
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @param isPrettified Are the log messages pretty printed.
+     * // TODO-ZZX: 新增一个参数，表示从UI里选择的时区，得加默认UTC
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
@@ -282,11 +283,12 @@ class LogFileManager {
         results.forEach((r) => {
             const [
                 msg,
-                ,
+                timestamp,
                 ,
                 logEventNum,
             ] = r;
 
+            console.log(timestamp);
             const printedMsg = (isPrettified) ?
                 `${jsBeautify(msg)}\n` :
                 msg;
