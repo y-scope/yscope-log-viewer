@@ -87,15 +87,17 @@ jobs:
         with:
           name: "${{env.G_RELEASE_ARTIFACT_NAME}}"
 
-      - name: "Create GitHub Release with automatically generated release notes"
+      - name: "Create GitHub pre-release"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           gh release create "v${{needs.build.outputs.VERSION}}" \
             "${{needs.build.outputs.DIST_TAR_NAME}}" \
             --fail-on-no-commits \
-            --generate-notes \
-            --title "v${{needs.build.outputs.VERSION}}"
+            --prerelease \
+            --title "v${{needs.build.outputs.VERSION}}" \
+            --notes "This is a pre-release and is not recommended for production. Click \
+          [here](https://github.com/y-scope/yscope-log-viewer/releases?q=prerelease%3Afalse) to view all releases."
 
   deploy:
     needs: "release"
