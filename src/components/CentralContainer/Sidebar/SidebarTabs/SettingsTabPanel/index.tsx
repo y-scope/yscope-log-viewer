@@ -4,14 +4,8 @@ import React, {
 } from "react";
 
 import {
-    Box,
     Button,
     Divider,
-    FormControl,
-    FormHelperText,
-    FormLabel,
-    Input,
-    Link,
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
@@ -28,66 +22,12 @@ import {
     TAB_NAME,
 } from "../../../../../typings/tab";
 import {ACTION_NAME} from "../../../../../utils/actions";
-import {
-    getConfig,
-    setConfig,
-} from "../../../../../utils/config";
+import {setConfig} from "../../../../../utils/config";
 import CustomTabPanel from "../CustomTabPanel";
-import ThemeSwitchFormField from "./ThemeSwitchFormField";
+import SettingsFormFieldSectionsGroup from "./SettingsFormFieldSectionsGroup";
 
 import "./index.css";
 
-
-/**
- * Gets form fields information for user input of configuration values.
- *
- * @return A list of form fields information.
- */
-const getConfigFormFields = () => [
-    {
-        helperText: (
-            <span>
-                [JSON] Format string for formatting a JSON log event as plain text. See the
-                {" "}
-                <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
-                    level={"body-sm"}
-                    rel={"noopener"}
-                    target={"_blank"}
-                >
-                    format string syntax docs
-                </Link>
-                {" "}
-                or leave this blank to display the entire log event.
-            </span>
-        ),
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
-        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING,
-        label: "Decoder: Format string",
-        type: "text",
-    },
-    {
-        helperText: "[JSON] Key to extract the log level from.",
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
-        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
-        label: "Decoder: Log level key",
-        type: "text",
-    },
-    {
-        helperText: "[JSON] Key to extract the log timestamp from.",
-        initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
-        key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
-        label: "Decoder: Timestamp key",
-        type: "text",
-    },
-    {
-        helperText: "Number of log messages to display per page.",
-        initialValue: getConfig(CONFIG_KEY.PAGE_SIZE),
-        key: LOCAL_STORAGE_KEY.PAGE_SIZE,
-        label: "View: Page size",
-        type: "number",
-    },
-];
 
 /**
  * Handles the reset event for the configuration form.
@@ -155,23 +95,7 @@ const SettingsTabPanel = () => {
                 onReset={handleConfigFormReset}
                 onSubmit={handleConfigFormSubmit}
             >
-                <Box className={"settings-form-fields-container"}>
-                    <ThemeSwitchFormField/>
-                    {getConfigFormFields().map((field, index) => (
-                        <FormControl key={index}>
-                            <FormLabel>
-                                {field.label}
-                            </FormLabel>
-                            <Input
-                                defaultValue={field.initialValue}
-                                name={field.key}
-                                type={field.type}/>
-                            <FormHelperText>
-                                {field.helperText}
-                            </FormHelperText>
-                        </FormControl>
-                    ))}
-                </Box>
+                <SettingsFormFieldSectionsGroup/>
                 <Divider/>
                 <Button
                     color={"primary"}
