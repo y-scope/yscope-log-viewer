@@ -12,6 +12,7 @@ import {
     FormLabel,
     Input,
     Link,
+    Textarea,
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
@@ -162,10 +163,14 @@ const SettingsTabPanel = () => {
                             <FormLabel>
                                 {field.label}
                             </FormLabel>
-                            <Input
-                                defaultValue={field.initialValue}
-                                name={field.key}
-                                type={field.type}/>
+                            {"number" === field.type ?
+                                <Input
+                                    defaultValue={field.initialValue}
+                                    name={field.key}
+                                    type={"number"}/> :
+                                <Textarea
+                                    defaultValue={field.initialValue}
+                                    name={field.key}/>}
                             <FormHelperText>
                                 {field.helperText}
                             </FormHelperText>
