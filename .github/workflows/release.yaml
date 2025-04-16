@@ -98,7 +98,7 @@ jobs:
             --title "v${{needs.build.outputs.VERSION}}" \
             --notes "This is a pre-release and is not recommended for production. Click \
           [here](https://github.com/y-scope/yscope-log-viewer/releases?q=prerelease%3Afalse) to \
-          view all releases."
+          view all production releases."
 
   deploy:
     needs: "release"
