@@ -115,7 +115,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             return;
         }
 
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
+        if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 
