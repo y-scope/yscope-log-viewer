@@ -75,7 +75,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
         switch (code) {
             case WORKER_REQ_CODE.EXPORT_LOGS: {
                 if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
+                    throw new Error("EXPORT_LOGS: Log file manager hasn't been initialized");
                 }
                 LOG_FILE_MANAGER.exportChunkAndScheduleNext(0);
                 break;
@@ -102,7 +102,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
             }
             case WORKER_REQ_CODE.LOAD_PAGE:
                 if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
+                    throw new Error("LOAD_PAGE: Log file manager hasn't been initialized");
                 }
                 postResp(
                     WORKER_RESP_CODE.PAGE_DATA,
@@ -111,7 +111,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 break;
             case WORKER_REQ_CODE.SET_FILTER:
                 if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
+                    throw new Error("SET_FILTER: Log file manager hasn't been initialized");
                 }
 
                 LOG_FILE_MANAGER.setLogLevelFilter(args.logLevelFilter);
@@ -122,7 +122,7 @@ onmessage = async (ev: MessageEvent<MainWorkerReqMessage>) => {
                 break;
             case WORKER_REQ_CODE.START_QUERY:
                 if (null === LOG_FILE_MANAGER) {
-                    throw new Error("Log file manager hasn't been initialized");
+                    throw new Error("START_QUERY: Log file manager hasn't been initialized");
                 }
                 LOG_FILE_MANAGER.startQuery(args);
                 break;

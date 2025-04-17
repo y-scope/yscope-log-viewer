@@ -7,6 +7,7 @@ import {
     WORKER_REQ_CODE,
 } from "../../../typings/worker";
 import useMainWorkerStore from "../mainWorkerStore";
+import useQueryStore from "../queryStore";
 import useUiStore from "../uiStore";
 import {
     FilterLogsSlice,
@@ -52,5 +53,6 @@ export const createFilterLogsSlice: StateCreator<
                 logLevelFilter: filter,
             },
         });
+        useQueryStore.getState().startQuery();
     },
 });

@@ -74,13 +74,18 @@ const useQueryStore = create<QueryState>((set, get) => ({
             queryIsRegex,
         } = get();
 
-        clearQueryResults();
+        if (QUERY_DEFAULT.queryString === queryString) {
+            return;
+        }
+
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
             console.error("startQuery: Main worker is not initialized.");
 
             return;
         }
+
+        clearQueryResults();
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.START_QUERY,
             args: {
