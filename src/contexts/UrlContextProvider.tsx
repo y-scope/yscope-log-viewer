@@ -219,6 +219,11 @@ const getWindowUrlHashParams = () => {
         urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
     }
 
+    const logTimezone = hashParams.get(HASH_PARAM_NAMES.LOG_TIMEZONE);
+    if (null !== logTimezone) {
+        urlHashParams[HASH_PARAM_NAMES.LOG_TIMEZONE] = logTimezone;
+    }
+
     return urlHashParams;
 };
 

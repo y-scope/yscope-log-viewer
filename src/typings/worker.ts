@@ -103,18 +103,18 @@ type WorkerReqMap = {
         cursor: CursorType;
         decoderOptions: DecoderOptions;
         isPrettified: boolean;
-        // TODO-ZZX: 新增时区参数
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
         isPrettified: boolean;
-        // TODO-ZZX: 新增时区参数
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
         logLevelFilter: LogLevelFilter;
         isPrettified: boolean;
-        // TODO-ZZX: 新增时区参数
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;

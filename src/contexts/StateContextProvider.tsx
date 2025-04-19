@@ -62,7 +62,6 @@ import {
     UrlContext,
 } from "./UrlContextProvider";
 
-
 interface StateContextType {
     activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
@@ -187,16 +186,18 @@ const getPageNumCursor = (
  * @param worker
  * @param cursor
  * @param isPrettified is pretty-printing log messages enabled
+ * @param logTimezone format the timezone of the log timestamp
  */
 const loadPageByCursor = (
     worker: Worker,
     cursor: CursorType,
     isPrettified: boolean,
+    logTimezone: string | null
 ) => {
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
         isPrettified: isPrettified,
-        // TODO-ZZX: 新增参数
+        logTimezone: logTimezone
     });
 };
 
@@ -249,7 +250,7 @@ const updateUrlIfEventOnPage = (
 // eslint-disable-next-line max-lines-per-function, max-statements
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
+    const {filePath, isPrettified, logEventNum, logTimezone} = useContext(UrlContext);
 
     // States
     const [activeTabName, setActiveTabName] = useState<TAB_NAME>(STATE_DEFAULT.activeTabName);
@@ -273,6 +274,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
     const logExportManagerRef = useRef<null | LogExportManager>(null);
+    const logTimezoneRef = useRef<string | null>(logTimezone);
     const mainWorkerRef = useRef<null | Worker>(null);
     const numPagesRef = useRef<number>(numPages);
     const pageNumRef = useRef<number>(pageNum);
@@ -425,7 +427,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
             fileSrc: fileSrc,
             isPrettified: isPrettifiedRef.current,
-            // TODO-ZZX: 新增参数，时区
+            logTimezone: logTimezoneRef.current,
             pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
         });
     }, [
@@ -466,7 +468,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezoneRef.current);
     }, [loadFile]);
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
@@ -478,19 +480,49 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             isPrettified: isPrettifiedRef.current,
             logLevelFilter: filter,
-            // TODO-ZZX: 新增参数
+            logTimezone: logTimezoneRef.current
         });
     }, []);
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    // Synchronize `isPrettifiedRef` with `isPrettified`, and repaint the page with prettifying accordingly
     useEffect(() => {
         isPrettifiedRef.current = isPrettified ?? false;
+
+        if (null === mainWorkerRef.current) {
+            return;
+        }
+
+        const cursor: CursorType = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: logEventNumRef.current ?? 1},
+        };
+
+        setUiState(UI_STATE.FAST_LOADING);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false, logTimezoneRef.current);
     }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
+
+    // Synchronize `logTimezoneRef` with `logTimezone`, and repaint the page with specified timestamp zone
+    useEffect(() => {
+        logTimezoneRef.current = logTimezone;
+
+        if (null === mainWorkerRef.current) {
+            return;
+        }
+
+        const cursor: CursorType = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: logEventNumRef.current ?? 1},
+        };
+
+        setUiState(UI_STATE.FAST_LOADING);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezone);
+
+    }, [logTimezone]);
 
     // Synchronize `pageNumRef` with `pageNum`.
     useEffect(() => {
@@ -510,22 +542,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             setLogData(STATE_DEFAULT.logData);
         }
     }, [uiState]);
-
-    useEffect(() => {
-        if (null === mainWorkerRef.current) {
-            return;
-        }
-
-        const cursor: CursorType = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNumRef.current ?? 1},
-        };
-
-        setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false);
-    }, [
-        isPrettified,
-    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -553,7 +569,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current);
+        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezoneRef.current);
     }, [
         logEventNum,
         numEvents,

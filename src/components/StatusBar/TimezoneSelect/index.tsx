@@ -65,8 +65,9 @@ const TimezoneSelect = () => {
     }, [disabled]);
 
     useEffect(() => {
+        const updatedTimezone = (LOGGER_TIMEZONE === selectedTimezone) ? null : selectedTimezone;
         updateWindowUrlHashParams({
-            [HASH_PARAM_NAMES.LOG_TIMEZONE]: selectedTimezone,
+            [HASH_PARAM_NAMES.LOG_TIMEZONE]: updatedTimezone,
         });
     }, [selectedTimezone]);
 

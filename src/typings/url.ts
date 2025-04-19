@@ -8,7 +8,7 @@ enum SEARCH_PARAM_NAMES {
 enum HASH_PARAM_NAMES {
     IS_PRETTIFIED = "isPrettified",
     LOG_EVENT_NUM = "logEventNum",
-    LOG_TIMEZONE = "logTimeZone",
+    LOG_TIMEZONE = "logTimezone",
 }
 
 interface UrlSearchParams {

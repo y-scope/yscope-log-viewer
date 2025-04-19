@@ -246,13 +246,14 @@ class LogFileManager {
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @param isPrettified Are the log messages pretty printed.
-     * // TODO-ZZX: 新增一个参数，表示从UI里选择的时区，得加默认UTC
+     * @param logTimezone Format the log timestamp to specified timezone.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType, isPrettified: boolean, logTimezone: string): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
+        console.log(`Timezone here!: ${logTimezone}`)
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
