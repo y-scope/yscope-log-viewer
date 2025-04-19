@@ -15,6 +15,8 @@ import { SelectValue } from "@mui/base/useSelect";
 import { StateContext } from "../../../contexts/StateContextProvider";
 import { isDisabled } from "../../../utils/states";
 import { UI_ELEMENT } from "../../../typings/states";
+import { updateWindowUrlHashParams } from "../../../contexts/UrlContextProvider";
+import { HASH_PARAM_NAMES } from "../../../typings/url";
 
 const LOGGER_TIMEZONE = "Logger";
 const COMMON_TIMEZONES = [
@@ -61,6 +63,12 @@ const TimezoneSelect = () => {
             setSelectedTimezone(LOGGER_TIMEZONE);
         }
     }, [disabled]);
+
+    useEffect(() => {
+        updateWindowUrlHashParams({
+            [HASH_PARAM_NAMES.LOG_TIMEZONE]: selectedTimezone,
+        });
+    }, [selectedTimezone]);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<string>, false>) => (
         <Box className="timezone-select-render-value-box">

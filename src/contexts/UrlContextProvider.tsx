@@ -32,6 +32,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.LOG_TIMEZONE]: null,
 });
 
 /**
