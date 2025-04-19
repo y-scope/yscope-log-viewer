@@ -90,14 +90,15 @@ interface Decoder {
      * @param beginIdx
      * @param endIdx
      * @param useFilter Whether to decode from the filtered or unfiltered log events collection.
+     * @param timezone Format the epoch to specified timezone
      * @return The decoded log events on success or null if any log event in the range doesn't exist
      * (e.g., the range exceeds the number of log events in the collection).
      */
     decodeRange(
         beginIdx: number,
         endIdx: number,
-        useFilter: boolean
-        // TODO-ZZX: 新增参数，用来表示时区，给它一个默认值，UTC时区
+        useFilter: boolean,
+        timezone: string | null,
     ): Nullable<DecodeResult[]>;
 }
 

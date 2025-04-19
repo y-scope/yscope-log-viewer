@@ -28,7 +28,6 @@ import {
     StructuredIrNamespaceKeys,
 } from "./utils";
 
-
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
@@ -83,17 +82,22 @@ class ClpIrDecoder implements Decoder {
      * Formats unstructured log events by prepending a formatted timestamp to each message.
      *
      * @param logEvents
+     * @param logTimezone
      * @return The formatted log events.
      */
-    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
+    static #formatUnstructuredResults = (logEvents: DecodeResult[], logTimezone: string | null): DecodeResult[] => {
         for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
 
-            // TODO-ZZX: 转成指定时区
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
-            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            if (null !== logTimezone) {
+                r[0] = dayJsTimestamp.tz(logTimezone).format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            } else {
+                // TODO-ZZX: 能读取原始数据中的timezone后这里转成对应的原始数据中的timezone
+                r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            }
         }
 
         return logEvents;
@@ -135,13 +139,15 @@ class ClpIrDecoder implements Decoder {
      * @param beginIdx
      * @param endIdx
      * @param useFilter
+     * @param timezone
      * @return
      * @throws {Error} if the formatter is not set for structured logs.
      */
     decodeRange (
         beginIdx: number,
         endIdx: number,
-        useFilter: boolean
+        useFilter: boolean,
+        timezone: string | null
     ): Nullable<DecodeResult[]> {
         // eslint-disable-next-line no-warning-comments
         // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
@@ -159,16 +165,16 @@ class ClpIrDecoder implements Decoder {
                 throw new Error("Formatter is not set for structured logs.");
             }
 
-            return ClpIrDecoder.#formatUnstructuredResults(results);
+            return ClpIrDecoder.#formatUnstructuredResults(results, timezone);
         }
 
+        // TODO: Support specifying timezone for JSON log events
         for (const r of results) {
             const [
                 message,
                 timestamp,
                 level,
             ] = r;
-            // TODO-ZZX: 这里也得转换成指定的时区
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 

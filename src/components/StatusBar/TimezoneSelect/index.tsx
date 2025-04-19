@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
     Box,
     Chip,
@@ -15,7 +15,7 @@ import { SelectValue } from "@mui/base/useSelect";
 import { StateContext } from "../../../contexts/StateContextProvider";
 import { isDisabled } from "../../../utils/states";
 import { UI_ELEMENT } from "../../../typings/states";
-import { updateWindowUrlHashParams } from "../../../contexts/UrlContextProvider";
+import { updateWindowUrlHashParams, UrlContext } from "../../../contexts/UrlContextProvider";
 import { HASH_PARAM_NAMES } from "../../../typings/url";
 
 const LOGGER_TIMEZONE = "Logger";
@@ -47,9 +47,12 @@ const getLongOffsetOfTimezone = (tz: string): string => {
 
 const TimezoneSelect = () => {
     const {uiState} = useContext(StateContext);
+    const {logTimezone} = useContext(UrlContext);
 
     const [browserTimezone, setBrowserTimezone] = useState<string | null>(null);
     const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
+
+    const logTimezoneRef = useRef<string | null>(logTimezone);
 
     const disabled = isDisabled(uiState, UI_ELEMENT.TIMEZONE_SETTER);
 
@@ -65,10 +68,20 @@ const TimezoneSelect = () => {
     }, [disabled]);
 
     useEffect(() => {
-        const updatedTimezone = (LOGGER_TIMEZONE === selectedTimezone) ? null : selectedTimezone;
-        updateWindowUrlHashParams({
-            [HASH_PARAM_NAMES.LOG_TIMEZONE]: updatedTimezone,
-        });
+        logTimezoneRef.current = logTimezone;
+        if (!disabled) {
+            setSelectedTimezone(logTimezone);
+        }
+    }, [logTimezone]);
+
+    useEffect(() => {
+        // Avoid infinite loop, also make sure if user directly changes the URL, the selected option matches that
+        if (selectedTimezone !== logTimezoneRef.current) {
+            const updatedTimezone = (LOGGER_TIMEZONE === selectedTimezone) ? null : selectedTimezone;
+            updateWindowUrlHashParams({
+                [HASH_PARAM_NAMES.LOG_TIMEZONE]: updatedTimezone,
+            });
+        }
     }, [selectedTimezone]);
 
     const handleRenderValue = (selected: SelectValue<SelectOption<string>, false>) => (

@@ -38,7 +38,6 @@ import {
     loadFile,
 } from "./utils";
 
-
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
 /**
@@ -223,6 +222,7 @@ class LogFileManager {
             beginLogEventIdx,
             endLogEventIdx,
             false,
+            null
         );
 
         if (null === results) {
@@ -251,9 +251,8 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean, logTimezone: string): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType, isPrettified: boolean, logTimezone: string | null): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
-        console.log(`Timezone here!: ${logTimezone}`)
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
             filteredLogEventMap.length :
@@ -271,6 +270,7 @@ class LogFileManager {
             pageBegin,
             pageEnd,
             null !== filteredLogEventMap,
+            logTimezone
         );
 
         if (null === results) {
@@ -369,7 +369,7 @@ class LogFileManager {
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
-        queryRegex: RegExp
+        queryRegex: RegExp,
     ): void {
         if (queryId !== this.#queryId) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
@@ -390,7 +390,8 @@ class LogFileManager {
         const decodedEvents = this.#decoder.decodeRange(
             chunkBeginIdx,
             chunkEndIdx,
-            null !== filteredLogEventMap
+            null !== filteredLogEventMap,
+            null
         );
 
         if (null === decodedEvents) {
