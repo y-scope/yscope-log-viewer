@@ -24,6 +24,7 @@ import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
 import "./index.css";
+import TimezoneSelect from "./TimezoneSelect";
 
 
 /**
@@ -65,7 +66,7 @@ const StatusBar = () => {
                 {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
 
-            // TODO-ZZX: 把dropdown插入到想要的位置
+            <TimezoneSelect/>
             <Tooltip title={"Copy link to clipboard"}>
                 <span>
                     <Button
