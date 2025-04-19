@@ -28,6 +28,7 @@ import {
     StructuredIrNamespaceKeys,
 } from "./utils";
 
+
 class ClpIrDecoder implements Decoder {
     #streamReader: ClpStreamReader;
 
@@ -85,7 +86,10 @@ class ClpIrDecoder implements Decoder {
      * @param logTimezone
      * @return The formatted log events.
      */
-    static #formatUnstructuredResults = (logEvents: DecodeResult[], logTimezone: string | null): DecodeResult[] => {
+    static #formatUnstructuredResults = (
+        logEvents: DecodeResult[],
+        logTimezone: string | null
+    ): DecodeResult[] => {
         for (const r of logEvents) {
             const [
                 message, timestamp,
@@ -95,7 +99,8 @@ class ClpIrDecoder implements Decoder {
             if (null !== logTimezone) {
                 r[0] = dayJsTimestamp.tz(logTimezone).format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
             } else {
-                // TODO-ZZX: 能读取原始数据中的timezone后这里转成对应的原始数据中的timezone
+                // eslint-disable-next-line no-warning-comments
+                // TODO: ZZX, replace with the original log timezone
                 r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
             }
         }
@@ -153,7 +158,7 @@ class ClpIrDecoder implements Decoder {
         // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
         const results =
             this.#streamReader.decodeRange(beginIdx, endIdx, useFilter) as Nullable<DecodeResult[]>;
-        
+
         if (null === results) {
             return null;
         }
@@ -168,7 +173,8 @@ class ClpIrDecoder implements Decoder {
             return ClpIrDecoder.#formatUnstructuredResults(results, timezone);
         }
 
-        // TODO: Support specifying timezone for JSON log events
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Support specifying timezone for JSON log events.
         for (const r of results) {
             const [
                 message,

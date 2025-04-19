@@ -39,7 +39,7 @@ enum UI_ELEMENT {
     PRETTIFY_BUTTON,
     PROGRESS_BAR,
     QUERY_INPUT_BOX,
-    TIMEZONE_SETTER
+    TIMEZONE_SETTER,
 }
 
 type UiElementRow = {

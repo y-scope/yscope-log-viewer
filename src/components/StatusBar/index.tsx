@@ -22,9 +22,9 @@ import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
+import TimezoneSelect from "./TimezoneSelect";
 
 import "./index.css";
-import TimezoneSelect from "./TimezoneSelect";
 
 
 /**

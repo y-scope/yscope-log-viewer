@@ -45,6 +45,7 @@ import LogLevelChip from "./LogLevelChip";
 
 import "./index.css";
 
+
 interface LogSelectOptionProps {
     isChecked: boolean;
     logLevelName: string;

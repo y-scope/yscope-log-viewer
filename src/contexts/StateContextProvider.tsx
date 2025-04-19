@@ -62,6 +62,7 @@ import {
     UrlContext,
 } from "./UrlContextProvider";
 
+
 interface StateContextType {
     activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
@@ -197,7 +198,7 @@ const loadPageByCursor = (
     workerPostReq(worker, WORKER_REQ_CODE.LOAD_PAGE, {
         cursor: cursor,
         isPrettified: isPrettified,
-        logTimezone: logTimezone
+        logTimezone: logTimezone,
     });
 };
 
@@ -468,7 +469,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         }
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezoneRef.current);
+        loadPageByCursor(
+            mainWorkerRef.current,
+            cursor,
+            isPrettifiedRef.current,
+            logTimezoneRef.current
+        );
     }, [loadFile]);
 
     const filterLogs = useCallback((filter: LogLevelFilter) => {
@@ -480,11 +486,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             cursor: {code: CURSOR_CODE.EVENT_NUM, args: {eventNum: logEventNumRef.current ?? 1}},
             isPrettified: isPrettifiedRef.current,
             logLevelFilter: filter,
-            logTimezone: logTimezoneRef.current
+            logTimezone: logTimezoneRef.current,
         });
     }, []);
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`, and repaint the page with prettifying accordingly
+    // Synchronize `isPrettifiedRef` with `isPrettified`,
+    // and repaint the page with prettifying accordingly
     useEffect(() => {
         isPrettifiedRef.current = isPrettified ?? false;
 
@@ -498,7 +505,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettified ?? false, logTimezoneRef.current);
+        loadPageByCursor(
+            mainWorkerRef.current,
+            cursor,
+            isPrettified ?? false,
+            logTimezoneRef.current
+        );
     }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
@@ -506,7 +518,8 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         logEventNumRef.current = logEventNum;
     }, [logEventNum]);
 
-    // Synchronize `logTimezoneRef` with `logTimezone`, and repaint the page with specified timestamp zone
+    // Synchronize `logTimezoneRef` with `logTimezone`,
+    // and repaint the page with specified timestamp zone
     useEffect(() => {
         logTimezoneRef.current = logTimezone;
 
@@ -521,7 +534,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setUiState(UI_STATE.FAST_LOADING);
         loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezone);
-
     }, [logTimezone]);
 
     // Synchronize `pageNumRef` with `pageNum`.
@@ -569,7 +581,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        loadPageByCursor(mainWorkerRef.current, cursor, isPrettifiedRef.current, logTimezoneRef.current);
+        loadPageByCursor(
+            mainWorkerRef.current,
+            cursor,
+            isPrettifiedRef.current,
+            logTimezoneRef.current
+        );
     }, [
         logEventNum,
         numEvents,
