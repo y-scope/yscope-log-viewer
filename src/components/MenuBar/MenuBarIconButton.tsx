@@ -8,25 +8,26 @@ import {
 
 interface MenuBarIconButtonProps extends IconButtonProps {
     tooltipPlacement?: TooltipTypeMap["props"]["placement"];
+    tooltipTitle?: string;
 }
 
 /**
  * An icon button for use in the menu bar.
  *
  * @param props
- * @param props.title Tooltip title.
+ * @param props.tooltipTitle Tooltip title, to discern with native HTML tooltip.
  * @param props.tooltipPlacement
  * @param props.rest
  * @return
  */
 const MenuBarIconButton = ({
     tooltipPlacement,
-    title,
+    tooltipTitle,
     ...rest
 }: MenuBarIconButtonProps) => (
     <Tooltip
-        placement={tooltipPlacement ?? "bottom"}
-        title={title}
+        title={tooltipTitle}
+        {... tooltipPlacement && {placement: tooltipPlacement}}
     >
         <span>
             <IconButton

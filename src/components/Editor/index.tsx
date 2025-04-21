@@ -1,3 +1,5 @@
+/* eslint max-lines: ["error", 350] */
+/* eslint max-lines-per-function: ["error", 170] */
 import {
     useCallback,
     useContext,
@@ -19,6 +21,7 @@ import {
     CONFIG_KEY,
     THEME_NAME,
 } from "../../typings/config";
+import {HASH_PARAM_NAMES} from "../../typings/url";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -137,13 +140,14 @@ const Editor = () => {
     const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
     const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
     const logData = useLogFileStore((state) => state.logData);
-    const {logEventNum} = useContext(UrlContext);
+    const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
+    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
 
@@ -171,6 +175,11 @@ const Editor = () => {
             }
             case ACTION_NAME.COPY_LOG_EVENT:
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
+                break;
+            case ACTION_NAME.TOGGLE_PRETTIFY:
+                updateWindowUrlHashParams({
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
+                });
                 break;
             case ACTION_NAME.WORD_WRAP:
                 handleWordWrapAction(editor);
@@ -252,6 +261,11 @@ const Editor = () => {
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
+
+    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    useEffect(() => {
+        isPrettifiedRef.current = isPrettified ?? false;
+    }, [isPrettified]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

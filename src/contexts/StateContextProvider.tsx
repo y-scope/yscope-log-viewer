@@ -82,7 +82,7 @@ const updateUrlIfEventOnPage = (
  */
 const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
@@ -95,6 +95,12 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // Refs
     const logEventNumRef = useRef(logEventNum);
+    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
+
+    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    useEffect(() => {
+        isPrettifiedRef.current = isPrettified ?? false;
+    }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -137,7 +143,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.LOAD_PAGE,
-            args: {cursor: cursor},
+            args: {
+                cursor: cursor,
+                isPrettified: isPrettifiedRef,
+            },
         });
     }, [
         beginLineNumToLogEventNum,
