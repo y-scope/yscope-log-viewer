@@ -89,31 +89,31 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const loadFile = useLogFileStore((state) => state.loadFile);
     const mainWorker = useMainWorkerStore((state) => state.mainWorker);
     const numEvents = useLogFileStore((state) => state.numEvents);
+    const setIsPrettified = useUiStore((state) => state.setIsPrettified);
     const setLogEventNum = useLogFileStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useLogFileStore((state) => state.setPostPopUp);
 
     // Refs
-    const logEventNumRef = useRef(logEventNum);
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
-
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-    }, [isPrettified]);
+    const logEventNumRef = useRef(logEventNum);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
-        logEventNumRef.current = logEventNum;
         if (null !== logEventNum) {
+            logEventNumRef.current = logEventNum;
             setLogEventNum(logEventNum);
-        } else {
-            setLogEventNum(0);
         }
     }, [
         logEventNum,
         setLogEventNum,
     ]);
+
+    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    useEffect(() => {
+        isPrettifiedRef.current = isPrettified ?? false;
+        setIsPrettified(isPrettifiedRef.current);
+    }, [isPrettified]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -145,7 +145,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             code: WORKER_REQ_CODE.LOAD_PAGE,
             args: {
                 cursor: cursor,
-                isPrettified: isPrettifiedRef,
+                isPrettified: isPrettifiedRef.current,
             },
         });
     }, [

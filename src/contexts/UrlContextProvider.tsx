@@ -220,7 +220,7 @@ const getWindowUrlHashParams = () => {
 
     const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
     if (null !== isPrettified) {
-        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
+        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified.toLowerCase();
     }
 
     return urlHashParams;

@@ -83,7 +83,10 @@ const getPageNumCursor = (
  */
 export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get) => ({
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        useUiStore.getState().setUiState(UI_STATE.FILE_LOADING);
+        // FIXME: need to clean up all zustand stores upon drag and drop.
+        const {isPrettified, setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FILE_LOADING);
+
         useMainWorkerStore.getState().init();
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
@@ -99,10 +102,11 @@ export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (s
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.LOAD_FILE,
             args: {
-                fileSrc: fileSrc,
-                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
                 cursor: cursor,
                 decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                fileSrc: fileSrc,
+                isPrettified: isPrettified,
+                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
             },
         });
     },
@@ -139,12 +143,13 @@ export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (s
             return;
         }
 
-        const {setUiState} = useUiStore.getState();
+        const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.LOAD_PAGE,
             args: {
                 cursor: cursor,
+                isPrettified: isPrettified,
             },
         });
     },

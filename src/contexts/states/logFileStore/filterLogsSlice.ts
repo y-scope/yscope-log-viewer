@@ -35,7 +35,7 @@ export const createFilterLogsSlice: StateCreator<
 
             return;
         }
-        const {setUiState} = useUiStore.getState();
+        const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
         const {logEventNum} = get();
 
@@ -50,6 +50,7 @@ export const createFilterLogsSlice: StateCreator<
                             logEventNum,
                     },
                 },
+                isPrettified: isPrettified,
                 logLevelFilter: filter,
             },
         });

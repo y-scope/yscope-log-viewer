@@ -98,11 +98,11 @@ enum WORKER_RESP_CODE {
 type WorkerReqMap = {
     [WORKER_REQ_CODE.EXPORT_LOGS]: null;
     [WORKER_REQ_CODE.LOAD_FILE]: {
-        fileSrc: FileSrcType;
-        pageSize: number;
         cursor: CursorType;
         decoderOptions: DecoderOptions;
+        fileSrc: FileSrcType;
         isPrettified: boolean;
+        pageSize: number;
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
@@ -110,8 +110,8 @@ type WorkerReqMap = {
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
-        logLevelFilter: LogLevelFilter;
         isPrettified: boolean;
+        logLevelFilter: LogLevelFilter;
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;
