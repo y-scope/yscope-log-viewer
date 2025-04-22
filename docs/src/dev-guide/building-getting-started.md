@@ -36,6 +36,17 @@ npm run build
 
 The build should then be available in the `dist` directory.
 
+## Previewing the Build
+
+To preview the production build locally, run:
+
+```shell
+npm run preview
+```
+
+This will serve the contents of the `dist` directory using Vite’s preview server, which simulates
+how the app will behave in production.
+
 [nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
 [nvm]: https://github.com/nvm-sh/nvm
 [nvm-windows]: https://github.com/coreybutler/nvm-windows
