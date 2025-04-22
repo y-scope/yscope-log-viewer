@@ -21,7 +21,7 @@ variable `NODE_ENV=production` is set.
 You can build and serve the viewer in debug mode using:
 
 ```shell
-npm dev
+npm run dev
 ```
 
 The viewer should then be available at [http://localhost:3010](http://localhost:3010).
