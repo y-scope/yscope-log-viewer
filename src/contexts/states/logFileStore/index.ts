@@ -2,9 +2,9 @@ import {create} from "zustand";
 
 import {CONFIG_KEY} from "../../../typings/config";
 import {getConfig} from "../../../utils/config";
-import {createFilterLogsSlice} from "./filterLogsSlice";
-import {createLoadSlice} from "./loadSlice";
-import {createLogFileSetterSlice} from "./setterSlice";
+import createFilterLogsSlice from "./filterLogsSlice";
+import createLoadSlice from "./loadSlice";
+import createLogFileSetterSlice from "./setterSlice";
 import {LogFileState} from "./types";
 
 

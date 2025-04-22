@@ -13,7 +13,7 @@ import {
  * @param set Zustand set function.
  * @return
  */
-export const createLogFileSetterSlice: StateCreator<
+const createLogFileSetterSlice: StateCreator<
     LogFileState,
     [],
     [],
@@ -50,3 +50,5 @@ export const createLogFileSetterSlice: StateCreator<
         set({postPopUp});
     },
 });
+
+export default createLogFileSetterSlice;

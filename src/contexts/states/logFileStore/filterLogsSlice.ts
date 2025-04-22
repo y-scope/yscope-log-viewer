@@ -22,7 +22,7 @@ import {
  * @param get
  * @return
  */
-export const createFilterLogsSlice: StateCreator<
+const createFilterLogsSlice: StateCreator<
     LogFileState,
     [],
     [],
@@ -57,3 +57,5 @@ export const createFilterLogsSlice: StateCreator<
         useQueryStore.getState().startQuery();
     },
 });
+
+export default createFilterLogsSlice;

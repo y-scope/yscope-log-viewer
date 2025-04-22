@@ -84,7 +84,7 @@ const getPageNumCursor = (
  * @return
  */
 // eslint-disable-next-line max-lines-per-function
-export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get) => ({
+const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get) => ({
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
@@ -158,3 +158,5 @@ export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (s
         });
     },
 });
+
+export default createLoadSlice;
