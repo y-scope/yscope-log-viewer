@@ -23,7 +23,7 @@ interface QueryState {
     queryIsCaseSensitive: boolean;
     queryIsRegex: boolean;
 
-    clearQueryResults: () => void;
+    clearQuery: () => void;
     mergeQueryResults: (newQueryResults: QueryResults) => void;
     startQuery: () => void;
     setQueryProgress: (newProgress: number) => void;
@@ -34,7 +34,7 @@ interface QueryState {
 
 const useQueryStore = create<QueryState>((set, get) => ({
     ...QUERY_DEFAULT,
-    clearQueryResults: () => {
+    clearQuery: () => {
         set({
             queryResults: QUERY_DEFAULT.queryResults,
             queryProgress: QUERY_DEFAULT.queryProgress,
@@ -68,7 +68,7 @@ const useQueryStore = create<QueryState>((set, get) => ({
     },
     startQuery: () => {
         const {
-            clearQueryResults,
+            clearQuery,
             queryString,
             queryIsCaseSensitive,
             queryIsRegex,
@@ -85,7 +85,7 @@ const useQueryStore = create<QueryState>((set, get) => ({
             return;
         }
 
-        clearQueryResults();
+        clearQuery();
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.START_QUERY,
             args: {

@@ -18,7 +18,9 @@ import {
 import {getConfig} from "../../../utils/config";
 import {clamp} from "../../../utils/math";
 import {updateWindowUrlSearchParams} from "../../UrlContextProvider";
+import useLogExportStore from "../logExportStore";
 import useMainWorkerStore from "../mainWorkerStore";
+import useQueryStore from "../queryStore";
 import useUiStore from "../uiStore";
 import {
     LoadSlice,
@@ -81,9 +83,9 @@ const getPageNumCursor = (
  * @param get
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get) => ({
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        // FIXME: need to clean up all zustand stores upon drag and drop.
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
@@ -94,6 +96,8 @@ export const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (s
 
             return;
         }
+        useQueryStore.getState().clearQuery();
+        useLogExportStore.getState().setExportProgress(0);
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {

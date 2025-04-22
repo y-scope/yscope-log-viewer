@@ -113,7 +113,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     useEffect(() => {
         isPrettifiedRef.current = isPrettified ?? false;
         setIsPrettified(isPrettifiedRef.current);
-    }, [isPrettified]);
+    }, [
+        isPrettified,
+        setIsPrettified,
+    ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
