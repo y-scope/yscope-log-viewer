@@ -7,6 +7,8 @@ export default defineConfig({
     // With default appType "spa", non-existent paths like /test/non-exist.clp.zst will be
     // redirected to /index.html instead of returning 404.
     appType: "mpa",
+
+    // If not specified, after build, the log viewer can only be served at a website's root.
     base: "./",
     build: {
         assetsDir: "",
