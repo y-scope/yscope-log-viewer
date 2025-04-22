@@ -21,6 +21,18 @@ Examples:
 * `arrayIndexIdx` for a 0-based indexing variable.
 * `numEvents` for the total number of events.
 
+## Web worker files
+
+Name worker files with a `.worker.ts` extension. Import them using Vite's `?worker` syntax:
+
+```ts
+import MainWorker from "../services/MainWorker.worker?worker";
+
+const worker = new MainWorker();
+```
+
+This ensures Vite handles the file as a web worker during build and development.
+
 # React
 
 ## Omitting state variables from React Hooks
