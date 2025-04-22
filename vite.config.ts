@@ -14,6 +14,8 @@ export default defineConfig({
         assetsDir: "",
         rollupOptions: {
             output: {
+                // Define manual chunks to optimize code splitting for better caching and
+                // performance.
                 manualChunks: {
                     "monaco-editor": ["monaco-editor"],
                 },
@@ -22,6 +24,8 @@ export default defineConfig({
         sourcemap: true,
     },
     optimizeDeps: {
+        // Or the `ClpFfiJs-worker.wasm` file is not found when serving from the debug server.
+        // Note this option only has effect on the debug server, not the production build.
         exclude: ["clp-ffi-js/worker"],
     },
     plugins: [react()],
