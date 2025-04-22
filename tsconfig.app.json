@@ -39,7 +39,6 @@
     "useUnknownInCatchVariables": true
   },
   "include": [
-    "jest.config.ts",
     "src",
     "test"
   ]
