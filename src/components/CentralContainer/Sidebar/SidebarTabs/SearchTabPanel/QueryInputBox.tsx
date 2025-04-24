@@ -25,6 +25,7 @@ const QueryInputBox = () => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
     const queryProgress = useQueryStore((state) => state.queryProgress);
+    const querystring = useQueryStore((state) => state.queryString);
     const setQueryString = useQueryStore((state) => state.setQueryString);
     const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
     const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
@@ -55,6 +56,7 @@ const QueryInputBox = () => {
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
+                value={querystring}
                 endDecorator={
                     <Stack
                         direction={"row"}

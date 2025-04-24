@@ -24,6 +24,7 @@ interface QueryState {
     queryIsRegex: boolean;
 
     clearQuery: () => void;
+    clearQueryResults: () => void;
     mergeQueryResults: (newQueryResults: QueryResults) => void;
     startQuery: () => void;
     setQueryProgress: (newProgress: number) => void;
@@ -32,13 +33,20 @@ interface QueryState {
     setQueryIsRegex: (newQueryIsRegex: boolean) => void;
 }
 
+// eslint-disable-next-line max-lines-per-function
 const useQueryStore = create<QueryState>((set, get) => ({
     ...QUERY_DEFAULT,
     clearQuery: () => {
         set({
-            queryResults: QUERY_DEFAULT.queryResults,
+            queryIsCaseSensitive: QUERY_DEFAULT.queryIsCaseSensitive,
+            queryIsRegex: QUERY_DEFAULT.queryIsRegex,
             queryProgress: QUERY_DEFAULT.queryProgress,
+            queryResults: QUERY_DEFAULT.queryResults,
+            queryString: QUERY_DEFAULT.queryString,
         });
+    },
+    clearQueryResults: () => {
+        set({queryResults: new Map()});
     },
     mergeQueryResults: (newQueryResults) => {
         set((state) => {
@@ -68,7 +76,7 @@ const useQueryStore = create<QueryState>((set, get) => ({
     },
     startQuery: () => {
         const {
-            clearQuery,
+            clearQueryResults,
             queryString,
             queryIsCaseSensitive,
             queryIsRegex,
@@ -85,7 +93,7 @@ const useQueryStore = create<QueryState>((set, get) => ({
             return;
         }
 
-        clearQuery();
+        clearQueryResults();
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.START_QUERY,
             args: {
