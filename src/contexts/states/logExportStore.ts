@@ -23,7 +23,7 @@ const useLogExportStore = create<LogExportState>((set) => ({
     exportLogs: () => {
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
-            console.error("exportLogs: mainWorker is not initialized");
+            console.error("exportLogs: mainWorker is not initialized.");
 
             return;
         }
