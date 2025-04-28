@@ -23,7 +23,7 @@ Examples:
 
 ## Web worker files
 
-Name worker files with a `.worker.ts` extension. Import them using Vite's `?worker` syntax:
+Name worker files with the `.worker.ts` extension. Import them using Vite's `?worker` syntax:
 
 ```ts
 import MainWorker from "../services/MainWorker.worker?worker";
