@@ -29,7 +29,6 @@ import useUiStore from "./uiStore";
 const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
     const {
         postPopUp,
-        setActiveTabName,
         setBeginLineNumToLogEventNum,
         setFileName,
         setLogData,
@@ -38,7 +37,7 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
         setOnDiskFileSizeInBytes,
         setPageNum,
     } = useLogFileStore.getState();
-    const {uiState, setUiState} = useUiStore.getState();
+    const {setActiveTabName, uiState, setUiState} = useUiStore.getState();
     const {code, args} = ev.data;
     switch (code) {
         case WORKER_RESP_CODE.CHUNK_DATA:

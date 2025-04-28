@@ -1,7 +1,6 @@
 import {Nullable} from "../../../typings/common";
 import {LogLevelFilter} from "../../../typings/logs";
 import {PopUpMessage} from "../../../typings/notifications";
-import {TAB_NAME} from "../../../typings/tab";
 import {
     BeginLineNumToLogEventNumMap,
     CursorType,
@@ -11,7 +10,6 @@ import {NavigationAction} from "../../../utils/actions";
 
 
 interface LogFileMetadataSlice {
-    activeTabName: TAB_NAME;
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
@@ -25,7 +23,6 @@ interface LogFileMetadataSlice {
 }
 
 interface LogFileSetterSlice {
-    setActiveTabName: (tabName: TAB_NAME) => void;
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setFileName: (newFileName: string) => void;
     setLogData: (newLogData: string) => void;

@@ -1,4 +1,4 @@
-import {StateCreator} from "zustand/index";
+import {StateCreator} from "zustand";
 
 import {
     LogFileSetterSlice,
@@ -19,9 +19,6 @@ const createLogFileSetterSlice: StateCreator<
     [],
     LogFileSetterSlice
 > = (set) => ({
-    setActiveTabName: (tabName) => {
-        set({activeTabName: tabName});
-    },
     setBeginLineNumToLogEventNum: (newMap) => {
         set({beginLineNumToLogEventNum: newMap});
     },

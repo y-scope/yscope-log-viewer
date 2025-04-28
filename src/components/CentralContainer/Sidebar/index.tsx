@@ -4,7 +4,7 @@ import {
     useRef,
 } from "react";
 
-import useLogFileStore from "../../../contexts/states/logFileStore";
+import useUiStore from "../../../contexts/states/uiStore";
 import {CONFIG_KEY} from "../../../typings/config";
 import {TAB_NAME} from "../../../typings/tab";
 import {setConfig} from "../../../utils/config";
@@ -45,8 +45,8 @@ const setPanelWidth = (newValue: number) => {
  * @return
  */
 const Sidebar = () => {
-    const activeTabName = useLogFileStore((state) => state.activeTabName);
-    const setActiveTabName = useLogFileStore((state) => state.setActiveTabName);
+    const activeTabName = useUiStore((state) => state.activeTabName);
+    const setActiveTabName = useUiStore((state) => state.setActiveTabName);
     const tabListRef = useRef<HTMLDivElement>(null);
 
     const handleResizeHandleRelease = useCallback(() => {

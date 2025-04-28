@@ -1,7 +1,5 @@
 import {create} from "zustand";
 
-import {CONFIG_KEY} from "../../../typings/config";
-import {getConfig} from "../../../utils/config";
 import createFilterLogsSlice from "./filterLogsSlice";
 import createLoadSlice from "./loadSlice";
 import createLogFileSetterSlice from "./setterSlice";
@@ -9,7 +7,6 @@ import {LogFileState} from "./types";
 
 
 const LOG_FILE_DEFAULT = {
-    activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     beginLineNumToLogEventNum: new Map<number, number>(),
     fileName: "Loading...",
     fileSrc: null,
@@ -23,11 +20,11 @@ const LOG_FILE_DEFAULT = {
     },
 };
 
-const useLogFileStore = create<LogFileState>((...a) => ({
+const useLogFileStore = create<LogFileState>((...args) => ({
     ...LOG_FILE_DEFAULT,
-    ...createLogFileSetterSlice(...a),
-    ...createFilterLogsSlice(...a),
-    ...createLoadSlice(...a),
+    ...createLogFileSetterSlice(...args),
+    ...createFilterLogsSlice(...args),
+    ...createLoadSlice(...args),
 }));
 
 export default useLogFileStore;
