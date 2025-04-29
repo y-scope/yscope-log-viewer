@@ -20,11 +20,10 @@ import "monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneCom
 /* eslint-enable @stylistic/max-len */
 
 
-// With Vite's native web worker support, defining `getWorker` in the global object
-// `MonacoEnvironment` is sufficient. A basic `EditorWorker` instance suffices, as
-// language-specific workers are not required.
+// Expose Monaco's worker to Vite
 self.MonacoEnvironment = {
     getWorker: () => {
+        // We don't need language-specific workers, so a basic `EditorWorker` is enough.
         return new EditorWorker();
     },
 };
