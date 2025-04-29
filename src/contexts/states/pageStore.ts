@@ -1,32 +1,50 @@
-import {StateCreator} from "zustand/index";
+import {create} from "zustand";
 
-import {Nullable} from "../../../typings/common";
-import {CONFIG_KEY} from "../../../typings/config";
-import {UI_STATE} from "../../../typings/states";
-import {SEARCH_PARAM_NAMES} from "../../../typings/url";
+import {Nullable} from "../../typings/common";
+import {LogLevelFilter} from "../../typings/logs";
+import {UI_STATE} from "../../typings/states";
 import {
+    BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
-    FileSrcType,
     WORKER_REQ_CODE,
-} from "../../../typings/worker";
+} from "../../typings/worker";
 import {
     ACTION_NAME,
     NavigationAction,
-} from "../../../utils/actions";
-import {getConfig} from "../../../utils/config";
-import {clamp} from "../../../utils/math";
-import {updateWindowUrlSearchParams} from "../../UrlContextProvider";
-import useLogExportStore from "../logExportStore";
-import useMainWorkerStore from "../mainWorkerStore";
-import useQueryStore from "../queryStore";
-import useUiStore from "../uiStore";
-import {
-    LoadSlice,
-    LogFileState,
-} from "./types";
+} from "../../utils/actions";
+import {clamp} from "../../utils/math";
+import useLogFileStore from "./logFileStore";
+import useMainWorkerStore from "./mainWorkerStore";
+import useQueryStore from "./queryStore";
+import useUiStore from "./uiStore";
 
+
+interface PageState {
+    // States
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
+    logData: string;
+    numPages: number;
+    pageNum: number;
+
+    // Setters
+    setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
+    setLogData: (newLogData: string) => void;
+    setNumPages: (newNumPages: number) => void;
+    setPageNum: (newPageNum: number) => void;
+
+    // Actions
+    loadPageByAction: (navAction: NavigationAction) => void;
+    filterLogs: (filter: LogLevelFilter) => void;
+}
+
+const PAGE_METADATA_DEFAULT = {
+    beginLineNumToLogEventNum: new Map<number, number>(),
+    logData: "Loading...",
+    numPages: 0,
+    pageNum: 0,
+};
 
 /**
  * Returns a `PAGE_NUM` cursor based on a navigation action.
@@ -76,43 +94,36 @@ const getPageNumCursor = (
     };
 };
 
-/**
- * Creates a slice for loading files and loading pages by navigation actions.
- *
- * @param set
- * @param get
- * @return
- */
 // eslint-disable-next-line max-lines-per-function
-const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get) => ({
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {isPrettified, setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FILE_LOADING);
-
-        useMainWorkerStore.getState().init();
+const usePageStore = create<PageState>((set, get) => ({
+    ...PAGE_METADATA_DEFAULT,
+    filterLogs: (filter: LogLevelFilter) => {
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
-            console.error("loadFile: Main worker is not initialized.");
+            console.error("filterLogs: Main worker is not initialized.");
 
             return;
         }
-        useQueryStore.getState().clearQuery();
-        useLogExportStore.getState().setExportProgress(0);
+        const {isPrettified, setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+        const {logEventNum} = useLogFileStore.getState();
 
-        set({fileSrc});
-        if ("string" !== typeof fileSrc) {
-            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
-        }
         mainWorker.postMessage({
-            code: WORKER_REQ_CODE.LOAD_FILE,
+            code: WORKER_REQ_CODE.SET_FILTER,
             args: {
-                cursor: cursor,
-                decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
-                fileSrc: fileSrc,
+                cursor: {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {
+                        eventNum: 0 === logEventNum ?
+                            1 :
+                            logEventNum,
+                    },
+                },
                 isPrettified: isPrettified,
-                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+                logLevelFilter: filter,
             },
         });
+        useQueryStore.getState().startQuery();
     },
     loadPageByAction: (navAction: NavigationAction) => {
         const {mainWorker} = useMainWorkerStore.getState();
@@ -122,7 +133,7 @@ const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get
             return;
         }
 
-        const {fileSrc, logEventNum, loadFile} = get();
+        const {fileSrc, logEventNum, loadFile} = useLogFileStore.getState();
         if (navAction.code === ACTION_NAME.RELOAD) {
             if (null === fileSrc || 0 === logEventNum) {
                 throw new Error(
@@ -157,6 +168,18 @@ const createLoadSlice: StateCreator<LogFileState, [], [], LoadSlice> = (set, get
             },
         });
     },
-});
+    setBeginLineNumToLogEventNum: (newMap) => {
+        set({beginLineNumToLogEventNum: newMap});
+    },
+    setLogData: (newLogData) => {
+        set({logData: newLogData});
+    },
+    setNumPages: (newNumPages) => {
+        set({numPages: newNumPages});
+    },
+    setPageNum: (newPageNum) => {
+        set({pageNum: newPageNum});
+    },
+}));
 
-export default createLoadSlice;
+export default usePageStore;

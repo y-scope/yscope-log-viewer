@@ -19,6 +19,7 @@ import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useLogFileStore from "./states/logFileStore";
 import useMainWorkerStore from "./states/mainWorkerStore";
+import usePageStore from "./states/pageStore";
 import useUiStore from "./states/uiStore";
 import {
     updateWindowUrlHashParams,
@@ -85,7 +86,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
-    const beginLineNumToLogEventNum = useLogFileStore((state) => state.beginLineNumToLogEventNum);
+    const beginLineNumToLogEventNum = usePageStore((state) => state.beginLineNumToLogEventNum);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const mainWorker = useMainWorkerStore((state) => state.mainWorker);
     const numEvents = useLogFileStore((state) => state.numEvents);

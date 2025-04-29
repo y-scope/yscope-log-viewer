@@ -9,7 +9,7 @@ import {
     Typography,
 } from "@mui/joy";
 
-import useLogFileStore from "../../contexts/states/logFileStore";
+import usePageStore from "../../contexts/states/pageStore";
 import useUiStore from "../../contexts/states/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
@@ -30,10 +30,10 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const loadPageByAction = useLogFileStore((state) => state.loadPageByAction);
+    const loadPageByAction = usePageStore((state) => state.loadPageByAction);
     const uiState = useUiStore((state) => state.uiState);
-    const numPages = useLogFileStore((state) => state.numPages);
-    const pageNum = useLogFileStore((state) => state.pageNum);
+    const numPages = usePageStore((state) => state.numPages);
+    const pageNum = usePageStore((state) => state.pageNum);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);

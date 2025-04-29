@@ -17,6 +17,7 @@ import {
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useLogExportStore from "./logExportStore";
 import useLogFileStore from "./logFileStore";
+import usePageStore from "./pageStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
@@ -27,16 +28,10 @@ import useUiStore from "./uiStore";
  * @param ev
  */
 const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
-    const {
-        postPopUp,
-        setBeginLineNumToLogEventNum,
-        setFileName,
-        setLogData,
-        setNumEvents,
-        setNumPages,
-        setOnDiskFileSizeInBytes,
-        setPageNum,
-    } = useLogFileStore.getState();
+    const {postPopUp, setFileName, setNumEvents, setOnDiskFileSizeInBytes} =
+        useLogFileStore.getState();
+    const {setBeginLineNumToLogEventNum, setLogData, setNumPages, setPageNum} =
+        usePageStore.getState();
     const {setActiveTabName, uiState, setUiState} = useUiStore.getState();
     const {code, args} = ev.data;
     switch (code) {
@@ -121,8 +116,10 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
 };
 
 interface MainWorkerState {
+    // States
     mainWorker: Nullable<Worker>;
 
+    // Actions
     destroy: () => void;
     init: () => void;
 }

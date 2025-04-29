@@ -9,17 +9,27 @@ import useMainWorkerStore from "./mainWorkerStore";
 
 
 interface LogExportState {
+    // States
     exportProgress: number;
     logExportManager: Nullable<LogExportManager>;
 
-    exportLogs: ()=> void;
+    // Setters
     setExportProgress: (newProgress: number) => void;
+
+    // Actions
+    exportLogs: ()=> void;
 }
 
-const useLogExportStore = create<LogExportState>((set) => ({
+const LOG_EXPORT_DEFAULT = {
     exportProgress: 0,
     logExportManager: null,
+};
 
+const useLogExportStore = create<LogExportState>((set) => ({
+    ...LOG_EXPORT_DEFAULT,
+    setExportProgress: (newProgress) => {
+        set({exportProgress: newProgress});
+    },
     exportLogs: () => {
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
@@ -35,9 +45,6 @@ const useLogExportStore = create<LogExportState>((set) => ({
 
         set({logExportManager});
         mainWorker.postMessage({code: WORKER_REQ_CODE.EXPORT_LOGS, args: null});
-    },
-    setExportProgress: (newProgress) => {
-        set({exportProgress: newProgress});
     },
 }));
 
