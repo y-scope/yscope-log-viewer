@@ -3,7 +3,31 @@
 This project adheres to YScope's [contribution guidelines][yscope-guidelines] as well as the
 project-specific guidelines below.
 
+# Web Workers
+
+## Importing Web Workers
+
+When importing Web Worker files, use Vite's `?worker` query suffix syntax:
+
+```ts
+import MainWorker from "../services/MainWorker.worker?worker";
+
+const worker = new MainWorker();
+```
+
+This special syntax tells Vite to transform the import as a Web Worker constructor. See
+[Vite's Web Worker documentation][vite-worker-query-suffix] for more details.
+
 # Naming
+
+## Web Worker files
+
+### File naming convention
+
+Name Web Worker files with the `.worker.ts` extension. This convention:
+* Follows standard practices.
+* Works with [`eslint.config.mjs`][eslint-config-mjs] which ignores `.worker.ts` files, suppressing
+  `eslint-plugin-import:import/default` errors caused by Vite's `?worker` import syntax.
 
 ## Index variables
 
@@ -21,18 +45,6 @@ Examples:
 * `arrayIndexIdx` for a 0-based indexing variable.
 * `numEvents` for the total number of events.
 
-## Web worker files
-
-Name worker files with the `.worker.ts` extension. Import them using Vite's `?worker` syntax:
-
-```ts
-import MainWorker from "../services/MainWorker.worker?worker";
-
-const worker = new MainWorker();
-```
-
-This ensures Vite handles the file as a web worker during build and development.
-
 # React
 
 ## Omitting state variables from React Hooks
@@ -42,4 +54,6 @@ To avoid including a state variable in a React Hook's dependency array, you can 
 the state variable with an additional `Ref` suffix. E.g., `logEventNumRef` is the reference variable
 that corresponds to the `logEventNum` state variable.
 
+[eslint-config-mjs]: https://github.com/y-scope/yscope-log-viewer/blob/main/eslint.config.mjs
+[vite-worker-query-suffix]: https://vite.dev/guide/features.html#import-with-query-suffixes
 [yscope-guidelines]: https://docs.yscope.com/dev-guide/contrib-guides-overview.html
