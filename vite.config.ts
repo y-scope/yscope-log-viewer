@@ -24,8 +24,8 @@ export default defineConfig({
         sourcemap: true,
     },
     optimizeDeps: {
-        // Or the `ClpFfiJs-worker.wasm` file is not found when serving from the debug server.
-        // Note this option only has effect on the debug server, not the production build.
+        // Exclude the worker or else `ClpFfiJs-worker.wasm` won't be found when served from the
+        // debug server (this option only affects debug builds).
         exclude: ["clp-ffi-js/worker"],
     },
     plugins: [react()],
