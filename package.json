@@ -4,6 +4,7 @@
   "description": "A tool tailored for viewing logs, including log formats designed by YScope.",
   "main": "src/main.tsx",
   "scripts": {
+    "analyze:size": "npx vite-bundle-visualizer",
     "build": "vite build",
     "dev": "vite",
     "lint": "npm run lint:check",
