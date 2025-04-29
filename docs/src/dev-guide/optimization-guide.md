@@ -1,4 +1,4 @@
-# Bundle size and load time optimization
+# Optimization guide
 
 This document outlines strategies and tools used to optimize the size and load time.
 
