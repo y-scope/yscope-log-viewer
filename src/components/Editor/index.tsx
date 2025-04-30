@@ -11,7 +11,7 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import usePageStore from "../../contexts/states/pageStore";
+import useViewStore from "../../contexts/states/viewStore";
 import {
     updateWindowUrlHashParams,
     UrlContext,
@@ -137,9 +137,9 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const beginLineNumToLogEventNum = usePageStore((state) => state.beginLineNumToLogEventNum);
-    const loadPageByAction = usePageStore((state) => state.loadPageByAction);
-    const logData = usePageStore((state) => state.logData);
+    const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
+    const logData = useViewStore((state) => state.logData);
     const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);

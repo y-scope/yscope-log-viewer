@@ -17,9 +17,9 @@ import {
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useLogExportStore from "./logExportStore";
 import useLogFileStore from "./logFileStore";
-import usePageStore from "./pageStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
+import useViewStore from "./viewStore";
 
 
 /**
@@ -31,7 +31,7 @@ const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
     const {postPopUp, setFileName, setNumEvents, setOnDiskFileSizeInBytes} =
         useLogFileStore.getState();
     const {setBeginLineNumToLogEventNum, setLogData, setNumPages, setPageNum} =
-        usePageStore.getState();
+        useViewStore.getState();
     const {setActiveTabName, uiState, setUiState} = useUiStore.getState();
     const {code, args} = ev.data;
     switch (code) {

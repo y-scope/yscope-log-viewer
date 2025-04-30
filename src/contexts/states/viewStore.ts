@@ -21,7 +21,7 @@ import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
 
-interface PageState {
+interface ViewState {
     // States
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     logData: string;
@@ -95,7 +95,7 @@ const getPageNumCursor = (
 };
 
 // eslint-disable-next-line max-lines-per-function
-const usePageStore = create<PageState>((set, get) => ({
+const useViewStore = create<ViewState>((set, get) => ({
     ...PAGE_METADATA_DEFAULT,
     filterLogs: (filter: LogLevelFilter) => {
         const {mainWorker} = useMainWorkerStore.getState();
@@ -182,4 +182,4 @@ const usePageStore = create<PageState>((set, get) => ({
     },
 }));
 
-export default usePageStore;
+export default useViewStore;

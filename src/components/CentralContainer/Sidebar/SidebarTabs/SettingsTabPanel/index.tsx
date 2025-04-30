@@ -16,7 +16,7 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import usePageStore from "../../../../../contexts/states/pageStore";
+import useViewStore from "../../../../../contexts/states/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -108,7 +108,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const loadPageByAction = usePageStore((state) => state.loadPageByAction);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();

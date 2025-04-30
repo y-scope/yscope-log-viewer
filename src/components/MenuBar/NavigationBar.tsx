@@ -7,8 +7,8 @@ import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
-import usePageStore from "../../contexts/states/pageStore";
 import useUiStore from "../../contexts/states/uiStore";
+import useViewStore from "../../contexts/states/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -26,7 +26,7 @@ import PageNumInput from "./PageNumInput";
  */
 const NavigationBar = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const loadPageByAction = usePageStore((state) => state.loadPageByAction);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleNavButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
