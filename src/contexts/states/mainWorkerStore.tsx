@@ -15,6 +15,7 @@ import {
     WORKER_RESP_CODE,
 } from "../../typings/worker";
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
+import useContextStore from "./contextStore";
 import useLogExportStore from "./logExportStore";
 import useLogFileStore from "./logFileStore";
 import useQueryStore from "./queryStore";
@@ -28,7 +29,8 @@ import useViewStore from "./viewStore";
  * @param ev
  */
 const handleMainWorkerResp = (ev: MessageEvent<MainWorkerRespMessage>) => {
-    const {postPopUp, setFileName, setNumEvents, setOnDiskFileSizeInBytes} =
+    const {postPopUp} = useContextStore.getState();
+    const {setFileName, setNumEvents, setOnDiskFileSizeInBytes} =
         useLogFileStore.getState();
     const {setBeginLineNumToLogEventNum, setLogData, setNumPages, setPageNum} =
         useViewStore.getState();
@@ -124,9 +126,12 @@ interface MainWorkerState {
     init: () => void;
 }
 
-const useMainWorkerStore = create<MainWorkerState>((set, get) => ({
+const MAIN_WORKER_STORE_DEFAULT = {
     mainWorker: null,
+};
 
+const useMainWorkerStore = create<MainWorkerState>((set, get) => ({
+    ...MAIN_WORKER_STORE_DEFAULT,
     destroy: () => {
         get().mainWorker?.terminate();
         set({mainWorker: null});

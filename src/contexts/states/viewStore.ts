@@ -15,6 +15,7 @@ import {
     NavigationAction,
 } from "../../utils/actions";
 import {clamp} from "../../utils/math";
+import useContextStore from "./contextStore";
 import useLogFileStore from "./logFileStore";
 import useMainWorkerStore from "./mainWorkerStore";
 import useQueryStore from "./queryStore";
@@ -39,7 +40,7 @@ interface ViewState {
     filterLogs: (filter: LogLevelFilter) => void;
 }
 
-const PAGE_METADATA_DEFAULT = {
+const VIEW_STORE_DEFAULT = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     logData: "Loading...",
     numPages: 0,
@@ -96,7 +97,7 @@ const getPageNumCursor = (
 
 // eslint-disable-next-line max-lines-per-function
 const useViewStore = create<ViewState>((set, get) => ({
-    ...PAGE_METADATA_DEFAULT,
+    ...VIEW_STORE_DEFAULT,
     filterLogs: (filter: LogLevelFilter) => {
         const {mainWorker} = useMainWorkerStore.getState();
         if (null === mainWorker) {
@@ -106,7 +107,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-        const {logEventNum} = useLogFileStore.getState();
+        const {logEventNum} = useContextStore.getState();
 
         mainWorker.postMessage({
             code: WORKER_REQ_CODE.SET_FILTER,
@@ -133,7 +134,8 @@ const useViewStore = create<ViewState>((set, get) => ({
             return;
         }
 
-        const {fileSrc, logEventNum, loadFile} = useLogFileStore.getState();
+        const {logEventNum} = useContextStore.getState();
+        const {fileSrc, loadFile} = useLogFileStore.getState();
         if (navAction.code === ACTION_NAME.RELOAD) {
             if (null === fileSrc || 0 === logEventNum) {
                 throw new Error(

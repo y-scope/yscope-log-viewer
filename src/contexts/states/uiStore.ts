@@ -9,7 +9,7 @@ import {
     WORKER_REQ_CODE,
 } from "../../typings/worker";
 import {getConfig} from "../../utils/config";
-import useLogFileStore from "./logFileStore";
+import useContextStore from "./contextStore";
 import useMainWorkerStore from "./mainWorkerStore";
 
 
@@ -48,7 +48,7 @@ const useUiStore = create<uiStoreState>((set, get) => ({
         }
         set({uiState: UI_STATE.FAST_LOADING});
 
-        const {logEventNum} = useLogFileStore.getState();
+        const {logEventNum} = useContextStore.getState();
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (0 !== logEventNum) {
             cursor = {

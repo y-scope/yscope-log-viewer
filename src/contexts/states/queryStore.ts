@@ -8,7 +8,7 @@ import {WORKER_REQ_CODE} from "../../typings/worker";
 import useMainWorkerStore from "./mainWorkerStore";
 
 
-const QUERY_DEFAULT = {
+const QUERY_STORE_DEFAULT = {
     queryIsCaseSensitive: false,
     queryIsRegex: false,
     queryProgress: 0,
@@ -35,14 +35,14 @@ interface QueryState {
 
 // eslint-disable-next-line max-lines-per-function
 const useQueryStore = create<QueryState>((set, get) => ({
-    ...QUERY_DEFAULT,
+    ...QUERY_STORE_DEFAULT,
     clearQuery: () => {
         set({
-            queryIsCaseSensitive: QUERY_DEFAULT.queryIsCaseSensitive,
-            queryIsRegex: QUERY_DEFAULT.queryIsRegex,
-            queryProgress: QUERY_DEFAULT.queryProgress,
-            queryResults: QUERY_DEFAULT.queryResults,
-            queryString: QUERY_DEFAULT.queryString,
+            queryIsCaseSensitive: QUERY_STORE_DEFAULT.queryIsCaseSensitive,
+            queryIsRegex: QUERY_STORE_DEFAULT.queryIsRegex,
+            queryProgress: QUERY_STORE_DEFAULT.queryProgress,
+            queryResults: QUERY_STORE_DEFAULT.queryResults,
+            queryString: QUERY_STORE_DEFAULT.queryString,
         });
     },
     clearQueryResults: () => {
@@ -82,7 +82,7 @@ const useQueryStore = create<QueryState>((set, get) => ({
             queryIsRegex,
         } = get();
 
-        if (QUERY_DEFAULT.queryString === queryString) {
+        if (QUERY_STORE_DEFAULT.queryString === queryString) {
             return;
         }
 

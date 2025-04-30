@@ -20,13 +20,13 @@ interface LogExportState {
     exportLogs: ()=> void;
 }
 
-const LOG_EXPORT_DEFAULT = {
+const LOG_EXPORT_STORE_DEFAULT = {
     exportProgress: 0,
     logExportManager: null,
 };
 
 const useLogExportStore = create<LogExportState>((set) => ({
-    ...LOG_EXPORT_DEFAULT,
+    ...LOG_EXPORT_STORE_DEFAULT,
     setExportProgress: (newProgress) => {
         set({exportProgress: newProgress});
     },

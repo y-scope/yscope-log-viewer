@@ -17,6 +17,7 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
+import useContextStore from "./states/contextStore";
 import useLogFileStore from "./states/logFileStore";
 import useMainWorkerStore from "./states/mainWorkerStore";
 import useUiStore from "./states/uiStore";
@@ -91,9 +92,9 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     const mainWorker = useMainWorkerStore((state) => state.mainWorker);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setIsPrettified = useUiStore((state) => state.setIsPrettified);
-    const setLogEventNum = useLogFileStore((state) => state.setLogEventNum);
+    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useLogFileStore((state) => state.setPostPopUp);
+    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);

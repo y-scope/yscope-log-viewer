@@ -2,7 +2,6 @@ import {create} from "zustand";
 
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
-import {PopUpMessage} from "../../typings/notifications";
 import {UI_STATE} from "../../typings/states";
 import {SEARCH_PARAM_NAMES} from "../../typings/url";
 import {
@@ -22,34 +21,27 @@ interface LogFileState {
     // States
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
-    logEventNum: number;
     numEvents: number;
     onDiskFileSizeInBytes: number;
-    postPopUp: (message: PopUpMessage) => void;
 
     // Setters
     setFileName: (newFileName: string) => void;
-    setLogEventNum: (newLogEventNum: number) => void;
     setNumEvents: (newNumEvents: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
-    setPostPopUp: (postPopUp: (message: PopUpMessage) => void) => void;
 
     // Actions
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
-const LOG_FILE_DEFAULT = {
+const LOG_FILE_STORE_DEFAULT = {
     fileName: "Loading...",
     fileSrc: null,
-    logEventNum: 0,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
-    postPopUp: () => {
-    },
 };
 
 const useLogFileStore = create<LogFileState>((set) => ({
-    ...LOG_FILE_DEFAULT,
+    ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
@@ -82,17 +74,11 @@ const useLogFileStore = create<LogFileState>((set) => ({
     setFileName: (newFileName) => {
         set({fileName: newFileName});
     },
-    setLogEventNum: (newLogEventNum) => {
-        set({logEventNum: newLogEventNum});
-    },
     setNumEvents: (newNumEvents) => {
         set({numEvents: newNumEvents});
     },
     setOnDiskFileSizeInBytes: (newSize) => {
         set({onDiskFileSizeInBytes: newSize});
-    },
-    setPostPopUp: (postPopUp) => {
-        set({postPopUp});
     },
 }));
 
