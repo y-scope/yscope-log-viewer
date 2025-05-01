@@ -1,23 +1,28 @@
 import {create} from "zustand";
 
 import {Nullable} from "../../typings/common";
-import {LogLevelFilter} from "../../typings/logs";
+import {
+    LOG_LEVEL,
+    LogLevelFilter,
+} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import {UI_STATE} from "../../typings/states";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
-    WORKER_REQ_CODE,
+    PageData,
 } from "../../typings/worker";
 import {
     ACTION_NAME,
     NavigationAction,
 } from "../../utils/actions";
 import {clamp} from "../../utils/math";
+import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useContextStore from "./contextStore";
+import useLogFileManagerStore from "./LogFileManagerStore";
 import useLogFileStore from "./logFileStore";
-import useMainWorkerStore from "./mainWorkerStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
@@ -36,6 +41,7 @@ interface ViewState {
     setPageNum: (newPageNum: number) => void;
 
     // Actions
+    updatePageData: (pageData: PageData) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     filterLogs: (filter: LogLevelFilter) => void;
 }
@@ -99,41 +105,33 @@ const getPageNumCursor = (
 const useViewStore = create<ViewState>((set, get) => ({
     ...VIEW_STORE_DEFAULT,
     filterLogs: (filter: LogLevelFilter) => {
-        const {mainWorker} = useMainWorkerStore.getState();
-        if (null === mainWorker) {
-            console.error("filterLogs: Main worker is not initialized.");
-
-            return;
-        }
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
         const {logEventNum} = useContextStore.getState();
 
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.SET_FILTER,
-            args: {
-                cursor: {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {
-                        eventNum: 0 === logEventNum ?
-                            1 :
-                            logEventNum,
-                    },
-                },
-                isPrettified: isPrettified,
-                logLevelFilter: filter,
-            },
-        });
+        useLogFileManagerStore.getState().wrappedLogFileManager.setFilter(
+            {code: CURSOR_CODE.EVENT_NUM,
+                args: {
+                    eventNum: 0 === logEventNum ?
+                        1 :
+                        logEventNum,
+                }},
+            isPrettified,
+            filter
+        ).then((pageData: PageData) => {
+            useViewStore.getState().updatePageData(pageData);
+        })
+            .catch((reason: unknown) => {
+                useContextStore.getState().postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
+            });
         useQueryStore.getState().startQuery();
     },
     loadPageByAction: (navAction: NavigationAction) => {
-        const {mainWorker} = useMainWorkerStore.getState();
-        if (null === mainWorker) {
-            console.error("loadPageByAction: Main worker is not initialized.");
-
-            return;
-        }
-
         const {logEventNum} = useContextStore.getState();
         const {fileSrc, loadFile} = useLogFileStore.getState();
         if (navAction.code === ACTION_NAME.RELOAD) {
@@ -162,13 +160,21 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.LOAD_PAGE,
-            args: {
-                cursor: cursor,
-                isPrettified: isPrettified,
-            },
-        });
+
+        useLogFileManagerStore.getState().wrappedLogFileManager.loadPage(
+            cursor,
+            isPrettified
+        ).then((pageData: PageData) => {
+            useViewStore.getState().updatePageData(pageData);
+        })
+            .catch((reason: unknown) => {
+                useContextStore.getState().postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
+            });
     },
     setBeginLineNumToLogEventNum: (newMap) => {
         set({beginLineNumToLogEventNum: newMap});
@@ -181,6 +187,16 @@ const useViewStore = create<ViewState>((set, get) => ({
     },
     setPageNum: (newPageNum) => {
         set({pageNum: newPageNum});
+    },
+    updatePageData: (pageData: PageData) => {
+        set({logData: pageData.logs,
+            numPages: pageData.numPages,
+            pageNum: pageData.pageNum,
+            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum});
+        updateWindowUrlHashParams({
+            logEventNum: pageData.logEventNum,
+        });
+        useUiStore.getState().setUiState(UI_STATE.READY);
     },
 }));
 

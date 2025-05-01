@@ -5,11 +5,13 @@ import React, {
     useRef,
 } from "react";
 
+import {LOG_LEVEL} from "../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
-    WORKER_REQ_CODE,
+    PageData,
 } from "../typings/worker";
 import {
     findNearestLessThanOrEqualElement,
@@ -18,8 +20,8 @@ import {
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useContextStore from "./states/contextStore";
+import useLogFileManagerStore from "./states/LogFileManagerStore";
 import useLogFileStore from "./states/logFileStore";
-import useMainWorkerStore from "./states/mainWorkerStore";
 import useUiStore from "./states/uiStore";
 import useViewStore from "./states/viewStore";
 import {
@@ -89,7 +91,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const mainWorker = useMainWorkerStore((state) => state.mainWorker);
+    const {wrappedLogFileManager} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setIsPrettified = useUiStore((state) => state.setIsPrettified);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
@@ -122,10 +124,6 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
-        if (null === mainWorker) {
-            return;
-        }
-
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
@@ -146,19 +144,28 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
         };
 
         setUiState(UI_STATE.FAST_LOADING);
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.LOAD_PAGE,
-            args: {
-                cursor: cursor,
-                isPrettified: isPrettifiedRef.current,
-            },
-        });
+
+        wrappedLogFileManager.loadPage(
+            cursor,
+            isPrettifiedRef.current
+        ).then((pageData: PageData) => {
+            useViewStore.getState().updatePageData(pageData);
+        })
+            .catch((reason: unknown) => {
+                postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
+            });
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
-        mainWorker,
+        wrappedLogFileManager,
         numEvents,
         setUiState,
+        postPopUp,
     ]);
 
     // On `filePath` update, load file.

@@ -2,10 +2,12 @@ import {create} from "zustand";
 
 import LogExportManager from "../../services/LogExportManager";
 import {Nullable} from "../../typings/common";
-import {WORKER_REQ_CODE} from "../../typings/worker";
+import {LOG_LEVEL} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
+import useContextStore from "./contextStore";
+import useLogFileManagerStore from "./LogFileManagerStore";
 import useLogFileStore from "./logFileStore";
-import useMainWorkerStore from "./mainWorkerStore";
 
 
 interface LogExportState {
@@ -31,12 +33,6 @@ const useLogExportStore = create<LogExportState>((set) => ({
         set({exportProgress: newProgress});
     },
     exportLogs: () => {
-        const {mainWorker} = useMainWorkerStore.getState();
-        if (null === mainWorker) {
-            console.error("exportLogs: mainWorker is not initialized.");
-
-            return;
-        }
         const {numEvents, fileName} = useLogFileStore.getState();
         const logExportManager = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
@@ -44,7 +40,17 @@ const useLogExportStore = create<LogExportState>((set) => ({
         );
 
         set({logExportManager});
-        mainWorker.postMessage({code: WORKER_REQ_CODE.EXPORT_LOGS, args: null});
+        useLogFileManagerStore
+            .getState()
+            .wrappedLogFileManager
+            .exportLogs().catch((reason: unknown) => {
+                useContextStore.getState().postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
+            });
     },
 }));
 

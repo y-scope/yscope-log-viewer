@@ -1,11 +1,13 @@
 import {create} from "zustand";
 
+import {LOG_LEVEL} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import {
     QueryResults,
     QueryResultsType,
 } from "../../typings/query";
-import {WORKER_REQ_CODE} from "../../typings/worker";
-import useMainWorkerStore from "./mainWorkerStore";
+import useContextStore from "./contextStore";
+import useLogFileManagerStore from "./LogFileManagerStore";
 
 
 const QUERY_STORE_DEFAULT = {
@@ -33,7 +35,6 @@ interface QueryState {
     setQueryIsRegex: (newQueryIsRegex: boolean) => void;
 }
 
-// eslint-disable-next-line max-lines-per-function
 const useQueryStore = create<QueryState>((set, get) => ({
     ...QUERY_STORE_DEFAULT,
     clearQuery: () => {
@@ -86,21 +87,19 @@ const useQueryStore = create<QueryState>((set, get) => ({
             return;
         }
 
-        const {mainWorker} = useMainWorkerStore.getState();
-        if (null === mainWorker) {
-            console.error("startQuery: Main worker is not initialized.");
-
-            return;
-        }
-
         clearQueryResults();
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.START_QUERY,
-            args: {
-                queryString,
-                queryIsCaseSensitive,
-                queryIsRegex,
-            },
+
+        useLogFileManagerStore.getState().wrappedLogFileManager.startQuery(
+            queryString,
+            queryIsRegex,
+            queryIsCaseSensitive,
+        ).catch((reason: unknown) => {
+            useContextStore.getState().postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: String(reason),
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Action failed",
+            });
         });
     },
 }));

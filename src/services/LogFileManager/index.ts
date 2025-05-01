@@ -19,8 +19,7 @@ import {
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
-    WORKER_RESP_CODE,
-    WorkerResp,
+    PageData,
 } from "../../typings/worker";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
@@ -250,7 +249,7 @@ class LogFileManager {
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?

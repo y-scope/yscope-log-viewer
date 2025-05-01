@@ -1,16 +1,19 @@
 import {create} from "zustand";
 
 import {CONFIG_KEY} from "../../typings/config";
+import {LOG_LEVEL} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import {UI_STATE} from "../../typings/states";
 import {TAB_NAME} from "../../typings/tab";
 import {
     CURSOR_CODE,
     CursorType,
-    WORKER_REQ_CODE,
+    PageData,
 } from "../../typings/worker";
 import {getConfig} from "../../utils/config";
 import useContextStore from "./contextStore";
-import useMainWorkerStore from "./mainWorkerStore";
+import useLogFileManagerStore from "./LogFileManagerStore";
+import useViewStore from "./viewStore";
 
 
 interface uiStoreState {
@@ -39,13 +42,6 @@ const useUiStore = create<uiStoreState>((set, get) => ({
             return;
         }
         set({isPrettified: newIsPrettified});
-
-        const {mainWorker} = useMainWorkerStore.getState();
-        if (null === mainWorker) {
-            console.error("setIsPrettified: Main worker is not initialized.");
-
-            return;
-        }
         set({uiState: UI_STATE.FAST_LOADING});
 
         const {logEventNum} = useContextStore.getState();
@@ -56,13 +52,21 @@ const useUiStore = create<uiStoreState>((set, get) => ({
                 args: {eventNum: logEventNum},
             };
         }
-        mainWorker.postMessage({
-            code: WORKER_REQ_CODE.LOAD_PAGE,
-            args: {
-                cursor: cursor,
-                isPrettified: newIsPrettified,
-            },
-        });
+
+        useLogFileManagerStore.getState().wrappedLogFileManager.loadPage(
+            cursor,
+            newIsPrettified
+        ).then((pageData: PageData) => {
+            useViewStore.getState().updatePageData(pageData);
+        })
+            .catch((reason: unknown) => {
+                useContextStore.getState().postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
+            });
     },
     setUiState: (newUIState: UI_STATE) => {
         set({uiState: newUIState});

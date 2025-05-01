@@ -16,7 +16,6 @@ import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogLevelFilter} from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
@@ -57,7 +56,8 @@ class ClpIrDecoder implements Decoder {
                 structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
             });
             if (0 === decoderOptions.formatString.length) {
-                postFormatPopup();
+                // eslint-disable-next-line
+                // TODO: post popup callback
             }
         }
     }
