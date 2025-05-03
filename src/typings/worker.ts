@@ -103,15 +103,18 @@ type WorkerReqMap = {
         cursor: CursorType;
         decoderOptions: DecoderOptions;
         isPrettified: boolean;
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.LOAD_PAGE]: {
         cursor: CursorType;
         isPrettified: boolean;
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.SET_FILTER]: {
         cursor: CursorType;
         logLevelFilter: LogLevelFilter;
         isPrettified: boolean;
+        logTimezone: string | null;
     };
     [WORKER_REQ_CODE.START_QUERY]: {
         queryString: string;

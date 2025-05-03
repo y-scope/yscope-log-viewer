@@ -83,16 +83,26 @@ class ClpIrDecoder implements Decoder {
      * Formats unstructured log events by prepending a formatted timestamp to each message.
      *
      * @param logEvents
+     * @param logTimezone
      * @return The formatted log events.
      */
-    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
+    static #formatUnstructuredResults = (
+        logEvents: DecodeResult[],
+        logTimezone: string | null
+    ): DecodeResult[] => {
         for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
 
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
-            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            if (null !== logTimezone) {
+                r[0] = dayJsTimestamp.tz(logTimezone).format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            } else {
+                // eslint-disable-next-line no-warning-comments
+                // TODO: ZZX, replace with the original log timezone
+                r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
+            }
         }
 
         return logEvents;
@@ -134,13 +144,15 @@ class ClpIrDecoder implements Decoder {
      * @param beginIdx
      * @param endIdx
      * @param useFilter
+     * @param timezone
      * @return
      * @throws {Error} if the formatter is not set for structured logs.
      */
     decodeRange (
         beginIdx: number,
         endIdx: number,
-        useFilter: boolean
+        useFilter: boolean,
+        timezone: string | null
     ): Nullable<DecodeResult[]> {
         // eslint-disable-next-line no-warning-comments
         // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
@@ -158,9 +170,11 @@ class ClpIrDecoder implements Decoder {
                 throw new Error("Formatter is not set for structured logs.");
             }
 
-            return ClpIrDecoder.#formatUnstructuredResults(results);
+            return ClpIrDecoder.#formatUnstructuredResults(results, timezone);
         }
 
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Support specifying timezone for JSON log events.
         for (const r of results) {
             const [
                 message,

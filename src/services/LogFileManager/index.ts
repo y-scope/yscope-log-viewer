@@ -223,6 +223,7 @@ class LogFileManager {
             beginLogEventIdx,
             endLogEventIdx,
             false,
+            null
         );
 
         if (null === results) {
@@ -246,11 +247,16 @@ class LogFileManager {
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @param isPrettified Are the log messages pretty printed.
+     * @param logTimezone Format the log timestamp to specified timezone.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (
+        cursor: CursorType,
+        isPrettified: boolean,
+        logTimezone: string | null
+    ): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -269,12 +275,11 @@ class LogFileManager {
             pageBegin,
             pageEnd,
             null !== filteredLogEventMap,
+            logTimezone
         );
 
         if (null === results) {
-            throw new Error("Error occurred during decoding. " +
-                `pageBegin=${pageBegin}, ` +
-                `pageEnd=${pageEnd}`);
+            throw new Error(`Failed decoding, pageBegin=${pageBegin}, pageEnd=${pageEnd}`);
         }
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
@@ -366,7 +371,7 @@ class LogFileManager {
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
-        queryRegex: RegExp
+        queryRegex: RegExp,
     ): void {
         if (queryId !== this.#queryId) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
@@ -387,7 +392,8 @@ class LogFileManager {
         const decodedEvents = this.#decoder.decodeRange(
             chunkBeginIdx,
             chunkEndIdx,
-            null !== filteredLogEventMap
+            null !== filteredLogEventMap,
+            null
         );
 
         if (null === decodedEvents) {
