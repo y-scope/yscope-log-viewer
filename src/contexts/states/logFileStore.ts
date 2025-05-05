@@ -51,8 +51,6 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        const {wrappedLogFileManager} = useLogFileManagerStore.getState();
-
         useQueryStore.getState().clearQuery();
         useLogExportStore.getState().setExportProgress(0);
 
@@ -82,7 +80,9 @@ const useLogFileStore = create<LogFileState>((set) => ({
             mergeQueryResults(results);
         };
 
-        wrappedLogFileManager
+        useLogFileManagerStore
+            .getState()
+            .logFileManagerProxy
             .loadFile(
                 getConfig(CONFIG_KEY.DECODER_OPTIONS),
                 fileSrc,

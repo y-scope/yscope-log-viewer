@@ -53,18 +53,21 @@ const createQueryControllerSlice: StateCreator<
 
         clearQueryResults();
 
-        useLogFileManagerStore.getState().wrappedLogFileManager.startQuery(
-            queryString,
-            queryIsRegex,
-            queryIsCaseSensitive,
-        ).catch((reason: unknown) => {
-            useContextStore.getState().postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(reason),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
+        useLogFileManagerStore
+            .getState()
+            .logFileManagerProxy
+            .startQuery(
+                queryString,
+                queryIsRegex,
+                queryIsCaseSensitive,
+            ).catch((reason: unknown) => {
+                useContextStore.getState().postPopUp({
+                    level: LOG_LEVEL.ERROR,
+                    message: String(reason),
+                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                    title: "Action failed",
+                });
             });
-        });
     },
 });
 

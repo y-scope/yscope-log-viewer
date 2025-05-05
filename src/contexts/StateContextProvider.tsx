@@ -91,7 +91,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const {wrappedLogFileManager} = useLogFileManagerStore.getState();
+    const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setIsPrettified = useUiStore((state) => state.setIsPrettified);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
@@ -145,12 +145,14 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setUiState(UI_STATE.FAST_LOADING);
 
-        wrappedLogFileManager.loadPage(
-            cursor,
-            isPrettifiedRef.current
-        ).then((pageData: PageData) => {
-            useViewStore.getState().updatePageData(pageData);
-        })
+        logFileManagerProxy
+            .loadPage(
+                cursor,
+                isPrettifiedRef.current
+            )
+            .then((pageData: PageData) => {
+                useViewStore.getState().updatePageData(pageData);
+            })
             .catch((reason: unknown) => {
                 postPopUp({
                     level: LOG_LEVEL.ERROR,
@@ -162,7 +164,7 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
-        wrappedLogFileManager,
+        logFileManagerProxy,
         numEvents,
         setUiState,
         postPopUp,

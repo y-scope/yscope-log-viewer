@@ -12,7 +12,7 @@ import {
 import LogFileManager from "./LogFileManager";
 
 
-class WrappedLogFileManager {
+class LogFileManagerProxy {
     logFileManager: Nullable<LogFileManager> = null;
 
     async loadFile (
@@ -81,4 +81,4 @@ class WrappedLogFileManager {
     }
 }
 
-export {WrappedLogFileManager};
+export {LogFileManagerProxy};

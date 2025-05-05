@@ -1,17 +1,17 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {WrappedLogFileManager} from "../../services/WrappedLogFileManager";
+import {LogFileManagerProxy} from "../../services/LogFileManagerProxy";
 
 
 interface LogFileManagerProxyState {
     logFileManagerProxy: Comlink.Remote<LogFileManagerProxy>;
 }
 
-const useLogFileManagerStore = create<LogFileManagerState>()(() => {
+const useLogFileManagerStore = create<LogFileManagerProxyState>()(() => {
     const mainWorker = new Worker(new URL("../../services/MainWorker.ts", import.meta.url));
     return {
-        wrappedLogFileManager: Comlink.wrap(mainWorker),
+        logFileManagerProxy: Comlink.wrap(mainWorker),
     };
 });
 

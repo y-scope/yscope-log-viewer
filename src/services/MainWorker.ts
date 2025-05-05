@@ -4,7 +4,7 @@ import dayjsBigIntSupport from "dayjs/plugin/bigIntSupport";
 import dayjsTimezone from "dayjs/plugin/timezone";
 import dayjsUtc from "dayjs/plugin/utc";
 
-import {WrappedLogFileManager} from "./WrappedLogFileManager";
+import {LogFileManagerProxy} from "./LogFileManagerProxy";
 
 
 dayjs.extend(dayjsUtc);
@@ -14,6 +14,6 @@ dayjs.extend(dayjsBigIntSupport);
 /**
  * Manager for the currently opened log file.
  */
-const wrappedLogFileManager = new WrappedLogFileManager();
+const logFileManagerProxy = new LogFileManagerProxy();
 
-Comlink.expose(wrappedLogFileManager);
+Comlink.expose(logFileManagerProxy);

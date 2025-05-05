@@ -109,18 +109,20 @@ const useViewStore = create<ViewState>((set, get) => ({
         setUiState(UI_STATE.FAST_LOADING);
         const {logEventNum} = useContextStore.getState();
 
-        useLogFileManagerStore.getState().wrappedLogFileManager.setFilter(
-            {code: CURSOR_CODE.EVENT_NUM,
-                args: {
-                    eventNum: 0 === logEventNum ?
-                        1 :
-                        logEventNum,
-                }},
-            isPrettified,
-            filter
-        ).then((pageData: PageData) => {
-            useViewStore.getState().updatePageData(pageData);
-        })
+        useLogFileManagerStore
+            .getState()
+            .logFileManagerProxy.setFilter(
+                {code: CURSOR_CODE.EVENT_NUM,
+                    args: {
+                        eventNum: 0 === logEventNum ?
+                            1 :
+                            logEventNum,
+                    }},
+                isPrettified,
+                filter
+            ).then((pageData: PageData) => {
+                useViewStore.getState().updatePageData(pageData);
+            })
             .catch((reason: unknown) => {
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
@@ -161,7 +163,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         const {isPrettified, setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
-        useLogFileManagerStore.getState().wrappedLogFileManager.loadPage(
+        useLogFileManagerStore.getState().logFileManagerProxy.loadPage(
             cursor,
             isPrettified
         ).then((pageData: PageData) => {

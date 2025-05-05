@@ -53,12 +53,15 @@ const useUiStore = create<uiStoreState>((set, get) => ({
             };
         }
 
-        useLogFileManagerStore.getState().wrappedLogFileManager.loadPage(
-            cursor,
-            newIsPrettified
-        ).then((pageData: PageData) => {
-            useViewStore.getState().updatePageData(pageData);
-        })
+        useLogFileManagerStore
+            .getState()
+            .logFileManagerProxy
+            .loadPage(
+                cursor,
+                newIsPrettified
+            ).then((pageData: PageData) => {
+                useViewStore.getState().updatePageData(pageData);
+            })
             .catch((reason: unknown) => {
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,

@@ -42,7 +42,7 @@ const useLogExportStore = create<LogExportState>((set) => ({
         set({logExportManager});
         useLogFileManagerStore
             .getState()
-            .wrappedLogFileManager
+            .logFileManagerProxy
             .exportLogs().catch((reason: unknown) => {
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
