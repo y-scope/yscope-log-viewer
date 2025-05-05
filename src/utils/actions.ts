@@ -14,7 +14,7 @@ enum ACTION_NAME {
     RELOAD = "reload",
     COPY_LOG_EVENT = "copyLogEvent",
     TOGGLE_PRETTIFY = "togglePrettify",
-    WORD_WRAP = "wordWrap",
+    TOGGLE_WORD_WRAP = "toggleWordWrap",
 }
 
 interface EditorAction {
@@ -78,9 +78,9 @@ const EDITOR_ACTIONS : EditorAction[] = [
         label: "Toggle Prettify",
     },
     {
-        actionName: ACTION_NAME.WORD_WRAP,
+        actionName: ACTION_NAME.TOGGLE_WORD_WRAP,
         keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
-        label: "Toggle word wrap",
+        label: "Toggle Word Wrap",
     },
 ];
 
