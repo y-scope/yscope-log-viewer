@@ -191,10 +191,8 @@ const useViewStore = create<ViewState>((set, get) => ({
         set({pageNum: newPageNum});
     },
     updatePageData: (pageData: PageData) => {
-        set({logData: pageData.logs,
-            numPages: pageData.numPages,
-            pageNum: pageData.pageNum,
-            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum});
+        const {logs: logData, numPages, pageNum, beginLineNumToLogEventNum} = pageData;
+        set({logData, numPages, pageNum, beginLineNumToLogEventNum});
         updateWindowUrlHashParams({
             logEventNum: pageData.logEventNum,
         });

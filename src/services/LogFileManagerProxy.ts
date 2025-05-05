@@ -1,4 +1,3 @@
-/* eslint-disable max-params */
 import {Nullable} from "../typings/common";
 import {DecoderOptions} from "../typings/decoders";
 import {LogLevelFilter} from "../typings/logs";
@@ -12,17 +11,21 @@ import {
 import LogFileManager from "./LogFileManager";
 
 
+type LoadFileProps = {
+    decoderOptions: DecoderOptions;
+    fileSrc: FileSrcType;
+    pageSize: number;
+    cursor: CursorType;
+    isPrettified: boolean;
+};
+
 class LogFileManagerProxy {
     logFileManager: Nullable<LogFileManager> = null;
 
     async loadFile (
-        decoderOptions: DecoderOptions,
-        fileSrc: FileSrcType,
-        pageSize: number,
+        {decoderOptions, fileSrc, pageSize, cursor, isPrettified}: LoadFileProps,
         onExportChunk: (logs: string) => void,
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
-        cursor: CursorType,
-        isPrettified: boolean
     ): Promise<{fileInfo: LogFileInfo; pageData: PageData}> {
         const logFileManager = await LogFileManager.create({
             decoderOptions: decoderOptions,
@@ -49,7 +52,6 @@ class LogFileManagerProxy {
         return logFileManager.loadPage(cursor, isPrettified);
     }
 
-
     setFilter (
         cursor: CursorType,
         isPrettified: boolean,
@@ -70,7 +72,6 @@ class LogFileManagerProxy {
         const logFileManager = this.getLogFileManagerAndThrowErrorIfNull();
         logFileManager.startQuery({queryString, isRegex, isCaseSensitive});
     }
-
 
     private getLogFileManagerAndThrowErrorIfNull (): LogFileManager {
         if (null === this.logFileManager) {

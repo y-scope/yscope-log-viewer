@@ -84,13 +84,15 @@ const useLogFileStore = create<LogFileState>((set) => ({
             .getState()
             .logFileManagerProxy
             .loadFile(
-                getConfig(CONFIG_KEY.DECODER_OPTIONS),
-                fileSrc,
-                getConfig(CONFIG_KEY.PAGE_SIZE),
+                {
+                    cursor: cursor,
+                    decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                    fileSrc: fileSrc,
+                    isPrettified: isPrettified,
+                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+                },
                 Comlink.proxy(onExportChunk),
-                Comlink.proxy(onQueryResults),
-                cursor,
-                isPrettified
+                Comlink.proxy(onQueryResults)
             )
             .then(({fileInfo, pageData}) => {
                 set(fileInfo);
