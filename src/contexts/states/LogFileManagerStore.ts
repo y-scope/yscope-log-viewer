@@ -4,8 +4,8 @@ import {create} from "zustand";
 import {WrappedLogFileManager} from "../../services/WrappedLogFileManager";
 
 
-interface LogFileManagerState {
-    wrappedLogFileManager: Comlink.Remote<WrappedLogFileManager>;
+interface LogFileManagerProxyState {
+    logFileManagerProxy: Comlink.Remote<LogFileManagerProxy>;
 }
 
 const useLogFileManagerStore = create<LogFileManagerState>()(() => {
