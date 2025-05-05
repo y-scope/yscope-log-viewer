@@ -2,11 +2,12 @@ import {StateCreator} from "zustand";
 
 import {
     QueryConfigSlice,
+    QueryConfigValues,
     QueryState,
 } from "./types";
 
 
-const QUERY_CONFIG_DEFAULT = {
+const QUERY_CONFIG_DEFAULT: QueryConfigValues = {
     queryIsCaseSensitive: false,
     queryIsRegex: false,
     queryString: "",

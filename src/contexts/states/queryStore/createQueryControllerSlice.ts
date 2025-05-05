@@ -8,11 +8,12 @@ import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {
     QueryControllerSlice,
+    QueryControllerValues,
     QueryState,
 } from "./types";
 
 
-const QUERY_CONTROLLER_DEFAULT = {
+const QUERY_CONTROLLER_DEFAULT: QueryControllerValues = {
     queryProgress: 0,
 };
 

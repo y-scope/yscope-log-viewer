@@ -3,11 +3,12 @@ import {StateCreator} from "zustand";
 import {QueryResultsType} from "../../../typings/query";
 import {
     QueryResultsSlice,
+    QueryResultsValues,
     QueryState,
 } from "./types";
 
 
-const QUERY_RESULTS_DEFAULT = {
+const QUERY_RESULTS_DEFAULT: QueryResultsValues = {
     queryResults: new Map<number, QueryResultsType[]>(),
 };
 
