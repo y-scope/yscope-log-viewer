@@ -21,7 +21,7 @@ variable `NODE_ENV=production` is set.
 You can build and serve the viewer in debug mode using:
 
 ```shell
-npm start
+npm run dev
 ```
 
 The viewer should then be available at [http://localhost:3010](http://localhost:3010).
@@ -35,6 +35,17 @@ npm run build
 ```
 
 The build should then be available in the `dist` directory.
+
+## Previewing the Build
+
+To preview the production build locally, run:
+
+```shell
+npm run preview
+```
+
+This will serve the contents of the `dist` directory using Vite’s preview server, which simulates
+how the app will behave in production.
 
 [nodejs-prebuilt-installer]: https://nodejs.org/en/download/prebuilt-installer
 [nvm]: https://github.com/nvm-sh/nvm

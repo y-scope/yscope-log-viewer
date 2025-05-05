@@ -35,6 +35,7 @@ Docs about the viewer's design.
 :hidden:
 
 building-getting-started
+optimization-guide
 :::
 
 :::{toctree}
