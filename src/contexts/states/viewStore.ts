@@ -27,26 +27,27 @@ import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
 
-interface ViewState {
-    // States
+interface ViewStoreValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     logData: string;
     numPages: number;
     pageNum: number;
+}
 
-    // Setters
+interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setLogData: (newLogData: string) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
 
-    // Actions
     updatePageData: (pageData: PageData) => void;
     loadPageByAction: (navAction: NavigationAction) => void;
     filterLogs: (filter: LogLevelFilter) => void;
 }
 
-const VIEW_STORE_DEFAULT = {
+type ViewState = ViewStoreValues & ViewStoreActions;
+
+const VIEW_STORE_DEFAULT: ViewStoreValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     logData: "Loading...",
     numPages: 0,
@@ -191,8 +192,12 @@ const useViewStore = create<ViewState>((set, get) => ({
         set({pageNum: newPageNum});
     },
     updatePageData: (pageData: PageData) => {
-        const {logs: logData, numPages, pageNum, beginLineNumToLogEventNum} = pageData;
-        set({logData, numPages, pageNum, beginLineNumToLogEventNum});
+        set({
+            logData: pageData.logs,
+            numPages: pageData.numPages,
+            pageNum: pageData.pageNum,
+            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
+        });
         updateWindowUrlHashParams({
             logEventNum: pageData.logEventNum,
         });

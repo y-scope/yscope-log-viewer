@@ -3,17 +3,19 @@ import {create} from "zustand";
 import {PopUpMessage} from "../../typings/notifications";
 
 
-interface ContextState {
-    // States
+interface ContextValues {
     logEventNum: number;
     postPopUp: (message: PopUpMessage) => void;
+}
 
-    // Setters
+interface ContextActions {
     setLogEventNum: (newLogEventNum: number) => void;
     setPostPopUp: (postPopUp: (message: PopUpMessage) => void) => void;
 }
 
-const CONTEXT_STORE_DEFAULT = {
+type ContextState = ContextValues & ContextActions;
+
+const CONTEXT_STORE_DEFAULT: ContextValues = {
     logEventNum: 0,
     postPopUp: () => {
     },

@@ -21,23 +21,25 @@ import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
 
-interface LogFileState {
-    // States
+
+interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
+}
 
-    // Setters
+interface LogFileActions {
     setFileName: (newFileName: string) => void;
     setNumEvents: (newNumEvents: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
 
-    // Actions
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
-const LOG_FILE_STORE_DEFAULT = {
+type LogFileState = LogFileValues & LogFileActions;
+
+const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "Loading...",
     fileSrc: null,
     numEvents: 0,

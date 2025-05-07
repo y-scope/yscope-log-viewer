@@ -10,19 +10,20 @@ import useLogFileManagerStore from "./LogFileManagerStore";
 import useLogFileStore from "./logFileStore";
 
 
-interface LogExportState {
-    // States
+interface LogExportValues {
     exportProgress: number;
     logExportManager: Nullable<LogExportManager>;
+}
 
-    // Setters
+interface LogExportActions {
     setExportProgress: (newProgress: number) => void;
 
-    // Actions
     exportLogs: ()=> void;
 }
 
-const LOG_EXPORT_STORE_DEFAULT = {
+type LogExportState = LogExportValues & LogExportActions;
+
+const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
     exportProgress: 0,
     logExportManager: null,
 };

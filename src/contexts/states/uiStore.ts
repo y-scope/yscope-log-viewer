@@ -16,17 +16,21 @@ import useLogFileManagerStore from "./LogFileManagerStore";
 import useViewStore from "./viewStore";
 
 
-interface uiStoreState {
+interface UiStoreValues {
     activeTabName: TAB_NAME;
     isPrettified: boolean;
     uiState: UI_STATE;
+}
 
+interface UiStoreActions {
     setActiveTabName: (tabName: TAB_NAME) => void;
     setIsPrettified: (newIsPrettified: boolean) => void;
     setUiState: (newUIState: UI_STATE) => void;
 }
 
-const UI_STORE_DEFAULT = {
+type uiStoreState = UiStoreValues & UiStoreActions;
+
+const UI_STORE_DEFAULT: UiStoreValues = {
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     isPrettified: false,
     uiState: UI_STATE.UNOPENED,
