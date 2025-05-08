@@ -4,7 +4,10 @@ import {create} from "zustand";
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
 import {LOG_LEVEL} from "../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
+import {
+    DO_NOT_TIMEOUT_VALUE,
+    LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+} from "../../typings/notifications";
 import {QueryResults} from "../../typings/query";
 import {UI_STATE} from "../../typings/states";
 import {SEARCH_PARAM_NAMES} from "../../typings/url";
@@ -46,6 +49,19 @@ const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     onDiskFileSizeInBytes: 0,
 };
 
+/**
+ * Post a popup about the format string option in the settings.
+ */
+const postFormatPopup = () => {
+    useContextStore.getState().postPopUp({
+        level: LOG_LEVEL.INFO,
+        message: "Adding a format string can enhance the readability of your" +
+                    " structured logs by customizing how fields are displayed.",
+        timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+        title: "A format string has not been configured",
+    });
+};
+
 // eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
@@ -82,13 +98,14 @@ const useLogFileStore = create<LogFileState>((set) => ({
             mergeQueryResults(results);
         };
 
+        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         useLogFileManagerStore
             .getState()
             .logFileManagerProxy
             .loadFile(
                 {
                     cursor: cursor,
-                    decoderOptions: getConfig(CONFIG_KEY.DECODER_OPTIONS),
+                    decoderOptions: decoderOptions,
                     fileSrc: fileSrc,
                     isPrettified: isPrettified,
                     pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
@@ -99,6 +116,10 @@ const useLogFileStore = create<LogFileState>((set) => ({
             .then(({fileInfo, pageData}) => {
                 set(fileInfo);
                 useViewStore.getState().updatePageData(pageData);
+
+                if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
+                    postFormatPopup();
+                }
             })
             .catch((reason: unknown) => {
                 useContextStore.getState().postPopUp({
@@ -107,6 +128,7 @@ const useLogFileStore = create<LogFileState>((set) => ({
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });
+                setUiState(UI_STATE.UNOPENED);
             });
     },
     setFileName: (newFileName) => {

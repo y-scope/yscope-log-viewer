@@ -69,6 +69,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 
 type LogFileInfo = {
     fileName: string;
+    isStructuredLog: boolean;
     numEvents: number;
     onDiskFileSizeInBytes: number;
 };

@@ -40,6 +40,7 @@ class LogFileManagerProxy {
         return {
             fileInfo: {
                 fileName: logFileManager.fileName,
+                isStructuredLog: logFileManager.isStructuredLog,
                 numEvents: logFileManager.numEvents,
                 onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
             },

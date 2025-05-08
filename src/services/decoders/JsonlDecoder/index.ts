@@ -59,10 +59,6 @@ class JsonlDecoder implements Decoder {
         this.#timestampKeyParts = filterKeys.timestampKey.parts;
 
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
-        if (0 === decoderOptions.formatString.length) {
-            // eslint-disable-next-line
-            // TODO: post popup callback
-        }
     }
 
     getEstimatedNumEvents (): number {

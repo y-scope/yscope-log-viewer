@@ -55,11 +55,11 @@ class ClpIrDecoder implements Decoder {
                 formatString: decoderOptions.formatString,
                 structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
             });
-            if (0 === decoderOptions.formatString.length) {
-                // eslint-disable-next-line
-                // TODO: post popup callback
-            }
         }
+    }
+
+    get isStructuredLog () : boolean {
+        return this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED;
     }
 
     /**
