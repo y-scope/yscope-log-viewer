@@ -119,13 +119,7 @@ class LogFileManager {
     }
 
     get isStructuredLog () {
-        const decoder = this.#decoder;
-        if (decoder instanceof JsonlDecoder) {
-            return true;
-        } else if (decoder instanceof ClpIrDecoder) {
-            return decoder.isStructuredLog;
-        }
-        throw new Error("unreachable");
+        return this.#decoder.isStructuredLog;
     }
 
     /**

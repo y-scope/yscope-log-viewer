@@ -46,6 +46,12 @@ type FilteredLogEventMap = Nullable<number[]>;
 type ActiveLogCollectionEventIdx = number;
 
 interface Decoder {
+    /**
+     * Check if the log events are structured.
+     *
+     * @return true if decoding structured logs; false if decoding unstructured logs.
+     */
+    get isStructuredLog () : boolean;
 
     /**
      * Retrieves an estimated number of log events based on the initial deserialization results.
