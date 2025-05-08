@@ -138,8 +138,8 @@ const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const logData = useViewStore((state) => state.logData);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);

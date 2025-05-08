@@ -62,7 +62,37 @@ const postFormatPopup = () => {
     });
 };
 
-// eslint-disable-next-line max-lines-per-function
+/**
+ * Handle export progress and append chunks to log file.
+ *
+ * @param logs
+ */
+const handleExportChunk = (logs: string) => {
+    const {logExportManager} = useLogExportStore.getState();
+    if (null !== logExportManager) {
+        const progress = logExportManager.appendChunk(logs);
+        useLogExportStore.getState().setExportProgress(progress);
+    }
+};
+
+/**
+ * Handle query results by updating the query progress and merging the results.
+ *
+ * @param progress
+ * @param results
+ */
+const handleQueryResults = (progress: number, results: QueryResults) => {
+    const {clearQueryResults, setQueryProgress, mergeQueryResults} = useQueryStore.getState();
+
+    if (0 === progress) {
+        clearQueryResults();
+
+        return;
+    }
+    setQueryProgress(progress);
+    mergeQueryResults(results);
+};
+
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
@@ -82,26 +112,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const onExportChunk = (logs: string) => {
-            const {logExportManager} = useLogExportStore.getState();
-            if (null !== logExportManager) {
-                const progress = logExportManager.appendChunk(logs);
-                useLogExportStore.getState().setExportProgress(progress);
-            }
-        };
-
-        const onQueryResults = (progress: number, results: QueryResults) => {
-            const {clearQueryResults, setQueryProgress, mergeQueryResults} =
-                useQueryStore.getState();
-
-            if (0 === progress) {
-                clearQueryResults();
-
-                return;
-            }
-            setQueryProgress(progress);
-            mergeQueryResults(results);
-        };
 
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         (async () => {
@@ -116,8 +126,8 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                         isPrettified: isPrettified,
                         pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
                     },
-                    Comlink.proxy(onExportChunk),
-                    Comlink.proxy(onQueryResults)
+                    Comlink.proxy(handleExportChunk),
+                    Comlink.proxy(handleQueryResults)
                 );
 
             set(fileInfo);
