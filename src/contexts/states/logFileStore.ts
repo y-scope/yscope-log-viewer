@@ -18,11 +18,11 @@ import {
 import {getConfig} from "../../utils/config";
 import {updateWindowUrlSearchParams} from "../UrlContextProvider";
 import useContextStore from "./contextStore";
-import useLogExportStore from "./logExportStore";
-import useLogFileManagerStore from "./LogFileManagerStore";
+import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
+import useLogFileManagerStore from "./LogFileManagerProxyStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
-import useViewStore from "./viewStore";
+import useViewStore, {VIEW_STORE_DEFAULT} from "./viewStore";
 
 
 interface LogFileValues {
@@ -43,7 +43,7 @@ interface LogFileActions {
 type LogFileState = LogFileValues & LogFileActions;
 
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
-    fileName: "Loading...",
+    fileName: "",
     fileSrc: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
@@ -63,14 +63,19 @@ const postFormatPopup = () => {
 };
 
 // eslint-disable-next-line max-lines-per-function
-const useLogFileStore = create<LogFileState>((set) => ({
+const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {isPrettified, setUiState} = useUiStore.getState();
+        const {setUiState} = useUiStore.getState();
+        const {isPrettified} = useViewStore.getState();
+        const {setFileName, setOnDiskFileSizeInBytes} = get();
         setUiState(UI_STATE.FILE_LOADING);
+        setFileName(LOG_FILE_STORE_DEFAULT.fileName);
+        useViewStore.getState().setLogData(VIEW_STORE_DEFAULT.logData);
+        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
 
         useQueryStore.getState().clearQuery();
-        useLogExportStore.getState().setExportProgress(0);
+        useLogExportStore.getState().setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
@@ -99,37 +104,37 @@ const useLogFileStore = create<LogFileState>((set) => ({
         };
 
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
-        useLogFileManagerStore
-            .getState()
-            .logFileManagerProxy
-            .loadFile(
-                {
-                    cursor: cursor,
-                    decoderOptions: decoderOptions,
-                    fileSrc: fileSrc,
-                    isPrettified: isPrettified,
-                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                },
-                Comlink.proxy(onExportChunk),
-                Comlink.proxy(onQueryResults)
-            )
-            .then(({fileInfo, pageData}) => {
-                set(fileInfo);
-                useViewStore.getState().updatePageData(pageData);
+        (async () => {
+            const {fileInfo, pageData} = await useLogFileManagerStore
+                .getState()
+                .logFileManagerProxy
+                .loadFile(
+                    {
+                        cursor: cursor,
+                        decoderOptions: decoderOptions,
+                        fileSrc: fileSrc,
+                        isPrettified: isPrettified,
+                        pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+                    },
+                    Comlink.proxy(onExportChunk),
+                    Comlink.proxy(onQueryResults)
+                );
 
-                if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
-                    postFormatPopup();
-                }
-            })
-            .catch((reason: unknown) => {
-                useContextStore.getState().postPopUp({
-                    level: LOG_LEVEL.ERROR,
-                    message: String(reason),
-                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                    title: "Action failed",
-                });
-                setUiState(UI_STATE.UNOPENED);
+            set(fileInfo);
+            useViewStore.getState().updatePageData(pageData);
+
+            if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
+                postFormatPopup();
+            }
+        })().catch((reason: unknown) => {
+            useContextStore.getState().postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: String(reason),
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Action failed",
             });
+            setUiState(UI_STATE.UNOPENED);
+        });
     },
     setFileName: (newFileName) => {
         set({fileName: newFileName});

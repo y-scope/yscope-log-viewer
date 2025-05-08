@@ -5,7 +5,7 @@ import {
 
 import DownloadIcon from "@mui/icons-material/Download";
 
-import useLogExportStore from "../../contexts/states/logExportStore";
+import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "../../contexts/states/logExportStore";
 import useUiStore from "../../contexts/states/uiStore";
 import {
     EXPORT_LOGS_PROGRESS_VALUE_MAX,
@@ -25,9 +25,9 @@ import MenuBarIconButton from "./MenuBarIconButton";
  * @return
  */
 const ExportLogsButton = () => {
+    const exportProgress = useLogExportStore((state) => state.exportProgress);
     const exportLogs = useLogExportStore((state) => state.exportLogs);
     const uiState = useUiStore((state) => state.uiState);
-    const exportProgress = useLogExportStore((state) => state.exportProgress);
 
     return (
         <MenuBarIconButton
@@ -39,23 +39,28 @@ const ExportLogsButton = () => {
             }
             onClick={exportLogs}
         >
-            {0 === exportProgress || EXPORT_LOGS_PROGRESS_VALUE_MIN === exportProgress ?
+            {LOG_EXPORT_STORE_DEFAULT.exportProgress !== exportProgress &&
+            EXPORT_LOGS_PROGRESS_VALUE_MIN === exportProgress ?
                 <DownloadIcon/> :
                 <CircularProgress
                     determinate={true}
                     thickness={3}
-                    value={exportProgress * 100}
                     variant={"solid"}
                     color={EXPORT_LOGS_PROGRESS_VALUE_MAX === exportProgress ?
                         "success" :
                         "primary"}
+                    value={null === exportProgress ?
+                        0 :
+                        exportProgress * 100}
                 >
                     {EXPORT_LOGS_PROGRESS_VALUE_MAX === exportProgress ?
                         <DownloadIcon
                             color={"success"}
                             sx={{fontSize: "14px"}}/> :
                         <Typography level={"body-xs"}>
-                            {Math.ceil(exportProgress * 100)}
+                            {Math.ceil(null === exportProgress ?
+                                0 :
+                                exportProgress * 100)}
                         </Typography>}
                 </CircularProgress>}
         </MenuBarIconButton>

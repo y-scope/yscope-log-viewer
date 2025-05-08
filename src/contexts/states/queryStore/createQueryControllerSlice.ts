@@ -3,7 +3,7 @@ import {StateCreator} from "zustand";
 import {LOG_LEVEL} from "../../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
 import useContextStore from "../contextStore";
-import useLogFileManagerStore from "../LogFileManagerStore";
+import useLogFileManagerStore from "../LogFileManagerProxyStore";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {

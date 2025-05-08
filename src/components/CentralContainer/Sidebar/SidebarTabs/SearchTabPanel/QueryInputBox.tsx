@@ -24,11 +24,11 @@ import "./QueryInputBox.css";
 const QueryInputBox = () => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
-    const queryProgress = useQueryStore((state) => state.queryProgress);
     const querystring = useQueryStore((state) => state.queryString);
-    const setQueryString = useQueryStore((state) => state.setQueryString);
-    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
     const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
+    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
+    const setQueryString = useQueryStore((state) => state.setQueryString);
+    const queryProgress = useQueryStore((state) => state.queryProgress);
     const startQuery = useQueryStore((state) => state.startQuery);
     const uiState = useUiStore((state) => state.uiState);
 

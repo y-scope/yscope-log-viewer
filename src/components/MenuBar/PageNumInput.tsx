@@ -30,8 +30,8 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const uiState = useUiStore((state) => state.uiState);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const numPages = useViewStore((state) => state.numPages);
     const pageNum = useViewStore((state) => state.pageNum);
 

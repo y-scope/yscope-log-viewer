@@ -8,11 +8,11 @@ interface LogFileManagerProxyState {
     logFileManagerProxy: Comlink.Remote<LogFileManagerProxy>;
 }
 
-const useLogFileManagerStore = create<LogFileManagerProxyState>()(() => {
+const useLogFileManagerProxyStore = create<LogFileManagerProxyState>(() => {
     const mainWorker = new Worker(new URL("../../services/MainWorker.ts", import.meta.url));
     return {
         logFileManagerProxy: Comlink.wrap(mainWorker),
     };
 });
 
-export default useLogFileManagerStore;
+export default useLogFileManagerProxyStore;

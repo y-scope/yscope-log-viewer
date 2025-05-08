@@ -20,7 +20,7 @@ import {
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useContextStore from "./states/contextStore";
-import useLogFileManagerStore from "./states/LogFileManagerStore";
+import useLogFileManagerStore from "./states/LogFileManagerProxyStore";
 import useLogFileStore from "./states/logFileStore";
 import useUiStore from "./states/uiStore";
 import useViewStore from "./states/viewStore";
@@ -90,10 +90,10 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const setIsPrettified = useUiStore((state) => state.setIsPrettified);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
