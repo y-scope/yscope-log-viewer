@@ -31,6 +31,7 @@ const createQueryResultsSlice: StateCreator<
         if (0 === newQueryResults.size) {
             return;
         }
+
         set((state) => {
             const mergedResults = new Map(state.queryResults);
 
