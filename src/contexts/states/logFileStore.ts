@@ -54,7 +54,7 @@ const LOG_FILE_STORE_DEFAULT: LogFileValues = {
 };
 
 /**
- *
+ * Format popup message shown when a structured log is loaded without a format string.
  */
 const FORMAT_POP_UP_MESSAGE: PopUpMessage = Object.freeze({
     level: LOG_LEVEL.INFO,

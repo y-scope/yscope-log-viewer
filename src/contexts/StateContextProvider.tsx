@@ -11,7 +11,6 @@ import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
-    PageData,
 } from "../typings/worker";
 import {
     findNearestLessThanOrEqualElement,
@@ -145,23 +144,17 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 
         setUiState(UI_STATE.FAST_LOADING);
 
-        logFileManagerProxy
-            .loadPage(
-                cursor,
-                isPrettifiedRef.current
-            )
-            .then((pageData: PageData) => {
-                useViewStore.getState().updatePageData(pageData);
-            })
-            .catch((e: unknown) => {
-                console.error(e);
-                postPopUp({
-                    level: LOG_LEVEL.ERROR,
-                    message: String(e),
-                    timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                    title: "Action failed",
-                });
+        (async () => {
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            useViewStore.getState().updatePageData(pageData);
+        })().catch((e: unknown) => {
+            postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: String(e),
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Action failed",
             });
+        });
     }, [
         beginLineNumToLogEventNum,
         logEventNum,

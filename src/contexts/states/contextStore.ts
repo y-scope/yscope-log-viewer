@@ -32,3 +32,4 @@ const useContextStore = create<ContextState>((set) => ({
 }));
 
 export default useContextStore;
+export {CONTEXT_STORE_DEFAULT};
