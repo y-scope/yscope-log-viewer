@@ -7,6 +7,7 @@ import {LOG_LEVEL} from "../../typings/logs";
 import {
     DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+    PopUpMessage,
 } from "../../typings/notifications";
 import {
     QUERY_PROGRESS_VALUE_MIN,
@@ -53,17 +54,15 @@ const LOG_FILE_STORE_DEFAULT: LogFileValues = {
 };
 
 /**
- * Post a popup about the format string option in the settings.
+ *
  */
-const postFormatPopUp = () => {
-    useContextStore.getState().postPopUp({
-        level: LOG_LEVEL.INFO,
-        message: "Adding a format string can enhance the readability of your" +
+const FORMAT_POP_UP_MESSAGE: PopUpMessage = Object.freeze({
+    level: LOG_LEVEL.INFO,
+    message: "Adding a format string can enhance the readability of your" +
                     " structured logs by customizing how fields are displayed.",
-        timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
-        title: "A format string has not been configured",
-    });
-};
+    timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
+    title: "A format string has not been configured",
+});
 
 /**
  * Handles export progress and append chunks to log file.
@@ -138,7 +137,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updatePageData(pageData);
 
             if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
-                postFormatPopUp();
+                postPopUp(FORMAT_POP_UP_MESSAGE);
             }
         })().catch((e: unknown) => {
             console.error(e);
