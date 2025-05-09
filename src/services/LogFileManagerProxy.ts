@@ -11,19 +11,17 @@ import {
 import LogFileManager from "./LogFileManager";
 
 
-type LoadFileProps = {
-    decoderOptions: DecoderOptions;
-    fileSrc: FileSrcType;
-    pageSize: number;
-    cursor: CursorType;
-    isPrettified: boolean;
-};
-
 class LogFileManagerProxy {
     logFileManager: Nullable<LogFileManager> = null;
 
     async loadFile (
-        {decoderOptions, fileSrc, pageSize, cursor, isPrettified}: LoadFileProps,
+        {decoderOptions, fileSrc, pageSize, cursor, isPrettified}: {
+            decoderOptions: DecoderOptions;
+            fileSrc: FileSrcType;
+            pageSize: number;
+            cursor: CursorType;
+            isPrettified: boolean;
+        },
         onExportChunk: (logs: string) => void,
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
     ): Promise<{fileInfo: LogFileInfo; pageData: PageData}> {

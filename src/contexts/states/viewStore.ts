@@ -21,7 +21,7 @@ import {
 import {clamp} from "../../utils/math";
 import {updateWindowUrlHashParams} from "../UrlContextProvider";
 import useContextStore from "./contextStore";
-import useLogFileManagerStore from "./LogFileManagerProxyStore";
+import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
@@ -127,10 +127,10 @@ const useViewStore = create<ViewState>((set, get) => ({
             ).then((pageData: PageData) => {
                 useViewStore.getState().updatePageData(pageData);
             })
-            .catch((reason: unknown) => {
+            .catch((e: unknown) => {
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
-                    message: String(reason),
+                    message: String(e),
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });
@@ -172,10 +172,10 @@ const useViewStore = create<ViewState>((set, get) => ({
         ).then((pageData: PageData) => {
             useViewStore.getState().updatePageData(pageData);
         })
-            .catch((reason: unknown) => {
+            .catch((e: unknown) => {
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
-                    message: String(reason),
+                    message: String(e),
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });
@@ -209,10 +209,11 @@ const useViewStore = create<ViewState>((set, get) => ({
             ).then((pageData: PageData) => {
                 useViewStore.getState().updatePageData(pageData);
             })
-            .catch((reason: unknown) => {
+            .catch((e: unknown) => {
+                console.error(e);
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
-                    message: String(reason),
+                    message: String(e),
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });

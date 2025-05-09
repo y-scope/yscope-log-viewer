@@ -6,7 +6,7 @@ import {LOG_LEVEL} from "../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../../utils/config";
 import useContextStore from "./contextStore";
-import useLogFileManagerStore from "./LogFileManagerProxyStore";
+import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 
 
@@ -34,9 +34,11 @@ const useLogExportStore = create<LogExportState>((set) => ({
         set({exportProgress: newProgress});
     },
     exportLogs: () => {
-        set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
-        set({exportProgress: LOG_EXPORT_STORE_DEFAULT.exportProgress});
+        const {postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {fileName, numEvents} = useLogFileStore.getState();
+
+        set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
         const logExportManager = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName
@@ -44,14 +46,12 @@ const useLogExportStore = create<LogExportState>((set) => ({
 
         set({logExportManager});
         (async () => {
-            await useLogFileManagerStore
-                .getState()
-                .logFileManagerProxy
-                .exportLogs();
-        })().catch((reason: unknown) => {
-            useContextStore.getState().postPopUp({
+            await logFileManagerProxy.exportLogs();
+        })().catch((e: unknown) => {
+            console.error(e);
+            postPopUp({
                 level: LOG_LEVEL.ERROR,
-                message: String(reason),
+                message: String(e),
                 timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                 title: "Action failed",
             });

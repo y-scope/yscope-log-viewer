@@ -3,7 +3,7 @@ import {StateCreator} from "zustand";
 import {LOG_LEVEL} from "../../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
 import useContextStore from "../contextStore";
-import useLogFileManagerStore from "../LogFileManagerProxyStore";
+import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {
@@ -30,11 +30,9 @@ const createQueryControllerSlice: StateCreator<
     ...QUERY_CONTROLLER_DEFAULT,
     clearQuery: () => {
         set({
-            queryIsCaseSensitive: QUERY_CONFIG_DEFAULT.queryIsCaseSensitive,
-            queryIsRegex: QUERY_CONFIG_DEFAULT.queryIsRegex,
-            queryProgress: QUERY_CONTROLLER_DEFAULT.queryProgress,
-            queryResults: QUERY_RESULTS_DEFAULT.queryResults,
-            queryString: QUERY_CONFIG_DEFAULT.queryString,
+            ...QUERY_CONFIG_DEFAULT,
+            ...QUERY_CONTROLLER_DEFAULT,
+            ...QUERY_RESULTS_DEFAULT,
         });
     },
     setQueryProgress: (newProgress) => {
@@ -61,10 +59,11 @@ const createQueryControllerSlice: StateCreator<
                 queryString,
                 queryIsRegex,
                 queryIsCaseSensitive,
-            ).catch((reason: unknown) => {
+            ).catch((e: unknown) => {
+                console.error(e);
                 useContextStore.getState().postPopUp({
                     level: LOG_LEVEL.ERROR,
-                    message: String(reason),
+                    message: String(e),
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });

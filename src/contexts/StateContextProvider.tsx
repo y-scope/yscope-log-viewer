@@ -20,7 +20,7 @@ import {
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
 import useContextStore from "./states/contextStore";
-import useLogFileManagerStore from "./states/LogFileManagerProxyStore";
+import useLogFileManagerStore from "./states/logFileManagerProxyStore";
 import useLogFileStore from "./states/logFileStore";
 import useUiStore from "./states/uiStore";
 import useViewStore from "./states/viewStore";
@@ -153,10 +153,11 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
             .then((pageData: PageData) => {
                 useViewStore.getState().updatePageData(pageData);
             })
-            .catch((reason: unknown) => {
+            .catch((e: unknown) => {
+                console.error(e);
                 postPopUp({
                     level: LOG_LEVEL.ERROR,
-                    message: String(reason),
+                    message: String(e),
                     timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                     title: "Action failed",
                 });

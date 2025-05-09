@@ -8,7 +8,10 @@ import {
     DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
 } from "../../typings/notifications";
-import {QueryResults} from "../../typings/query";
+import {
+    QUERY_PROGRESS_VALUE_MIN,
+    QueryResults,
+} from "../../typings/query";
 import {UI_STATE} from "../../typings/states";
 import {SEARCH_PARAM_NAMES} from "../../typings/url";
 import {
@@ -19,7 +22,7 @@ import {getConfig} from "../../utils/config";
 import {updateWindowUrlSearchParams} from "../UrlContextProvider";
 import useContextStore from "./contextStore";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
-import useLogFileManagerStore from "./LogFileManagerProxyStore";
+import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore, {VIEW_STORE_DEFAULT} from "./viewStore";
@@ -52,7 +55,7 @@ const LOG_FILE_STORE_DEFAULT: LogFileValues = {
 /**
  * Post a popup about the format string option in the settings.
  */
-const postFormatPopup = () => {
+const postFormatPopUp = () => {
     useContextStore.getState().postPopUp({
         level: LOG_LEVEL.INFO,
         message: "Adding a format string can enhance the readability of your" +
@@ -63,83 +66,85 @@ const postFormatPopup = () => {
 };
 
 /**
- * Handle export progress and append chunks to log file.
+ * Handles export progress and append chunks to log file.
  *
  * @param logs
  */
 const handleExportChunk = (logs: string) => {
-    const {logExportManager} = useLogExportStore.getState();
+    const {logExportManager, setExportProgress} = useLogExportStore.getState();
+
     if (null !== logExportManager) {
         const progress = logExportManager.appendChunk(logs);
-        useLogExportStore.getState().setExportProgress(progress);
+        setExportProgress(progress);
     }
 };
 
 /**
- * Handle query results by updating the query progress and merging the results.
+ * Handles query results by updating the query progress and merging the results.
  *
  * @param progress
  * @param results
  */
 const handleQueryResults = (progress: number, results: QueryResults) => {
-    const {clearQueryResults, setQueryProgress, mergeQueryResults} = useQueryStore.getState();
+    const {clearQueryResults, mergeQueryResults, setQueryProgress} = useQueryStore.getState();
 
-    if (0 === progress) {
+    setQueryProgress(progress);
+    if (QUERY_PROGRESS_VALUE_MIN === progress) {
         clearQueryResults();
 
         return;
     }
-    setQueryProgress(progress);
     mergeQueryResults(results);
 };
 
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {setUiState} = useUiStore.getState();
-        const {isPrettified} = useViewStore.getState();
         const {setFileName, setOnDiskFileSizeInBytes} = get();
-        setUiState(UI_STATE.FILE_LOADING);
-        setFileName(LOG_FILE_STORE_DEFAULT.fileName);
-        useViewStore.getState().setLogData(VIEW_STORE_DEFAULT.logData);
-        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+        const {postPopUp} = useContextStore.getState();
+        const {setExportProgress} = useLogExportStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const {clearQuery} = useQueryStore.getState();
+        const {setUiState} = useUiStore.getState();
+        const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
 
-        useQueryStore.getState().clearQuery();
-        useLogExportStore.getState().setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
+        setFileName(LOG_FILE_STORE_DEFAULT.fileName);
+        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+        setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
+        clearQuery();
+        setUiState(UI_STATE.FILE_LOADING);
+        setLogData(VIEW_STORE_DEFAULT.logData);
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         (async () => {
-            const {fileInfo, pageData} = await useLogFileManagerStore
-                .getState()
-                .logFileManagerProxy
-                .loadFile(
-                    {
-                        cursor: cursor,
-                        decoderOptions: decoderOptions,
-                        fileSrc: fileSrc,
-                        isPrettified: isPrettified,
-                        pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                    },
-                    Comlink.proxy(handleExportChunk),
-                    Comlink.proxy(handleQueryResults)
-                );
+            const {fileInfo, pageData} = await logFileManagerProxy.loadFile(
+                {
+                    cursor: cursor,
+                    decoderOptions: decoderOptions,
+                    fileSrc: fileSrc,
+                    isPrettified: isPrettified,
+                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+                },
+                Comlink.proxy(handleExportChunk),
+                Comlink.proxy(handleQueryResults)
+            );
 
             set(fileInfo);
-            useViewStore.getState().updatePageData(pageData);
+            updatePageData(pageData);
 
             if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
-                postFormatPopup();
+                postFormatPopUp();
             }
-        })().catch((reason: unknown) => {
-            useContextStore.getState().postPopUp({
+        })().catch((e: unknown) => {
+            console.error(e);
+            postPopUp({
                 level: LOG_LEVEL.ERROR,
-                message: String(reason),
+                message: String(e),
                 timeoutMillis: DO_NOT_TIMEOUT_VALUE,
                 title: "Action failed",
             });
