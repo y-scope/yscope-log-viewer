@@ -1,6 +1,7 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
+import {FILE_TYPE} from "../../services/LogFileManager";
 import {Nullable} from "../../typings/common";
 import {CONFIG_KEY} from "../../typings/config";
 import {LOG_LEVEL} from "../../typings/logs";
@@ -121,22 +122,23 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         (async () => {
-            const {fileInfo, pageData} = await logFileManagerProxy.loadFile(
+            const fileInfo = await logFileManagerProxy.loadFile(
                 {
-                    cursor: cursor,
                     decoderOptions: decoderOptions,
                     fileSrc: fileSrc,
-                    isPrettified: isPrettified,
                     pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
                 },
                 Comlink.proxy(handleExportChunk),
                 Comlink.proxy(handleQueryResults)
             );
-
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             set(fileInfo);
             updatePageData(pageData);
 
-            if (fileInfo.isStructuredLog && 0 === decoderOptions.formatString.length) {
+            const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
+                fileInfo.fileType === FILE_TYPE.JSONL;
+
+            if (0 === decoderOptions.formatString.length && canFormat) {
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }
         })().catch((e: unknown) => {

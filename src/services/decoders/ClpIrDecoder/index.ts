@@ -58,8 +58,8 @@ class ClpIrDecoder implements Decoder {
         }
     }
 
-    get isStructuredLog () : boolean {
-        return this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED;
+    get irStreamType () : CLP_IR_STREAM_TYPE {
+        return this.#streamType;
     }
 
     /**

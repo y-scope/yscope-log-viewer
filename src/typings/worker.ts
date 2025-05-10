@@ -1,3 +1,4 @@
+import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "./common";
 import {ActiveLogCollectionEventIdx} from "./decoders";
 
@@ -69,7 +70,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 
 type LogFileInfo = {
     fileName: string;
-    isStructuredLog: boolean;
+    fileType: FILE_TYPE;
     numEvents: number;
     onDiskFileSizeInBytes: number;
 };

@@ -15,16 +15,14 @@ class LogFileManagerProxy {
     logFileManager: Nullable<LogFileManager> = null;
 
     async loadFile (
-        {decoderOptions, fileSrc, pageSize, cursor, isPrettified}: {
+        {decoderOptions, fileSrc, pageSize}: {
             decoderOptions: DecoderOptions;
             fileSrc: FileSrcType;
             pageSize: number;
-            cursor: CursorType;
-            isPrettified: boolean;
         },
         onExportChunk: (logs: string) => void,
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void,
-    ): Promise<{fileInfo: LogFileInfo; pageData: PageData}> {
+    ): Promise<LogFileInfo> {
         const logFileManager = await LogFileManager.create({
             decoderOptions: decoderOptions,
             fileSrc: fileSrc,
@@ -36,18 +34,15 @@ class LogFileManagerProxy {
         this.logFileManager = logFileManager;
 
         return {
-            fileInfo: {
-                fileName: logFileManager.fileName,
-                isStructuredLog: logFileManager.isStructuredLog,
-                numEvents: logFileManager.numEvents,
-                onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
-            },
-            pageData: this.loadPage(cursor, isPrettified),
+            fileName: logFileManager.fileName,
+            fileType: logFileManager.fileType,
+            numEvents: logFileManager.numEvents,
+            onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
         };
     }
 
     loadPage (cursor: CursorType, isPrettified: boolean): PageData {
-        const logFileManager = this.getLogFileManagerAndThrowErrorIfNull();
+        const logFileManager = this.#getLogFileManager();
         return logFileManager.loadPage(cursor, isPrettified);
     }
 
@@ -56,23 +51,29 @@ class LogFileManagerProxy {
         isPrettified: boolean,
         logLevelFilter: LogLevelFilter
     ): PageData {
-        const logFileManager = this.getLogFileManagerAndThrowErrorIfNull();
+        const logFileManager = this.#getLogFileManager();
         logFileManager.setLogLevelFilter(logLevelFilter);
 
         return this.loadPage(cursor, isPrettified);
     }
 
     exportLogs (): void {
-        const logFileManager = this.getLogFileManagerAndThrowErrorIfNull();
+        const logFileManager = this.#getLogFileManager();
         logFileManager.exportChunkAndScheduleNext(0);
     }
 
     startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
-        const logFileManager = this.getLogFileManagerAndThrowErrorIfNull();
+        const logFileManager = this.#getLogFileManager();
         logFileManager.startQuery({queryString, isRegex, isCaseSensitive});
     }
 
-    private getLogFileManagerAndThrowErrorIfNull (): LogFileManager {
+    /**
+     * Gets the current log file manager.
+     *
+     * @return The current log file manager.
+     * @throws {Error} If the log file manager hasn't been initialized.
+     */
+    #getLogFileManager (): LogFileManager {
         if (null === this.logFileManager) {
             throw new Error("LogFileManager hasn't initialized");
         }

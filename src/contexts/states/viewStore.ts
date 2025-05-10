@@ -120,9 +120,7 @@ const useViewStore = create<ViewState>((set, get) => ({
                 {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {
-                        eventNum: CONTEXT_STORE_DEFAULT.logEventNum === logEventNum ?
-                            1 :
-                            logEventNum,
+                        eventNum: logEventNum,
                     },
                 },
                 get().isPrettified,

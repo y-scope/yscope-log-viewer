@@ -61,11 +61,6 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    get isStructuredLog () {
-        return true;
-    }
-
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }

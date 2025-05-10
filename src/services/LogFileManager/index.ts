@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 500] */
+/* eslint max-lines: ["error", 600] */
 import jsBeautify from "js-beautify";
 
 import {
@@ -29,6 +29,7 @@ import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
+import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 import {
     getEventNumCursorData,
@@ -39,6 +40,12 @@ import {
 
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
+
+enum FILE_TYPE {
+    CLP_TEXT_IR = "clpTextIr",
+    CLP_KV_IR = "clpKvIr",
+    JSONL = "jsonl",
+}
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -118,8 +125,22 @@ class LogFileManager {
         return this.#numEvents;
     }
 
-    get isStructuredLog () {
-        return this.#decoder.isStructuredLog;
+    get fileType (): FILE_TYPE {
+        const decoder = this.#decoder;
+        if (decoder instanceof JsonlDecoder) {
+            return FILE_TYPE.JSONL;
+        } else if (decoder instanceof ClpIrDecoder) {
+            switch (decoder.irStreamType) {
+                case CLP_IR_STREAM_TYPE.STRUCTURED:
+                    return FILE_TYPE.CLP_KV_IR;
+                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
+                    return FILE_TYPE.CLP_TEXT_IR;
+                default:
+
+                    // fall through to unreachable error.
+            }
+        }
+        throw new Error("unreachable");
     }
 
     /**
@@ -487,4 +508,5 @@ class LogFileManager {
     }
 }
 
+export {FILE_TYPE};
 export default LogFileManager;
