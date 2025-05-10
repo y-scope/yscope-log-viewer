@@ -10,7 +10,8 @@ import {
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useLogFileStore from "../../contexts/states/logFileStore";
+import useUiStore from "../../contexts/states/uiStore";
 import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
@@ -39,7 +40,8 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
-    const {uiState, numEvents} = useContext(StateContext);
+    const numEvents = useLogFileStore((state) => state.numEvents);
+    const uiState = useUiStore((state) => state.uiState);
     const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
