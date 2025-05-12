@@ -146,7 +146,7 @@ class LogFileManager {
                     // fall through to unreachable error.
             }
         }
-        throw new Error("Unexpected decoder type when determining file type.");  
+        throw new Error("Unexpected decoder type when determining file type.");
     }
 
     /**
