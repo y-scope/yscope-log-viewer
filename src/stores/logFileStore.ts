@@ -27,7 +27,7 @@ import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
-import useViewStore, {VIEW_STORE_DEFAULT} from "./viewStore";
+import useViewStore from "./viewStore";
 
 
 interface LogFileValues {
