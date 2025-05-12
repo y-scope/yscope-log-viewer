@@ -16,7 +16,7 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import useViewStore from "../../../../../contexts/states/viewStore";
+import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,

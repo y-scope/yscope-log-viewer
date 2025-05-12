@@ -1,6 +1,6 @@
 import {StateCreator} from "zustand";
 
-import {QueryResultsType} from "../../../typings/query";
+import {QueryResultsType} from "../../typings/query";
 import {
     QueryResultsSlice,
     QueryResultsValues,

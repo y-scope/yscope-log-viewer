@@ -1,9 +1,9 @@
 import {create} from "zustand";
 
-import {CONFIG_KEY} from "../../typings/config";
-import {UI_STATE} from "../../typings/states";
-import {TAB_NAME} from "../../typings/tab";
-import {getConfig} from "../../utils/config";
+import {CONFIG_KEY} from "../typings/config";
+import {UI_STATE} from "../typings/states";
+import {TAB_NAME} from "../typings/tab";
+import {getConfig} from "../utils/config";
 
 
 interface UiStoreValues {

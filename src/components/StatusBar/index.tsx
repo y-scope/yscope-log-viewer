@@ -10,13 +10,13 @@ import {
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
-import useLogFileStore from "../../contexts/states/logFileStore";
-import useUiStore from "../../contexts/states/uiStore";
 import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
+import useLogFileStore from "../../stores/logFileStore";
+import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";

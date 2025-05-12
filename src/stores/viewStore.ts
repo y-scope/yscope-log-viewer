@@ -1,25 +1,25 @@
 import {create} from "zustand";
 
-import {Nullable} from "../../typings/common";
+import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
+import {Nullable} from "../typings/common";
 import {
     LOG_LEVEL,
     LogLevelFilter,
-} from "../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
-import {UI_STATE} from "../../typings/states";
+} from "../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
+import {UI_STATE} from "../typings/states";
 import {
     BeginLineNumToLogEventNumMap,
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
     PageData,
-} from "../../typings/worker";
+} from "../typings/worker";
 import {
     ACTION_NAME,
     NavigationAction,
-} from "../../utils/actions";
-import {clamp} from "../../utils/math";
-import {updateWindowUrlHashParams} from "../UrlContextProvider";
+} from "../utils/actions";
+import {clamp} from "../utils/math";
 import useContextStore, {CONTEXT_STORE_DEFAULT} from "./contextStore";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
@@ -37,13 +37,13 @@ interface ViewStoreValues {
 
 interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
-    setIsPrettified: (newIsPrettified: boolean) => void;
     setLogData: (newLogData: string) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
-
     filterLogs: (filter: LogLevelFilter) => void;
+
     loadPageByAction: (navAction: NavigationAction) => void;
+    updateIsPrettified: (newIsPrettified: boolean) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -191,7 +191,16 @@ const useViewStore = create<ViewState>((set, get) => ({
     setBeginLineNumToLogEventNum: (newMap) => {
         set({beginLineNumToLogEventNum: newMap});
     },
-    setIsPrettified: (newIsPrettified: boolean) => {
+    setLogData: (newLogData) => {
+        set({logData: newLogData});
+    },
+    setNumPages: (newNumPages) => {
+        set({numPages: newNumPages});
+    },
+    setPageNum: (newPageNum) => {
+        set({pageNum: newPageNum});
+    },
+    updateIsPrettified: (newIsPrettified: boolean) => {
         const {updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
@@ -221,15 +230,6 @@ const useViewStore = create<ViewState>((set, get) => ({
                 title: "Action failed",
             });
         });
-    },
-    setLogData: (newLogData) => {
-        set({logData: newLogData});
-    },
-    setNumPages: (newNumPages) => {
-        set({numPages: newNumPages});
-    },
-    setPageNum: (newPageNum) => {
-        set({pageNum: newPageNum});
     },
     updatePageData: (pageData: PageData) => {
         const {setUiState} = useUiStore.getState();

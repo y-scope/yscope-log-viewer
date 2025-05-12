@@ -1,7 +1,7 @@
 import {StateCreator} from "zustand";
 
-import {LOG_LEVEL} from "../../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../../typings/notifications";
+import {LOG_LEVEL} from "../../typings/logs";
+import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import useContextStore from "../contextStore";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";

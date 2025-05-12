@@ -5,9 +5,9 @@ import {
 
 import DownloadIcon from "@mui/icons-material/Download";
 
-import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "../../contexts/states/logExportStore";
-import useUiStore from "../../contexts/states/uiStore";
 import {EXPORT_LOGS_PROGRESS_VALUE_MAX} from "../../services/LogExportManager";
+import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "../../stores/logExportStore";
+import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {
     ignorePointerIfFastLoading,

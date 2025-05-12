@@ -8,7 +8,7 @@ import {
 import AbcIcon from "@mui/icons-material/Abc";
 import StorageIcon from "@mui/icons-material/Storage";
 
-import useLogFileStore from "../../../../contexts/states/logFileStore";
+import useLogFileStore from "../../../../stores/logFileStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,

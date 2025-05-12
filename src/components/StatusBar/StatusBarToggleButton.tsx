@@ -27,7 +27,7 @@ interface StatusBarToggleButtonProps extends IconButtonProps {
  * A toggle button for use in the status bar.
  *
  * @param props
- * @param props.icons Icons to use for the active and inactive states.
+ * @param props.icons Icons to use for the active and inactive stores.
  * @param props.isActive
  * @param props.tooltipPlacement Tooltip position.
  * @param props.tooltipTitle Tooltip title, to discern with native HTML tooltip.

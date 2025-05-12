@@ -8,8 +8,8 @@ import {
 
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
-import useLogFileStore from "../../contexts/states/logFileStore";
-import useUiStore from "../../contexts/states/uiStore";
+import useLogFileStore from "../../stores/logFileStore";
+import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";

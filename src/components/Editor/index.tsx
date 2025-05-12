@@ -11,11 +11,11 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import useViewStore from "../../contexts/states/viewStore";
 import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
+import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,

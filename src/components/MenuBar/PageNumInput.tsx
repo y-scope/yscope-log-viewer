@@ -9,8 +9,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import useUiStore from "../../contexts/states/uiStore";
-import useViewStore from "../../contexts/states/viewStore";
+import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {

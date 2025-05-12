@@ -4,7 +4,7 @@ import {
     useRef,
 } from "react";
 
-import useUiStore from "../../../contexts/states/uiStore";
+import useUiStore from "../../../stores/uiStore";
 import {CONFIG_KEY} from "../../../typings/config";
 import {TAB_NAME} from "../../../typings/tab";
 import {setConfig} from "../../../utils/config";

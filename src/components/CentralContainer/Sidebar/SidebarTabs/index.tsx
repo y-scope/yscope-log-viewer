@@ -11,7 +11,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
-import useUiStore from "../../../../contexts/states/uiStore";
+import useUiStore from "../../../../stores/uiStore";
 import {TAB_NAME} from "../../../../typings/tab";
 import {openInNewTab} from "../../../../utils/url";
 import FileInfoTabPanel from "./FileInfoTabPanel";

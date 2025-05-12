@@ -1,6 +1,6 @@
 import {create} from "zustand";
 
-import {PopUpMessage} from "../../typings/notifications";
+import {PopUpMessage} from "../typings/notifications";
 
 
 interface ContextValues {

@@ -5,6 +5,11 @@ import React, {
     useRef,
 } from "react";
 
+import useContextStore from "../stores/contextStore";
+import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
+import useLogFileStore from "../stores/logFileStore";
+import useUiStore from "../stores/uiStore";
+import useViewStore from "../stores/viewStore";
 import {LOG_LEVEL} from "../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
@@ -18,11 +23,6 @@ import {
 } from "../utils/data";
 import {clamp} from "../utils/math";
 import {NotificationContext} from "./NotificationContextProvider";
-import useContextStore from "./states/contextStore";
-import useLogFileManagerStore from "./states/logFileManagerProxyStore";
-import useLogFileStore from "./states/logFileStore";
-import useUiStore from "./states/uiStore";
-import useViewStore from "./states/viewStore";
 import {
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
@@ -76,20 +76,19 @@ const updateUrlIfEventOnPage = (
 };
 
 /**
- * Provides state management for the application. This provider must be wrapped by
- * UrlContextProvider to function correctly.
+ * Manages states for the application.
  *
  * @param props
  * @param props.children
  * @return
  */
-const StateContextProvider = ({children}: StateContextProviderProps) => {
+const AppController = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
+    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
@@ -199,5 +198,5 @@ const StateContextProvider = ({children}: StateContextProviderProps) => {
 };
 
 
-export default StateContextProvider;
+export default AppController;
 export {StateContext};

@@ -1,27 +1,27 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {FILE_TYPE} from "../../services/LogFileManager";
-import {Nullable} from "../../typings/common";
-import {CONFIG_KEY} from "../../typings/config";
-import {LOG_LEVEL} from "../../typings/logs";
+import {updateWindowUrlSearchParams} from "../contexts/UrlContextProvider";
+import {FILE_TYPE} from "../services/LogFileManager";
+import {Nullable} from "../typings/common";
+import {CONFIG_KEY} from "../typings/config";
+import {LOG_LEVEL} from "../typings/logs";
 import {
     DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     PopUpMessage,
-} from "../../typings/notifications";
+} from "../typings/notifications";
 import {
     QUERY_PROGRESS_VALUE_MIN,
     QueryResults,
-} from "../../typings/query";
-import {UI_STATE} from "../../typings/states";
-import {SEARCH_PARAM_NAMES} from "../../typings/url";
+} from "../typings/query";
+import {UI_STATE} from "../typings/states";
+import {SEARCH_PARAM_NAMES} from "../typings/url";
 import {
     CursorType,
     FileSrcType,
-} from "../../typings/worker";
-import {getConfig} from "../../utils/config";
-import {updateWindowUrlSearchParams} from "../UrlContextProvider";
+} from "../typings/worker";
+import {getConfig} from "../utils/config";
 import useContextStore from "./contextStore";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";

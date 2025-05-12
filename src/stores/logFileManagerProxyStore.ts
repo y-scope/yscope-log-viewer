@@ -1,7 +1,7 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {LogFileManagerProxy} from "../../services/LogFileManagerProxy";
+import {LogFileManagerProxy} from "../services/LogFileManagerProxy";
 
 
 interface LogFileManagerProxyState {

@@ -24,8 +24,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
-import useUiStore from "../../../contexts/states/uiStore";
-import useViewStore from "../../../contexts/states/viewStore";
+import useUiStore from "../../../stores/uiStore";
+import useViewStore from "../../../stores/viewStore";
 import {
     INVALID_LOG_LEVEL_VALUE,
     LOG_LEVEL,

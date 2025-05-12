@@ -1,4 +1,4 @@
-import {QueryResults} from "../../../typings/query";
+import {QueryResults} from "../../typings/query";
 
 
 interface QueryConfigValues {

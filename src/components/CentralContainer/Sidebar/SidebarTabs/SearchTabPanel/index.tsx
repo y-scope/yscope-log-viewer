@@ -8,7 +8,7 @@ import {
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import useQueryStore from "../../../../../contexts/states/queryStore";
+import useQueryStore from "../../../../../stores/queryStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
