@@ -111,9 +111,9 @@ const useViewStore = create<ViewState>((set, get) => ({
     filterLogs: (filter: LogLevelFilter) => {
         const {updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
         (async () => {
             const pageData = await logFileManagerProxy.setFilter(
@@ -142,9 +142,7 @@ const useViewStore = create<ViewState>((set, get) => ({
     loadPageByAction: (navAction: NavigationAction) => {
         const {isPrettified, numPages, pageNum, updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         const {fileSrc, loadFile} = useLogFileStore.getState();
-        const {uiState, setUiState} = useUiStore.getState();
         if (navAction.code === ACTION_NAME.RELOAD) {
             if (null === fileSrc || CONTEXT_STORE_DEFAULT.logEventNum === logEventNum) {
                 throw new Error(
@@ -161,6 +159,8 @@ const useViewStore = create<ViewState>((set, get) => ({
             return;
         }
 
+        const {uiState} = useUiStore.getState();
+
         if (UI_STATE.READY !== uiState) {
             console.warn("Skipping navigation: page load in progress.");
 
@@ -174,7 +174,9 @@ const useViewStore = create<ViewState>((set, get) => ({
             return;
         }
 
+        const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
         (async () => {
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
@@ -201,16 +203,15 @@ const useViewStore = create<ViewState>((set, get) => ({
         set({pageNum: newPageNum});
     },
     updateIsPrettified: (newIsPrettified: boolean) => {
-        const {updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {setUiState} = useUiStore.getState();
         if (newIsPrettified === get().isPrettified) {
             return;
         }
         set({isPrettified: newIsPrettified});
 
+        const {logEventNum, postPopUp} = useContextStore.getState();
+        const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
+
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
@@ -218,6 +219,9 @@ const useViewStore = create<ViewState>((set, get) => ({
                 args: {eventNum: logEventNum},
             };
         }
+
+        const {updatePageData} = get();
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
         (async () => {
             const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
@@ -232,7 +236,6 @@ const useViewStore = create<ViewState>((set, get) => ({
         });
     },
     updatePageData: (pageData: PageData) => {
-        const {setUiState} = useUiStore.getState();
         set({
             logData: pageData.logs,
             numPages: pageData.numPages,
@@ -242,6 +245,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         updateWindowUrlHashParams({
             logEventNum: pageData.logEventNum,
         });
+        const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },
 }));

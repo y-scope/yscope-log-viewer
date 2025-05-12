@@ -101,12 +101,10 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {setFileName, setOnDiskFileSizeInBytes} = get();
-        const {postPopUp} = useContextStore.getState();
         const {setExportProgress} = useLogExportStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {clearQuery} = useQueryStore.getState();
         const {setUiState} = useUiStore.getState();
-        const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
+        const {setLogData} = useViewStore.getState();
 
         setFileName("Loading...");
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
@@ -121,6 +119,10 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         }
 
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
+        const {postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const {isPrettified, updatePageData} = useViewStore.getState();
+
         (async () => {
             const fileInfo = await logFileManagerProxy.loadFile(
                 {

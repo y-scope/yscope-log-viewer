@@ -45,14 +45,14 @@ const createQueryControllerSlice: StateCreator<
             queryIsCaseSensitive,
             queryIsRegex,
         } = get();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {postPopUp} = useContextStore.getState();
 
         if (QUERY_CONFIG_DEFAULT.queryString === queryString) {
             return;
         }
-
         clearQueryResults();
+
+        const {postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
         (async () => {
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);

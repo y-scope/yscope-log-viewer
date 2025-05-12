@@ -34,8 +34,6 @@ const useLogExportStore = create<LogExportState>((set) => ({
         set({exportProgress: newProgress});
     },
     exportLogs: () => {
-        const {postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {fileName, numEvents} = useLogFileStore.getState();
 
         set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
@@ -45,6 +43,10 @@ const useLogExportStore = create<LogExportState>((set) => ({
         );
 
         set({logExportManager});
+
+        const {postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+
         (async () => {
             await logFileManagerProxy.exportLogs();
         })().catch((e: unknown) => {
