@@ -125,6 +125,11 @@ class LogFileManager {
         return this.#numEvents;
     }
 
+    /**
+     * Gets the opened file's type.
+     *
+     * @throws {Error} If the decoder type is unknown.
+     */
     get fileType (): FILE_TYPE {
         const decoder = this.#decoder;
         if (decoder instanceof JsonlDecoder) {
@@ -140,7 +145,7 @@ class LogFileManager {
                     // fall through to unreachable error.
             }
         }
-        throw new Error("unreachable");
+        throw new Error("Unexpected decoder type when determining file type.");  
     }
 
     /**
