@@ -9,7 +9,7 @@ interface LogFileManagerProxyState {
 }
 
 const useLogFileManagerProxyStore = create<LogFileManagerProxyState>(() => {
-    const mainWorker = new Worker(new URL("../../services/MainWorker.ts", import.meta.url));
+    const mainWorker = new Worker(new URL("../services/MainWorker.ts", import.meta.url));
     return {
         logFileManagerProxy: Comlink.wrap(mainWorker),
     };
