@@ -126,8 +126,9 @@ class LogFileManager {
     }
 
     /**
-     * Gets the opened file's type.
+     * Returns the type of file based on the decoder in use.
      *
+     * @return The detected file type.
      * @throws {Error} If the decoder type is unknown.
      */
     get fileType (): FILE_TYPE {
