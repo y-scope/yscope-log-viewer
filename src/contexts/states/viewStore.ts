@@ -136,7 +136,8 @@ const useViewStore = create<ViewState>((set, get) => ({
                 title: "Action failed",
             });
         });
-        useQueryStore.getState().startQuery();
+        const {startQuery} = useQueryStore.getState();
+        startQuery();
     },
     loadPageByAction: (navAction: NavigationAction) => {
         const {isPrettified, numPages, pageNum, updatePageData} = get();
