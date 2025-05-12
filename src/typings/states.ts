@@ -1,5 +1,5 @@
 /**
- * Various stores of the UI. UI components may be enabled or disabled based on the state.
+ * Various states of the UI. UI components may be enabled or disabled based on the state.
  */
 enum UI_STATE {
 
