@@ -160,8 +160,9 @@ const AppController = ({children}: StateContextProviderProps) => {
         logEventNum,
         logFileManagerProxy,
         numEvents,
-        setUiState,
         postPopUp,
+        setUiState,
+        updatePageData,
     ]);
 
     // On `filePath` update, load file.
