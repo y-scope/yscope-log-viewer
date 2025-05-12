@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React from "react";
 
 import {ButtonGroup} from "@mui/joy";
 
@@ -7,7 +7,8 @@ import NavigateNext from "@mui/icons-material/NavigateNext";
 import SkipNext from "@mui/icons-material/SkipNext";
 import SkipPrevious from "@mui/icons-material/SkipPrevious";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -24,10 +25,11 @@ import PageNumInput from "./PageNumInput";
  * @return
  */
 const NavigationBar = () => {
-    const {uiState, loadPageByAction} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
-    const handleNavButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = event.currentTarget.dataset;
+    const handleNavButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        const {actionName} = ev.currentTarget.dataset;
 
         // Ensure `actionName` is a valid navigation action code with no args.
         if (
@@ -49,14 +51,14 @@ const NavigationBar = () => {
         >
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.FIRST_PAGE}
-                title={"First page"}
+                tooltipTitle={"First page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipPrevious/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.PREV_PAGE}
-                title={"Previous page"}
+                tooltipTitle={"Previous page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateBefore/>
@@ -66,14 +68,14 @@ const NavigationBar = () => {
 
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.NEXT_PAGE}
-                title={"Next page"}
+                tooltipTitle={"Next page"}
                 onClick={handleNavButtonClick}
             >
                 <NavigateNext/>
             </MenuBarIconButton>
             <MenuBarIconButton
                 data-action-name={ACTION_NAME.LAST_PAGE}
-                title={"Last page"}
+                tooltipTitle={"Last page"}
                 onClick={handleNavButtonClick}
             >
                 <SkipNext/>

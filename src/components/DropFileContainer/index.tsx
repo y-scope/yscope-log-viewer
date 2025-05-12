@@ -1,9 +1,7 @@
-import React, {
-    useContext,
-    useState,
-} from "react";
+import React, {useState} from "react";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useLogFileStore from "../../stores/logFileStore";
+import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {isDisabled} from "../../utils/states";
@@ -23,7 +21,8 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const {loadFile, uiState} = useContext(StateContext);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const uiState = useUiStore((state) => state.uiState);
     const [isFileHovering, setIsFileHovering] = useState(false);
     const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);
 
