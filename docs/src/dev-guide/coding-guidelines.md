@@ -3,11 +3,11 @@
 This project adheres to YScope's [contribution guidelines][yscope-guidelines] as well as the
 project-specific guidelines below.
 
-# Web Workers
+# Web workers
 
-## Importing Web Workers
+## Importing web workers
 
-When importing Web Worker files, use Vite's `?worker` query suffix syntax:
+When importing web worker files, use Vite's `?worker` query suffix syntax:
 
 ```ts
 import MainWorker from "../services/MainWorker.worker?worker";
@@ -15,12 +15,12 @@ import MainWorker from "../services/MainWorker.worker?worker";
 const worker = new MainWorker();
 ```
 
-This special syntax tells Vite to transform the import as a Web Worker constructor. See
-[Vite's Web Worker documentation][vite-worker-query-suffix] for more details.
+This special syntax tells Vite to transform the import as a web worker constructor. See
+[Vite's web worker documentation][vite-worker-query-suffix] for more details.
 
 # Naming
 
-## Web Worker files
+## Web worker files
 
 Name web worker files with the extension, `.worker.ts`. This is to:
 

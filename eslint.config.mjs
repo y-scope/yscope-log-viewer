@@ -58,7 +58,7 @@ const EslintConfig = [
             ],
         },
         settings: {
-            // Rule "import/default" complains on Vite's Web Worker import directives.
+            // Rule "import/default" complains on Vite's web worker import directives.
             "import/ignore": [
                 "\\.worker",
             ],
