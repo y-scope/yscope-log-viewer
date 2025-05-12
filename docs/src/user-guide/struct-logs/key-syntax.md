@@ -11,4 +11,4 @@
   * `:`
   * `\`
 
-[kv-pair-ir]: https://docs.yscope.com/clp/main/dev-guide/design-key-value-pair-ir-stream.html
+[kv-pair-ir]: https://docs.yscope.com/clp/main/dev-guide/design-kv-ir-streams/auto-gen-kv-pairs.html
