@@ -14,8 +14,6 @@ export default defineConfig({
         assetsDir: "",
         rollupOptions: {
             output: {
-                // Define manual chunks to optimize code splitting for better caching and
-                // performance.
                 manualChunks: {
                     "monaco-editor": ["monaco-editor"],
                 },
