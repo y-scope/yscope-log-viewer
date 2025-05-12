@@ -89,8 +89,9 @@ const AppController = ({children}: StateContextProviderProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+    const updatePageData = useViewStore((state) => state.updatePageData);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const {logFileManagerProxy} = useLogFileManagerStore.getState();
+    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
@@ -145,7 +146,7 @@ const AppController = ({children}: StateContextProviderProps) => {
 
         (async () => {
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
-            useViewStore.getState().updatePageData(pageData);
+            updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({
                 level: LOG_LEVEL.ERROR,
