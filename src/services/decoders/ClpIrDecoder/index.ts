@@ -16,7 +16,6 @@ import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogLevelFilter} from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker.worker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
@@ -56,10 +55,11 @@ class ClpIrDecoder implements Decoder {
                 formatString: decoderOptions.formatString,
                 structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
             });
-            if (0 === decoderOptions.formatString.length) {
-                postFormatPopup();
-            }
         }
+    }
+
+    get irStreamType () : CLP_IR_STREAM_TYPE {
+        return this.#streamType;
     }
 
     /**

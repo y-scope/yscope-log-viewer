@@ -18,7 +18,6 @@ import {
 } from "../../../typings/logs";
 import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker.worker";
 import {parseFilterKeys} from "../utils";
 import {
     convertToDayjsTimestamp,
@@ -60,9 +59,6 @@ class JsonlDecoder implements Decoder {
         this.#timestampKeyParts = filterKeys.timestampKey.parts;
 
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
-        if (0 === decoderOptions.formatString.length) {
-            postFormatPopup();
-        }
     }
 
     getEstimatedNumEvents (): number {

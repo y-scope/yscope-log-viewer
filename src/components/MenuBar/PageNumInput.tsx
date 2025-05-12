@@ -1,5 +1,4 @@
 import React, {
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -10,7 +9,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import {StateContext} from "../../contexts/StateContextProvider";
+import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {
@@ -30,7 +30,10 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  * @return
  */
 const PageNumInput = () => {
-    const {loadPageByAction, numPages, pageNum, uiState} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
+    const numPages = useViewStore((state) => state.numPages);
+    const pageNum = useViewStore((state) => state.pageNum);
 
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
