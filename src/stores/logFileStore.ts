@@ -108,12 +108,12 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {setUiState} = useUiStore.getState();
         const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
 
-        setFileName(LOG_FILE_STORE_DEFAULT.fileName);
+        setFileName("Loading...");
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
         clearQuery();
         setUiState(UI_STATE.FILE_LOADING);
-        setLogData(VIEW_STORE_DEFAULT.logData);
+        setLogData("Loading...");
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
