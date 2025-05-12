@@ -22,11 +22,10 @@ This special syntax tells Vite to transform the import as a Web Worker construct
 
 ## Web Worker files
 
-### File naming convention
+Name web worker files with the extension, `.worker.ts`. This is to:
 
-Name Web Worker files with the `.worker.ts` extension. This convention:
-* Follows standard practices.
-* Works with [`eslint.config.mjs`][eslint-config-mjs] which ignores `.worker.ts` files, suppressing
+* follow standard practices.
+* allow [eslint.config.mjs][eslint-config-mjs] to ignore `.worker.ts` files, suppressing
   `eslint-plugin-import:import/default` errors caused by Vite's `?worker` import syntax.
 
 ## Index variables
