@@ -100,7 +100,7 @@ class ClpIrDecoder implements Decoder {
                 r[0] = dayJsTimestamp.tz(logTimezone).format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
             } else {
                 // eslint-disable-next-line no-warning-comments
-                // TODO: ZZX, replace with the original log timezone
+                // TODO: Replace with the original log timezone
                 r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
             }
         }

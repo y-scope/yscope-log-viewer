@@ -31,6 +31,7 @@ interface ViewStoreValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     isPrettified: boolean;
     logData: string;
+    logTimezone: string | null;
     numPages: number;
     pageNum: number;
 }
@@ -44,6 +45,7 @@ interface ViewStoreActions {
 
     loadPageByAction: (navAction: NavigationAction) => void;
     updateIsPrettified: (newIsPrettified: boolean) => void;
+    updateLogTimezone: (newLogTimezone: string | null) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -53,6 +55,7 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     isPrettified: false,
     logData: "No file is open.",
+    logTimezone: null,
     numPages: 0,
     pageNum: 0,
 };
@@ -124,7 +127,8 @@ const useViewStore = create<ViewState>((set, get) => ({
                     },
                 },
                 get().isPrettified,
-                filter
+                filter,
+                get().logTimezone
             );
 
             updatePageData(pageData);
@@ -140,7 +144,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         startQuery();
     },
     loadPageByAction: (navAction: NavigationAction) => {
-        const {isPrettified, numPages, pageNum, updatePageData} = get();
+        const {isPrettified, logTimezone, numPages, pageNum, updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
         const {fileSrc, loadFile} = useLogFileStore.getState();
@@ -177,7 +181,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({
@@ -220,7 +224,38 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified, get().logTimezone);
+            updatePageData(pageData);
+        })().catch((e: unknown) => {
+            postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: String(e),
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Action failed",
+            });
+        });
+    },
+    updateLogTimezone: (newLogTimezone: string | null) => {
+        const {updatePageData} = get();
+        const {logEventNum, postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
+        const {setUiState} = useUiStore.getState();
+        if (newLogTimezone === get().logTimezone) {
+            return;
+        }
+        set({logTimezone: newLogTimezone});
+
+        setUiState(UI_STATE.FAST_LOADING);
+        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+        if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            };
+        }
+
+        (async () => {
+            const pageData = await logFileManagerProxy.loadPage(cursor, get().isPrettified, newLogTimezone);
             updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({

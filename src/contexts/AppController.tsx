@@ -84,7 +84,7 @@ const updateUrlIfEventOnPage = (
  */
 const AppController = ({children}: StateContextProviderProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
+    const {filePath, isPrettified, logEventNum, logTimezone} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
@@ -93,12 +93,15 @@ const AppController = ({children}: StateContextProviderProps) => {
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const setLogTimezone = useViewStore((state) => state.updateLogTimezone)
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
+    const logTimezoneRef = useRef(logTimezone);
+
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -118,6 +121,15 @@ const AppController = ({children}: StateContextProviderProps) => {
     }, [
         isPrettified,
         setIsPrettified,
+    ]);
+
+    // Synchronize `logTimezoneRef` with `logTimezone`.
+    useEffect(() => {
+        logTimezoneRef.current = logTimezone;
+        setLogTimezone(logTimezoneRef.current);
+    }, [
+        logTimezone,
+        setLogTimezone,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -144,7 +156,7 @@ const AppController = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current, logTimezoneRef.current);
             useViewStore.getState().updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({

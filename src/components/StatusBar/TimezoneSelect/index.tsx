@@ -19,7 +19,6 @@ import {
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-import {StateContext} from "../../../contexts/StateContextProvider";
 import {
     updateWindowUrlHashParams,
     UrlContext,
@@ -29,12 +28,12 @@ import {HASH_PARAM_NAMES} from "../../../typings/url";
 import {isDisabled} from "../../../utils/states";
 
 import "./index.css";
+import useUiStore from "../../../stores/uiStore";
 
 
 const LOGGER_TIMEZONE = "Logger Timezone";
 const COMMON_TIMEZONES = [
     "America/New_York",
-    "Europe/London",
     "Asia/Shanghai",
     "Asia/Tokyo",
     "Australia/Sydney",
@@ -128,7 +127,7 @@ const renderTimezoneOption = (
  * @return A timezone select dropdown menu
  */
 const TimezoneSelect = () => {
-    const {uiState} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
     const {logTimezone} = useContext(UrlContext);
 
     const [browserTimezone, setBrowserTimezone] = useState<string | null>(null);
