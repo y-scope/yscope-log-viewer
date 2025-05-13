@@ -40,7 +40,7 @@ The build should then be available in the `dist` directory.
 
 To deploy the application, serve the contents of the `dist` directory using a static file host.
 
-### Static File Hosting
+### Static file hosting
 
 You can deploy the dist/ folder to any static hosting service such as:
 
@@ -56,7 +56,7 @@ You can deploy the dist/ folder to any static hosting service such as:
 
 Ensure your server or platform serves static assets with appropriate MIME types as outlined below.
 
-### MIME Types
+### MIME types
 
 The server should be configured to serve WebAssembly (`.wasm`) files with MIME type
 `application/wasm`.
