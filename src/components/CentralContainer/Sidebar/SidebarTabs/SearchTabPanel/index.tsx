@@ -1,7 +1,4 @@
-import {
-    useContext,
-    useState,
-} from "react";
+import {useState} from "react";
 
 import {
     AccordionGroup,
@@ -11,7 +8,7 @@ import {
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import {StateContext} from "../../../../../contexts/StateContextProvider";
+import useQueryStore from "../../../../../stores/queryStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
@@ -30,7 +27,7 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const {queryResults} = useContext(StateContext);
+    const queryResults = useQueryStore((state) => state.queryResults);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 

@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 500] */
+/* eslint max-lines: ["error", 600] */
 import jsBeautify from "js-beautify";
 
 import {
@@ -19,8 +19,7 @@ import {
     CursorType,
     EMPTY_PAGE_RESP,
     FileSrcType,
-    WORKER_RESP_CODE,
-    WorkerResp,
+    PageData,
 } from "../../typings/worker";
 import {
     EXPORT_LOGS_CHUNK_SIZE,
@@ -30,6 +29,7 @@ import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
 import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
+import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 import {
     getEventNumCursorData,
@@ -40,6 +40,12 @@ import {
 
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
+
+enum FILE_TYPE {
+    CLP_TEXT_IR = "clpTextIr",
+    CLP_KV_IR = "clpKvIr",
+    JSONL = "jsonl",
+}
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -117,6 +123,30 @@ class LogFileManager {
 
     get numEvents () {
         return this.#numEvents;
+    }
+
+    /**
+     * Returns the type of file based on the decoder in use.
+     *
+     * @return The detected file type.
+     * @throws {Error} If the decoder type is unknown.
+     */
+    get fileType (): FILE_TYPE {
+        const decoder = this.#decoder;
+        if (decoder instanceof JsonlDecoder) {
+            return FILE_TYPE.JSONL;
+        } else if (decoder instanceof ClpIrDecoder) {
+            switch (decoder.irStreamType) {
+                case CLP_IR_STREAM_TYPE.STRUCTURED:
+                    return FILE_TYPE.CLP_KV_IR;
+                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
+                    return FILE_TYPE.CLP_TEXT_IR;
+                default:
+
+                    // fall through to unreachable error.
+            }
+        }
+        throw new Error("Unexpected decoder type when determining file type.");
     }
 
     /**
@@ -223,7 +253,6 @@ class LogFileManager {
             beginLogEventIdx,
             endLogEventIdx,
             false,
-            null
         );
 
         if (null === results) {
@@ -247,16 +276,11 @@ class LogFileManager {
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
      * @param isPrettified Are the log messages pretty printed.
-     * @param logTimezone Format the log timestamp to specified timezone.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (
-        cursor: CursorType,
-        isPrettified: boolean,
-        logTimezone: string | null
-    ): WorkerResp<WORKER_RESP_CODE.PAGE_DATA> {
+    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -275,11 +299,12 @@ class LogFileManager {
             pageBegin,
             pageEnd,
             null !== filteredLogEventMap,
-            logTimezone
         );
 
         if (null === results) {
-            throw new Error(`Failed decoding, pageBegin=${pageBegin}, pageEnd=${pageEnd}`);
+            throw new Error("Error occurred during decoding. " +
+                `pageBegin=${pageBegin}, ` +
+                `pageEnd=${pageEnd}`);
         }
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
@@ -371,7 +396,7 @@ class LogFileManager {
     #queryChunkAndScheduleNext (
         queryId: number,
         chunkBeginIdx: number,
-        queryRegex: RegExp,
+        queryRegex: RegExp
     ): void {
         if (queryId !== this.#queryId) {
             // Current task no longer corresponds to the latest query in the LogFileManager.
@@ -392,8 +417,7 @@ class LogFileManager {
         const decodedEvents = this.#decoder.decodeRange(
             chunkBeginIdx,
             chunkEndIdx,
-            null !== filteredLogEventMap,
-            null
+            null !== filteredLogEventMap
         );
 
         if (null === decodedEvents) {
@@ -490,4 +514,5 @@ class LogFileManager {
     }
 }
 
+export {FILE_TYPE};
 export default LogFileManager;
