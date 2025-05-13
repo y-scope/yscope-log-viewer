@@ -32,7 +32,7 @@ const getConfigFormFieldSections = (): Array<{
     {
         name: "Common",
         fields: [
-            <ThemeSwitchFormField key={null}/>,
+            <ThemeSwitchFormField key={"settings-theme-switch"}/>,
             {
                 configKey: LOCAL_STORAGE_KEY.PAGE_SIZE,
                 helperText: "Number of log messages to display per page.",
