@@ -5,6 +5,7 @@ import {
     FormHelperText,
     FormLabel,
     Input,
+    Textarea,
 } from "@mui/joy";
 
 
@@ -38,10 +39,14 @@ const SettingsFormField = ({
         <FormLabel>
             {label}
         </FormLabel>
-        <Input
-            defaultValue={initialValue}
-            name={configKey}
-            type={type}/>
+        {"number" === type ?
+            <Input
+                defaultValue={initialValue}
+                name={configKey}
+                type={"number"}/> :
+            <Textarea
+                defaultValue={initialValue}
+                name={configKey}/>}
         <FormHelperText>
             {helperText}
         </FormHelperText>

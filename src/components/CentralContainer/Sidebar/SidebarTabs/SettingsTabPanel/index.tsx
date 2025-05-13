@@ -9,7 +9,7 @@ import {
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import {StateContext} from "../../../../../contexts/StateContextProvider";
+import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -47,7 +47,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {loadPageByAction} = useContext(StateContext);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
