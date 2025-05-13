@@ -9,6 +9,8 @@ import {
 import SettingsFormField, {SettingsFormFieldProps} from "./SettingsFormField";
 import {SettingsFormFields} from "./SettingsFormFieldSectionsGroup";
 
+import "./SettingsFormFieldsSection.css";
+
 
 interface SettingsFormFieldsSectionProps {
     name: string;
@@ -28,7 +30,10 @@ const SettingsFormFieldsSection = ({
     name,
 }: SettingsFormFieldsSectionProps) => (
     <Accordion defaultExpanded={true}>
-        <AccordionSummary variant={"soft"}>
+        <AccordionSummary
+            className={"settings-form-field-section-summary"}
+            variant={"soft"}
+        >
             {name}
         </AccordionSummary>
         <AccordionDetails>
