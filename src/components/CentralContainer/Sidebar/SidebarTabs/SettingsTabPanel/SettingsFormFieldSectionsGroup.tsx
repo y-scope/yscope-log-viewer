@@ -97,10 +97,10 @@ const SettingsFormFieldSectionsGroup = () => (
             size={"sm"}
         >
             {getConfigFormFieldSections().map(
-                ({name, fields}, i) => (
+                ({name, fields}) => (
                     <SettingsFormFieldsSection
                         fields={fields}
-                        key={i}
+                        key={name}
                         name={name}/>
                 )
             )}
