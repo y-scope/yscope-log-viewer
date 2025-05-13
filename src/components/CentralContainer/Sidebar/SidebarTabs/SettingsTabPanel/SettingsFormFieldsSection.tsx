@@ -4,7 +4,6 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Typography,
 } from "@mui/joy";
 
 import SettingsFormField, {SettingsFormFieldProps} from "./SettingsFormField";
@@ -29,9 +28,7 @@ const SettingsFormFieldsSection = ({
 }: SettingsFormFieldsSectionProps) => (
     <Accordion defaultExpanded={true}>
         <AccordionSummary variant={"soft"}>
-            <Typography level={"title-md"}>
-                {name}
-            </Typography>
+            {name}
         </AccordionSummary>
         <AccordionDetails>
             {fields.map(
