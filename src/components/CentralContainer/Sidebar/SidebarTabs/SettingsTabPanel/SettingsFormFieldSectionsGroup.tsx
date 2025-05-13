@@ -18,14 +18,16 @@ import ThemeSwitchFormField from "./ThemeSwitchFormField";
 import "./SettingsFormFieldSectionsGroup.css";
 
 
+type SettingsFormFields = SettingsFormFieldProps | React.ReactNode;
+
 /**
  * Gets form fields information for user input of configuration values.
  *
- * @return A list of form fields information.
+ * @return A list of form fields information or React nodes.
  */
 const getConfigFormFieldSections = (): Array<{
     name: string;
-    fields: Array<React.ReactNode | SettingsFormFieldProps>;
+    fields: SettingsFormFields[];
 }> => [
     {
         name: "Common",
@@ -106,5 +108,5 @@ const SettingsFormFieldSectionsGroup = () => (
     </Box>
 );
 
-
+export type {SettingsFormFields};
 export default SettingsFormFieldSectionsGroup;

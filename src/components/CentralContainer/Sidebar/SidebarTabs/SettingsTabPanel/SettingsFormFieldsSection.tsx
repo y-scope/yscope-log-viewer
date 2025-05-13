@@ -7,18 +7,19 @@ import {
 } from "@mui/joy";
 
 import SettingsFormField, {SettingsFormFieldProps} from "./SettingsFormField";
+import {SettingsFormFields} from "./SettingsFormFieldSectionsGroup";
 
 
 interface SettingsFormFieldsSectionProps {
     name: string;
-    fields: Array<React.ReactNode | SettingsFormFieldProps>;
+    fields: SettingsFormFields[];
 }
 
 /**
  * Displays a section of form fields for user input of configuration values.
  *
  * @param props
- * @param props.fields
+ * @param props.fields A list of form fields information or React nodes.
  * @param props.name
  * @return
  */
