@@ -44,7 +44,8 @@ class LogFileManagerProxy {
     loadPage (
         cursor: CursorType,
         isPrettified: boolean,
-        logTimezone: string | null): PageData {
+        logTimezone: string | null
+    ): PageData {
         const logFileManager = this.#getLogFileManager();
         return logFileManager.loadPage(cursor, isPrettified, logTimezone);
     }

@@ -224,7 +224,12 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified, get().logTimezone);
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                newIsPrettified,
+                get().logTimezone,
+            );
+
             updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({
@@ -255,7 +260,12 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, get().isPrettified, newLogTimezone);
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                get().isPrettified,
+                newLogTimezone,
+            );
+
             updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({

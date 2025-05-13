@@ -23,12 +23,12 @@ import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../../../contexts/UrlContextProvider";
+import useUiStore from "../../../stores/uiStore";
 import {UI_ELEMENT} from "../../../typings/states";
 import {HASH_PARAM_NAMES} from "../../../typings/url";
 import {isDisabled} from "../../../utils/states";
 
 import "./index.css";
-import useUiStore from "../../../stores/uiStore";
 
 
 const LOGGER_TIMEZONE = "Logger Timezone";

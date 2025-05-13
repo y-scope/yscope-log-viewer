@@ -285,7 +285,8 @@ class LogFileManager {
     loadPage (
         cursor: CursorType,
         isPrettified: boolean,
-        logTimezone: string | null): PageData {
+        logTimezone: string | null
+    ): PageData {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -308,9 +309,7 @@ class LogFileManager {
         );
 
         if (null === results) {
-            throw new Error("Error occurred during decoding. " +
-                `pageBegin=${pageBegin}, ` +
-                `pageEnd=${pageEnd}`);
+            throw new Error(`Failed decoding, pageBegin=${pageBegin}, pageEnd=${pageEnd}`);
         }
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();

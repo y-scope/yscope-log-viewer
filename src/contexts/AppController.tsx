@@ -93,7 +93,7 @@ const AppController = ({children}: StateContextProviderProps) => {
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
-    const setLogTimezone = useViewStore((state) => state.updateLogTimezone)
+    const setLogTimezone = useViewStore((state) => state.updateLogTimezone);
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
@@ -101,7 +101,6 @@ const AppController = ({children}: StateContextProviderProps) => {
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
     const logTimezoneRef = useRef(logTimezone);
-
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -156,7 +155,12 @@ const AppController = ({children}: StateContextProviderProps) => {
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current, logTimezoneRef.current);
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                isPrettifiedRef.current,
+                logTimezoneRef.current,
+            );
+
             useViewStore.getState().updatePageData(pageData);
         })().catch((e: unknown) => {
             postPopUp({
