@@ -34,9 +34,9 @@ const useLogExportStore = create<LogExportState>((set) => ({
         set({exportProgress: newProgress});
     },
     exportLogs: () => {
-        const {fileName, numEvents} = useLogFileStore.getState();
-
         set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
+
+        const {fileName, numEvents} = useLogFileStore.getState();
         const logExportManager = new LogExportManager(
             Math.ceil(numEvents / EXPORT_LOGS_CHUNK_SIZE),
             fileName
@@ -46,7 +46,6 @@ const useLogExportStore = create<LogExportState>((set) => ({
 
         const {postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-
         (async () => {
             await logFileManagerProxy.exportLogs();
         })().catch((e: unknown) => {

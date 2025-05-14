@@ -109,12 +109,12 @@ const getPageNumCursor = (
 const useViewStore = create<ViewState>((set, get) => ({
     ...VIEW_STORE_DEFAULT,
     filterLogs: (filter: LogLevelFilter) => {
-        const {updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
+        const {updatePageData} = get();
+        const {logEventNum, postPopUp} = useContextStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         (async () => {
             const pageData = await logFileManagerProxy.setFilter(
                 {
@@ -160,7 +160,6 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         const {uiState} = useUiStore.getState();
-
         if (UI_STATE.READY !== uiState) {
             console.warn("Skipping navigation: page load in progress.");
 
@@ -176,8 +175,8 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
 
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         (async () => {
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
@@ -206,12 +205,12 @@ const useViewStore = create<ViewState>((set, get) => ({
         if (newIsPrettified === get().isPrettified) {
             return;
         }
-        set({isPrettified: newIsPrettified});
-
-        const {logEventNum, postPopUp} = useContextStore.getState();
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
+        set({isPrettified: newIsPrettified});
+
+        const {logEventNum, postPopUp} = useContextStore.getState();
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
         if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
@@ -222,7 +221,6 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         const {updatePageData} = get();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
-
         (async () => {
             const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
             updatePageData(pageData);

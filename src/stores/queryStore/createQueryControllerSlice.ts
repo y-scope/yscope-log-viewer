@@ -53,7 +53,6 @@ const createQueryControllerSlice: StateCreator<
 
         const {postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
-
         (async () => {
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
         })().catch((e: unknown) => {

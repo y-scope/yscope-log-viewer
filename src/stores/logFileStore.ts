@@ -123,7 +123,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {isPrettified, updatePageData} = useViewStore.getState();
-
         (async () => {
             const fileInfo = await logFileManagerProxy.loadFile(
                 {
