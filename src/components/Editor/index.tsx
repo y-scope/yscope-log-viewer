@@ -120,7 +120,7 @@ const handleCopyLogEventAction = (
  *
  * @param editor
  */
-const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
+const handleToggleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
     const currentWordWrap = editor.getRawOptions().wordWrap;
     const newWordWrap = "on" === currentWordWrap ?
         "off" :
@@ -181,8 +181,8 @@ const Editor = () => {
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
                 });
                 break;
-            case ACTION_NAME.WORD_WRAP:
-                handleWordWrapAction(editor);
+            case ACTION_NAME.TOGGLE_WORD_WRAP:
+                handleToggleWordWrapAction(editor);
                 break;
             default:
                 break;
