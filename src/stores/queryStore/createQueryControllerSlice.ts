@@ -44,12 +44,15 @@ const createQueryControllerSlice: StateCreator<
             queryString,
             queryIsCaseSensitive,
             queryIsRegex,
+            setQueryProgress,
         } = get();
+
+        setQueryProgress(QUERY_CONTROLLER_DEFAULT.queryProgress);
+        clearQueryResults();
 
         if (QUERY_CONFIG_DEFAULT.queryString === queryString) {
             return;
         }
-        clearQueryResults();
 
         const {postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
