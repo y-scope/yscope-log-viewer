@@ -126,7 +126,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
             const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
-            const {isPrettified} = useViewStore.getState();
             const fileInfo = await logFileManagerProxy.loadFile(
                 {
                     decoderOptions: decoderOptions,
@@ -136,10 +135,11 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 Comlink.proxy(handleExportChunk),
                 Comlink.proxy(handleQueryResults)
             );
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+
             set(fileInfo);
 
-            const {updatePageData} = useViewStore.getState();
+            const {isPrettified, updatePageData} = useViewStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
             const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
