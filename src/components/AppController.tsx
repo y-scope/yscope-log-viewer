@@ -138,7 +138,7 @@ const AppController = ({children}: AppControllerProps) => {
         (async () => {
             const cursor: CursorType = {
                 code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
+                args: {eventNum: clampedLogEventNum},
             };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
