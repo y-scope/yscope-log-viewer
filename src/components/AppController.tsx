@@ -1,10 +1,16 @@
 import React, {
-    createContext,
     useContext,
     useEffect,
     useRef,
 } from "react";
 
+import {NotificationContext} from "../contexts/NotificationContextProvider";
+import {
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
+    UrlContext,
+} from "../contexts/UrlContextProvider";
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
@@ -22,20 +28,7 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
-import {NotificationContext} from "./NotificationContextProvider";
-import {
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
-    UrlContext,
-} from "./UrlContextProvider";
 
-
-const StateContext = createContext<null>(null);
-
-interface StateContextProviderProps {
-    children: React.ReactNode;
-}
 
 /**
  * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
@@ -75,6 +68,10 @@ const updateUrlIfEventOnPage = (
     return true;
 };
 
+interface AppControllerProps {
+    children: React.ReactNode;
+}
+
 /**
  * Manages states for the application.
  *
@@ -82,7 +79,7 @@ const updateUrlIfEventOnPage = (
  * @param props.children
  * @return
  */
-const AppController = ({children}: StateContextProviderProps) => {
+const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
@@ -126,10 +123,9 @@ const AppController = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
-
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
@@ -191,12 +187,11 @@ const AppController = ({children}: StateContextProviderProps) => {
 
 
     return (
-        <StateContext.Provider value={null}>
+        <div>
             {children}
-        </StateContext.Provider>
+        </div>
     );
 };
 
 
 export default AppController;
-export {StateContext};
