@@ -123,9 +123,10 @@ const AppController = ({children}: AppControllerProps) => {
             return;
         }
 
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
+
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
