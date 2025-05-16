@@ -186,12 +186,7 @@ const AppController = ({children}: AppControllerProps) => {
         setPostPopUp,
     ]);
 
-
-    return (
-        <div>
-            {children}
-        </div>
-    );
+    return children;
 };
 
 
