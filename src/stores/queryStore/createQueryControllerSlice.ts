@@ -39,21 +39,22 @@ const createQueryControllerSlice: StateCreator<
         set({queryProgress: newProgress});
     },
     startQuery: () => {
-        const {
-            clearQueryResults,
-            queryString,
-            queryIsCaseSensitive,
-            queryIsRegex,
-        } = get();
-
+        const {clearQueryResults} = get();
         clearQueryResults();
 
-        const {postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {
+                queryString,
+                queryIsCaseSensitive,
+                queryIsRegex,
+            } = get();
+
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
         })().catch((e: unknown) => {
             console.error(e);
+
+            const {postPopUp} = useContextStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),

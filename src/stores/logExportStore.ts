@@ -44,12 +44,13 @@ const useLogExportStore = create<LogExportState>((set) => ({
 
         set({logExportManager});
 
-        const {postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
             await logFileManagerProxy.exportLogs();
         })().catch((e: unknown) => {
             console.error(e);
+
+            const {postPopUp} = useContextStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
