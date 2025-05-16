@@ -1,5 +1,5 @@
+import AppController from "./components/AppController";
 import Layout from "./components/Layout";
-import AppController from "./contexts/AppController";
 import NotificationContextProvider from "./contexts/NotificationContextProvider";
 import UrlContextProvider from "./contexts/UrlContextProvider";
 
