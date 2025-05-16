@@ -84,15 +84,15 @@ const AppController = ({children}: AppControllerProps) => {
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
-    const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
-    const updatePageData = useViewStore((state) => state.updatePageData);
+    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+    const updatePageData = useViewStore((state) => state.updatePageData);
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
