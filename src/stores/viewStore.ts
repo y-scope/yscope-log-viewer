@@ -129,6 +129,7 @@ const useViewStore = create<ViewState>((set, get) => ({
 
             updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -181,6 +182,7 @@ const useViewStore = create<ViewState>((set, get) => ({
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -225,6 +227,7 @@ const useViewStore = create<ViewState>((set, get) => ({
             const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
             updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),

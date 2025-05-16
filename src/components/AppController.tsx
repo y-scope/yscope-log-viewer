@@ -145,6 +145,8 @@ const AppController = ({children}: AppControllerProps) => {
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
+
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
