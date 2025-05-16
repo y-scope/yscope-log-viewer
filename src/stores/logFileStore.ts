@@ -106,7 +106,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {clearQuery} = useQueryStore.getState();
         const {setUiState} = useUiStore.getState();
-        const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
+        const {isPrettified, logTimezone, setLogData, updatePageData} = useViewStore.getState();
 
         setFileName("Loading...");
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
@@ -131,7 +131,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 Comlink.proxy(handleExportChunk),
                 Comlink.proxy(handleQueryResults)
             );
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             set(fileInfo);
             updatePageData(pageData);
 
