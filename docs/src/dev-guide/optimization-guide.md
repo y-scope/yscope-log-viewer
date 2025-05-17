@@ -7,6 +7,7 @@ This doc outlines strategies and tools used to optimize the build's size and loa
 To generate a bundle analysis report, run:
 
 ```shell
+# You may be prompted to install `vite-bundle-visualizer`. Accept the prompt to install it.
 npm run analyze:size
 ```
 
