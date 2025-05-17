@@ -48,10 +48,6 @@ const createQueryControllerSlice: StateCreator<
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
         const {postPopUp} = useContextStore.getState();
 
-        if (QUERY_CONFIG_DEFAULT.queryString === queryString) {
-            return;
-        }
-
         clearQueryResults();
 
         (async () => {
