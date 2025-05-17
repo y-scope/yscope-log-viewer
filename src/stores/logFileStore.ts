@@ -97,22 +97,24 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
+// eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {setFileName, setOnDiskFileSizeInBytes} = get();
-        const {postPopUp} = useContextStore.getState();
-        const {setExportProgress} = useLogExportStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {clearQuery} = useQueryStore.getState();
         const {setUiState} = useUiStore.getState();
-        const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
+        setUiState(UI_STATE.FILE_LOADING);
 
+        const {setFileName, setOnDiskFileSizeInBytes} = get();
         setFileName("Loading...");
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+
+        const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
+
+        const {clearQuery} = useQueryStore.getState();
         clearQuery();
-        setUiState(UI_STATE.FILE_LOADING);
+
+        const {setLogData} = useViewStore.getState();
         setLogData("Loading...");
 
         set({fileSrc});
@@ -120,8 +122,10 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
+        const {postPopUp} = useContextStore.getState();
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+            const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
             const fileInfo = await logFileManagerProxy.loadFile(
                 {
                     decoderOptions: decoderOptions,
@@ -131,8 +135,11 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 Comlink.proxy(handleExportChunk),
                 Comlink.proxy(handleQueryResults)
             );
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+
             set(fileInfo);
+
+            const {isPrettified, updatePageData} = useViewStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
             const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
