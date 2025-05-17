@@ -87,8 +87,8 @@ const AppController = ({children}: AppControllerProps) => {
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const numEvents = useLogFileStore((state) => state.numEvents);
+    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
