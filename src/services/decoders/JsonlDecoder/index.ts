@@ -18,7 +18,6 @@ import {
 } from "../../../typings/logs";
 import {getNestedJsonValue} from "../../../utils/js";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker";
 import {parseFilterKeys} from "../utils";
 import {
     convertToDayjsTimestamp,
@@ -60,9 +59,6 @@ class JsonlDecoder implements Decoder {
         this.#timestampKeyParts = filterKeys.timestampKey.parts;
 
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
-        if (0 === decoderOptions.formatString.length) {
-            postFormatPopup();
-        }
     }
 
     getEstimatedNumEvents (): number {
@@ -225,7 +221,7 @@ class JsonlDecoder implements Decoder {
      * @return The decoded log event.
      */
     #decodeLogEvent = (logEventIdx: number): DecodeResult => {
-        let timestamp: number;
+        let timestamp: bigint;
         let message: string;
         let logLevel: LOG_LEVEL;
 
@@ -242,12 +238,12 @@ class JsonlDecoder implements Decoder {
             const logEvent = this.#logEvents[logEventIdx] as LogEvent;
             logLevel = logEvent.level;
             message = this.#formatter.formatLogEvent(logEvent);
-            timestamp = logEvent.timestamp.valueOf();
+            timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
         return [
             message,
-            BigInt(timestamp),
+            timestamp,
             logLevel,
             logEventIdx + 1,
         ];

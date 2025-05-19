@@ -11,11 +11,11 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {StateContext} from "../../contexts/StateContextProvider";
 import {
     updateWindowUrlHashParams,
     UrlContext,
 } from "../../contexts/UrlContextProvider";
+import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,
@@ -120,7 +120,7 @@ const handleCopyLogEventAction = (
  *
  * @param editor
  */
-const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
+const handleToggleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
     const currentWordWrap = editor.getRawOptions().wordWrap;
     const newWordWrap = "on" === currentWordWrap ?
         "off" :
@@ -137,7 +137,9 @@ const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
 const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
-    const {beginLineNumToLogEventNum, logData, loadPageByAction} = useContext(StateContext);
+    const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const logData = useViewStore((state) => state.logData);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
@@ -179,8 +181,8 @@ const Editor = () => {
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
                 });
                 break;
-            case ACTION_NAME.WORD_WRAP:
-                handleWordWrapAction(editor);
+            case ACTION_NAME.TOGGLE_WORD_WRAP:
+                handleToggleWordWrapAction(editor);
                 break;
             default:
                 break;

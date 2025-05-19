@@ -12,10 +12,11 @@ import {
     FormLabel,
     Input,
     Link,
+    Textarea,
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import {StateContext} from "../../../../../contexts/StateContextProvider";
+import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -47,18 +48,19 @@ const getConfigFormFields = () => [
     {
         helperText: (
             <span>
-                [JSON] Format string for formatting a JSON log event as plain text. See the
+                [Structured] Format string for formatting a structured log event as plain text.
+                Leave blank to display the entire log event. See
                 {" "}
                 <Link
-                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/format-struct-logs-overview.html"}
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/format/index.html"}
                     level={"body-sm"}
                     rel={"noopener"}
                     target={"_blank"}
                 >
-                    format string syntax docs
+                    here
                 </Link>
                 {" "}
-                or leave this blank to display the entire log event.
+                for syntax.
             </span>
         ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).formatString,
@@ -67,14 +69,44 @@ const getConfigFormFields = () => [
         type: "text",
     },
     {
-        helperText: "[JSON] Key to extract the log level from.",
+        helperText: (
+            <span>
+                [Structured] Key that maps to each log event&apos;s log level. See
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html#syntax"}
+                    level={"body-sm"}
+                    rel={"noopener"}
+                    target={"_blank"}
+                >
+                    here
+                </Link>
+                {" "}
+                for syntax.
+            </span>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).logLevelKey,
         key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY,
         label: "Decoder: Log level key",
         type: "text",
     },
     {
-        helperText: "[JSON] Key to extract the log timestamp from.",
+        helperText: (
+            <span>
+                [Structured] Key that maps to each log event&apos;s timestamp. See
+                {" "}
+                <Link
+                    href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/specifying-keys.html#syntax"}
+                    level={"body-sm"}
+                    rel={"noopener"}
+                    target={"_blank"}
+                >
+                    here
+                </Link>
+                {" "}
+                for syntax.
+            </span>
+        ),
         initialValue: getConfig(CONFIG_KEY.DECODER_OPTIONS).timestampKey,
         key: LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY,
         label: "Decoder: Timestamp key",
@@ -107,7 +139,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {loadPageByAction} = useContext(StateContext);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -162,10 +194,14 @@ const SettingsTabPanel = () => {
                             <FormLabel>
                                 {field.label}
                             </FormLabel>
-                            <Input
-                                defaultValue={field.initialValue}
-                                name={field.key}
-                                type={field.type}/>
+                            {"number" === field.type ?
+                                <Input
+                                    defaultValue={field.initialValue}
+                                    name={field.key}
+                                    type={"number"}/> :
+                                <Textarea
+                                    defaultValue={field.initialValue}
+                                    name={field.key}/>}
                             <FormHelperText>
                                 {field.helperText}
                             </FormHelperText>

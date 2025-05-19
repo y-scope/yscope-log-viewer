@@ -1,6 +1,5 @@
 import React, {
     useCallback,
-    useContext,
     useEffect,
     useState,
 } from "react";
@@ -25,7 +24,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
-import {StateContext} from "../../../contexts/StateContextProvider";
+import useUiStore from "../../../stores/uiStore";
+import useViewStore from "../../../stores/viewStore";
 import {
     INVALID_LOG_LEVEL_VALUE,
     LOG_LEVEL,
@@ -153,7 +153,8 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  * @return
  */
 const LogLevelSelect = () => {
-    const {uiState, filterLogs} = useContext(StateContext);
+    const uiState = useUiStore((state) => state.uiState);
+    const filterLogs = useViewStore((state) => state.filterLogs);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
