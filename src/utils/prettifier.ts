@@ -4,24 +4,29 @@ const WHITESPACE_CHARACTERS: string[] = [" ",
     "\t",
     "\n"];
 
+interface Region {
+    type: string;
+    level: number;
+}
+
 interface PrettifyState {
-    arrayIndentLevels: number[];
+    bracketLevelCounter: number;
+    braceLevelCounter: number;
     copyBeginOffset: number;
     indentLevel: number;
     isEscaped: boolean;
     isPrettifiedStringDifferent: boolean;
     lineBreakPending: boolean;
-    quoteChar: string | null;
+    regionStack: Region[];
     result: string;
-    squareBracketsLevel: number;
+    parenLevelCounter: number;
 }
 
 /**
  * Get the whitespace (newline and indentation) for starting a new line.
  *
  * @param indentLevel The level of indentation for the line.
- * @return the whitespace (newline and indentation) for starting a
- * new line.
+ * @return the whitespace (newline and indentation) for starting a new line.
  * @private
  */
 const getStartingWhitespaceOfNewLine = (indentLevel: number): string => {
@@ -29,65 +34,118 @@ const getStartingWhitespaceOfNewLine = (indentLevel: number): string => {
 };
 
 /**
- * Handles escape characters when prettifying.
- *
- * If a backslash (`\`) is encountered, sets `isEscaped = true`
- * so the next character is ignored. If `isEscaped` is already
- * true, it resets it and skips processing the current character.
- *
- * @param c The current character being parsed.
- * @param state The current state of the prettifier.
- * @return True if the current character was handled (escaped or backslash).
+ * Find the index of the next char in the provided string which is not one of WHITESPACE_CHARACTERS.
+ * 
+ * @param str
+ * @param index It will find from the index + 1.
+ * @return The position of the next non-white-space char.
+ * @private
  */
-const handleEscape = (c: string, state: PrettifyState): boolean => {
-    if (state.isEscaped) {
-        state.isEscaped = false;
-
-        return true;
+const findNextNonWhitespaceChar = (str: string, index: number): number => {
+    for (let i = index + 1; i < str.length; ++i) {
+        if (!WHITESPACE_CHARACTERS.includes(str[i]!!)) {
+            return i;
+        }
     }
-    if ("\\" === c) {
-        state.isEscaped = true;
+    return str.length;
+}
 
-        return true;
+/**
+ * Get the index of the next unescaped closing '"' or "'".
+ * 
+ * @param uglyString
+ * @param index
+ * @return The index of the next unescaped closing '"' or "'".
+ * @private
+ */
+const handleQuote = (
+    uglyString: string,
+    index: number,
+): number => {
+    const quote = uglyString[index];
+    if (undefined == quote) {
+        return index + 1;
+    } else if ('"' !== quote && '\'' !== quote) {
+        return index;
     }
 
-    return false;
+    for (let i = index + 1; i < uglyString.length; ++i) {
+        if (quote == uglyString[i] && `\\` !== uglyString[i - 1]) {
+            return i + 1;
+        }
+    }
+    return uglyString.length;
 };
 
 /**
- * Checks whether the current parsing context is inside a quoted string.
+ * Handles the opening of a square bracket "[" during prettification.
  *
+ * Adds a newline if a line break is pending and tracks the indent level for correct spacing of
+ * array entries.
+ *
+ * @param uglyString
+ * @param index
  * @param state The current state of the prettifier.
- * @return True if inside a quoted string (single or double quotes).
+ * @return The index of the next non-white-space char after "[".
+ * @private
  */
-const insideQuote = (state: PrettifyState): boolean => {
-    return null !== state.quoteChar;
-};
+const handleOpeningBracket = (
+    uglyString: string,
+    index: number,
+    state: PrettifyState
+): number => {
+    const openingBracket = uglyString[index];
+    if (undefined == openingBracket) {
+        return index + 1;
+    } else if ("[" !== openingBracket) {
+        return index;
+    }
 
-/**
- * Handles the opening of a square bracket `[` during prettification.
- *
- * Adds a newline if a line break is pending and tracks the indent level
- * for correct spacing of array entries.
- *
- * @param state The current state of the prettifier.
- */
-const handleOpeningBracket = (state: PrettifyState): void => {
     if (state.lineBreakPending) {
         state.result += getStartingWhitespaceOfNewLine(state.indentLevel);
         state.lineBreakPending = false;
         state.isPrettifiedStringDifferent = true;
     }
-    state.arrayIndentLevels.push(state.indentLevel);
-    state.squareBracketsLevel++;
+    state.regionStack.push({ type: "[", level: state.bracketLevelCounter + 1 });
+    state.bracketLevelCounter++;
+    state.result += uglyString.substring(state.copyBeginOffset, index + 1);
+    state.copyBeginOffset = findNextNonWhitespaceChar(uglyString, index);
+    return state.copyBeginOffset;
 };
 
 /**
- * Handles a comma `,` during prettification.
+ * Handles the closing of a square bracket "[" during prettification.
  *
- * Determines whether to insert a newline or a space after the comma
- * based on the current nesting context. If the character following
- * the comma is a whitespace character, it is skipped.
+ * @param uglyString
+ * @param index
+ * @param state The current state of the prettifier.
+ * @return The index of the next char of "]".
+ * @private
+ */
+const handleClosingBracket = (
+    uglyString: string,
+    index: number,
+    state: PrettifyState
+): number => {
+    const closingBracket = uglyString[index];
+    if (undefined == closingBracket) {
+        return index + 1;
+    } else if ("]" !== closingBracket) {
+        return index;
+    }
+    
+    if ((state.regionStack[state.regionStack.length - 1] ?? {}).type === "[") {
+        state.regionStack.pop();
+    }
+
+    return index + 1;
+}
+
+/**
+ * Handles a comma "," during prettification.
+ *
+ * Determines whether to insert a newline or a space after the comma based on the current nesting
+ * context. If the character following the comma is a whitespace character, it is skipped.
  *
  * @param uglyString The original unformatted string.
  * @param index The index of the current char.
@@ -98,9 +156,16 @@ const handleComma = (
     uglyString: string,
     index: number,
     state: PrettifyState
-): {newIndex: number} => {
-    if (0 === state.squareBracketsLevel && 0 === state.indentLevel) {
-        return {newIndex: index};
+): number => {
+    const comma = uglyString[index];
+    if (undefined == comma) {
+        return index + 1;
+    } else if (',' !== comma) {
+        return index;
+    }
+
+    if (0 === state.bracketLevelCounter && 0 === state.indentLevel) {
+        return index + 1;
     }
 
     if (state.lineBreakPending) {
@@ -108,74 +173,88 @@ const handleComma = (
         state.lineBreakPending = false;
     }
 
-    const nextCharPos = index + 1;
-    state.result += uglyString.substring(state.copyBeginOffset, nextCharPos);
-    state.copyBeginOffset = nextCharPos;
+    const nextNonWhiteSpaceCharPos = findNextNonWhitespaceChar(uglyString, index);
+    state.result += uglyString.substring(state.copyBeginOffset, index + 1);
+    state.copyBeginOffset = nextNonWhiteSpaceCharPos;
 
-    const shouldBreak =
-        0 === state.squareBracketsLevel ||
-        state.indentLevel >
-        (state.arrayIndentLevels[state.squareBracketsLevel - 1] ?? 0);
+    const isDanglingComma = ["}", ")", "]"].includes(uglyString[nextNonWhiteSpaceCharPos] ?? "");
+    const shouldBreak = !isDanglingComma && (
+        0 === state.bracketLevelCounter ||
+        ["{", "("].includes((state.regionStack[state.regionStack.length - 1] ?? {}).type ?? ""));
 
     state.result += shouldBreak ?
-        getStartingWhitespaceOfNewLine(state.indentLevel) :
+        getStartingWhitespaceOfNewLine(state.indentLevel) : isDanglingComma ? "" :
         " ";
     state.isPrettifiedStringDifferent = true;
 
-    const nextChar = uglyString[nextCharPos] ?? "";
-    if (WHITESPACE_CHARACTERS.includes(nextChar)) {
-        state.copyBeginOffset++;
-
-        return {newIndex: index + 1};
-    }
-
-    return {newIndex: index};
+    return state.copyBeginOffset;
 };
 
 /**
- * Handles the opening of a curly brace `{` or parenthesis `(`.
+ * Handles the opening of a curly brace "{" or parenthesis "(".
  *
  * Adds a newline before the character and increases indentation level.
  *
  * @param uglyString The original unformatted string.
  * @param index The index of the current char.
+ * @param isBraceOrParen True if it is for "{"; false if it is for "(".
  * @param state The current state of the prettifier.
  */
 const handleOpeningBraceOrParen = (
     uglyString: string,
     index: number,
+    isBraceOrParen: boolean,
     state: PrettifyState
-): void => {
+): number => {
+    const openingBraceOrParen = uglyString[index];
+    if (undefined == openingBraceOrParen) {
+        return index + 1;
+    } else if ((isBraceOrParen ? "{" : "(") !== openingBraceOrParen) {
+        return index;
+    }
     if (state.lineBreakPending) {
         state.result += getStartingWhitespaceOfNewLine(state.indentLevel);
         state.isPrettifiedStringDifferent = true;
     }
 
-    const nextCharPos = index + 1;
-    state.result += uglyString.substring(state.copyBeginOffset, nextCharPos);
-    state.copyBeginOffset = nextCharPos;
+    state.result += uglyString.substring(state.copyBeginOffset, index + 1);
+    state.copyBeginOffset = findNextNonWhitespaceChar(uglyString, index);
+
+    state.regionStack.push(
+        isBraceOrParen ? { type: "{", level: state.braceLevelCounter + 1 }
+            : { type: "(", level: state.braceLevelCounter + 1 });
 
     state.indentLevel++;
     state.lineBreakPending = true;
+
+    return state.copyBeginOffset;
 };
 
 /**
- * Handles the closing of a curly brace `}` or parenthesis `)`.
+ * Handles the closing of a curly brace "}" or parenthesis ")".
  *
- * Decreases the indentation level and adds a newline before the closing
- * character, unless the block was empty (line break was pending).
+ * Decreases the indentation level and adds a newline before the closing character, unless the
+ * block was empty (line break was pending).
  *
  * @param uglyString The original unformatted string.
  * @param index The index of the current char.
- * @param char The closing character (`}` or `)`).
+ * @param isBraceOrParen True if it is for "}"; false if it is for ")".
  * @param state The current state of the prettifier.
+ * @return
  */
 const handleClosingBraceOrParen = (
     uglyString: string,
     index: number,
-    char: string,
+    isBraceOrParen: boolean,
     state: PrettifyState
-): void => {
+): number => {
+    const closingBraceOrParen = uglyString[index];
+    if (undefined == closingBraceOrParen) {
+        return index + 1;
+    } else if ((isBraceOrParen ? "}" : ")") !== closingBraceOrParen) {
+        return index;
+    }
+
     state.result += uglyString.substring(state.copyBeginOffset, index);
     state.copyBeginOffset = index + 1;
 
@@ -187,54 +266,44 @@ const handleClosingBraceOrParen = (
     }
 
     state.lineBreakPending = false;
-    state.result += char;
+    
+    if ((state.regionStack[state.regionStack.length - 1] ?? {}).type === (isBraceOrParen ? "{" : "(")) {
+        state.regionStack.pop();
+    }
+    
+    state.result += closingBraceOrParen;
+    
+    return index + 1;
 };
 
 /**
  * Prettifies the given string according to these rules:
  * <ul>
- * <li>Regions enclosed by "{}"/"()" are indented and every
- * parameter/kv-pair is printed on a new line.</li>
- * <ul>
- * <li>Where possible, if the region contains none or a single
- * parameter/kv-pair, we don't print it on a separate line.</li>
- * </ul>
- * <li>For regions enclosed by "[]", every entry is space-separated.
- * </li>
+ *  <li>Regions enclosed by "{}"/"()" are indented and every parameter/kv-pair is printed on a new
+ *  line.</li>
+ *  <li>Where possible, if the region contains none or a single parameter/kv-pair, we don't print
+ *  it on a separate line.</li>
+ *  <li>For regions enclosed by "[]", every entry is space-separated.</li>
  * </ul>
  *
  * We implement the rules above as follows:
  * - After seeing '\', we ignore the next character.
- * - After seeing '"', we only monitor for an unescaped '"'.
- * - After seeing '\'', we only monitor for an unescaped '\''.
- * - After seeing '{'/'(', we *typically* add a newline and increase
- * the indentation level.
- * - The one exception to this is if there is only one
- * parameter/kv-pair in the region enclosed by "{}"/"()". However,
- * this is hard to determine without reading ahead until the end of
- * the region. So a reasonable heuristic is if, after the initial
- * opening '{'/'(', we encounter a ','/'{'/'('/'[', we will simply
- * add a newline.
- * - After seeing '}'/')', we decrease the indentation level.
+ * - After seeing '"', we only monitor for an unescaped '"' and skip the content within the region.
+ * - After seeing "'", we only monitor for an unescaped "'" and skip the content within the region.
+ * - After seeing "{"/"(", we *typically* add a newline and push it into a stack.
+ *  - The one exception to this is if there is only one parameter/kv-pair in the region enclosed by
+ *  "{}"/"()". However, this is hard to determine without reading ahead until the end of the region.
+ *  So a reasonable heuristic is if, after the initial opening "{"/"(", we encounter a ',' or "{" or
+ *  "(" or "[", we will simply add a newline.
+ * - After seeing "}"/")", we pop the curly or paren stack.
  * - After seeing ',':
- * - (1) If we are in an object with a region enclosed by '{' or '(',
- *       we add a newline.
- * - (2) Otherwise, if we are in an object enclosed by "[]", we add a
- *       ' '.
- * - In both (1) & (2), we skip the next character if it's a character
- *   in _WHITESPACE_CHARACTERS.
- * - To handle the difference in handling ',' when we're in a region
- *   enclosed by '{'/'(' versus '[':
- *     - If we are in a '{'/'('-region nested within a '['-region, then
- *       we add a newline.
- *     - Otherwise, we add a ' '.
- *     - An easy way to determine this is to keep track of the
- *       indentation level when we enter a '['-region.
- *     - When we encounter the ',', if the indentation level is higher
- *       than when we entered the '['-region, then we know we must be
- *       in a '{'/'('-region.
- *     - Since we can have '['-regions nested in other '['-regions, we
- *       need to keep track of the indentation level per '['-region.
+ *  - (1) If we are in an object with a region enclosed by "{" or "(", we add a newline.
+ *  - (2) Otherwise, if we are in an object enclosed by "[]", we add a ' '.
+ *  - In both (1) & (2), we skip the next character util it is not a character in
+ *  _WHITESPACE_CHARACTERS.
+ * - To handle the difference in handling ',' when we're in a region enclosed by "{"/"(" versus "[":
+ *  - If we are in a "{"/"("-region nested within a "["-region, then we add a newline. Otherwise,
+ *  we add a ' '.
  *
  * @param uglyString
  * @return A tuple: [a boolean indicating whether
@@ -242,42 +311,48 @@ const handleClosingBraceOrParen = (
  */
 const prettify = (uglyString: string): [boolean, string] => {
     const state: PrettifyState = {
-        arrayIndentLevels: [],
+        bracketLevelCounter: 0,
+        braceLevelCounter: 0,
         copyBeginOffset: 0,
         indentLevel: 0,
         isEscaped: false,
         isPrettifiedStringDifferent: false,
         lineBreakPending: false,
-        quoteChar: null,
         result: "",
-        squareBracketsLevel: 0,
+        regionStack: [],
+        parenLevelCounter: 0,
     };
 
-    for (let i = 0; i < uglyString.length; ++i) {
+    let i = 0;
+    while (i < uglyString.length) {
         const c = uglyString[i] ?? "";
 
-        if (handleEscape(c, state)) {
-            continue;
-        }
-
-        if (insideQuote(state)) {
-            if (state.quoteChar === c) {
-                state.quoteChar = null;
-            }
-        } else if ('"' === c || "'" === c) {
-            state.quoteChar = c;
+        if (state.isEscaped) {
+            state.isEscaped = false;
+            state.result += c;
+            i += 1;
+        } else if ('\\' == c) {
+            state.isEscaped = true;
+            state.result += c;
+            i += 1
+        } else if ('"' === c || '\'' === c) {
+            i = handleQuote(uglyString, i);
         } else if ("[" === c) {
-            handleOpeningBracket(state);
+            i = handleOpeningBracket(uglyString, i, state);
         } else if ("]" === c) {
-            state.squareBracketsLevel--;
-            state.arrayIndentLevels.pop();
+            i = handleClosingBracket(uglyString, i, state);
         } else if ("," === c) {
-            const result = handleComma(uglyString, i, state);
-            i = result.newIndex;
-        } else if ("{" === c || "(" === c) {
-            handleOpeningBraceOrParen(uglyString, i, state);
-        } else if ("}" === c || ")" === c) {
-            handleClosingBraceOrParen(uglyString, i, c, state);
+            i = handleComma(uglyString, i, state);
+        } else if ("{" === c) {
+            i = handleOpeningBraceOrParen(uglyString, i, true, state);
+        } else if ("(" === c) {
+            i = handleOpeningBraceOrParen(uglyString, i, false, state);
+        } else if ("}" === c) {
+            i = handleClosingBraceOrParen(uglyString, i, true, state);
+        } else if (")" === c) {
+            i = handleClosingBraceOrParen(uglyString, i, false, state);
+        } else {
+            i++;
         }
     }
 

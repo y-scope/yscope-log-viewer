@@ -68,6 +68,14 @@ describe("simpleCasesOfPrettifyingSquareBrackets", () => {
     });
 });
 
+describe("complicatedCasesOfPrettifyingSquareBrackets", () => {
+   test("should prettify for complicated array", () => {
+       expect(prettify("INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]")[1]).toBe(
+           "INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]"
+       );
+   });
+});
+
 describe("complicatedCasesOfPrettifyingStructuredData", () => {
     test("should prettify for nested object and array", () => {
         expect(prettify("INFO test message {x: [1, 2, 3], y: {a, b, c}, z}")[1]).toBe(
@@ -204,7 +212,6 @@ describe("prettifyComma", () => {
     x,
     y,
     z,
-    
 }`
         );
     });
@@ -215,14 +222,23 @@ describe("prettifyComma", () => {
     x,
     y,
     z,
-    
 )`
         );
     });
 
-    test("should prettify if there is a comma at the end of an array", () => {
-        expect(prettify("INFO test message [x, y, z,]")[1]).toBe(
-            "INFO test message [x, y, z, ]"
+    test("should prettify if there are white spaces in the region", () => {
+        expect(prettify("INFO test message {x: [1, { a,  b}, 3,], y: ( p, q, [ 7, ], ),}")[1]).toBe(
+            `INFO test message {
+    x: [1, {
+        a,
+        b
+    }, 3,],
+    y: (
+        p,
+        q,
+        [7,],
+    ),
+}`
         );
     });
 });
@@ -242,4 +258,31 @@ describe("cornerCasesOfEscaping", () => {
 }`
         );
     });
+});
+
+describe("illegalCases", () => {
+   test("should be able to handle extra opening region chars without crashes", () => {
+       expect(prettify("INFO test message ({(x, y, [[z],)")[1]).toBe(
+           `INFO test message (
+    {
+        (
+            x,
+            y,
+            [[z],
+        )`
+       );
+   });
+
+   test("should be able to handle extra closing region chars without crashes", () => {
+       expect(prettify("INFO test message (x, {y, [z],]])}}")[1]).toBe(
+           `INFO test message (
+    x,
+    {
+        y,
+        [z],]]
+    )
+}
+}`
+       );
+   });
 });
