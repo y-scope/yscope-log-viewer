@@ -1,5 +1,5 @@
-import os from "node:os";
-import pathPosix from "node:path/posix";
+import * as os from "node:os";
+import * as pathPosix from "node:path/posix";
 
 import type {Config} from "jest";
 

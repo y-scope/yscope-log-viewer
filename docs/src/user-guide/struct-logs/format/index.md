@@ -1,4 +1,4 @@
-# Overview
+# Formatting as plain text
 
 The log viewer can format structured (e.g. JSON) logs as plain text using a format string. The
 format string allows you to select which fields to include and how they should be formatted. You can
@@ -33,5 +33,12 @@ The formatted log would appear as:
 ```
 
 For reference docs, see:
-* [Format string syntax](format-struct-logs-syntax)
-* [Formatters](format-struct-logs-formatters)
+* [Format string syntax](syntax)
+* [Formatters](formatters)
+
+:::{toctree}
+:hidden:
+
+syntax
+formatters
+:::
