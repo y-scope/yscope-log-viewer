@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 const NUM_INDENTATION_SPACES: number = 4;
 
 const WHITESPACE_CHARACTERS: string[] = [" ",
@@ -10,16 +11,16 @@ interface Region {
 }
 
 interface PrettifyState {
-    bracketLevelCounter: number;
     braceLevelCounter: number;
+    bracketLevelCounter: number;
     copyBeginOffset: number;
     indentLevel: number;
     isEscaped: boolean;
     isPrettifiedStringDifferent: boolean;
     lineBreakPending: boolean;
+    parenLevelCounter: number;
     regionStack: Region[];
     result: string;
-    parenLevelCounter: number;
 }
 
 /**
@@ -35,7 +36,7 @@ const getStartingWhitespaceOfNewLine = (indentLevel: number): string => {
 
 /**
  * Find the index of the next char in the provided string which is not one of WHITESPACE_CHARACTERS.
- * 
+ *
  * @param str
  * @param index It will find from the index + 1.
  * @return The position of the next non-white-space char.
@@ -43,16 +44,17 @@ const getStartingWhitespaceOfNewLine = (indentLevel: number): string => {
  */
 const findNextNonWhitespaceChar = (str: string, index: number): number => {
     for (let i = index + 1; i < str.length; ++i) {
-        if (!WHITESPACE_CHARACTERS.includes(str[i]!!)) {
+        if (!WHITESPACE_CHARACTERS.includes(str[i] ?? " ")) {
             return i;
         }
     }
+
     return str.length;
-}
+};
 
 /**
  * Get the index of the next unescaped closing '"' or "'".
- * 
+ *
  * @param uglyString
  * @param index
  * @return The index of the next unescaped closing '"' or "'".
@@ -63,17 +65,16 @@ const handleQuote = (
     index: number,
 ): number => {
     const quote = uglyString[index];
-    if (undefined == quote) {
-        return index + 1;
-    } else if ('"' !== quote && '\'' !== quote) {
+    if ('"' !== quote && "'" !== quote) {
         return index;
     }
 
     for (let i = index + 1; i < uglyString.length; ++i) {
-        if (quote == uglyString[i] && `\\` !== uglyString[i - 1]) {
+        if (quote === uglyString[i] && "\\" !== uglyString[i - 1]) {
             return i + 1;
         }
     }
+
     return uglyString.length;
 };
 
@@ -95,9 +96,7 @@ const handleOpeningBracket = (
     state: PrettifyState
 ): number => {
     const openingBracket = uglyString[index];
-    if (undefined == openingBracket) {
-        return index + 1;
-    } else if ("[" !== openingBracket) {
+    if ("[" !== openingBracket) {
         return index;
     }
 
@@ -106,10 +105,11 @@ const handleOpeningBracket = (
         state.lineBreakPending = false;
         state.isPrettifiedStringDifferent = true;
     }
-    state.regionStack.push({ type: "[", level: state.bracketLevelCounter + 1 });
+    state.regionStack.push({type: "[", level: state.bracketLevelCounter + 1});
     state.bracketLevelCounter++;
     state.result += uglyString.substring(state.copyBeginOffset, index + 1);
     state.copyBeginOffset = findNextNonWhitespaceChar(uglyString, index);
+
     return state.copyBeginOffset;
 };
 
@@ -128,18 +128,16 @@ const handleClosingBracket = (
     state: PrettifyState
 ): number => {
     const closingBracket = uglyString[index];
-    if (undefined == closingBracket) {
-        return index + 1;
-    } else if ("]" !== closingBracket) {
+    if ("]" !== closingBracket) {
         return index;
     }
-    
-    if ((state.regionStack[state.regionStack.length - 1] ?? {}).type === "[") {
+
+    if ("[" === (state.regionStack[state.regionStack.length - 1] ?? {}).type) {
         state.regionStack.pop();
     }
 
     return index + 1;
-}
+};
 
 /**
  * Handles a comma "," during prettification.
@@ -151,6 +149,7 @@ const handleClosingBracket = (
  * @param index The index of the current char.
  * @param state The current state of the prettifier.
  * @return An updated index (`newIndex`) for the main loop.
+ * @private
  */
 const handleComma = (
     uglyString: string,
@@ -158,9 +157,7 @@ const handleComma = (
     state: PrettifyState
 ): number => {
     const comma = uglyString[index];
-    if (undefined == comma) {
-        return index + 1;
-    } else if (',' !== comma) {
+    if ("," !== comma) {
         return index;
     }
 
@@ -177,14 +174,19 @@ const handleComma = (
     state.result += uglyString.substring(state.copyBeginOffset, index + 1);
     state.copyBeginOffset = nextNonWhiteSpaceCharPos;
 
-    const isDanglingComma = ["}", ")", "]"].includes(uglyString[nextNonWhiteSpaceCharPos] ?? "");
+    const isDanglingComma = ["}",
+        ")",
+        "]"].includes(uglyString[nextNonWhiteSpaceCharPos] ?? "");
     const shouldBreak = !isDanglingComma && (
         0 === state.bracketLevelCounter ||
-        ["{", "("].includes((state.regionStack[state.regionStack.length - 1] ?? {}).type ?? ""));
+        ["{",
+            "("].includes((state.regionStack[state.regionStack.length - 1] ?? {}).type ?? ""));
 
-    state.result += shouldBreak ?
-        getStartingWhitespaceOfNewLine(state.indentLevel) : isDanglingComma ? "" :
-        " ";
+    if (shouldBreak) {
+        state.result += getStartingWhitespaceOfNewLine(state.indentLevel);
+    } else if (!isDanglingComma) {
+        state.result += " ";
+    }
     state.isPrettifiedStringDifferent = true;
 
     return state.copyBeginOffset;
@@ -199,6 +201,8 @@ const handleComma = (
  * @param index The index of the current char.
  * @param isBraceOrParen True if it is for "{"; false if it is for "(".
  * @param state The current state of the prettifier.
+ * @return The next non-white-space char after "{" or "(".
+ * @private
  */
 const handleOpeningBraceOrParen = (
     uglyString: string,
@@ -207,9 +211,9 @@ const handleOpeningBraceOrParen = (
     state: PrettifyState
 ): number => {
     const openingBraceOrParen = uglyString[index];
-    if (undefined == openingBraceOrParen) {
-        return index + 1;
-    } else if ((isBraceOrParen ? "{" : "(") !== openingBraceOrParen) {
+    if ((isBraceOrParen ?
+        "{" :
+        "(") !== openingBraceOrParen) {
         return index;
     }
     if (state.lineBreakPending) {
@@ -221,8 +225,10 @@ const handleOpeningBraceOrParen = (
     state.copyBeginOffset = findNextNonWhitespaceChar(uglyString, index);
 
     state.regionStack.push(
-        isBraceOrParen ? { type: "{", level: state.braceLevelCounter + 1 }
-            : { type: "(", level: state.braceLevelCounter + 1 });
+        isBraceOrParen ?
+            {type: "{", level: state.braceLevelCounter + 1} :
+            {type: "(", level: state.braceLevelCounter + 1}
+    );
 
     state.indentLevel++;
     state.lineBreakPending = true;
@@ -240,7 +246,8 @@ const handleOpeningBraceOrParen = (
  * @param index The index of the current char.
  * @param isBraceOrParen True if it is for "}"; false if it is for ")".
  * @param state The current state of the prettifier.
- * @return
+ * @return The index of the next char of "}" or ")".
+ * @private
  */
 const handleClosingBraceOrParen = (
     uglyString: string,
@@ -249,9 +256,9 @@ const handleClosingBraceOrParen = (
     state: PrettifyState
 ): number => {
     const closingBraceOrParen = uglyString[index];
-    if (undefined == closingBraceOrParen) {
-        return index + 1;
-    } else if ((isBraceOrParen ? "}" : ")") !== closingBraceOrParen) {
+    if ((isBraceOrParen ?
+        "}" :
+        ")") !== closingBraceOrParen) {
         return index;
     }
 
@@ -266,13 +273,15 @@ const handleClosingBraceOrParen = (
     }
 
     state.lineBreakPending = false;
-    
-    if ((state.regionStack[state.regionStack.length - 1] ?? {}).type === (isBraceOrParen ? "{" : "(")) {
+
+    if ((state.regionStack[state.regionStack.length - 1] ?? {}).type === (isBraceOrParen ?
+        "{" :
+        "(")) {
         state.regionStack.pop();
     }
-    
+
     state.result += closingBraceOrParen;
-    
+
     return index + 1;
 };
 
@@ -311,16 +320,16 @@ const handleClosingBraceOrParen = (
  */
 const prettify = (uglyString: string): [boolean, string] => {
     const state: PrettifyState = {
-        bracketLevelCounter: 0,
         braceLevelCounter: 0,
+        bracketLevelCounter: 0,
         copyBeginOffset: 0,
         indentLevel: 0,
         isEscaped: false,
         isPrettifiedStringDifferent: false,
         lineBreakPending: false,
-        result: "",
-        regionStack: [],
         parenLevelCounter: 0,
+        regionStack: [],
+        result: "",
     };
 
     let i = 0;
@@ -331,11 +340,11 @@ const prettify = (uglyString: string): [boolean, string] => {
             state.isEscaped = false;
             state.result += c;
             i += 1;
-        } else if ('\\' == c) {
+        } else if ("\\" === c) {
             state.isEscaped = true;
             state.result += c;
-            i += 1
-        } else if ('"' === c || '\'' === c) {
+            i += 1;
+        } else if ('"' === c || "'" === c) {
             i = handleQuote(uglyString, i);
         } else if ("[" === c) {
             i = handleOpeningBracket(uglyString, i, state);
@@ -343,25 +352,19 @@ const prettify = (uglyString: string): [boolean, string] => {
             i = handleClosingBracket(uglyString, i, state);
         } else if ("," === c) {
             i = handleComma(uglyString, i, state);
-        } else if ("{" === c) {
-            i = handleOpeningBraceOrParen(uglyString, i, true, state);
-        } else if ("(" === c) {
-            i = handleOpeningBraceOrParen(uglyString, i, false, state);
-        } else if ("}" === c) {
-            i = handleClosingBraceOrParen(uglyString, i, true, state);
-        } else if (")" === c) {
-            i = handleClosingBraceOrParen(uglyString, i, false, state);
+        } else if ("{" === c || "(" === c) {
+            i = handleOpeningBraceOrParen(uglyString, i, "{" === c, state);
+        } else if ("}" === c || ")" === c) {
+            i = handleClosingBraceOrParen(uglyString, i, "}" === c, state);
         } else {
             i++;
         }
     }
 
-    if (state.copyBeginOffset < uglyString.length) {
-        state.result += uglyString.substring(state.copyBeginOffset);
-    }
-
     return [state.isPrettifiedStringDifferent,
-        state.result];
+        state.copyBeginOffset < uglyString.length ?
+            state.result + uglyString.substring(state.copyBeginOffset) :
+            state.result];
 };
 
 export {prettify};

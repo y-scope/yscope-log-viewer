@@ -69,11 +69,11 @@ describe("simpleCasesOfPrettifyingSquareBrackets", () => {
 });
 
 describe("complicatedCasesOfPrettifyingSquareBrackets", () => {
-   test("should prettify for complicated array", () => {
-       expect(prettify("INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]")[1]).toBe(
-           "INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]"
-       );
-   });
+    test("should prettify for complicated array", () => {
+        expect(prettify("INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]")[1]).toBe(
+            "INFO test message [x, [y, z, w], [a, b, [c, d, e]], f]"
+        );
+    });
 });
 
 describe("complicatedCasesOfPrettifyingStructuredData", () => {
@@ -261,21 +261,21 @@ describe("cornerCasesOfEscaping", () => {
 });
 
 describe("illegalCases", () => {
-   test("should be able to handle extra opening region chars without crashes", () => {
-       expect(prettify("INFO test message ({(x, y, [[z],)")[1]).toBe(
-           `INFO test message (
+    test("should be able to handle extra opening region chars without crashes", () => {
+        expect(prettify("INFO test message ({(x, y, [[z],)")[1]).toBe(
+            `INFO test message (
     {
         (
             x,
             y,
             [[z],
         )`
-       );
-   });
+        );
+    });
 
-   test("should be able to handle extra closing region chars without crashes", () => {
-       expect(prettify("INFO test message (x, {y, [z],]])}}")[1]).toBe(
-           `INFO test message (
+    test("should be able to handle extra closing region chars without crashes", () => {
+        expect(prettify("INFO test message (x, {y, [z],]])}}")[1]).toBe(
+            `INFO test message (
     x,
     {
         y,
@@ -283,6 +283,6 @@ describe("illegalCases", () => {
     )
 }
 }`
-       );
-   });
+        );
+    });
 });
