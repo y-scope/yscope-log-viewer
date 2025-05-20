@@ -80,6 +80,7 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function,max-statements
 const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {
