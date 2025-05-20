@@ -1,5 +1,3 @@
-import {useContext} from "react";
-
 import {
     CircularProgress,
     Typography,
@@ -7,11 +5,9 @@ import {
 
 import DownloadIcon from "@mui/icons-material/Download";
 
-import {StateContext} from "../../contexts/StateContextProvider";
-import {
-    EXPORT_LOG_PROGRESS_VALUE_MAX,
-    EXPORT_LOG_PROGRESS_VALUE_MIN,
-} from "../../services/LogExportManager";
+import {EXPORT_LOGS_PROGRESS_VALUE_MAX} from "../../services/LogExportManager";
+import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "../../stores/logExportStore";
+import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {
     ignorePointerIfFastLoading,
@@ -26,30 +22,35 @@ import MenuBarIconButton from "./MenuBarIconButton";
  * @return
  */
 const ExportLogsButton = () => {
-    const {exportLogs, exportProgress, uiState} = useContext(StateContext);
+    const exportProgress = useLogExportStore((state) => state.exportProgress);
+    const exportLogs = useLogExportStore((state) => state.exportLogs);
+    const uiState = useUiStore((state) => state.uiState);
 
     return (
         <MenuBarIconButton
             className={ignorePointerIfFastLoading(uiState)}
-            title={"Export logs"}
+            tooltipTitle={"Export logs"}
             disabled={
-                (null !== exportProgress && EXPORT_LOG_PROGRESS_VALUE_MAX !== exportProgress) ||
+                (
+                    LOG_EXPORT_STORE_DEFAULT.exportProgress !== exportProgress &&
+                    EXPORT_LOGS_PROGRESS_VALUE_MAX !== exportProgress
+                ) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
             onClick={exportLogs}
         >
-            {null === exportProgress || EXPORT_LOG_PROGRESS_VALUE_MIN === exportProgress ?
+            {null === exportProgress ?
                 <DownloadIcon/> :
                 <CircularProgress
                     determinate={true}
                     thickness={3}
                     value={exportProgress * 100}
                     variant={"solid"}
-                    color={EXPORT_LOG_PROGRESS_VALUE_MAX === exportProgress ?
+                    color={EXPORT_LOGS_PROGRESS_VALUE_MAX === exportProgress ?
                         "success" :
                         "primary"}
                 >
-                    {EXPORT_LOG_PROGRESS_VALUE_MAX === exportProgress ?
+                    {EXPORT_LOGS_PROGRESS_VALUE_MAX === exportProgress ?
                         <DownloadIcon
                             color={"success"}
                             sx={{fontSize: "14px"}}/> :

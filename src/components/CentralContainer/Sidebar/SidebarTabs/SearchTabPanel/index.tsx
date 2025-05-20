@@ -14,7 +14,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import {StateContext} from "../../../../../contexts/StateContextProvider";
+import useQueryStore from "../../../../../stores/queryStore";
 import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
@@ -41,7 +41,9 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const {queryResults, uiState, startQuery} = useContext(StateContext);
+    const queryResults = useQueryStore((state) => state.queryResuts);
+    const startQuery = useQueryStore((state) => state.startQuery);
+    const uiState = useUiStore((state) => state.uiState);
     const {
         queryString: urlQueryString,
         queryIsCaseSensitive: urlQueryIsCaseSensitive,

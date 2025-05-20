@@ -39,5 +39,6 @@ still be tested manually:
   * Exporting all logs to a file
   * Toggling tabbed panels in the sidebar
   * Using keyboard shortcuts
+  * Toggling "Prettify" in both the status bar and the address bar
 
 [gh-workflow-test]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/test.yaml

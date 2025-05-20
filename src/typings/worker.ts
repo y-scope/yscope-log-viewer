@@ -1,13 +1,6 @@
+import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "./common";
-import {
-    ActiveLogCollectionEventIdx,
-    DecoderOptions,
-} from "./decoders";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "./logs";
-import {QueryResults} from "./query";
+import {ActiveLogCollectionEventIdx} from "./decoders";
 
 
 /**
@@ -75,102 +68,26 @@ type CursorData = {
  */
 type BeginLineNumToLogEventNumMap = Map<number, number>;
 
-/**
- * Enum of the protocol code for communications between the renderer and MainWorker.
- */
-enum WORKER_REQ_CODE {
-    EXPORT_LOG = "exportLog",
-    LOAD_FILE = "loadFile",
-    LOAD_PAGE = "loadPage",
-    SET_FILTER = "setFilter",
-    START_QUERY = "startQuery",
-}
-
-enum WORKER_RESP_CODE {
-    CHUNK_DATA = "chunkData",
-    FORMAT_POPUP = "formatPopup",
-    LOG_FILE_INFO = "fileInfo",
-    NOTIFICATION = "notification",
-    PAGE_DATA = "pageData",
-    QUERY_RESULT = "queryResult",
-}
-
-type WorkerReqMap = {
-    [WORKER_REQ_CODE.EXPORT_LOG]: null;
-    [WORKER_REQ_CODE.LOAD_FILE]: {
-        fileSrc: FileSrcType;
-        pageSize: number;
-        cursor: CursorType;
-        decoderOptions: DecoderOptions;
-    };
-    [WORKER_REQ_CODE.LOAD_PAGE]: {
-        cursor: CursorType;
-    };
-    [WORKER_REQ_CODE.SET_FILTER]: {
-        cursor: CursorType;
-        logLevelFilter: LogLevelFilter;
-    };
-    [WORKER_REQ_CODE.START_QUERY]: {
-        queryString: string;
-        queryIsCaseSensitive: boolean;
-        queryIsRegex: boolean;
-    };
+type LogFileInfo = {
+    fileName: string;
+    fileType: FILE_TYPE;
+    numEvents: number;
+    onDiskFileSizeInBytes: number;
 };
 
-type WorkerRespMap = {
-    [WORKER_RESP_CODE.CHUNK_DATA]: {
-        logs: string;
-    };
-    [WORKER_RESP_CODE.FORMAT_POPUP]: null;
-    [WORKER_RESP_CODE.LOG_FILE_INFO]: {
-        fileName: string;
-        numEvents: number;
-        onDiskFileSizeInBytes: number;
-    };
-    [WORKER_RESP_CODE.NOTIFICATION]: {
-        logLevel: LOG_LEVEL;
-        message: string;
-    };
-    [WORKER_RESP_CODE.PAGE_DATA]: {
-        beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-        cursorLineNum: number;
-        logEventNum: Nullable<number>;
-        logs: string;
-        numPages: number;
-        pageNum: number;
-    };
-    [WORKER_RESP_CODE.QUERY_RESULT]: {
-        progress: number;
-        results: QueryResults;
-    };
+type PageData = {
+    beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
+    cursorLineNum: number;
+    logEventNum: Nullable<number>;
+    logs: string;
+    numPages: number;
+    pageNum: number;
 };
-
-type WorkerReq<T extends WORKER_REQ_CODE> = T extends keyof WorkerReqMap ?
-    WorkerReqMap[T] :
-    never;
-
-type WorkerResp<T extends WORKER_RESP_CODE> = T extends keyof WorkerRespMap ?
-    WorkerRespMap[T] :
-    never;
-
-type MainWorkerReqMessage = {
-    [T in keyof WorkerReqMap]: {
-        code: T;
-        args: WorkerReqMap[T];
-    };
-}[keyof WorkerReqMap];
-
-type MainWorkerRespMessage = {
-    [T in keyof WorkerRespMap]: {
-        code: T;
-        args: WorkerRespMap[T];
-    };
-}[keyof WorkerRespMap];
 
 /**
  * Empty page response.
  */
-const EMPTY_PAGE_RESP: WorkerResp<WORKER_RESP_CODE.PAGE_DATA> = Object.freeze({
+const EMPTY_PAGE_RESP: PageData = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
     cursorLineNum: 1,
     logEventNum: null,
@@ -179,21 +96,16 @@ const EMPTY_PAGE_RESP: WorkerResp<WORKER_RESP_CODE.PAGE_DATA> = Object.freeze({
     pageNum: 1,
 });
 
-
 export {
     CURSOR_CODE,
     EMPTY_PAGE_RESP,
     EVENT_POSITION_ON_PAGE,
-    WORKER_REQ_CODE,
-    WORKER_RESP_CODE,
 };
 export type {
     BeginLineNumToLogEventNumMap,
     CursorData,
     CursorType,
     FileSrcType,
-    MainWorkerReqMessage,
-    MainWorkerRespMessage,
-    WorkerReq,
-    WorkerResp,
+    LogFileInfo,
+    PageData,
 };

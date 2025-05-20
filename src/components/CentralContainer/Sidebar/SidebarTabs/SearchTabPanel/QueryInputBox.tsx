@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React from "react";
 
 import {
     LinearProgress,
@@ -6,11 +6,9 @@ import {
     Textarea,
 } from "@mui/joy";
 
-import {StateContext} from "../../../../../contexts/StateContextProvider";
-import {
-    QUERY_PROGRESS_VALUE_MAX,
-    QueryArgs,
-} from "../../../../../typings/query";
+import useQueryStore from "../../../../../stores/queryStore";
+import useUiStore from "../../../../../stores/uiStore";
+import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
 import ToggleIconButton from "./ToggleIconButton";
@@ -18,62 +16,35 @@ import ToggleIconButton from "./ToggleIconButton";
 import "./QueryInputBox.css";
 
 
-interface queryStates {
-    queryString: string;
-    // eslint-disable-next-line react/boolean-prop-naming
-    queryIsCaseSensitive: boolean;
-    // eslint-disable-next-line react/boolean-prop-naming
-    queryIsRegex: boolean;
-    setQueryString: (queryString: string) => void;
-    setQueryIsCaseSensitive: (queryIsCaseSensitive: boolean) => void;
-    setQueryIsRegex: (queryIsRegex: boolean) => void;
-}
-
 /**
  * Provides a text input and optional toggles for submitting search queries.
  *
- * @param props
- * @param props.queryString
- * @param props.queryIsCaseSensitive
- * @param props.queryIsRegex
- * @param props.setQueryString
- * @param props.setQueryIsCaseSensitive
- * @param props.setQueryIsRegex
  * @return
  */
-const QueryInputBox = ({
-    queryString,
-    queryIsCaseSensitive,
-    queryIsRegex,
-    setQueryString,
-    setQueryIsCaseSensitive,
-    setQueryIsRegex,
-}: queryStates) => {
-    const {queryProgress, startQuery, uiState} = useContext(StateContext);
-
-
-    const handleQuerySubmit = (newArgs: Partial<QueryArgs>) => {
-        startQuery({
-            queryIsCaseSensitive: queryIsCaseSensitive,
-            queryIsRegex: queryIsRegex,
-            queryString: queryString,
-            ...newArgs,
-        });
-    };
+const QueryInputBox = () => {
+    const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
+    const isRegex = useQueryStore((state) => state.queryIsRegex);
+    const querystring = useQueryStore((state) => state.queryString);
+    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
+    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
+    const setQueryString = useQueryStore((state) => state.setQueryString);
+    const queryProgress = useQueryStore((state) => state.queryProgress);
+    const startQuery = useQueryStore((state) => state.startQuery);
+    const uiState = useUiStore((state) => state.uiState);
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
-        handleQuerySubmit({queryString: ev.target.value});
+        startQuery();
     };
 
     const handleCaseSensitivityButtonClick = () => {
-        handleQuerySubmit({queryIsCaseSensitive: !queryIsCaseSensitive});
-        setQueryIsCaseSensitive(!queryIsCaseSensitive);
+        setQueryIsCaseSensitive(!isCaseSensitive);
+        startQuery();
     };
 
     const handleRegexButtonClick = () => {
-        handleQuerySubmit({queryIsRegex: !queryIsRegex});
-        setQueryIsRegex(!queryIsRegex);
+        setQueryIsRegex(!isRegex);
+        startQuery();
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
@@ -85,6 +56,7 @@ const QueryInputBox = ({
                 maxRows={7}
                 placeholder={"Search"}
                 size={"sm"}
+                value={querystring}
                 endDecorator={
                     <Stack
                         direction={"row"}
@@ -93,7 +65,7 @@ const QueryInputBox = ({
                         <ToggleIconButton
                             className={"query-option-button"}
                             disabled={isQueryInputBoxDisabled}
-                            isChecked={queryIsCaseSensitive}
+                            isChecked={isCaseSensitive}
                             size={"sm"}
                             tooltipTitle={"Match case"}
                             variant={"plain"}
@@ -105,7 +77,7 @@ const QueryInputBox = ({
                         <ToggleIconButton
                             className={"query-option-button"}
                             disabled={isQueryInputBoxDisabled}
-                            isChecked={queryIsRegex}
+                            isChecked={isRegex}
                             size={"sm"}
                             tooltipTitle={"Use regular expression"}
                             variant={"plain"}
