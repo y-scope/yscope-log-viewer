@@ -84,14 +84,15 @@ const AppController = ({children}: AppControllerProps) => {
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
+    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
+    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const numEvents = useLogFileStore((state) => state.numEvents);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const {logFileManagerProxy} = useLogFileManagerStore.getState();
-    const numEvents = useLogFileStore((state) => state.numEvents);
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const updatePageData = useViewStore((state) => state.updatePageData);
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
@@ -123,27 +124,26 @@ const AppController = ({children}: AppControllerProps) => {
             return;
         }
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
-
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return;
         }
 
-        const cursor: CursorType = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        };
-
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: clampedLogEventNum},
+            };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
-            useViewStore.getState().updatePageData(pageData);
+            updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -156,8 +156,9 @@ const AppController = ({children}: AppControllerProps) => {
         logEventNum,
         logFileManagerProxy,
         numEvents,
-        setUiState,
         postPopUp,
+        setUiState,
+        updatePageData,
     ]);
 
     // On `filePath` update, load file.
