@@ -1,9 +1,4 @@
-import {
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import {useState} from "react";
 
 import {
     AccordionGroup,
@@ -14,19 +9,12 @@ import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
+import {copyPermalinkToClipboard} from "../../../../../contexts/UrlContextProvider";
 import useQueryStore from "../../../../../stores/queryStore";
-import {
-    copyPermalinkToClipboard,
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    UrlContext,
-} from "../../../../../contexts/UrlContextProvider";
-import {UI_STATE} from "../../../../../typings/states";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {HASH_PARAM_NAMES} from "../../../../../typings/url";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
@@ -41,22 +29,12 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const queryResults = useQueryStore((state) => state.queryResuts);
-    const startQuery = useQueryStore((state) => state.startQuery);
-    const uiState = useUiStore((state) => state.uiState);
-    const {
-        queryString: urlQueryString,
-        queryIsCaseSensitive: urlQueryIsCaseSensitive,
-        queryIsRegex: urlQueryIsRegex,
-    } = useContext(UrlContext);
+    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
+    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
+    const queryResults = useQueryStore((state) => state.queryResults);
+    const queryString = useQueryStore((state) => state.queryString);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
-    const [queryString, setQueryString] = useState<string>("");
-    const [queryIsCaseSensitive, setQueryIsCaseSensitive] = useState<boolean>(false);
-    const [queryIsRegex, setQueryIsRegex] = useState<boolean>(false);
-
-    const queryIsCaseSensitiveRef = useRef(false);
-    const queryIsRegexRef = useRef(false);
 
     const handleCollapseAllButtonClick = () => {
         setIsAllExpanded((v) => !v);
@@ -71,45 +49,6 @@ const SearchTabPanel = () => {
             queryIsRegex: queryIsRegex,
         });
     };
-
-    useEffect(() => {
-        queryIsCaseSensitiveRef.current = urlQueryIsCaseSensitive ?? false;
-    }, [urlQueryIsCaseSensitive]);
-
-    useEffect(() => {
-        queryIsRegexRef.current = urlQueryIsRegex ?? false;
-    }, [urlQueryIsRegex]);
-
-    useEffect(() => {
-        if (uiState === UI_STATE.FILE_LOADING) {
-            setQueryString("");
-            setQueryIsCaseSensitive(false);
-            setQueryIsRegex(false);
-        } else if (uiState === UI_STATE.READY) {
-            if (null !== urlQueryString) {
-                setQueryString(urlQueryString);
-                setQueryIsCaseSensitive(queryIsCaseSensitiveRef.current);
-                setQueryIsRegex(queryIsRegexRef.current);
-
-                startQuery({
-                    queryIsCaseSensitive: queryIsCaseSensitiveRef.current,
-                    queryIsRegex: queryIsRegexRef.current,
-                    queryString: urlQueryString,
-                });
-
-                updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.QUERY_STRING]: URL_HASH_PARAMS_DEFAULT.queryString,
-                    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]:
-                        URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive,
-                    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: URL_HASH_PARAMS_DEFAULT.queryIsRegex,
-                });
-            }
-        }
-    }, [
-        startQuery,
-        uiState,
-        urlQueryString,
-    ]);
 
     return (
         <CustomTabPanel
@@ -137,13 +76,7 @@ const SearchTabPanel = () => {
             }
         >
             <Box className={"search-tab-container"}>
-                <QueryInputBox
-                    queryIsCaseSensitive={queryIsCaseSensitive}
-                    queryIsRegex={queryIsRegex}
-                    queryString={queryString}
-                    setQueryIsCaseSensitive={setQueryIsCaseSensitive}
-                    setQueryIsRegex={setQueryIsRegex}
-                    setQueryString={setQueryString}/>
+                <QueryInputBox/>
                 <AccordionGroup
                     className={"query-results"}
                     disableDivider={true}
