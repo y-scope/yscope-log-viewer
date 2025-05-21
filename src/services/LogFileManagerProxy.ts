@@ -62,9 +62,9 @@ class LogFileManagerProxy {
         logFileManager.exportChunkAndScheduleNext(0);
     }
 
-    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
+    startQuery (queryString: string, queryIsRegex: boolean, queryIsCaseSensitive: boolean): void {
         const logFileManager = this.#getLogFileManager();
-        logFileManager.startQuery({queryString, isRegex, isCaseSensitive});
+        logFileManager.startQuery({queryString, queryIsRegex, queryIsCaseSensitive});
     }
 
     /**
@@ -75,7 +75,7 @@ class LogFileManagerProxy {
      */
     #getLogFileManager (): LogFileManager {
         if (null === this.logFileManager) {
-            throw new Error("LogFileManager hasn't initialized");
+            throw new Error("LogFileManager hasn't been initialized");
         }
 
         return this.logFileManager;

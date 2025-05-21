@@ -126,35 +126,6 @@ const AppController = ({children}: AppControllerProps) => {
         setIsPrettified,
     ]);
 
-    useEffect(() => {
-        if (null !== queryIsCaseSensitive) {
-            setQueryIsCaseSensitive(queryIsCaseSensitive);
-        }
-    }, [
-        queryIsCaseSensitive,
-        setQueryIsCaseSensitive,
-    ]);
-
-    useEffect(() => {
-        if (null !== queryIsRegex) {
-            setQueryIsRegex(queryIsRegex);
-        }
-    }, [
-        queryIsRegex,
-        setQueryIsRegex,
-    ]);
-
-    useEffect(() => {
-        if (null !== queryString) {
-            setQueryString(queryString);
-            startQuery();
-        }
-    }, [
-        queryString,
-        startQuery,
-        setQueryString,
-    ]);
-
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
@@ -215,6 +186,41 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
+    ]);
+
+    useEffect(() => {
+        if (null !== queryIsCaseSensitive) {
+            setQueryIsCaseSensitive(queryIsCaseSensitive);
+        }
+    }, [
+        queryIsCaseSensitive,
+        setQueryIsCaseSensitive,
+    ]);
+
+    useEffect(() => {
+        if (null !== queryIsRegex) {
+            setQueryIsRegex(queryIsRegex);
+        }
+    }, [
+        queryIsRegex,
+        setQueryIsRegex,
+    ]);
+
+    const uiState = useUiStore((state) => state.uiState);
+
+    useEffect(() => {
+        if (null !== queryString) {
+            setQueryString(queryString);
+        }
+        if (UI_STATE.READY === uiState) {
+            startQuery();
+        }
+    }, [
+        uiState,
+        queryString,
+        startQuery,
+        setQueryString,
+        postPopUp,
     ]);
 
     useEffect(() => {
