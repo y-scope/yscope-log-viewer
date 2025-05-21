@@ -1,10 +1,16 @@
 import React, {
-    createContext,
     useContext,
     useEffect,
     useRef,
 } from "react";
 
+import {NotificationContext} from "../contexts/NotificationContextProvider";
+import {
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
+    UrlContext,
+} from "../contexts/UrlContextProvider";
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
@@ -22,20 +28,7 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
-import {NotificationContext} from "./NotificationContextProvider";
-import {
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
-    UrlContext,
-} from "./UrlContextProvider";
 
-
-const StateContext = createContext<null>(null);
-
-interface StateContextProviderProps {
-    children: React.ReactNode;
-}
 
 /**
  * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
@@ -75,6 +68,10 @@ const updateUrlIfEventOnPage = (
     return true;
 };
 
+interface AppControllerProps {
+    children: React.ReactNode;
+}
+
 /**
  * Manages states for the application.
  *
@@ -82,19 +79,20 @@ const updateUrlIfEventOnPage = (
  * @param props.children
  * @return
  */
-const AppController = ({children}: StateContextProviderProps) => {
+const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
+    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
+    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const numEvents = useLogFileStore((state) => state.numEvents);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const {logFileManagerProxy} = useLogFileManagerStore.getState();
-    const numEvents = useLogFileStore((state) => state.numEvents);
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const updatePageData = useViewStore((state) => state.updatePageData);
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
@@ -126,27 +124,26 @@ const AppController = ({children}: StateContextProviderProps) => {
             return;
         }
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
-
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return;
         }
 
-        const cursor: CursorType = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        };
-
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: clampedLogEventNum},
+            };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
-            useViewStore.getState().updatePageData(pageData);
+            updatePageData(pageData);
         })().catch((e: unknown) => {
+            console.error(e);
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -159,8 +156,9 @@ const AppController = ({children}: StateContextProviderProps) => {
         logEventNum,
         logFileManagerProxy,
         numEvents,
-        setUiState,
         postPopUp,
+        setUiState,
+        updatePageData,
     ]);
 
     // On `filePath` update, load file.
@@ -189,14 +187,8 @@ const AppController = ({children}: StateContextProviderProps) => {
         setPostPopUp,
     ]);
 
-
-    return (
-        <StateContext.Provider value={null}>
-            {children}
-        </StateContext.Provider>
-    );
+    return children;
 };
 
 
 export default AppController;
-export {StateContext};

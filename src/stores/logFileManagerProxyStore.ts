@@ -2,6 +2,7 @@ import * as Comlink from "comlink";
 import {create} from "zustand";
 
 import {LogFileManagerProxy} from "../services/LogFileManagerProxy";
+import MainWorker from "../services/MainWorker.worker?worker";
 
 
 interface LogFileManagerProxyState {
@@ -9,7 +10,7 @@ interface LogFileManagerProxyState {
 }
 
 const useLogFileManagerProxyStore = create<LogFileManagerProxyState>(() => {
-    const mainWorker = new Worker(new URL("../services/MainWorker.ts", import.meta.url));
+    const mainWorker = new MainWorker();
     return {
         logFileManagerProxy: Comlink.wrap(mainWorker),
     };

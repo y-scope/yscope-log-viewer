@@ -1,7 +1,7 @@
 import clpFfiJsModuleInit, {
     ClpStreamReader,
     MainModule,
-} from "clp-ffi-js";
+} from "clp-ffi-js/worker";
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
