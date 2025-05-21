@@ -25,6 +25,7 @@ import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
 import "./index.css";
+import useViewStore from "../../stores/viewStore.ts";
 
 
 /**
@@ -42,7 +43,9 @@ const handleCopyLinkButtonClick = () => {
 const StatusBar = () => {
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
+    const {logEventNum} = useContext(UrlContext);
+    const isPrettified = useViewStore((state) => state.isPrettified);
+    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
@@ -52,6 +55,7 @@ const StatusBar = () => {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
                 });
+                setIsPrettified(!isPrettified);
                 break;
             default:
                 console.error(`Unexpected action: ${actionName}`);

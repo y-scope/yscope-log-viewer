@@ -81,11 +81,12 @@ interface AppControllerProps {
  */
 const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
+    const {filePath, logEventNum} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+    const isPrettified = useViewStore((state) => state.isPrettified);
+    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);

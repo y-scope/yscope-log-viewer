@@ -43,7 +43,7 @@ interface ViewStoreActions {
     filterLogs: (filter: LogLevelFilter) => void;
 
     loadPageByAction: (navAction: NavigationAction) => void;
-    updateIsPrettified: (newIsPrettified: boolean) => void;
+    setIsPrettified: (newIsPrettified: boolean) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -200,7 +200,7 @@ const useViewStore = create<ViewState>((set, get) => ({
     setPageNum: (newPageNum) => {
         set({pageNum: newPageNum});
     },
-    updateIsPrettified: (newIsPrettified: boolean) => {
+    setIsPrettified: (newIsPrettified: boolean) => {
         const {updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();

@@ -15,6 +15,7 @@ import {
     UrlSearchParamUpdatesType,
 } from "../typings/url";
 import {getAbsoluteUrl} from "../utils/url";
+import useViewStore from "../stores/viewStore.ts";
 
 
 const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
@@ -218,10 +219,10 @@ const getWindowUrlHashParams = () => {
             parsed;
     }
 
-    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
-    if (null !== isPrettified) {
-        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
-    }
+    // const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
+    // if (null !== isPrettified) {
+    //     urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
+    // }
 
     return urlHashParams;
 };
@@ -247,6 +248,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         ...searchParams,
         ...getWindowUrlHashParams(),
     });
+    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -256,6 +258,11 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
                 ...searchParams,
                 ...getWindowUrlHashParams(),
             });
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
+            if (null !== isPrettified) {
+                setIsPrettified("true" === isPrettified);
+            }
         };
 
         window.addEventListener("hashchange", handleHashChange);
