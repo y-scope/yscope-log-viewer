@@ -30,6 +30,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  * Default values of the hash parameters.
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
+    [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
     [HASH_PARAM_NAMES.TIMESTAMP]: null,
 });
@@ -187,7 +188,13 @@ const getWindowUrlSearchParams = () => {
         // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
         const [, filePath] = window.location.search.split("filePath=");
         if ("undefined" !== typeof filePath && 0 !== filePath.length) {
-            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = getAbsoluteUrl(filePath);
+            let resolvedFilePath = filePath;
+            try {
+                resolvedFilePath = getAbsoluteUrl(filePath);
+            } catch (e) {
+                console.error("Unable to get absolute URL from filePath:", e);
+            }
+            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
         }
     }
 
@@ -200,9 +207,8 @@ const getWindowUrlSearchParams = () => {
  * @return An object containing the hash parameters.
  */
 const getWindowUrlHashParams = () => {
-    const urlHashParams: NullableProperties<UrlHashParams> = structuredClone(
-        URL_HASH_PARAMS_DEFAULT
-    );
+    const urlHashParams: NullableProperties<UrlHashParams> =
+        structuredClone(URL_HASH_PARAMS_DEFAULT);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
     const numberHashParamNames = [
@@ -218,6 +224,11 @@ const getWindowUrlHashParams = () => {
                 null :
                 parsed;
         }
+    }
+
+    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
+    if (null !== isPrettified) {
+        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
     }
 
     return urlHashParams;

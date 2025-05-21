@@ -12,10 +12,11 @@ import {
     FormLabel,
     Input,
     Link,
+    Textarea,
 } from "@mui/joy";
 
 import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
-import {StateContext} from "../../../../../contexts/StateContextProvider";
+import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -107,7 +108,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  */
 const SettingsTabPanel = () => {
     const {postPopUp} = useContext(NotificationContext);
-    const {loadPageByAction} = useContext(StateContext);
+    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
         ev.preventDefault();
@@ -162,10 +163,14 @@ const SettingsTabPanel = () => {
                             <FormLabel>
                                 {field.label}
                             </FormLabel>
-                            <Input
-                                defaultValue={field.initialValue}
-                                name={field.key}
-                                type={field.type}/>
+                            {"number" === field.type ?
+                                <Input
+                                    defaultValue={field.initialValue}
+                                    name={field.key}
+                                    type={"number"}/> :
+                                <Textarea
+                                    defaultValue={field.initialValue}
+                                    name={field.key}/>}
                             <FormHelperText>
                                 {field.helperText}
                             </FormHelperText>
