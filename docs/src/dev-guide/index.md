@@ -16,6 +16,13 @@ Docs about building the viewer.
 :::
 
 :::{grid-item-card}
+:link: building-deploying
+Deploying
+^^^
+Docs about deploying the viewer.
+:::
+
+:::{grid-item-card}
 :link: contributing-getting-started
 Contributing
 ^^^
@@ -35,6 +42,7 @@ Docs about the viewer's design.
 :hidden:
 
 building-getting-started
+building-deploying
 :::
 
 :::{toctree}
