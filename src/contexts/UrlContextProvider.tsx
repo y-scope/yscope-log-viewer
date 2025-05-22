@@ -209,15 +209,15 @@ const getWindowUrlSearchParams = () => {
 const getWindowUrlHashParams = () => {
     const urlHashParams: NullableProperties<UrlHashParams> =
         structuredClone(URL_HASH_PARAMS_DEFAULT);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    // const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
-    if (null !== logEventNum) {
-        const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-            null :
-            parsed;
-    }
+    // const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
+    // if (null !== logEventNum) {
+    //     const parsed = Number(logEventNum);
+    //     urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
+    //         null :
+    //         parsed;
+    // }
 
     // const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
     // if (null !== isPrettified) {
@@ -248,7 +248,8 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         ...searchParams,
         ...getWindowUrlHashParams(),
     });
-    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
+    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -259,6 +260,12 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
                 ...getWindowUrlHashParams(),
             });
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
+            if (null !== logEventNum) {
+                const parsed = Number(logEventNum);
+                setLogEventNum(Number.isNaN(parsed) ? 0 : parsed);
+            }
+
             const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
             if (null !== isPrettified) {
                 setIsPrettified("true" === isPrettified);

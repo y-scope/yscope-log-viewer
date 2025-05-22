@@ -81,16 +81,16 @@ interface AppControllerProps {
  */
 const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, logEventNum} = useContext(UrlContext);
+    const {filePath} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+
     const isPrettified = useViewStore((state) => state.isPrettified);
-    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const logEventNum = useViewStore((state) => state.logEventNum);
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
@@ -102,20 +102,16 @@ const AppController = ({children}: AppControllerProps) => {
     useEffect(() => {
         if (null !== logEventNum) {
             logEventNumRef.current = logEventNum;
-            setLogEventNum(logEventNum);
         }
     }, [
         logEventNum,
-        setLogEventNum,
     ]);
 
     // Synchronize `isPrettifiedRef` with `isPrettified`.
     useEffect(() => {
         isPrettifiedRef.current = isPrettified ?? false;
-        setIsPrettified(isPrettifiedRef.current);
     }, [
         isPrettified,
-        setIsPrettified,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.

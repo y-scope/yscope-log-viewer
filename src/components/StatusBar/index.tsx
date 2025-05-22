@@ -45,7 +45,7 @@ const StatusBar = () => {
     const uiState = useUiStore((state) => state.uiState);
     const {logEventNum} = useContext(UrlContext);
     const isPrettified = useViewStore((state) => state.isPrettified);
-    const setIsPrettified = useViewStore((state) => state.setIsPrettified);
+    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;

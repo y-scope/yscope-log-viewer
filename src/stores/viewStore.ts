@@ -31,6 +31,7 @@ interface ViewStoreValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     isPrettified: boolean;
     logData: string;
+    logEventNum: number;
     numPages: number;
     pageNum: number;
 }
@@ -38,12 +39,13 @@ interface ViewStoreValues {
 interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setLogData: (newLogData: string) => void;
+    setLogEventNum: (newLogEventNum: number) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
     filterLogs: (filter: LogLevelFilter) => void;
 
     loadPageByAction: (navAction: NavigationAction) => void;
-    setIsPrettified: (newIsPrettified: boolean) => void;
+    updateIsPrettified: (newIsPrettified: boolean) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -53,6 +55,7 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     isPrettified: false,
     logData: "No file is open.",
+    logEventNum: 0,
     numPages: 0,
     pageNum: 0,
 };
@@ -194,13 +197,16 @@ const useViewStore = create<ViewState>((set, get) => ({
     setLogData: (newLogData) => {
         set({logData: newLogData});
     },
+    setLogEventNum: (newLogEventNum) => {
+        set({logEventNum: newLogEventNum});
+    },
     setNumPages: (newNumPages) => {
         set({numPages: newNumPages});
     },
     setPageNum: (newPageNum) => {
         set({pageNum: newPageNum});
     },
-    setIsPrettified: (newIsPrettified: boolean) => {
+    updateIsPrettified: (newIsPrettified: boolean) => {
         const {updatePageData} = get();
         const {logEventNum, postPopUp} = useContextStore.getState();
         const {logFileManagerProxy} = useLogFileManagerStore.getState();
