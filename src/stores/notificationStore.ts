@@ -60,10 +60,13 @@ const useNotificationStore = create<NotificationState>((set) => ({
 const handleErrorWithNotification = (e: unknown) => {
     console.error(e);
 
+    const message = e instanceof Error ?
+        e.message :
+        JSON.stringify(e);
     const {postPopUp} = useNotificationStore.getState();
     postPopUp({
         level: LOG_LEVEL.ERROR,
-        message: String(e),
+        message: message,
         timeoutMillis: DO_NOT_TIMEOUT_VALUE,
         title: "Action failed",
     });
