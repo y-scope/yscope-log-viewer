@@ -16,6 +16,7 @@ import {
 } from "../typings/url";
 import {getAbsoluteUrl} from "../utils/url";
 import useViewStore from "../stores/viewStore.ts";
+import useLogFileStore from "../stores/logFileStore.ts";
 
 
 const UrlContext = createContext <UrlParamsType>({} as UrlParamsType);
@@ -181,22 +182,22 @@ const getWindowUrlSearchParams = () => {
     const searchParams : NullableProperties<UrlSearchParams> = structuredClone(
         URL_SEARCH_PARAMS_DEFAULT
     );
-    const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
-
-    if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
-        // Split the search string and take everything after as `filePath` value.
-        // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
-        const [, filePath] = window.location.search.split("filePath=");
-        if ("undefined" !== typeof filePath && 0 !== filePath.length) {
-            let resolvedFilePath = filePath;
-            try {
-                resolvedFilePath = getAbsoluteUrl(filePath);
-            } catch (e) {
-                console.error("Unable to get absolute URL from filePath:", e);
-            }
-            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
-        }
-    }
+    // const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+    //
+    // if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
+    //     // Split the search string and take everything after as `filePath` value.
+    //     // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
+    //     const [, filePath] = window.location.search.split("filePath=");
+    //     if ("undefined" !== typeof filePath && 0 !== filePath.length) {
+    //         let resolvedFilePath = filePath;
+    //         try {
+    //             resolvedFilePath = getAbsoluteUrl(filePath);
+    //         } catch (e) {
+    //             console.error("Unable to get absolute URL from filePath:", e);
+    //         }
+    //         searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
+    //     }
+    // }
 
     return searchParams;
 };
@@ -248,6 +249,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
         ...searchParams,
         ...getWindowUrlHashParams(),
     });
+    const setFileSrc = useLogFileStore((state) => state.setFileSrc);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const setLogEventNum = useViewStore((state) => state.setLogEventNum);
 
@@ -256,7 +258,7 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
             setUrlParams({
                 ...URL_SEARCH_PARAMS_DEFAULT,
                 ...URL_HASH_PARAMS_DEFAULT,
-                ...searchParams,
+                ...getWindowUrlSearchParams(),
                 ...getWindowUrlHashParams(),
             });
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -269,6 +271,23 @@ const UrlContextProvider = ({children}: UrlContextProviderProps) => {
             const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
             if (null !== isPrettified) {
                 setIsPrettified("true" === isPrettified);
+            }
+
+            const searchParams = new URLSearchParams(window.location.search.substring(1));
+
+            if (searchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
+                // Split the search string and take everything after as `filePath` value.
+                // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
+                const [, filePath] = window.location.search.split("filePath=");
+                if ("undefined" !== typeof filePath && 0 !== filePath.length) {
+                    let resolvedFilePath = filePath;
+                    try {
+                        resolvedFilePath = getAbsoluteUrl(filePath);
+                    } catch (e) {
+                        console.error("Unable to get absolute URL from filePath:", e);
+                    }
+                    setFileSrc(resolvedFilePath)
+                }
             }
         };
 

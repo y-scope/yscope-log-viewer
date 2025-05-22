@@ -1,5 +1,3 @@
-import React, {useContext} from "react";
-
 import {
     Button,
     Sheet,
@@ -13,7 +11,6 @@ import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
-    UrlContext,
 } from "../../contexts/UrlContextProvider";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -43,8 +40,8 @@ const handleCopyLinkButtonClick = () => {
 const StatusBar = () => {
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const {logEventNum} = useContext(UrlContext);
     const isPrettified = useViewStore((state) => state.isPrettified);
+    const logEventNum = useViewStore((state) => state.logEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {

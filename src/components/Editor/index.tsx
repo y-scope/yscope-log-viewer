@@ -2,7 +2,6 @@
 /* eslint max-lines-per-function: ["error", 170] */
 import {
     useCallback,
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -13,7 +12,6 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {
     updateWindowUrlHashParams,
-    UrlContext,
 } from "../../contexts/UrlContextProvider";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
@@ -138,9 +136,10 @@ const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const isPrettified = useViewStore((state) => state.isPrettified);
     const logData = useViewStore((state) => state.logData);
+    const logEventNum = useViewStore((state) => state.logEventNum);
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(

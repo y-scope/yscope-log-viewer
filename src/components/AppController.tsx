@@ -9,7 +9,6 @@ import {
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
-    UrlContext,
 } from "../contexts/UrlContextProvider";
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
@@ -81,11 +80,10 @@ interface AppControllerProps {
  */
 const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath} = useContext(UrlContext);
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-
+    const fileSrc = useLogFileStore((state) => state.fileSrc);
     const isPrettified = useViewStore((state) => state.isPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
@@ -98,6 +96,13 @@ const AppController = ({children}: AppControllerProps) => {
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
 
+    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    useEffect(() => {
+        isPrettifiedRef.current = isPrettified ?? false;
+    }, [
+        isPrettified,
+    ]);
+
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         if (null !== logEventNum) {
@@ -105,13 +110,6 @@ const AppController = ({children}: AppControllerProps) => {
         }
     }, [
         logEventNum,
-    ]);
-
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-    }, [
-        isPrettified,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -157,9 +155,9 @@ const AppController = ({children}: AppControllerProps) => {
         postPopUp,
     ]);
 
-    // On `filePath` update, load file.
+    // On `fileSrc` update, load file.
     useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath === fileSrc) {
             return;
         }
 
@@ -170,9 +168,9 @@ const AppController = ({children}: AppControllerProps) => {
                 args: {eventNum: logEventNumRef.current},
             };
         }
-        loadFile(filePath, cursor);
+        loadFile(fileSrc, cursor);
     }, [
-        filePath,
+        fileSrc,
         loadFile,
     ]);
 
