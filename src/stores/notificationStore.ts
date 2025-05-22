@@ -27,13 +27,11 @@ let nextPopUpMessageId = 0;
 
 const useNotificationStore = create<NotificationState>((set) => ({
     ...NOTIFICATION_STORE_DEFAULT,
-
     handlePopUpMessageClose: (messageId: number) => {
         set((state) => ({
             popUpMessages: state.popUpMessages.filter((m) => m.id !== messageId),
         }));
     },
-
     postPopUp: (message: PopUpMessage) => {
         const newMessage = {
             id: nextPopUpMessageId,
