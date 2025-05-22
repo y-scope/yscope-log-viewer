@@ -8,10 +8,6 @@ import {
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
-import {
-    copyPermalinkToClipboard,
-    updateWindowUrlHashParams,
-} from "../../contexts/UrlContextProvider";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
@@ -23,6 +19,7 @@ import StatusBarToggleButton from "./StatusBarToggleButton";
 
 import "./index.css";
 import useViewStore from "../../stores/viewStore.ts";
+import { copyPermalinkToClipboard, updateWindowUrlHashParams } from "../../utils/url.ts";
 
 
 /**

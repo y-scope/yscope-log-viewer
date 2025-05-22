@@ -1,7 +1,6 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {updateWindowUrlSearchParams} from "../contexts/UrlContextProvider";
 import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
@@ -28,6 +27,7 @@ import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
+import { updateWindowUrlSearchParams } from "../utils/url.ts";
 
 
 interface LogFileValues {

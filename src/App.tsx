@@ -1,8 +1,6 @@
 import AppController from "./components/AppController";
 import Layout from "./components/Layout";
 import NotificationContextProvider from "./contexts/NotificationContextProvider";
-import UrlContextProvider from "./contexts/UrlContextProvider";
-
 
 /**
  * Renders the main application.
@@ -12,11 +10,9 @@ import UrlContextProvider from "./contexts/UrlContextProvider";
 const App = () => {
     return (
         <NotificationContextProvider>
-            <UrlContextProvider>
-                <AppController>
-                    <Layout/>
-                </AppController>
-            </UrlContextProvider>
+            <AppController>
+                <Layout/>
+            </AppController>
         </NotificationContextProvider>
     );
 };

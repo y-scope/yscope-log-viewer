@@ -1,6 +1,5 @@
 import {create} from "zustand";
 
-import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
 import {
     LOG_LEVEL,
@@ -25,6 +24,7 @@ import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
+import { updateWindowUrlHashParams } from "../utils/url.ts";
 
 
 interface ViewStoreValues {

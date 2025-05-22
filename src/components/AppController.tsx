@@ -5,11 +5,6 @@ import React, {
 } from "react";
 
 import {NotificationContext} from "../contexts/NotificationContextProvider";
-import {
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
-} from "../contexts/UrlContextProvider";
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
@@ -27,6 +22,11 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
+import {
+    getWindowUrlHashParams,
+    getWindowUrlSearchParams,
+    updateWindowUrlHashParams, URL_HASH_PARAMS_DEFAULT, URL_SEARCH_PARAMS_DEFAULT
+} from "../utils/url.ts";
 
 
 /**
@@ -83,18 +83,57 @@ const AppController = ({children}: AppControllerProps) => {
 
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+
     const fileSrc = useLogFileStore((state) => state.fileSrc);
-    const isPrettified = useViewStore((state) => state.isPrettified);
     const loadFile = useLogFileStore((state) => state.loadFile);
+    const setFileSrc = useLogFileStore((state) => state.setFileSrc);
+
+    const isPrettified = useViewStore((state) => state.isPrettified);
+    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
+
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
+
     const logEventNum = useViewStore((state) => state.logEventNum);
+    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
+
     const setUiState = useUiStore((state) => state.setUiState);
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hashParams = getWindowUrlHashParams();
+
+            if (null !== hashParams.logEventNum) {
+                setLogEventNum(hashParams.logEventNum);
+            }
+
+            if (null !== hashParams.isPrettified) {
+                updateIsPrettified(hashParams.isPrettified);
+            }
+
+            // It is weird that updating search params when hash params changed, even there
+            // might be hidden condition that search params always change together with hash
+            // params.
+            const searchParams = getWindowUrlSearchParams();
+
+            if (null !== searchParams.filePath) {
+                setFileSrc(searchParams.filePath);
+            }
+        };
+
+        handleHashChange();
+
+        window.addEventListener("hashchange", handleHashChange);
+
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
+    }, []);
 
     // Synchronize `isPrettifiedRef` with `isPrettified`.
     useEffect(() => {

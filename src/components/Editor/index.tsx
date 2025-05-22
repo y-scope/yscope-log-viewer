@@ -10,9 +10,6 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {
-    updateWindowUrlHashParams,
-} from "../../contexts/UrlContextProvider";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -38,6 +35,7 @@ import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
 import "./index.css";
+import { updateWindowUrlHashParams } from "../../utils/url.ts";
 
 
 /**

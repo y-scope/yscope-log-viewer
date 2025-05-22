@@ -3,9 +3,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import {updateWindowUrlHashParams} from "../../../../../contexts/UrlContextProvider";
-
 import "./Result.css";
+import { updateWindowUrlHashParams } from "../../../../../utils/url.ts";
 
 
 interface ResultProps {
