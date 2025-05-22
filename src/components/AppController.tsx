@@ -4,7 +4,6 @@ import React, {
     useRef,
 } from "react";
 
-import {NotificationContext} from "../contexts/NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
@@ -14,10 +13,9 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
-import {LOG_LEVEL} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
@@ -80,12 +78,10 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
@@ -142,21 +138,12 @@ const AppController = ({children}: AppControllerProps) => {
             };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
         logFileManagerProxy,
         numEvents,
-        postPopUp,
         setUiState,
         updatePageData,
     ]);
@@ -178,13 +165,6 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
-    ]);
-
-    useEffect(() => {
-        setPostPopUp(postPopUp);
-    }, [
-        postPopUp,
-        setPostPopUp,
     ]);
 
     return children;

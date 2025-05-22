@@ -2,12 +2,10 @@ import {create} from "zustand";
 
 import LogExportManager, {EXPORT_LOGS_PROGRESS_VALUE_MIN} from "../services/LogExportManager";
 import {Nullable} from "../typings/common";
-import {LOG_LEVEL} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {EXPORT_LOGS_CHUNK_SIZE} from "../utils/config";
-import useContextStore from "./contextStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
+import {handleErrorWithNotification} from "./notificationStore";
 
 
 interface LogExportValues {
@@ -47,17 +45,7 @@ const useLogExportStore = create<LogExportState>((set) => ({
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
             await logFileManagerProxy.exportLogs();
-        })().catch((e: unknown) => {
-            console.error(e);
-
-            const {postPopUp} = useContextStore.getState();
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
 }));
 
