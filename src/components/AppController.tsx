@@ -79,9 +79,10 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function,max-statements
 const AppController = ({children}: AppControllerProps) => {
     const {postPopUp} = useContext(NotificationContext);
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
+    const {filePath, isPrettified, logEventNum, timestamp} = useContext(UrlContext);
 
     // States
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
@@ -97,6 +98,7 @@ const AppController = ({children}: AppControllerProps) => {
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
+    const timestampRef = useRef(timestamp);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -116,6 +118,37 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         isPrettified,
         setIsPrettified,
+    ]);
+
+    // On `timestamp` update, findNearestLogEventByTimestamp and clear itself from URL.
+    useEffect(() => {
+        if (null === timestamp) {
+            return;
+        }
+
+        (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestamp},
+            };
+
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            updatePageData(pageData);
+        })().catch((e: unknown) => {
+            console.error(e);
+            postPopUp({
+                level: LOG_LEVEL.ERROR,
+                message: String(e),
+                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+                title: "Action failed",
+            });
+        });
+        updateWindowUrlHashParams({timestamp: null});
+    }, [
+        logFileManagerProxy,
+        postPopUp,
+        updatePageData,
+        timestamp,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -172,6 +205,12 @@ const AppController = ({children}: AppControllerProps) => {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNumRef.current},
+            };
+        }
+        if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestampRef.current) {
+            cursor = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestampRef.current},
             };
         }
         loadFile(filePath, cursor);
