@@ -23,6 +23,9 @@ const NOTIFICATION_STORE_DEFAULT: NotificationValues = {
     popUpMessages: [],
 };
 
+/**
+ * Counter for generating unique IDs for pop-up messages.
+ */
 let nextPopUpMessageId = 0;
 
 const useNotificationStore = create<NotificationState>((set) => ({
