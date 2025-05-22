@@ -146,7 +146,10 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }
-        })().catch(handleErrorWithNotification);
+        })().catch((e: unknown) => {
+            handleErrorWithNotification(e);
+            setUiState(UI_STATE.UNOPENED);
+        });
     },
     setFileName: (newFileName) => {
         set({fileName: newFileName});
