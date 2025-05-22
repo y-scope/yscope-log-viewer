@@ -1,9 +1,7 @@
 import {StateCreator} from "zustand";
 
-import {LOG_LEVEL} from "../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
-import useNotificationStore from "../notificationStore";
+import {handleErrorWithNotification} from "../notificationStore";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {
@@ -51,17 +49,7 @@ const createQueryControllerSlice: StateCreator<
             } = get();
 
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
-        })().catch((e: unknown) => {
-            console.error(e);
-
-            const {postPopUp} = useNotificationStore.getState();
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
 });
 

@@ -13,11 +13,9 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
-import useNotificationStore from "../stores/notificationStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
-import {LOG_LEVEL} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
@@ -87,7 +85,6 @@ const AppController = ({children}: AppControllerProps) => {
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const postPopUp = useNotificationStore((state) => state.postPopUp);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -141,21 +138,12 @@ const AppController = ({children}: AppControllerProps) => {
             };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
         logFileManagerProxy,
         numEvents,
-        postPopUp,
         setUiState,
         updatePageData,
     ]);

@@ -135,7 +135,6 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  * @return
  */
 const SettingsTabPanel = () => {
-    const postPopUp = useNotificationStore((state) => state.postPopUp);
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
@@ -159,6 +158,7 @@ const SettingsTabPanel = () => {
         });
 
         if (null !== error) {
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: error,
@@ -168,10 +168,7 @@ const SettingsTabPanel = () => {
         } else {
             loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
         }
-    }, [
-        loadPageByAction,
-        postPopUp,
-    ]);
+    }, [loadPageByAction]);
 
     return (
         <CustomTabPanel
