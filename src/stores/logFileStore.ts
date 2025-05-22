@@ -96,7 +96,6 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
