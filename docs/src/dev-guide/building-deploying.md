@@ -1,71 +1,86 @@
 # Deploying a distribution
 
-To deploy the application, serve the contents of the `dist` directory using a static file host.
+To deploy a [built](building-getting-started.md) distribution of the log viewer, you'll need to do
+the following:
+
+1. [Serve the files using a static file host](#static-file-hosting).
+2. Apply any of the following optimizations:
+   * [Compression](#enabling-compression)
+   * [Configure a MIME type for WebAssembly files](#configuring-a-webassembly-mime-type)
 
 ## Static file hosting
 
-You can deploy the dist/ folder to any static hosting service such as:
+You can deploy the built distribution (the `dist` directory) to any static hosting service such as:
 
-* **[GitHub Pages][github-pages]** \
-  Forking this repository will automatically deploy the site to
+* [GitHub Pages][github-pages]
+
+  :::{tip}
+  If you fork this repository and [enable GitHub Actions][enable-gh-actions] in your fork, every
+  push will trigger the [deployment workflow][gh-workflow-deploy-gh-pages] to deploy the site to
   `https://<your-github-username>.github.io/yscope-log-viewer/` using GitHub Pages.
-  [An automatic deployment workflow][gh-workflow-deploy-gh-pages] deploys the application to
-  GitHub Pages on every push to the main branch. Make sure to
-  [enable GitHub Actions][enable-gh-actions] for your fork to activate the workflow.
-* **Netlify**, **Vercel**, or **Cloudflare Pages**
-* Traditional servers using **Nginx** or **Apache**
-* Object storage + CDN setups (e.g. **AWS S3** + **CloudFront**)
+  :::
 
-Ensure your server or platform serves static assets with appropriate MIME types as outlined below.
+* [Netlify]
+* [Cloudflare Pages][cloudflare-pages]
+* [Vercel]
+* Object storage with a CDN (e.g., [AWS S3 with CloudFront][cloudfront-hosting])
 
-## MIME types
+Alternatively, you can set up your own web server (e.g., [Apache HTTP Server][apache-httpd] or
+[Nginx]).
 
-The server should be configured to serve WebAssembly (`.wasm`) files with MIME type
-`application/wasm`.
-
-:::{warning}
-Failing to do so can cause the Emscripten-generated JavaScript wrapper to make
-two HTTP requests for the same `.wasm` file, leading to unnecessary network overhead. This issue is
-detailed in [Emscripten issue #18468](https://github.com/emscripten-core/emscripten/issues/18468).
-
-Modern web servers have incorporated this MIME type by default:
-
-* **Apache HTTP Server** relies on the system's `/etc/mime.types` file; Debian-based systems include
-  the correct type in the media-types package version 3.62, which is available in Debian Buster /
-  Ubuntu 20.04 LTS and later.
-* **Nginx** includes the correct MIME type starting from 1.21.0.
-
-If your server does not have this MIME type configured, you will need to manually add it.
+:::{tip}
+We recommend serving the distribution (and by extension, any log files the user wishes to view) over
+a secure connection.
 :::
 
-## Compression
+If you encounter any issues with serving the distribution with a static file host, check out the
+[troubleshooting](#troubleshooting) section below for potential solutions.
 
-Enable **Gzip**, **Brotli**, or **Zstandard** compression for `.js`, `.css`, `.wasm`, and `.html`
-files to reduce transfer sizes and improve load times. Most modern browsers have at least one of
-these algorithms enabled by default.
+### Troubleshooting
 
-You can verify that compression is working by inspecting the response headers of the static assets -
-the `Content-Encoding` header should show `gzip`, `br`, or `zstd` depending on what was applied. See
-[MDN: Content-Encoding][mdn-content-encoding] for more details.
+1. If users of the deployed distribution want to load log files from a different origin than the
+   static file host, you'll need to ensure that the host serving the log files supports
+   [cross-origin resource sharing (CORS)][mdn-cors].
+2. If your static file host serves the log viewer over a secure connection, modern browsers won't
+   allow users to load log files over an insecure connection due to
+   [mixed content restrictions][mdn-mixed-content-restrictions].
 
-## HTTPS / TLS
+## Enabling compression
 
-It is highly recommended to serve the application over HTTPS, especially if you use the `filePath`
-URL search parameter to load external log files. Modern browsers enforce [mixed content
-restrictions][mdn-mixed-context-restrictions], which blocks loading files from insecure (`http://`)
-sources when the application itself is served over HTTPS. This is due to browser security policies,
-not a limitation of the application itself.
+To improve load times, you can reduce file transfer sizes by enabling compression for the files in
+the distribution (`.css`, `.js`, `.html`, and `.wasm` files). You can enable compression by
+configuring the static file host to support popular [content-encoding][mdn-content-encoding] methods
+(e.g., `gzip`).
 
-For the same reason, if you need to load files from insecure sources, you can either:
-* Serve the application over HTTP.
-* Use a local server to serve the application over HTTPS and load files from insecure sources.
+You can verify that compression is working by inspecting the response headers for any of the static
+assets. The `Content-Encoding` header should show a supported content encoding method (e.g., `br`,
+`gzip`, or `zstd`).
 
-Serving over HTTP is generally discouraged in production environments for security reasons.
-Whenever possible, host both the application and any log files on secure origins.
+## Configuring a WebAssembly MIME type
 
-[emscripten-issue-18468]: https://github.com/emscripten-core/emscripten/issues/18468
+To avoid unnecessary downloads of WebAssembly (`.wasm`) files (see
+[emscripten-core/emscripten#18468]), the server should be configured to serve such files using the
+`application/wasm` MIME type. The following web server deployments use this MIME type by default:
+
+* The [Apache HTTP Server][apache-httpd] on Debian-based systems (e.g., Debian v10+ or Ubuntu
+  v20.04+)
+  * This deployment relies on the system's `/etc/mime.types` file which is included in the
+    media-types v3.62 package).
+* [Nginx] v1.21.0+.
+
+If your web server is not one of the above, ensure it is configured to use the aforementioned MIME
+type.
+
+[apache-httpd]: https://httpd.apache.org/
+[cloudflare-pages]: https://pages.cloudflare.com/
+[cloudfront-hosting]: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/getting-started-cloudfront-overview.html
+[emscripten-core/emscripten#18468]: https://github.com/emscripten-core/emscripten/issues/18468
 [enable-gh-actions]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository
-[gh-workflow-deploy-gh-pages]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/deploy-gh-pages.yaml
+[gh-workflow-deploy-gh-pages]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/release.yaml
 [github-pages]: https://pages.github.com/
 [mdn-content-encoding]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Encoding
-[mdn-mixed-context-restrictions]: https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content
+[mdn-cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS
+[mdn-mixed-content-restrictions]: https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content
+[Netlify]: https://www.netlify.com/
+[Nginx]: https://nginx.org/
+[Vercel]: https://vercel.com/
