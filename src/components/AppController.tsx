@@ -4,7 +4,6 @@ import React, {
     useRef,
 } from "react";
 
-import {NotificationContext} from "../contexts/NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
@@ -14,6 +13,7 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import useNotificationStore from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {LOG_LEVEL} from "../typings/logs";
@@ -80,15 +80,14 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
+    const postPopUp = useNotificationStore((state) => state.postPopUp);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -178,13 +177,6 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
-    ]);
-
-    useEffect(() => {
-        setPostPopUp(postPopUp);
-    }, [
-        postPopUp,
-        setPostPopUp,
     ]);
 
     return children;

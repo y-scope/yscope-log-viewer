@@ -23,6 +23,7 @@ import {clamp} from "../utils/math";
 import useContextStore, {CONTEXT_STORE_DEFAULT} from "./contextStore";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
+import useNotificationStore from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
@@ -138,7 +139,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         })().catch((e: unknown) => {
             console.error(e);
 
-            const {postPopUp} = useContextStore.getState();
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -192,7 +193,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         })().catch((e: unknown) => {
             console.error(e);
 
-            const {postPopUp} = useContextStore.getState();
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),
@@ -242,7 +243,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         })().catch((e: unknown) => {
             console.error(e);
 
-            const {postPopUp} = useContextStore.getState();
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),

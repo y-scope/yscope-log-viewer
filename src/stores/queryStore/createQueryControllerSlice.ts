@@ -2,8 +2,8 @@ import {StateCreator} from "zustand";
 
 import {LOG_LEVEL} from "../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
-import useContextStore from "../contextStore";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
+import useNotificationStore from "../notificationStore";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {
@@ -54,7 +54,7 @@ const createQueryControllerSlice: StateCreator<
         })().catch((e: unknown) => {
             console.error(e);
 
-            const {postPopUp} = useContextStore.getState();
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: String(e),

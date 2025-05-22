@@ -1,7 +1,4 @@
-import React, {
-    useCallback,
-    useContext,
-} from "react";
+import React, {useCallback} from "react";
 
 import {
     Box,
@@ -15,7 +12,7 @@ import {
     Textarea,
 } from "@mui/joy";
 
-import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
+import useNotificationStore from "../../../../../stores/notificationStore";
 import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
@@ -138,7 +135,7 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  * @return
  */
 const SettingsTabPanel = () => {
-    const {postPopUp} = useContext(NotificationContext);
+    const postPopUp = useNotificationStore((state) => state.postPopUp);
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {

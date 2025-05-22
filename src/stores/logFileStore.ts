@@ -22,12 +22,12 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
-import useContextStore from "./contextStore";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
+import useNotificationStore from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
-import useViewStore from "./viewStore";
+import useViewStore, {VIEW_STORE_DEFAULT} from "./viewStore";
 
 
 interface LogFileValues {
@@ -122,7 +122,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const {postPopUp} = useContextStore.getState();
+        const {postPopUp} = useNotificationStore.getState();
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
             const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
@@ -157,6 +157,8 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 title: "Action failed",
             });
             setUiState(UI_STATE.UNOPENED);
+            setFileName(LOG_FILE_STORE_DEFAULT.fileName);
+            setLogData(VIEW_STORE_DEFAULT.logData);
         });
     },
     setFileName: (newFileName) => {
