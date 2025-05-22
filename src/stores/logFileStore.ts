@@ -157,8 +157,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 title: "Action failed",
             });
             setUiState(UI_STATE.UNOPENED);
-            setFileName(LOG_FILE_STORE_DEFAULT.fileName);
-            setLogData(VIEW_STORE_DEFAULT.logData);
         });
     },
     setFileName: (newFileName) => {
