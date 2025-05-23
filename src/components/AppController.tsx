@@ -4,7 +4,6 @@ import React, {
     useRef,
 } from "react";
 
-import {NotificationContext} from "../contexts/NotificationContextProvider";
 import {
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
@@ -14,10 +13,9 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
-import {LOG_LEVEL} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
@@ -80,18 +78,17 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {postPopUp} = useContext(NotificationContext);
     const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
 
     // States
+    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
+    const loadFile = useLogFileStore((state) => state.loadFile);
+    const numEvents = useLogFileStore((state) => state.numEvents);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const {logFileManagerProxy} = useLogFileManagerStore.getState();
-    const numEvents = useLogFileStore((state) => state.numEvents);
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
+    const updatePageData = useViewStore((state) => state.updatePageData);
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
@@ -123,41 +120,32 @@ const AppController = ({children}: AppControllerProps) => {
             return;
         }
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
-
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return;
         }
 
-        const cursor: CursorType = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        };
-
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: clampedLogEventNum},
+            };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
-            useViewStore.getState().updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+            updatePageData(pageData);
+        })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
         logFileManagerProxy,
         numEvents,
         setUiState,
-        postPopUp,
+        updatePageData,
     ]);
 
     // On `filePath` update, load file.
@@ -177,13 +165,6 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
-    ]);
-
-    useEffect(() => {
-        setPostPopUp(postPopUp);
-    }, [
-        postPopUp,
-        setPostPopUp,
     ]);
 
     return children;
