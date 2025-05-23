@@ -195,9 +195,9 @@ const getWindowUrlSearchParams = () => {
         // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
         const [, filePath] = window.location.search.split("filePath=");
         if ("undefined" !== typeof filePath && 0 !== filePath.length) {
-            let resolvedFilePath = filePath;
+            let resolvedFilePath = decodeURIComponent(filePath);
             try {
-                resolvedFilePath = getAbsoluteUrl(filePath);
+                resolvedFilePath = getAbsoluteUrl(resolvedFilePath);
             } catch (e) {
                 console.error("Unable to get absolute URL from filePath:", e);
             }
