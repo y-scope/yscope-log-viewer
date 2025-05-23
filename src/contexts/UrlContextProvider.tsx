@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, {
     createContext,
     useEffect,
@@ -32,6 +33,9 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
+    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
+    [HASH_PARAM_NAMES.QUERY_STRING]: null,
 });
 
 /**
@@ -102,7 +106,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHashParams = new URLSearchParams(window.location.hash.substring(1));
     for (const [key, value] of Object.entries(updates)) {
-        if (null === value) {
+        if (null === value || false === value) {
             newHashParams.delete(key);
         } else {
             newHashParams.set(key, String(value));
@@ -182,6 +186,10 @@ const getWindowUrlSearchParams = () => {
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
+    urlSearchParams.forEach((value, key) => {
+        searchParams[key as keyof UrlSearchParams] = value;
+    });
+
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
         // Split the search string and take everything after as `filePath` value.
         // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
@@ -216,6 +224,21 @@ const getWindowUrlHashParams = () => {
         urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
             null :
             parsed;
+    }
+    const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
+    if (null !== queryString) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;
+    }
+
+    const isCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
+    if (null !== isCaseSensitive) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
+            "true" === isCaseSensitive.toLowerCase();
+    }
+
+    const isRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
+    if (null !== isRegex) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === isRegex.toLowerCase();
     }
 
     const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);

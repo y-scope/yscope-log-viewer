@@ -14,6 +14,7 @@ import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
+import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {UI_STATE} from "../typings/states";
@@ -77,14 +78,21 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-statements
 const AppController = ({children}: AppControllerProps) => {
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
+    const {
+        filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
+    } = useContext(UrlContext);
 
     // States
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
+    const startQuery = useQueryStore((state) => state.startQuery);
+    const setQueryString = useQueryStore((state) => state.setQueryString);
+    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
+    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -165,6 +173,40 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
+    ]);
+
+    useEffect(() => {
+        if (null !== queryIsCaseSensitive) {
+            setQueryIsCaseSensitive(queryIsCaseSensitive);
+        }
+    }, [
+        queryIsCaseSensitive,
+        setQueryIsCaseSensitive,
+    ]);
+
+    useEffect(() => {
+        if (null !== queryIsRegex) {
+            setQueryIsRegex(queryIsRegex);
+        }
+    }, [
+        queryIsRegex,
+        setQueryIsRegex,
+    ]);
+
+    const uiState = useUiStore((state) => state.uiState);
+
+    useEffect(() => {
+        if (null !== queryString) {
+            setQueryString(queryString);
+        }
+        if (UI_STATE.READY === uiState) {
+            startQuery();
+        }
+    }, [
+        uiState,
+        queryString,
+        startQuery,
+        setQueryString,
     ]);
 
     return children;
