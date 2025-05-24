@@ -240,6 +240,8 @@ const openInNewTab = (url: string): void => {
 /**
  * Updates hash parameters in the current window's URL with the given key-value pairs.
  *
+ * Note that we need to call setters in corresponding Zustandard stores to update the state.
+ *
  * @param updates An object containing key-value pairs to update the hash parameters. If a value is
  * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
@@ -253,13 +255,12 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
     const newUrl = new URL(window.location.href);
     newUrl.hash = newHash;
     window.history.pushState({}, "", newUrl);
-
-    // `history.pushState` doesn't trigger a `hashchange`, so we need to dispatch one manually.
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
 };
 
 /**
  * Updates search parameters in the current window's URL with the given key-value pairs.
+ *
+ * Note that we need to call setters in corresponding Zustandard stores to update the state.
  *
  * @param updates An object containing key-value pairs to update the search parameters. If a value
  * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.

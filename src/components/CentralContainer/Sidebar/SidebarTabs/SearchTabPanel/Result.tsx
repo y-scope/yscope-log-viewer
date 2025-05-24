@@ -5,6 +5,7 @@ import {
 
 import "./Result.css";
 import { updateWindowUrlHashParams } from "../../../../../utils/url.ts";
+import useViewStore from "../../../../../stores/viewStore.ts";
 
 
 interface ResultProps {
@@ -35,8 +36,10 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(...matchRange),
         message.slice(matchRange[1]),
     ];
+    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
     const handleResultButtonClick = () => {
         updateWindowUrlHashParams({logEventNum});
+        setLogEventNum(logEventNum);
     };
 
     return (

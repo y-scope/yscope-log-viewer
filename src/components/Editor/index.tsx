@@ -135,8 +135,13 @@ const Editor = () => {
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const isPrettified = useViewStore((state) => state.isPrettified);
+    const updatePrettified = useViewStore((state) => state.updateIsPrettified)
+
     const logData = useViewStore((state) => state.logData);
+
     const logEventNum = useViewStore((state) => state.logEventNum);
+    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
+
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const [lineNum, setLineNum] = useState<number>(1);
@@ -174,9 +179,11 @@ const Editor = () => {
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
             case ACTION_NAME.TOGGLE_PRETTIFY:
+                const newIsPrettified = !isPrettifiedRef.current;
                 updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
                 });
+                updatePrettified(newIsPrettified);
                 break;
             case ACTION_NAME.TOGGLE_WORD_WRAP:
                 handleToggleWordWrapAction(editor);
@@ -252,6 +259,7 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        setLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.

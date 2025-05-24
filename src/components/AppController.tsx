@@ -40,9 +40,9 @@ import {
 const updateUrlIfEventOnPage = (
     logEventNum: number,
     logEventNumsOnPage: number[]
-): boolean => {
+): { isUpdated: boolean, nearestLogEventNum: number } => {
     if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return false;
+        return { isUpdated: false, nearestLogEventNum: 0 };
     }
 
     const nearestIdx = findNearestLessThanOrEqualElement(
@@ -64,7 +64,7 @@ const updateUrlIfEventOnPage = (
         logEventNum: nearestLogEventNum,
     });
 
-    return true;
+    return { isUpdated: true, nearestLogEventNum: nearestLogEventNum };
 };
 
 interface AppControllerProps {
@@ -162,8 +162,10 @@ const AppController = ({children}: AppControllerProps) => {
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
-        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+        const {isUpdated, nearestLogEventNum} = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
+        if (isUpdated) {
             // No need to request a new page since the log event is on the current page.
+            setLogEventNum(nearestLogEventNum);
             return;
         }
 
