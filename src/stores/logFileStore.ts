@@ -1,3 +1,4 @@
+/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
@@ -21,13 +22,13 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
+import {updateWindowUrlSearchParams} from "../utils/url.ts";
 import useContextStore from "./contextStore";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
-import { updateWindowUrlSearchParams } from "../utils/url.ts";
 
 
 interface LogFileValues {

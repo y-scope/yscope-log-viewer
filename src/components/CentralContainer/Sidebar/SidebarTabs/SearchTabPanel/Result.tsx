@@ -3,9 +3,10 @@ import {
     Typography,
 } from "@mui/joy";
 
-import "./Result.css";
-import { updateWindowUrlHashParams } from "../../../../../utils/url.ts";
 import useViewStore from "../../../../../stores/viewStore.ts";
+import {updateWindowUrlHashParams} from "../../../../../utils/url.ts";
+
+import "./Result.css";
 
 
 interface ResultProps {

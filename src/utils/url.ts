@@ -1,10 +1,13 @@
+import {NullableProperties} from "../typings/common.ts";
 import {
     HASH_PARAM_NAMES,
-    SEARCH_PARAM_NAMES, UrlHashParams,
-    UrlHashParamUpdatesType, UrlSearchParams,
-    UrlSearchParamUpdatesType
+    SEARCH_PARAM_NAMES,
+    UrlHashParams,
+    UrlHashParamUpdatesType,
+    UrlSearchParams,
+    UrlSearchParamUpdatesType,
 } from "../typings/url.ts";
-import { NullableProperties } from "../typings/common.ts";
+
 
 /**
  * Default values of the search parameters.
@@ -18,7 +21,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
-    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: null,
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: -1,
 });
 
 /**
@@ -26,78 +29,6 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
  */
 const AMBIGUOUS_URL_CHARS_REGEX =
     new RegExp(`${encodeURIComponent("#")}|${encodeURIComponent("&")}`);
-
-/**
- * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,
- * the copied URL will include these modifications, but the original window's URL will not be
- * changed.
- *
- * @param searchParamUpdates An object containing key-value pairs to update the search parameters.
- * If a value is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
- * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
- * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
- */
-const copyPermalinkToClipboard = (
-    searchParamUpdates: UrlSearchParamUpdatesType,
-    hashParamsUpdates: UrlHashParamUpdatesType,
-) => {
-    const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(searchParamUpdates);
-    newUrl.hash = getUpdatedHashParams(hashParamsUpdates);
-    navigator.clipboard.writeText(newUrl.toString())
-        .then(() => {
-            console.log("URL copied to clipboard.");
-        })
-        .catch((error: unknown) => {
-            console.error("Failed to copy URL to clipboard:", error);
-        });
-};
-
-/**
- * Gets an absolute URL composed of a given path relative to the
- * window.location, if the given path is a relative reference; otherwise
- * the given path is returned verbatim.
- *
- * @param path The path to be resolved.
- * @return The absolute URL of the given path.
- * @throws {Error} if the given `path` is a relative reference but invalid.
- */
-const getAbsoluteUrl = (path: string) => {
-    try {
-        // eslint-disable-next-line no-new
-        new URL(path);
-    } catch {
-        path = new URL(path, window.location.origin).href;
-    }
-
-    return path;
-};
-
-/**
- * Extracts the basename (filename) from a given string containing a URL.
- *
- * @param urlString a URL string that does not contain escaped `/` (%2F).
- * @param defaultFileName
- * @return The extracted basename or `defaultFileName` if extraction fails.
- */
-const getBasenameFromUrlOrDefault = (
-    urlString: string,
-    defaultFileName: string = "Unknown filename"
-): string => {
-    let basename = defaultFileName;
-    try {
-        const url = new URL(urlString);
-        const parts = url.pathname.split("/");
-
-        // Explicit cast since typescript thinks `parts.pop()` can be undefined, but it can't be
-        // since `parts` can't be empty.
-        basename = parts.pop() as string;
-    } catch (e) {
-        console.error(`Failed to parse basename from ${urlString}.`, e);
-    }
-
-    return basename;
-};
 
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
@@ -171,6 +102,78 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     }
 
     return newHashParams.toString();
+};
+
+/**
+ * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,
+ * the copied URL will include these modifications, but the original window's URL will not be
+ * changed.
+ *
+ * @param searchParamUpdates An object containing key-value pairs to update the search parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
+ * @param hashParamsUpdates An object containing key-value pairs to update the hash parameters.
+ * If a value is `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
+ */
+const copyPermalinkToClipboard = (
+    searchParamUpdates: UrlSearchParamUpdatesType,
+    hashParamsUpdates: UrlHashParamUpdatesType,
+) => {
+    const newUrl = new URL(window.location.href);
+    newUrl.search = getUpdatedSearchParams(searchParamUpdates);
+    newUrl.hash = getUpdatedHashParams(hashParamsUpdates);
+    navigator.clipboard.writeText(newUrl.toString())
+        .then(() => {
+            console.log("URL copied to clipboard.");
+        })
+        .catch((error: unknown) => {
+            console.error("Failed to copy URL to clipboard:", error);
+        });
+};
+
+/**
+ * Gets an absolute URL composed of a given path relative to the
+ * window.location, if the given path is a relative reference; otherwise
+ * the given path is returned verbatim.
+ *
+ * @param path The path to be resolved.
+ * @return The absolute URL of the given path.
+ * @throws {Error} if the given `path` is a relative reference but invalid.
+ */
+const getAbsoluteUrl = (path: string) => {
+    try {
+        // eslint-disable-next-line no-new
+        new URL(path);
+    } catch {
+        path = new URL(path, window.location.origin).href;
+    }
+
+    return path;
+};
+
+/**
+ * Extracts the basename (filename) from a given string containing a URL.
+ *
+ * @param urlString a URL string that does not contain escaped `/` (%2F).
+ * @param defaultFileName
+ * @return The extracted basename or `defaultFileName` if extraction fails.
+ */
+const getBasenameFromUrlOrDefault = (
+    urlString: string,
+    defaultFileName: string = "Unknown filename"
+): string => {
+    let basename = defaultFileName;
+    try {
+        const url = new URL(urlString);
+        const parts = url.pathname.split("/");
+
+        // Explicit cast since typescript thinks `parts.pop()` can be undefined, but it can't be
+        // since `parts` can't be empty.
+        basename = parts.pop() as string;
+    } catch (e) {
+        console.error(`Failed to parse basename from ${urlString}.`, e);
+    }
+
+    return basename;
 };
 
 /**
@@ -272,8 +275,6 @@ const updateWindowUrlSearchParams = (updates: UrlSearchParamUpdatesType) => {
 };
 
 export {
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
     copyPermalinkToClipboard,
     getAbsoluteUrl,
     getBasenameFromUrlOrDefault,
@@ -282,4 +283,6 @@ export {
     openInNewTab,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
 };

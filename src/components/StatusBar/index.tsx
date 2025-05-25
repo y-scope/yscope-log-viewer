@@ -10,16 +10,19 @@ import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore.ts";
 import {UI_ELEMENT} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
+import {
+    copyPermalinkToClipboard,
+    updateWindowUrlHashParams,
+} from "../../utils/url.ts";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
 import "./index.css";
-import useViewStore from "../../stores/viewStore.ts";
-import { copyPermalinkToClipboard, updateWindowUrlHashParams } from "../../utils/url.ts";
 
 
 /**
@@ -87,12 +90,12 @@ const StatusBar = () => {
             <StatusBarToggleButton
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 disabled={isPrettifyButtonDisabled}
-                isActive={isPrettified ?? false}
+                isActive={isPrettified}
                 icons={{
                     active: <AutoFixHighRoundedIcon/>,
                     inactive: <AutoFixOffRoundedIcon/>,
                 }}
-                tooltipTitle={isPrettified ?? false ?
+                tooltipTitle={isPrettified ?
                     "Turn off Prettify" :
                     "Turn on Prettify"}
                 onClick={handleStatusButtonClick}/>

@@ -1,3 +1,4 @@
+/* eslint max-statements: ["error", 30] */
 import React, {
     useContext,
     useEffect,
@@ -25,7 +26,9 @@ import {clamp} from "../utils/math";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
-    updateWindowUrlHashParams, URL_HASH_PARAMS_DEFAULT, URL_SEARCH_PARAMS_DEFAULT
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url.ts";
 
 
@@ -40,9 +43,9 @@ import {
 const updateUrlIfEventOnPage = (
     logEventNum: number,
     logEventNumsOnPage: number[]
-): { isUpdated: boolean, nearestLogEventNum: number } => {
+): {isUpdated: boolean; nearestLogEventNum: number} => {
     if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return { isUpdated: false, nearestLogEventNum: 0 };
+        return {isUpdated: false, nearestLogEventNum: 0};
     }
 
     const nearestIdx = findNearestLessThanOrEqualElement(
@@ -64,7 +67,7 @@ const updateUrlIfEventOnPage = (
         logEventNum: nearestLogEventNum,
     });
 
-    return { isUpdated: true, nearestLogEventNum: nearestLogEventNum };
+    return {isUpdated: true, nearestLogEventNum: nearestLogEventNum};
 };
 
 interface AppControllerProps {
@@ -101,7 +104,7 @@ const AppController = ({children}: AppControllerProps) => {
     const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
+    const isPrettifiedRef = useRef<boolean>(isPrettified);
     const logEventNumRef = useRef(logEventNum);
 
     useEffect(() => {
@@ -133,20 +136,20 @@ const AppController = ({children}: AppControllerProps) => {
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
-    }, []);
+    }, [setFileSrc,
+        setLogEventNum,
+        updateIsPrettified]);
 
     // Synchronize `isPrettifiedRef` with `isPrettified`.
     useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
+        isPrettifiedRef.current = isPrettified;
     }, [
         isPrettified,
     ]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
-        if (null !== logEventNum) {
-            logEventNumRef.current = logEventNum;
-        }
+        logEventNumRef.current = logEventNum;
     }, [
         logEventNum,
     ]);
@@ -162,10 +165,15 @@ const AppController = ({children}: AppControllerProps) => {
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
-        const {isUpdated, nearestLogEventNum} = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
+        const {
+            isUpdated,
+            nearestLogEventNum,
+        } = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
+
         if (isUpdated) {
             // No need to request a new page since the log event is on the current page.
             setLogEventNum(nearestLogEventNum);
+
             return;
         }
 
@@ -192,6 +200,7 @@ const AppController = ({children}: AppControllerProps) => {
         logEventNum,
         logFileManagerProxy,
         numEvents,
+        setLogEventNum,
         setUiState,
         postPopUp,
     ]);

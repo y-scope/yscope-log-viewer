@@ -19,12 +19,12 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {clamp} from "../utils/math";
+import {updateWindowUrlHashParams} from "../utils/url.ts";
 import useContextStore from "./contextStore";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
-import { updateWindowUrlHashParams } from "../utils/url.ts";
 
 
 interface ViewStoreValues {
