@@ -1,18 +1,14 @@
 /* eslint max-statements: ["error", 30] */
 import React, {
-    useContext,
     useEffect,
     useRef,
 } from "react";
 
-import {NotificationContext} from "../contexts/NotificationContextProvider";
-import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
-import {LOG_LEVEL} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
 import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
@@ -82,8 +78,6 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {postPopUp} = useContext(NotificationContext);
-
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
 
@@ -100,8 +94,9 @@ const AppController = ({children}: AppControllerProps) => {
     const logEventNum = useViewStore((state) => state.logEventNum);
     const setLogEventNum = useViewStore((state) => state.setLogEventNum);
 
+    const updatePageData = useViewStore((state) => state.updatePageData);
+
     const setUiState = useUiStore((state) => state.setUiState);
-    const setPostPopUp = useContextStore((state) => state.setPostPopUp);
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified);
@@ -160,10 +155,9 @@ const AppController = ({children}: AppControllerProps) => {
             return;
         }
 
+        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
-
-        const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
         const {
             isUpdated,
@@ -177,24 +171,16 @@ const AppController = ({children}: AppControllerProps) => {
             return;
         }
 
-        const cursor: CursorType = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        };
-
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: clampedLogEventNum},
+            };
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
-            useViewStore.getState().updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+            updatePageData(pageData);
+        })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
         logEventNum,
@@ -202,7 +188,7 @@ const AppController = ({children}: AppControllerProps) => {
         numEvents,
         setLogEventNum,
         setUiState,
-        postPopUp,
+        updatePageData,
     ]);
 
     // On `fileSrc` update, load file.
@@ -222,13 +208,6 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         fileSrc,
         loadFile,
-    ]);
-
-    useEffect(() => {
-        setPostPopUp(postPopUp);
-    }, [
-        postPopUp,
-        setPostPopUp,
     ]);
 
     return children;
