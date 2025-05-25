@@ -90,9 +90,6 @@ const AppController = ({children}: AppControllerProps) => {
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const startQuery = useQueryStore((state) => state.startQuery);
-    const setQueryString = useQueryStore((state) => state.setQueryString);
-    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
-    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -177,26 +174,23 @@ const AppController = ({children}: AppControllerProps) => {
 
     useEffect(() => {
         if (null !== queryIsCaseSensitive) {
+            const {setQueryIsCaseSensitive} = useQueryStore.getState();
             setQueryIsCaseSensitive(queryIsCaseSensitive);
         }
-    }, [
-        queryIsCaseSensitive,
-        setQueryIsCaseSensitive,
-    ]);
+    }, [queryIsCaseSensitive]);
 
     useEffect(() => {
         if (null !== queryIsRegex) {
+            const {setQueryIsRegex} = useQueryStore.getState();
             setQueryIsRegex(queryIsRegex);
         }
-    }, [
-        queryIsRegex,
-        setQueryIsRegex,
-    ]);
+    }, [queryIsRegex]);
 
     const uiState = useUiStore((state) => state.uiState);
 
     useEffect(() => {
         if (null !== queryString) {
+            const {setQueryString} = useQueryStore.getState();
             setQueryString(queryString);
         }
         if (UI_STATE.READY === uiState) {
@@ -206,7 +200,6 @@ const AppController = ({children}: AppControllerProps) => {
         uiState,
         queryString,
         startQuery,
-        setQueryString,
     ]);
 
     return children;
