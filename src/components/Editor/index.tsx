@@ -180,7 +180,7 @@ const Editor = () => {
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
             case ACTION_NAME.TOGGLE_PRETTIFY: {
-                const newIsPrettified = !isPrettifiedRef.current;
+                const newIsPrettified = false === isPrettifiedRef.current;
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
                 });

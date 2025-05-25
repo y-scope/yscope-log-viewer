@@ -21,7 +21,7 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
-import {updateWindowUrlSearchParams} from "../utils/url.ts";
+import {updateWindowUrlSearchParams} from "../utils/url";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";

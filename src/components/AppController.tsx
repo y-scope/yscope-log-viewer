@@ -114,9 +114,7 @@ const AppController = ({children}: AppControllerProps) => {
                 updateIsPrettified(hashParams.isPrettified);
             }
 
-            // It is weird that updating search params when hash params changed, even there
-            // might be hidden condition that search params always change together with hash
-            // params.
+            // Also check search params to handle initial page load and maintain full URL state
             const searchParams = getWindowUrlSearchParams();
 
             if (null !== searchParams.filePath) {
