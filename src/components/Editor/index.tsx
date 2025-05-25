@@ -32,7 +32,7 @@ import {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
-import {updateWindowUrlHashParams} from "../../utils/url.ts";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 

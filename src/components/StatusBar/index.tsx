@@ -50,7 +50,7 @@ const StatusBar = () => {
         switch (actionName) {
             case ACTION_NAME.TOGGLE_PRETTIFY:
                 updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
                 setIsPrettified(!isPrettified);
                 break;
@@ -95,9 +95,9 @@ const StatusBar = () => {
                     active: <AutoFixHighRoundedIcon/>,
                     inactive: <AutoFixOffRoundedIcon/>,
                 }}
-                tooltipTitle={isPrettified ?
-                    "Turn off Prettify" :
-                    "Turn on Prettify"}
+                tooltipTitle={false === isPrettified ?
+                    "Turn on Prettify" :
+                    "Turn off Prettify"}
                 onClick={handleStatusButtonClick}/>
         </Sheet>
     );

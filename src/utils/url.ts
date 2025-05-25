@@ -21,7 +21,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
-    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: -1,
+    [HASH_PARAM_NAMES.LOG_EVENT_NUM]: 0,
 });
 
 /**
@@ -214,17 +214,19 @@ const getWindowUrlSearchParams = () => {
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
 
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
-        // Split the search string and take everything after as `filePath` value.
-        // This ensures any parameters following `filePath=` are incorporated into the `filePath`.
-        const [, filePath] = window.location.search.split("filePath=");
-        if ("undefined" !== typeof filePath && 0 !== filePath.length) {
-            let resolvedFilePath = filePath;
-            try {
-                resolvedFilePath = getAbsoluteUrl(filePath);
-            } catch (e) {
-                console.error("Unable to get absolute URL from filePath:", e);
+        // Extract filePath value by finding the parameter and taking everything after it
+        const filePathIndex = window.location.search.indexOf("filePath=");
+        if (-1 !== filePathIndex) {
+            const filePath = window.location.search.substring(filePathIndex + "filePath=".length);
+            if (0 !== filePath.length) {
+                let resolvedFilePath = filePath;
+                try {
+                    resolvedFilePath = getAbsoluteUrl(filePath);
+                } catch (e) {
+                    console.error("Unable to get absolute URL from filePath:", e);
+                }
+                searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
             }
-            searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
         }
     }
 
@@ -243,7 +245,8 @@ const openInNewTab = (url: string): void => {
 /**
  * Updates hash parameters in the current window's URL with the given key-value pairs.
  *
- * Note that we need to call setters in corresponding Zustandard stores to update the state.
+ * Note: This function only updates the URL. Callers are responsible for updating corresponding
+ * Zustand store state to maintain synchronization.
  *
  * @param updates An object containing key-value pairs to update the hash parameters. If a value is
  * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
@@ -263,7 +266,8 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
 /**
  * Updates search parameters in the current window's URL with the given key-value pairs.
  *
- * Note that we need to call setters in corresponding Zustandard stores to update the state.
+ * Note: This function only updates the URL. Callers are responsible for updating corresponding
+ * Zustand store state to maintain synchronization.
  *
  * @param updates An object containing key-value pairs to update the search parameters. If a value
  * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
