@@ -12,19 +12,19 @@ spec:
         - /bin/bash
         - -c
       args:
-        - yum install -y xdg-utils tar gzip && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
+        - yum install -y xdg-utils tar gzip jq && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
       env:
         - name: AWS_CONFIG_FILE
-          value: /root/.aws/credential
+          value: /aws/credential
         - name: AWS_ENDPOINT_URL
           value: http://minio:9091
         - name: LOG_VIEWER_BUCKET
           value: log-viewer
-        - name: RELEASE_URL
-          value: https://github.com/y-scope/yscope-log-viewer/releases/download/v0.1.0-main%2B20250523.fe22a3c/dist-0.1.0-main+20250523.fe22a3c.tar.gz
+        - name: TAG_NAME
+          value: latest
       volumeMounts:
         - name: secret-volume
-          mountPath: "/root/.aws"
+          mountPath: "/aws/"
       imagePullPolicy: IfNotPresent
   volumes:
     - name: secret-volume

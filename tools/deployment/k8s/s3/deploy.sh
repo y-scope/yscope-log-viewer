@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# This script is tailored for the official AWS CLI container image provided by Amazon (amazon/aws-cli).
-# Prior to running the script, ensure that your AWS credentials or secrets are configured using environment variables.
-# You can set them up in the following ways:
-# 1. Use AWS_CONFIG_FILE to specify the path to a configuration file.
-# 2. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly as environment variables.
-# 3. Refer to the AWS CLI documentation for additional authentication methods available.
+# AWS CLI Container Image Script
+# Ensure AWS CLI environment setup:
+# - Use official AWS CLI container image (amazon/aws-cli).
+# - Configure AWS credentials using environment variables.
+#   - Set AWS_CONFIG_FILE for configuration file path.
+#   - Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly.
+#   - Refer to AWS CLI docs for more authentication options.
 
-# In addition, the script expects the following environment variables
-# 1. AWS_CONFIG_FILE: i.e. /root/.aws/credential
-# 2. AWS_ENDPOINT_URL: i.e. http://minio:9091
-# 3. LOG_VIEWER_BUCKET: i.e. log-viewer
-# 4. RELEASE_URL: i.e. https://github.com/y-scope/yscope-log-viewer/releases/download/v0.1.0-main%2B20250523.fe22a3c/dist-0.1.0-main+20250523.fe22a3c.tar.gz
+# Expected Environment Variables:
+# - AWS_ENDPOINT_URL: Example - "http://minio:9091"
+# - LOG_VIEWER_BUCKET: Example - "log-viewer"
+# - TAG_NAME: Example - "latest" (latest stable release), A GitHub release tag, or <empty> (latest prerelease)
+
+LOG() {
+    echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") $1" >&2
+}
 
 wait_for_s3_availability() {
     max_retries=10
@@ -20,48 +24,53 @@ wait_for_s3_availability() {
 
     retries=0
     while [ $retries -lt $max_retries ]; do
-        if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" >/dev/null 2>&1; then
-            echo "S3 API endpoint ${AWS_ENDPOINT_URL} is healthy. Proceeding..."
-            break
-        else
-            echo "S3 API endpoint did not return successfully. Retrying in $retry_delay seconds..."
+        if ! aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null 2>&1; then
+            LOG "[INFO] S3 API endpoint did not return successfully. Retrying in $retry_delay seconds ..."
             retries=$((retries+1))
             sleep $retry_delay
+        else
+            break
         fi
     done
 
     if [ $retries -eq $max_retries ]; then
-        echo "Maximum retries reached. S3 API endpoint ${AWS_ENDPOINT_URL} did not respond."
+        LOG "[ERROR] Maximum retries reached. S3 API endpoint ${AWS_ENDPOINT_URL} didn't respond"
         exit 1
     fi
 }
 
-if [ -z "$DECOMPRESSED_ASSETS_DIRECTORY" ]; then
-    # If not defined, provide a default value
-    DECOMPRESSED_ASSETS_DIRECTORY="/tmp/yscope-log-viewer"
+# If if mandatory environment variables are specified
+for var in "AWS_ENDPOINT_URL" "LOG_VIEWER_BUCKET"; do
+    if [ -z "${!var}" ]; then
+        LOG "[ERROR] $var environment variable must be specified"
+        return 1
+    fi
+done
+
+# Fetch RELEASE_TARBALL_URL via GitHub API and download release
+if [ -z "$TAG_NAME" ]; then
+    # If not defined, use latest prerelease
+    RELEASE_TARBALL_URL=$(curl -s "https://api.github.com/repos/y-scope/yscope-log-viewer/releases" \
+      | jq -r 'map(select(.prerelease)) | first | .assets[0].browser_download_url')
+else
+    RELEASE_TARBALL_URL=$(curl -s "https://api.github.com/repos/y-scope/yscope-log-viewer/releases/${TAG_NAME}" \
+      | jq -r '.assets[0].browser_download_url')
 fi
 
-# Download and extract YScope log viewer RELEASE tarball
-echo "------------------------------------------------------------------------------------------"
-echo "Downloading YScope log-viewer release from"
-echo "${RELEASE_URL}"
-mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
-curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"
-
 # Wait until S3 endpoint is available
-echo "------------------------------------------------------------------------------------------"
+LOG "[INFO] Waiting until s3://${LOG_VIEWER_BUCKET} endpoint becomes available ..."
 wait_for_s3_availability
 
 # Create log-viewer bucket if not already exist
+LOG "[INFO] Creating s3://${LOG_VIEWER_BUCKET} bucket"
 if ! aws s3api head-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 2>/dev/null; then
-    echo "Creating s3://${LOG_VIEWER_BUCKET} bucket."
     aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
 else
-    echo "Bucket s3://${LOG_VIEWER_BUCKET} already exists."
+    LOG "[WARN] Bucket s3://${LOG_VIEWER_BUCKET} already exists"
 fi
 
 # Define and apply the Bucket Policy for public read access
-echo "Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
+LOG "[INFO] Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
 POLICY=$(cat <<EOP
 {
     "Version": "2012-10-17",
@@ -76,23 +85,39 @@ POLICY=$(cat <<EOP
 }
 EOP
 )
-if aws s3api put-bucket-policy \
+if ! aws s3api put-bucket-policy \
   --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" --policy "$POLICY"; then
-    echo "Bucket policy set successfully for s3://${LOG_VIEWER_BUCKET}."
-else
-    echo "Error: Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}."
+    LOG "[ERROR] Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}"
     exit 1
 fi
 
+# If not defined, provide a default temp path for decompressed assets
+LOG "[INFO] Downloading ${RELEASE_TARBALL_URL}"
+DECOMPRESSED_ASSETS_DIRECTORY="/tmp/yscope-log-viewer"
+mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
+if ! curl -sSL "$RELEASE_TARBALL_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
+    LOG "[ERROR] Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
+    # Add error handling steps here, such as logging the error or exiting the script
+    exit 1  # Exit the script with an error status
+fi
 
 # Upload all assets to object store at the root of the provided bucket
 # Note that uploads can fail with invalid/unknown checksum sent error. This is a known issue and not fatal.
 # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
-echo "Uploading YScope log-viewer assets to object store"
+LOG "[INFO] Uploading yscope-log-viewer assets to object store"
 cd "$DECOMPRESSED_ASSETS_DIRECTORY" || exit 1
 aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" \
     --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
-echo "------------------------------------------------------------------------------------------"
-echo "Log-viewer deployed and accessible at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
-echo "------------------------------------------------------------------------------------------"
+LOG "[INFO] Deployment completed successfully"
+
+# Print out a prompt message with a box around it
+prompt_message="yscope-log-viewer is now available at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
+message_length=${#prompt_message}
+total_length=$((message_length + 6))
+printf "\n\n"
+printf "+%${total_length}s+\n" | tr ' ' "-"
+printf "|%${total_length}s|\n"
+printf "|   $prompt_message   |\n"
+printf "|%${total_length}s|\n"
+printf "+%${total_length}s+\n" | tr ' ' "-"
