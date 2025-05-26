@@ -60,7 +60,7 @@ else
       jq -r '.assets[0].browser_download_url')
 fi
 if [ -z "$RELEASE_TARBALL_URL" ]; then
-  LOG "[ERROR] Could not resolve release tarball URL."
+  LOG "[ERROR] Could not automatically resolve release tarball URL"
   exit 1
 fi
 
@@ -98,7 +98,7 @@ if ! aws s3api put-bucket-policy \
     exit 1
 fi
 
-# If not defined, provide a default temp path for decompressed assets
+# Download and decompress release tarball to a temp directory
 LOG "[INFO] Downloading ${RELEASE_TARBALL_URL}"
 DECOMPRESSED_ASSETS_DIRECTORY="${DECOMPRESSED_ASSETS_DIRECTORY:-/tmp/yscope-log-viewer}"
 mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"

@@ -12,7 +12,7 @@ spec:
         - /bin/bash
         - -c
       args:
-        - yum install -y tar gzip jq && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
+        - yum install -y tar jq && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
       env:
         - name: AWS_ENDPOINT_URL
           value: http://minio:9091
