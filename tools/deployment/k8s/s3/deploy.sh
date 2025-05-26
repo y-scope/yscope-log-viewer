@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
-set -eo pipefail
 
 # This script is tailored for the official AWS CLI container image provided by Amazon (amazon/aws-cli).
-
 # Prior to running the script, ensure that your AWS credentials or secrets are configured using environment variables.
 # You can set them up in the following ways:
 # 1. Use AWS_CONFIG_FILE to specify the path to a configuration file.
 # 2. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly as environment variables.
 # 3. Refer to the AWS CLI documentation for additional authentication methods available.
-
-# In addition this script expects the following environment variables to be initialized:
-# 1. AWS_ENDPOINT_URL - i.e. http://minio:9091
-# 2. LOG_VIEWER_BUCKET - i.e. log-viewer
-# 3. RELEASE_URL - i.e. https://github.com/y-scope/yscope-log-viewer/releases/download/v0.1.0-main%2B20250523.fe22a3c/dist-0.1.0-main+20250523.fe22a3c.tar.gz
 
 wait_for_s3_availability() {
     max_retries=10
@@ -45,19 +38,17 @@ fi
 echo "------------------------------------------------------------------------------------------"
 echo "Downloading YScope log-viewer release from"
 echo ${RELEASE_URL}
-mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
-curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"
+mkdir -p $DECOMPRESSED_ASSETS_DIRECTORY
+curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C $DECOMPRESSED_ASSETS_DIRECTORY
 
 # Wait until S3 endpoint is available
 echo "------------------------------------------------------------------------------------------"
 wait_for_s3_availability
 
 # Create log-viewer bucket if not already exist
-aws s3api head-bucket --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" 2>/dev/null
-if [ $? -ne 0 ]; then
-    # Bucket does not exist, create it
+if ! aws s3api head-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 2>/dev/null; then
     echo "Creating s3://${LOG_VIEWER_BUCKET} bucket."
-    aws s3api create-bucket --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}"
+    aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
 else
     echo "Bucket s3://${LOG_VIEWER_BUCKET} already exists."
 fi
@@ -84,8 +75,9 @@ aws s3api put-bucket-policy --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG
 # Note that uploads can fail with invalid/unknown checksum sent error. This is a known issue and not fatal.
 # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
 echo "Uploading YScope log-viewer assets to object store"
-cd ${DECOMPRESSED_ASSETS_DIRECTORY}
-aws s3 cp ${DECOMPRESSED_ASSETS_DIRECTORY} s3://"${LOG_VIEWER_BUCKET}"/ --recursive --endpoint-url "${AWS_ENDPOINT_URL}"
+cd "$DECOMPRESSED_ASSETS_DIRECTORY" || exit 1
+aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" \
+    --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
 echo "------------------------------------------------------------------------------------------"
 echo "Log-viewer deployed and accessible at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
