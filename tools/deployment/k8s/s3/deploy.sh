@@ -76,7 +76,14 @@ POLICY=$(cat <<EOP
 }
 EOP
 )
-aws s3api put-bucket-policy --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" --policy "$POLICY"
+if aws s3api put-bucket-policy \
+  --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" --policy "$POLICY"; then
+    echo "Bucket policy set successfully for s3://${LOG_VIEWER_BUCKET}."
+else
+    echo "Error: Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}."
+    exit 1
+fi
+
 
 # Upload all assets to object store at the root of the provided bucket
 # Note that uploads can fail with invalid/unknown checksum sent error. This is a known issue and not fatal.
