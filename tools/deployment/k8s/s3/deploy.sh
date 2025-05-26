@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 # This script is tailored for the official AWS CLI container image provided by Amazon (amazon/aws-cli).
 
