@@ -49,7 +49,9 @@ If you encounter any issues with serving the distribution with a static file hos
 
 2. If your static file host serves the log viewer over a secure connection, modern browsers won't
    allow users to load log files over an insecure connection due to
-   [mixed content restrictions][mdn-mixed-content-restrictions].
+   [mixed content restrictions][mdn-mixed-content-restrictions]. So you'll need to ensure either:
+   * all log files to be loaded are served over secure connections; or
+   * the log viewer is served over an insecure connection (for security, this is not recommended).
 
 ## Enabling compression
 
