@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 350] */
 import {NullableProperties} from "../typings/common.ts";
 import {
     HASH_PARAM_NAMES,
@@ -277,8 +278,13 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
  * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.
  */
 const updateWindowUrlSearchParams = (updates: UrlSearchParamUpdatesType) => {
+    const newSearch = getUpdatedSearchParams(updates);
+    const currSearch = window.location.search.substring(1);
+    if (newSearch === currSearch) {
+        return;
+    }
     const newUrl = new URL(window.location.href);
-    newUrl.search = getUpdatedSearchParams(updates);
+    newUrl.search = newSearch;
     window.history.pushState({}, "", newUrl);
 };
 
