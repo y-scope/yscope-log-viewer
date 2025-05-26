@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: yscope-log-viewer-deployment
+  name: yscope-log-viewer-deployment
+spec:
+  containers:
+    - name: yscope-log-viewer-deployment
+      image: amazon/aws-cli:latest
+      command:
+        - /bin/bash
+        - -c
+      args:
+        # yum install -y xdg-utils tar gzip
+        - sleep 604800
+      env:
+        - name: AWS_CONFIG_FILE
+          value: /root/.aws/credential
+        - name: AWS_ENDPOINT_URL
+          value: http://minio:9091
+        - name: LOG_VIEWER_BUCKET
+          value: log-viewer
+        - name: RELEASE_URL
+          value: https://github.com/y-scope/yscope-log-viewer/releases/download/v0.1.0-main%2B20250523.fe22a3c/dist-0.1.0-main+20250523.fe22a3c.tar.gz
+      volumeMounts:
+        - name: secret-volume
+          mountPath: "/root/.aws"
+      imagePullPolicy: IfNotPresent
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: aws-credential
