@@ -4,6 +4,7 @@ set -eo pipefail
 # AWS CLI Container Image Script
 # Ensure AWS CLI environment setup:
 # - Use official AWS CLI container image (amazon/aws-cli).
+# - Ensure curl, xdg-utils, tar, gzip, and jq is installed.
 # - Configure AWS credentials using environment variables.
 #   - Set AWS_CONFIG_FILE for configuration file path.
 #   - Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly.
