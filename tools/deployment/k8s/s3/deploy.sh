@@ -40,7 +40,7 @@ wait_for_s3_availability() {
     fi
 }
 
-# If if mandatory environment variables are specified
+# Validate that mandatory environment variables are set
 for var in "AWS_ENDPOINT_URL" "LOG_VIEWER_BUCKET"; do
     if [ -z "${!var}" ]; then
         LOG "[ERROR] $var environment variable must be specified"
@@ -58,6 +58,10 @@ else
     RELEASE_TARBALL_URL=$(curl --silent --show-error \
       "https://api.github.com/repos/y-scope/yscope-log-viewer/releases/${TAG_NAME}" | \
       jq -r '.assets[0].browser_download_url')
+fi
+if [ -z "$RELEASE_TARBALL_URL" ]; then
+  LOG "[ERROR] Could not resolve release tarball URL."
+  exit 1
 fi
 
 # Wait until S3 endpoint is available
@@ -96,7 +100,7 @@ fi
 
 # If not defined, provide a default temp path for decompressed assets
 LOG "[INFO] Downloading ${RELEASE_TARBALL_URL}"
-DECOMPRESSED_ASSETS_DIRECTORY="/tmp/yscope-log-viewer"
+DECOMPRESSED_ASSETS_DIRECTORY="${DECOMPRESSED_ASSETS_DIRECTORY:-/tmp/yscope-log-viewer}"
 mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
 if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" | \
   tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
