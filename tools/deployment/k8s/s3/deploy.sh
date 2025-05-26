@@ -19,10 +19,10 @@ LOG() {
 }
 
 wait_for_s3_availability() {
-    max_retries=10
-    retry_delay=6
+    local max_retries=10
+    local retry_delay=6
 
-    retries=0
+    local retries=0
     while [ $retries -lt $max_retries ]; do
         if ! aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null 2>&1; then
             LOG "[INFO] S3 API endpoint did not return successfully. Retrying in $retry_delay seconds ..."
@@ -43,7 +43,7 @@ wait_for_s3_availability() {
 for var in "AWS_ENDPOINT_URL" "LOG_VIEWER_BUCKET"; do
     if [ -z "${!var}" ]; then
         LOG "[ERROR] $var environment variable must be specified"
-        return 1
+        exit 1
     fi
 done
 
@@ -105,7 +105,6 @@ fi
 # Note that uploads can fail with invalid/unknown checksum sent error. This is a known issue and not fatal.
 # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
 LOG "[INFO] Uploading yscope-log-viewer assets to object store"
-cd "$DECOMPRESSED_ASSETS_DIRECTORY" || exit 1
 aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" \
     --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
