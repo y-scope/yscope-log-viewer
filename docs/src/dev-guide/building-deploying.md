@@ -41,6 +41,12 @@ If you encounter any issues with serving the distribution with a static file hos
 1. If users of the deployed distribution want to load log files from a different origin than the
    static file host, you'll need to ensure that the host serving the log files supports
    [cross-origin resource sharing (CORS)][mdn-cors].
+
+   :::{note}
+   Sites served over `http://` and `https://` are considered different origins, even if the domain
+   is the same.
+   :::
+
 2. If your static file host serves the log viewer over a secure connection, modern browsers won't
    allow users to load log files over an insecure connection due to
    [mixed content restrictions][mdn-mixed-content-restrictions].
