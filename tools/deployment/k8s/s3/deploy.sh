@@ -51,11 +51,13 @@ done
 # Fetch RELEASE_TARBALL_URL via GitHub API and download release
 if [ -z "$TAG_NAME" ]; then
     # If not defined, use latest prerelease
-    RELEASE_TARBALL_URL=$(curl -s "https://api.github.com/repos/y-scope/yscope-log-viewer/releases" \
-      | jq -r 'map(select(.prerelease)) | first | .assets[0].browser_download_url')
+    RELEASE_TARBALL_URL=$(curl --silent --show-error \
+      "https://api.github.com/repos/y-scope/yscope-log-viewer/releases" | \
+      jq -r 'map(select(.prerelease)) | first | .assets[0].browser_download_url')
 else
-    RELEASE_TARBALL_URL=$(curl -s "https://api.github.com/repos/y-scope/yscope-log-viewer/releases/${TAG_NAME}" \
-      | jq -r '.assets[0].browser_download_url')
+    RELEASE_TARBALL_URL=$(curl --silent --show-error \
+      "https://api.github.com/repos/y-scope/yscope-log-viewer/releases/${TAG_NAME}" | \
+      jq -r '.assets[0].browser_download_url')
 fi
 
 # Wait until S3 endpoint is available
@@ -96,7 +98,8 @@ fi
 LOG "[INFO] Downloading ${RELEASE_TARBALL_URL}"
 DECOMPRESSED_ASSETS_DIRECTORY="/tmp/yscope-log-viewer"
 mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
-if ! curl -sSL "$RELEASE_TARBALL_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
+if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" | \
+  tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
     LOG "[ERROR] Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
     # Add error handling steps here, such as logging the error or exiting the script
     exit 1  # Exit the script with an error status
