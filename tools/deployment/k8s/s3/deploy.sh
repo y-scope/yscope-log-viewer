@@ -38,9 +38,9 @@ fi
 # Download and extract YScope log viewer RELEASE tarball
 echo "------------------------------------------------------------------------------------------"
 echo "Downloading YScope log-viewer release from"
-echo ${RELEASE_URL}
-mkdir -p $DECOMPRESSED_ASSETS_DIRECTORY
-curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C $DECOMPRESSED_ASSETS_DIRECTORY
+echo "${RELEASE_URL}"
+mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
+curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"
 
 # Wait until S3 endpoint is available
 echo "------------------------------------------------------------------------------------------"
