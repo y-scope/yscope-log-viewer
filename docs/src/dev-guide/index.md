@@ -43,6 +43,7 @@ Docs about the viewer's design.
 
 building-getting-started
 building-deploying
+optimization-guide
 :::
 
 :::{toctree}
