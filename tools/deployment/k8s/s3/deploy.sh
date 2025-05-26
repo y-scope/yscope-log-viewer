@@ -101,12 +101,12 @@ mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
 if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" | \
   tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
     LOG "[ERROR] Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
-    # Add error handling steps here, such as logging the error or exiting the script
-    exit 1  # Exit the script with an error status
+    exit 1
 fi
 
 # Upload all assets to object store at the root of the provided bucket
-# Note that uploads can fail with invalid/unknown checksum sent error. This is a known issue and not fatal.
+# Note that uploads can fail with invalid/unknown checksum sent error.
+# This typically occurs with old MinIO. If this happens, update to release after late 2024.
 # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
 LOG "[INFO] Uploading yscope-log-viewer assets to object store"
 aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" \
