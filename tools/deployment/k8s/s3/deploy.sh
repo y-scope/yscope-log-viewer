@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 # This script is tailored for the official AWS CLI container image provided by Amazon (amazon/aws-cli).
 # Prior to running the script, ensure that your AWS credentials or secrets are configured using environment variables.
