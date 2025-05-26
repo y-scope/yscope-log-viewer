@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # This script is tailored for the official AWS CLI container image provided by Amazon (amazon/aws-cli).
 
@@ -44,8 +45,8 @@ fi
 echo "------------------------------------------------------------------------------------------"
 echo "Downloading YScope log-viewer release from"
 echo ${RELEASE_URL}
-mkdir -p $DECOMPRESSED_ASSETS_DIRECTORY
-curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C $DECOMPRESSED_ASSETS_DIRECTORY
+mkdir -p "$DECOMPRESSED_ASSETS_DIRECTORY"
+curl -sSL "$RELEASE_URL" | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"
 
 # Wait until S3 endpoint is available
 echo "------------------------------------------------------------------------------------------"
