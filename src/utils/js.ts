@@ -4,6 +4,7 @@ import {
     JsonValue,
 } from "../typings/js";
 
+
 /**
  * Returns a new object with null values filtered out, and all values converted to strings.
  *
@@ -14,8 +15,9 @@ const filterNullValuesToStrings = <K extends string, V>(
     obj: Record<K, Nullable<V>>
 ): Record<K, string> => Object.fromEntries(
     Object.entries(obj)
-        .filter(([, v]) => v !== null)
-        .map(([k, v]) => [k, String(v)])
+        .filter(([, v]) => null !== v)
+        .map(([k, v]) => [k,
+            String(v)])
 ) as Record<K, string>;
 
 /**

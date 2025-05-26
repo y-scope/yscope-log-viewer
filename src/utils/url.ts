@@ -32,6 +32,26 @@ const AMBIGUOUS_URL_CHARS_REGEX =
     new RegExp(`${encodeURIComponent("#")}|${encodeURIComponent("&")}`);
 
 /**
+ * Gets an absolute URL composed of a given path relative to the
+ * window.location, if the given path is a relative reference; otherwise
+ * the given path is returned verbatim.
+ *
+ * @param path The path to be resolved.
+ * @return The absolute URL of the given path.
+ * @throws {Error} if the given `path` is a relative reference but invalid.
+ */
+const getAbsoluteUrl = (path: string) => {
+    try {
+        // eslint-disable-next-line no-new
+        new URL(path);
+    } catch {
+        path = new URL(path, window.location.origin).href;
+    }
+
+    return path;
+};
+
+/**
  * Retrieves all hash parameters from the current window's URL.
  *
  * @return An object containing the hash parameters.
@@ -189,26 +209,6 @@ const copyPermalinkToClipboard = (
         .catch((error: unknown) => {
             console.error("Failed to copy URL to clipboard:", error);
         });
-};
-
-/**
- * Gets an absolute URL composed of a given path relative to the
- * window.location, if the given path is a relative reference; otherwise
- * the given path is returned verbatim.
- *
- * @param path The path to be resolved.
- * @return The absolute URL of the given path.
- * @throws {Error} if the given `path` is a relative reference but invalid.
- */
-const getAbsoluteUrl = (path: string) => {
-    try {
-        // eslint-disable-next-line no-new
-        new URL(path);
-    } catch {
-        path = new URL(path, window.location.origin).href;
-    }
-
-    return path;
 };
 
 /**
