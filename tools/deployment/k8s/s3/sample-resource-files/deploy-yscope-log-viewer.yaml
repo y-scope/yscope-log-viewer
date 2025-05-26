@@ -14,8 +14,6 @@ spec:
       args:
         - yum install -y tar gzip jq && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
       env:
-        - name: AWS_CONFIG_FILE
-          value: /root/.aws/credential
         - name: AWS_ENDPOINT_URL
           value: http://minio:9091
         - name: LOG_VIEWER_BUCKET
@@ -23,10 +21,10 @@ spec:
         - name: TAG_NAME
           value: latest
       volumeMounts:
-        - name: secret-volume
+        - name: aws-credentials-volume
           mountPath: "/home/.aws"
       imagePullPolicy: IfNotPresent
   volumes:
-    - name: secret-volume
+    - name: aws-credentials-volume
       secret:
-        secretName: aws-credential
+        secretName: aws-credentials
