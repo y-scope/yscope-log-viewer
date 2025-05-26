@@ -12,8 +12,7 @@ spec:
         - /bin/bash
         - -c
       args:
-        # yum install -y xdg-utils tar gzip
-        - sleep 604800
+        - yum install -y xdg-utils tar gzip && curl -s https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/deployment/k8s/s3/deploy.sh | bash
       env:
         - name: AWS_CONFIG_FILE
           value: /root/.aws/credential
