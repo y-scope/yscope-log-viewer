@@ -8,6 +8,12 @@ set -eo pipefail
 # 2. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly as environment variables.
 # 3. Refer to the AWS CLI documentation for additional authentication methods available.
 
+# In addition, the script expects the following environment variables
+# 1. AWS_CONFIG_FILE: i.e. /root/.aws/credential
+# 2. AWS_ENDPOINT_URL: i.e. http://minio:9091
+# 3. LOG_VIEWER_BUCKET: i.e. log-viewer
+# 4. RELEASE_URL: i.e. https://github.com/y-scope/yscope-log-viewer/releases/download/v0.1.0-main%2B20250523.fe22a3c/dist-0.1.0-main+20250523.fe22a3c.tar.gz
+
 wait_for_s3_availability() {
     max_retries=10
     retry_delay=6
