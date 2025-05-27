@@ -348,9 +348,9 @@ class LogFileManager {
      * first log chunk.
      *
      * @param queryArgs
+     * @param queryArgs.queryString
      * @param queryArgs.isRegex
      * @param queryArgs.isCaseSensitive
-     * @param queryArgs.queryString
      * @throws {SyntaxError} if the query regex string is invalid.
      */
     startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
