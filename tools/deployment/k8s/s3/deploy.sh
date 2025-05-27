@@ -122,7 +122,7 @@ fi
 log "INFO" "Uploading yscope-log-viewer assets to object store."
 aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
-log "INFO" "Deployment completed successfully"
+log "INFO" "Deployment completed successfully!"
 
 # Print out a prompt message with a box around it
 prompt_message="yscope-log-viewer is now available at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
