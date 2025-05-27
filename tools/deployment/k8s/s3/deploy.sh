@@ -30,7 +30,7 @@ wait_for_s3_availability() {
     local RETRY_DELAY_IN_SECS=6
 
     for ((retries = 0; retries < $MAX_RETRIES; retries++)); do
-        if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL"; then
+        if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null; then
           return
         fi
         log "WARN" "S3 API endpoint didn't return successfully. Retrying in $RETRY_DELAY_IN_SECS seconds ..."
