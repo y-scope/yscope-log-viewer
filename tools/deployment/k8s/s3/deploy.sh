@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 set -o pipefail
-#set -u
+set -u
 
 # This script is designed to work with AWS CLI Container image, but may also be useful for other use-cases.
 # It is the user's responsibility to:
