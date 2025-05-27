@@ -7,7 +7,6 @@ import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LOG_LEVEL} from "../typings/logs";
 import {
-    DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     PopUpMessage,
 } from "../typings/notifications";
@@ -22,9 +21,9 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
-import useContextStore from "./contextStore";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
+import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
@@ -97,7 +96,6 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-// eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
@@ -122,7 +120,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const {postPopUp} = useContextStore.getState();
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
             const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
@@ -146,16 +143,11 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 fileInfo.fileType === FILE_TYPE.JSONL;
 
             if (0 === decoderOptions.formatString.length && canFormat) {
+                const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }
         })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
+            handleErrorWithNotification(e);
             setUiState(UI_STATE.UNOPENED);
         });
     },

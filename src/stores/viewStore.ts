@@ -2,11 +2,7 @@ import {create} from "zustand";
 
 import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
+import {LogLevelFilter} from "../typings/logs";
 import {UI_STATE} from "../typings/states";
 import {
     BeginLineNumToLogEventNumMap,
@@ -23,6 +19,7 @@ import {clamp} from "../utils/math";
 import useContextStore, {CONTEXT_STORE_DEFAULT} from "./contextStore";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
+import {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
@@ -135,17 +132,7 @@ const useViewStore = create<ViewState>((set, get) => ({
 
             const {startQuery} = useQueryStore.getState();
             startQuery();
-        })().catch((e: unknown) => {
-            console.error(e);
-
-            const {postPopUp} = useContextStore.getState();
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
@@ -189,17 +176,7 @@ const useViewStore = create<ViewState>((set, get) => ({
 
             const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            console.error(e);
-
-            const {postPopUp} = useContextStore.getState();
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
     setBeginLineNumToLogEventNum: (newMap) => {
         set({beginLineNumToLogEventNum: newMap});
@@ -239,17 +216,7 @@ const useViewStore = create<ViewState>((set, get) => ({
 
             const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            console.error(e);
-
-            const {postPopUp} = useContextStore.getState();
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
     updatePageData: (pageData: PageData) => {
         set({
