@@ -19,7 +19,7 @@ set -u
 log() {
     local -r VERBOSITY=$1
     local -r MESSAGE=$2
-    echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") [$VERBOSITY] $MESSAGE" >&2
+    echo "$(date --utc --date="now" +"%Y-%m-%dT%H:%M:%SZ") [$VERBOSITY] $MESSAGE" >&2
 }
 
 # Function to wait until S3 endpoint is available by listing the available buckets from the S3 endpoint.
@@ -57,7 +57,7 @@ create_and_configure_bucket() {
 
   # Define and apply the Bucket Policy for public read access
   log "INFO" "Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
-  readonly POLICY=$(
+  local -r POLICY=$(
       cat << EOP
 {
     "Version": "2012-10-17",
@@ -82,7 +82,7 @@ EOP
 # This function infers the release download link, decompress, and uploads precompiled asset to object store
 download_and_upload_assets() {
     local -r GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
-    if [[ -v "$TAG_NAME" ]]; then
+    if [[ -v TAG_NAME ]]; then
         RELEASE_TARBALL_URL=$(curl --silent --show-error "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
             | jq --raw-output '.assets[0].browser_download_url')
     else
