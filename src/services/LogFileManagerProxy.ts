@@ -62,9 +62,9 @@ class LogFileManagerProxy {
         logFileManager.exportChunkAndScheduleNext(0);
     }
 
-    startQuery (queryString: string, queryIsRegex: boolean, queryIsCaseSensitive: boolean): void {
+    startQuery (queryString: string, isRegex: boolean, isCaseSensitive: boolean): void {
         const logFileManager = this.#getLogFileManager();
-        logFileManager.startQuery({queryString, queryIsRegex, queryIsCaseSensitive});
+        logFileManager.startQuery({queryString, isRegex, isCaseSensitive});
     }
 
     /**
