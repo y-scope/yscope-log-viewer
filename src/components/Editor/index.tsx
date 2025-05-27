@@ -141,7 +141,7 @@ const Editor = () => {
     const logData = useViewStore((state) => state.logData);
 
     const logEventNum = useViewStore((state) => state.logEventNum);
-    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
+    const {setLogEventNum} = useViewStore.getState();
 
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
@@ -193,8 +193,10 @@ const Editor = () => {
             default:
                 break;
         }
-    }, [loadPageByAction,
-        updateIsPrettified]);
+    }, [
+        loadPageByAction,
+        updateIsPrettified,
+    ]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.

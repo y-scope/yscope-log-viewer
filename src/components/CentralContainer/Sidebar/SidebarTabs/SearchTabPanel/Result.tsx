@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     ListItemButton,
     Typography,
@@ -37,11 +39,14 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(...matchRange),
         message.slice(matchRange[1]),
     ];
-    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
-    const handleResultButtonClick = () => {
+    const {setLogEventNum} = useViewStore.getState();
+    const handleResultButtonClick = useCallback(() => {
         updateWindowUrlHashParams({logEventNum});
         setLogEventNum(logEventNum);
-    };
+    }, [
+        logEventNum,
+        setLogEventNum,
+    ]);
 
     return (
         <ListItemButton

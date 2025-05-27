@@ -42,7 +42,7 @@ const StatusBar = () => {
     const uiState = useUiStore((state) => state.uiState);
     const isPrettified = useViewStore((state) => state.isPrettified);
     const logEventNum = useViewStore((state) => state.logEventNum);
-    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
@@ -52,7 +52,7 @@ const StatusBar = () => {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
-                setIsPrettified(!isPrettified);
+                updateIsPrettified(!isPrettified);
                 break;
             default:
                 console.error(`Unexpected action: ${actionName}`);

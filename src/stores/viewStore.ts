@@ -234,7 +234,7 @@ const useViewStore = create<ViewState>((set, get) => ({
             logEventNum: newLogEventNum,
         });
         const {setLogEventNum} = get();
-        setLogEventNum(newLogEventNum ?? 0);
+        setLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },

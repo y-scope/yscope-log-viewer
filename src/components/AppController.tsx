@@ -83,7 +83,7 @@ const AppController = ({children}: AppControllerProps) => {
 
     const fileSrc = useLogFileStore((state) => state.fileSrc);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const setFileSrc = useLogFileStore((state) => state.setFileSrc);
+    const {setFileSrc} = useLogFileStore.getState();
 
     const isPrettified = useViewStore((state) => state.isPrettified);
     const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
@@ -92,11 +92,11 @@ const AppController = ({children}: AppControllerProps) => {
     const numEvents = useLogFileStore((state) => state.numEvents);
 
     const logEventNum = useViewStore((state) => state.logEventNum);
-    const setLogEventNum = useViewStore((state) => state.setLogEventNum);
+    const {setLogEventNum} = useViewStore.getState();
 
     const updatePageData = useViewStore((state) => state.updatePageData);
 
-    const setUiState = useUiStore((state) => state.setUiState);
+    const {setUiState} = useUiStore.getState();
 
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified);
@@ -129,23 +129,21 @@ const AppController = ({children}: AppControllerProps) => {
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
-    }, [setFileSrc,
+    }, [
+        updateIsPrettified,
+        setFileSrc,
         setLogEventNum,
-        updateIsPrettified]);
+    ]);
 
     // Synchronize `isPrettifiedRef` with `isPrettified`.
     useEffect(() => {
         isPrettifiedRef.current = isPrettified;
-    }, [
-        isPrettified,
-    ]);
+    }, [isPrettified]);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
         logEventNumRef.current = logEventNum;
-    }, [
-        logEventNum,
-    ]);
+    }, [logEventNum]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
@@ -158,8 +156,7 @@ const AppController = ({children}: AppControllerProps) => {
             Array.from(beginLineNumToLogEventNum.values());
 
         const {
-            isUpdated,
-            nearestLogEventNum,
+            isUpdated, nearestLogEventNum,
         } = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
 
         if (isUpdated) {
