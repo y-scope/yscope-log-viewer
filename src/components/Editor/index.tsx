@@ -135,7 +135,7 @@ const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const isPrettified = useViewStore((state) => state.isPrettified);
+    const {isPrettified} = useViewStore.getState();
     const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const logData = useViewStore((state) => state.logData);
@@ -150,7 +150,6 @@ const Editor = () => {
         beginLineNumToLogEventNum
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
-    const isPrettifiedRef = useRef<boolean>(isPrettified);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
 
@@ -180,7 +179,7 @@ const Editor = () => {
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
             case ACTION_NAME.TOGGLE_PRETTIFY: {
-                const newIsPrettified = false === isPrettifiedRef.current;
+                const newIsPrettified = false === isPrettified;
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
                 });
@@ -194,6 +193,7 @@ const Editor = () => {
                 break;
         }
     }, [
+        isPrettified,
         loadPageByAction,
         updateIsPrettified,
     ]);
@@ -271,11 +271,6 @@ const Editor = () => {
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
-
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified;
-    }, [isPrettified]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

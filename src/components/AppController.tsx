@@ -1,8 +1,5 @@
 /* eslint max-statements: ["error", 30] */
-import React, {
-    useEffect,
-    useRef,
-} from "react";
+import React, {useEffect} from "react";
 
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
@@ -85,22 +82,18 @@ const AppController = ({children}: AppControllerProps) => {
     const loadFile = useLogFileStore((state) => state.loadFile);
     const {setFileSrc} = useLogFileStore.getState();
 
-    const isPrettified = useViewStore((state) => state.isPrettified);
+    const {isPrettified} = useViewStore.getState();
     const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
 
-    const logEventNum = useViewStore((state) => state.logEventNum);
+    const {logEventNum} = useViewStore.getState();
     const {setLogEventNum} = useViewStore.getState();
 
     const updatePageData = useViewStore((state) => state.updatePageData);
 
     const {setUiState} = useUiStore.getState();
-
-    // Refs
-    const isPrettifiedRef = useRef<boolean>(isPrettified);
-    const logEventNumRef = useRef(logEventNum);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -135,16 +128,6 @@ const AppController = ({children}: AppControllerProps) => {
         setLogEventNum,
     ]);
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified;
-    }, [isPrettified]);
-
-    // Synchronize `logEventNumRef` with `logEventNum`.
-    useEffect(() => {
-        logEventNumRef.current = logEventNum;
-    }, [logEventNum]);
-
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
@@ -156,7 +139,8 @@ const AppController = ({children}: AppControllerProps) => {
             Array.from(beginLineNumToLogEventNum.values());
 
         const {
-            isUpdated, nearestLogEventNum,
+            isUpdated,
+            nearestLogEventNum,
         } = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
 
         if (isUpdated) {
@@ -173,11 +157,12 @@ const AppController = ({children}: AppControllerProps) => {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: clampedLogEventNum},
             };
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
+        isPrettified,
         logEventNum,
         logFileManagerProxy,
         numEvents,
@@ -193,16 +178,17 @@ const AppController = ({children}: AppControllerProps) => {
         }
 
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
+        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNumRef.current},
+                args: {eventNum: logEventNum},
             };
         }
         loadFile(fileSrc, cursor);
     }, [
         fileSrc,
         loadFile,
+        logEventNum,
     ]);
 
     return children;
