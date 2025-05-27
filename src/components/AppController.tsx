@@ -78,7 +78,12 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-statements
+
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 const AppController = ({children}: AppControllerProps) => {
     const {
         filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
@@ -89,7 +94,6 @@ const AppController = ({children}: AppControllerProps) => {
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
     const numEvents = useLogFileStore((state) => state.numEvents);
-    const startQuery = useQueryStore((state) => state.startQuery);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -194,12 +198,12 @@ const AppController = ({children}: AppControllerProps) => {
             setQueryString(queryString);
         }
         if (UI_STATE.READY === uiState) {
+            const {startQuery} = useQueryStore.getState();
             startQuery();
         }
     }, [
         uiState,
         queryString,
-        startQuery,
     ]);
 
     return children;

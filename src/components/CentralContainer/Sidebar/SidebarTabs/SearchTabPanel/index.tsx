@@ -1,4 +1,7 @@
-import {useState} from "react";
+import {
+    useCallback,
+    useState,
+} from "react";
 
 import {
     AccordionGroup,
@@ -36,10 +39,10 @@ const SearchTabPanel = () => {
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 
-    const handleCollapseAllButtonClick = () => {
+    const handleCollapseAllButtonClick = useCallback(() => {
         setIsAllExpanded((v) => !v);
-    };
-    const handleShareButtonClick = () => {
+    }, []);
+    const handleShareButtonClick = useCallback(() => {
         copyPermalinkToClipboard({}, {
             logEventNum: null,
             queryString: "" === queryString ?
@@ -48,7 +51,11 @@ const SearchTabPanel = () => {
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,
         });
-    };
+    }, [
+        queryIsCaseSensitive,
+        queryIsRegex,
+        queryString,
+    ]);
 
     return (
         <CustomTabPanel

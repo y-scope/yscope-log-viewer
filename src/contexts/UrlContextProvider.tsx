@@ -230,15 +230,15 @@ const getWindowUrlHashParams = () => {
         urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;
     }
 
-    const isCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
-    if (null !== isCaseSensitive) {
+    const queryIsCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
+    if (null !== queryIsCaseSensitive) {
         urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
-            "true" === isCaseSensitive.toLowerCase();
+            "true" === queryIsCaseSensitive;
     }
 
-    const isRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
-    if (null !== isRegex) {
-        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === isRegex.toLowerCase();
+    const queryIsRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
+    if (null !== queryIsRegex) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === queryIsRegex;
     }
 
     const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
