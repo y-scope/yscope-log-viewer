@@ -1,7 +1,7 @@
 import clpFfiJsModuleInit, {
     ClpStreamReader,
     MainModule,
-} from "clp-ffi-js";
+} from "clp-ffi-js/worker";
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
@@ -16,7 +16,6 @@ import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
 import {LogLevelFilter} from "../../../typings/logs";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
-import {postFormatPopup} from "../../MainWorker";
 import {
     convertToDayjsTimestamp,
     isJsonObject,
@@ -59,10 +58,11 @@ class ClpIrDecoder implements Decoder {
                 formatString: decoderOptions.formatString,
                 structuredIrNamespaceKeys: this.#structuredIrNamespaceKeys,
             });
-            if (0 === decoderOptions.formatString.length) {
-                postFormatPopup();
-            }
         }
+    }
+
+    get irStreamType () : CLP_IR_STREAM_TYPE {
+        return this.#streamType;
     }
 
     /**

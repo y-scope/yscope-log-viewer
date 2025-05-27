@@ -29,7 +29,7 @@ const setupCustomLogLanguage = () => {
                     TOKEN_NAME.CUSTOM_ERROR,
                 ],
                 [
-                    "FATAL",
+                    "CRITICAL|FATAL",
                     TOKEN_NAME.CUSTOM_FATAL,
                 ],
                 [

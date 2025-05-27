@@ -28,7 +28,7 @@ const CONFIG_DEFAULT: ConfigMap = Object.freeze({
         formatString: "",
         logLevelKey: "log.level",
         timestampFormatString: "YYYY-MM-DDTHH:mm:ss.SSSZ",
-        timestampKey: "@timestamp",
+        timestampKey: "timestamp",
     },
     [CONFIG_KEY.INITIAL_TAB_NAME]: TAB_NAME.FILE_INFO,
     [CONFIG_KEY.THEME]: THEME_NAME.SYSTEM,

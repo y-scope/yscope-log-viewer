@@ -1,5 +1,4 @@
 import React, {
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -16,10 +15,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import {
-    NotificationContext,
-    PopUpMessage,
-} from "../../contexts/NotificationContextProvider";
+import useNotificationStore, {PopUpMessage} from "../../stores/notificationStore";
 import {WithId} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
@@ -43,7 +39,8 @@ interface PopUpMessageProps {
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     const {id, level, primaryAction, message: messageStr, title, timeoutMillis} = message;
 
-    const {handlePopUpMessageClose} = useContext(NotificationContext);
+    const handlePopUpMessageClose = useNotificationStore((state) => state.handlePopUpMessageClose);
+
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
     const intervalCountRef = useRef<number>(0);
 
