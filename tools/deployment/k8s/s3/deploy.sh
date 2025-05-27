@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 set -o pipefail
-set -u
+#set -u
 
 # This script is designed to work with AWS CLI Container image, but may also be useful for other use-cases.
 # It is the user's responsibility to:
@@ -102,16 +102,16 @@ EOP
 )
 if ! aws s3api put-bucket-policy \
     --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" --policy "$POLICY"; then
-    LOG "ERROR" "Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}"
+    log "ERROR" "Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}"
     exit 1
 fi
 
 # Download and decompress release tarball to a temp directory
-LOG "INFO" "Downloading ${RELEASE_TARBALL_URL}"
+log "INFO" "Downloading ${RELEASE_TARBALL_URL}"
 readonly DECOMPRESSED_ASSETS_DIRECTORY=$(mktemp -d)
 if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" \
     | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
-    LOG "ERROR" "Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
+    log "ERROR" "Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
     exit 1
 fi
 
@@ -119,10 +119,10 @@ fi
 # Note that uploads can fail with invalid/unknown checksum sent error.
 # This typically occurs with old MinIO. If this happens, update to release after late 2024.
 # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
-LOG "INFO" "Uploading yscope-log-viewer assets to object store."
+log "INFO" "Uploading yscope-log-viewer assets to object store."
 aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
-LOG "INFO" "Deployment completed successfully"
+log "INFO" "Deployment completed successfully"
 
 # Print out a prompt message with a box around it
 prompt_message="yscope-log-viewer is now available at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
