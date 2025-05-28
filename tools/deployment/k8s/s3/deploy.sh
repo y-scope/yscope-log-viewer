@@ -31,7 +31,7 @@ wait_for_s3_availability() {
     local -r MAX_RETRIES=10
     local -r RETRY_DELAY_IN_SECS=6
 
-    for ((retries = 0; retries < $MAX_RETRIES; retries++)); do
+    for ((retries = 0; retries < MAX_RETRIES; retries++)); do
         if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null; then
           return
         fi
