@@ -225,6 +225,7 @@ const getWindowUrlHashParams = () => {
             null :
             parsed;
     }
+
     const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
     if (null !== queryString) {
         urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;

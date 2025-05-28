@@ -34,8 +34,8 @@ import "./index.css";
 const SearchTabPanel = () => {
     const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
-    const queryResults = useQueryStore((state) => state.queryResults);
     const queryString = useQueryStore((state) => state.queryString);
+    const queryResults = useQueryStore((state) => state.queryResults);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 

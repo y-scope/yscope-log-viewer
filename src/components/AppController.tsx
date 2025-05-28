@@ -171,6 +171,7 @@ const AppController = ({children}: AppControllerProps) => {
         loadFile,
     ]);
 
+    // Synchronize `queryIsCaseSensitive` with the Zustand QueryStore.
     useEffect(() => {
         if (null !== queryIsCaseSensitive) {
             const {setQueryIsCaseSensitive} = useQueryStore.getState();
@@ -178,6 +179,7 @@ const AppController = ({children}: AppControllerProps) => {
         }
     }, [queryIsCaseSensitive]);
 
+    // Synchronize `queryIsRegex` with the Zustand QueryStore.
     useEffect(() => {
         if (null !== queryIsRegex) {
             const {setQueryIsRegex} = useQueryStore.getState();
