@@ -73,7 +73,7 @@ create_and_configure_bucket() {
 EOP
     )
     if ! aws s3api put-bucket-policy \
-        --endpoint-url "${AWS_ENDPOINT_URL}" --bucket "${LOG_VIEWER_BUCKET}" --policy "$POLICY"; then
+        --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" --policy "$POLICY"; then
         log "ERROR" "Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}"
         exit 1
     fi
@@ -87,7 +87,7 @@ download_and_upload_assets() {
             | jq --raw-output '.assets[0].browser_download_url')
     else
         # If not defined, use latest prerelease
-        RELEASE_TARBALL_URL=$(curl --silent --show-error $GITHUB_RELEASES_API_ENDPOINT \
+        RELEASE_TARBALL_URL=$(curl --silent --show-error "$GITHUB_RELEASES_API_ENDPOINT" \
             | jq --raw-output 'map(select(.prerelease)) | first | .assets[0].browser_download_url')
     fi
     if [[ -z "$RELEASE_TARBALL_URL" ]]; then
