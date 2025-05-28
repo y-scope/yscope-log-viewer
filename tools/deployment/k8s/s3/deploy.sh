@@ -34,7 +34,7 @@ wait_for_s3_availability() {
         if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" >/dev/null; then
             return
         fi
-        log "WARN" "S3 API endpoint didn't return successfully. Retrying in ${RETRY_DELAY_IN_SECS} seconds ..."
+        log "WARN" "S3 API endpoint unavailable. Retrying in ${RETRY_DELAY_IN_SECS} seconds..."
         sleep "$RETRY_DELAY_IN_SECS"
     done
 
@@ -79,10 +79,11 @@ EOP
     fi
 }
 
-# This function infers the release download link, decompress, and uploads precompiled asset to object store
+# Downloads, extracts, and uploads the release to the object store.
 download_and_upload_assets() {
-    local -r \
-        GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
+    local GITHUB_RELEASES_API_ENDPOINT
+    GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
+    readonly GITHUB_RELEASES_API_ENDPOINT
     if [[ -v TAG_NAME ]]; then
         RELEASE_TARBALL_URL=$(curl --silent --show-error \
             "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
@@ -119,7 +120,8 @@ download_and_upload_assets() {
 
 # Function to print out a completion prompt MESSAGE with a box around it
 print_deployment_completion_prompt() {
-    prompt_MESSAGE="yscope-log-viewer is now available at ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
+    prompt_MESSAGE="yscope-log-viewer is now available at"
+    prompt_MESSAGE+=" ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
     MESSAGE_length=${#prompt_MESSAGE}
     total_length=$((MESSAGE_length + 6))
     printf "\n\n"
