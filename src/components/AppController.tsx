@@ -185,7 +185,6 @@ const AppController = ({children}: AppControllerProps) => {
         }
     }, [queryIsRegex]);
 
-
     useEffect(() => {
         if (null !== queryString) {
             const {setQueryString} = useQueryStore.getState();
