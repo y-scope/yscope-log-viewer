@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -e
 set -o pipefail
 set -u
@@ -22,20 +23,18 @@ log() {
     echo "$(date --utc --date="now" +"%Y-%m-%dT%H:%M:%SZ") [${LEVEL}] ${MESSAGE}" >&2
 }
 
-# Function waits until S3 endpoint is available by listing available buckets from the S3 endpoint.
-# If listing operation succeeds, the function returns immediately. Otherwise, it retries a maximum
-# of 10 times with a delay of 6 seconds between each retry.
+# Waits for the S3 endpoint to be available, or exits if it's unavailable.
 wait_for_s3_availability() {
+    # Check availability by listing available buckets
     log "INFO" "Waiting until ${AWS_ENDPOINT_URL} endpoint becomes available."
-
     local -r MAX_RETRIES=10
     local -r RETRY_DELAY_IN_SECS=6
-
     for ((retries = 0; retries < MAX_RETRIES; retries++)); do
         if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" >/dev/null; then
             return
         fi
         log "WARN" "S3 API endpoint unavailable. Retrying in ${RETRY_DELAY_IN_SECS} seconds."
+
         sleep "$RETRY_DELAY_IN_SECS"
     done
 
@@ -45,9 +44,9 @@ wait_for_s3_availability() {
     fi
 }
 
-# Function to create and configure log-viewer bucket and configure access policy
+# Creates and configures the log viewer bucket, or exits on failure.
 create_and_configure_bucket() {
-    # Create log-viewer bucket if not already exist
+    # Create log-viewer bucket if it doesn't already exist
     log "INFO" "Creating ${LOG_VIEWER_BUCKET_S3_URI} bucket."
     if ! aws s3api head-bucket \
         --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
@@ -56,7 +55,7 @@ create_and_configure_bucket() {
         log "WARN" "Bucket ${LOG_VIEWER_BUCKET_S3_URI} already exists."
     fi
 
-    # Define and apply the Bucket Policy for public read access
+    # Define and apply the bucket policy for public read access
     log "INFO" "Applying public read access policy to ${LOG_VIEWER_BUCKET_S3_URI}"
     local -r POLICY=$(
         cat <<EOP
@@ -80,17 +79,18 @@ EOP
     fi
 }
 
-# Downloads, extracts, and uploads the release to the object store.
+# Downloads, extracts, and uploads the release to the object store. Exits on failure.
 download_and_upload_assets() {
     local GITHUB_RELEASES_API_ENDPOINT
     GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
     readonly GITHUB_RELEASES_API_ENDPOINT
+
     if [[ -v TAG_NAME ]]; then
         RELEASE_TARBALL_URL=$(curl --silent --show-error \
             "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
             | jq --raw-output ".assets[0].browser_download_url")
     else
-        # If not defined, use latest prerelease
+        # Use latest prerelease
         RELEASE_TARBALL_URL=$(curl --silent --show-error "$GITHUB_RELEASES_API_ENDPOINT" \
             | jq --raw-output "map(select(.prerelease)) | first | .assets[0].browser_download_url")
     fi
@@ -109,11 +109,11 @@ download_and_upload_assets() {
     fi
 
     # Upload all assets to object store at the root of the provided bucket
-    # Note that uploads can fail with invalid/unknown checksum sent error.
-    # This typically occurs with old MinIO. If this happens, update to release after late 2024.
-    # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
+    # NOTE: Uploads can fail with invalid/unknown checksum sent error. This typically occurs with
+    # older versions of MinIO. If this happens, update to a release after late 2024.See this GitHub
+    # issue for details: https://github.com/minio/minio/pull/19680
     log "INFO" "Uploading yscope-log-viewer assets to ${LOG_VIEWER_BUCKET_S3_URI}"
-    aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "${LOG_VIEWER_BUCKET_S3_URI}" \
+    aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "$LOG_VIEWER_BUCKET_S3_URI" \
         --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
     log "INFO" "Deployment completed successfully!"
