@@ -116,7 +116,8 @@ download_and_upload_assets() {
     log "INFO" "Downloading ${RELEASE_TARBALL_URL}"
     local -r DECOMPRESSED_ASSETS_DIRECTORY=$(mktemp -d)
     if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" \
-        | tar --strip-components 1 -xz --directory "$DECOMPRESSED_ASSETS_DIRECTORY"; then
+        | tar --extract --gzip --strip-components 1 --directory "$DECOMPRESSED_ASSETS_DIRECTORY" \
+        ; then
         log "ERROR" "Failed to download and extract release tarball from ${RELEASE_TARBALL_URL}"
         exit 1
     fi
