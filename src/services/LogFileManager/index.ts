@@ -354,17 +354,17 @@ class LogFileManager {
      * @throws {SyntaxError} if the query regex string is invalid.
      */
     startQuery ({queryString, isRegex, isCaseSensitive}: QueryArgs): void {
-        // Send an empty query result with 0 progress to the render to init the results variable
-        // because there could be results sent by previous task before `startQuery()` runs.
-        this.#onQueryResults(0, new Map());
+        this.#queryId++;
+        this.#queryCount = 0;
 
         // If the query string is empty, or there are no logs, return
         if ("" === queryString || 0 === this.#numEvents) {
             return;
         }
 
-        this.#queryId++;
-        this.#queryCount = 0;
+        // Send an empty query result with 0 progress to the render to init the results variable
+        // because there could be results sent by previous task before `startQuery()` runs.
+        this.#onQueryResults(0, new Map());
 
         // Construct query RegExp
         const regexPattern = isRegex ?

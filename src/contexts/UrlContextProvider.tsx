@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* eslint max-lines: ["error", 350] */
 import React, {
     createContext,
     useEffect,

@@ -42,6 +42,7 @@ const SearchTabPanel = () => {
     const handleCollapseAllButtonClick = useCallback(() => {
         setIsAllExpanded((v) => !v);
     }, []);
+
     const handleShareButtonClick = useCallback(() => {
         copyPermalinkToClipboard({}, {
             logEventNum: null,

@@ -78,12 +78,6 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
-
-/**
- *
- * @param root0
- * @param root0.children
- */
 const AppController = ({children}: AppControllerProps) => {
     const {
         filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
@@ -97,6 +91,7 @@ const AppController = ({children}: AppControllerProps) => {
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
+    const uiState = useUiStore((state) => state.uiState);
     const setUiState = useUiStore((state) => state.setUiState);
 
     // Refs
@@ -190,7 +185,6 @@ const AppController = ({children}: AppControllerProps) => {
         }
     }, [queryIsRegex]);
 
-    const uiState = useUiStore((state) => state.uiState);
 
     useEffect(() => {
         if (null !== queryString) {
