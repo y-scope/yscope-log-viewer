@@ -13,7 +13,7 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
-import {handleErrorWithNotification} from "../stores/notificationStore";
+import {handleErrorWithNotification} from "../stores/notificationStore.ts";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {UI_STATE} from "../typings/states";
@@ -77,7 +77,6 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
-// eslint-disable-next-line max-lines-per-function,max-statements
 const AppController = ({children}: AppControllerProps) => {
     const {filePath, isPrettified, logEventNum, timestamp} = useContext(UrlContext);
 
@@ -130,19 +129,10 @@ const AppController = ({children}: AppControllerProps) => {
 
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
         updateWindowUrlHashParams({timestamp: null});
     }, [
         logFileManagerProxy,
-        postPopUp,
         updatePageData,
         timestamp,
     ]);
