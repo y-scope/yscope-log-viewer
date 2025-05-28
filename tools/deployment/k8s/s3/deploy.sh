@@ -3,10 +3,9 @@ set -e
 set -o pipefail
 set -u
 
-# This script is designed to work with AWS CLI Container image, but may also be useful for other use-cases.
-# It is the user's responsibility to:
+# This script is optimized to run within the AWS CLI Container image. User is responsibility to:
 # 1. Ensure curl, tar, gzip, and jq commands are preinstalled
-# 2. Ensure AWS CLI environment is pre-configured with authentication if necessary through various options:
+# 2. Ensure container is configured with AWS CLI authentication if necessary via various options:
 #   a. Put credentials file under $HOME/.aws/credentials
 #   b. Set AWS_CONFIG_FILE pointing to a custom credentials file path
 #   c. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly
@@ -22,9 +21,9 @@ log() {
     echo "$(date --utc --date="now" +"%Y-%m-%dT%H:%M:%SZ") [$VERBOSITY] $MESSAGE" >&2
 }
 
-# Function to wait until S3 endpoint is available by listing the available buckets from the S3 endpoint.
-# If the listing operation succeeds, the function returns immediately.
-# Otherwise, it retries a maximum of 10 times with a delay of 6 seconds between each retry.
+# Function waits until S3 endpoint is available by listing available buckets from the S3 endpoint.
+# If listing operation succeeds, the function returns immediately. Otherwise, it retries a maximum
+# of 10 times with a delay of 6 seconds between each retry.
 wait_for_s3_availability() {
     log "INFO" "Waiting until s3://${LOG_VIEWER_BUCKET} endpoint becomes available ..."
 
@@ -49,7 +48,8 @@ wait_for_s3_availability() {
 create_and_configure_bucket() {
   # Create log-viewer bucket if not already exist
   log "INFO" "Creating s3://${LOG_VIEWER_BUCKET} bucket."
-  if ! aws s3api head-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 2>/dev/null; then
+  if ! aws s3api head-bucket \
+      --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
       aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
   else
       log "WARN" "Bucket s3://${LOG_VIEWER_BUCKET} already exist."
@@ -81,9 +81,11 @@ EOP
 
 # This function infers the release download link, decompress, and uploads precompiled asset to object store
 download_and_upload_assets() {
-    local -r GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
+    local -r \
+        GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
     if [[ -v TAG_NAME ]]; then
-        RELEASE_TARBALL_URL=$(curl --silent --show-error "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
+        RELEASE_TARBALL_URL=$(curl --silent --show-error \
+            "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
             | jq --raw-output '.assets[0].browser_download_url')
     else
         # If not defined, use latest prerelease
@@ -100,7 +102,7 @@ download_and_upload_assets() {
     local -r DECOMPRESSED_ASSETS_DIRECTORY=$(mktemp -d)
     if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" \
         | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
-        log "ERROR" "Failed to download and extract the release tarball from ${RELEASE_TARBALL_URL}"
+        log "ERROR" "Failed to download and extract release tarball from ${RELEASE_TARBALL_URL}"
         exit 1
     fi
 
