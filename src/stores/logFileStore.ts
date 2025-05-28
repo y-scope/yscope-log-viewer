@@ -39,7 +39,6 @@ interface LogFileValues {
 
 interface LogFileActions {
     setFileName: (newFileName: string) => void;
-    setFileSrc: (newFileSrc: Nullable<FileSrcType>) => void;
     setNumEvents: (newNumEvents: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
 
@@ -155,9 +154,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
     },
     setFileName: (newFileName) => {
         set({fileName: newFileName});
-    },
-    setFileSrc: (newFileSrc) => {
-        set({fileSrc: newFileSrc});
     },
     setNumEvents: (newNumEvents) => {
         set({numEvents: newNumEvents});

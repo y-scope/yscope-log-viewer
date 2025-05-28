@@ -63,6 +63,22 @@ const updateUrlIfEventOnPage = (
     return {isUpdated: true, nearestLogEventNum: nearestLogEventNum};
 };
 
+/**
+ * Handle the hash parameters change.
+ */
+const handleHashChange = () => {
+    const {setLogEventNum, updateIsPrettified} = useViewStore.getState();
+    const hashParams = getWindowUrlHashParams();
+
+    if (null !== hashParams.logEventNum) {
+        setLogEventNum(hashParams.logEventNum);
+    }
+
+    if (null !== hashParams.isPrettified) {
+        updateIsPrettified(hashParams.isPrettified);
+    }
+};
+
 interface AppControllerProps {
     children: React.ReactNode;
 }
@@ -78,12 +94,9 @@ const AppController = ({children}: AppControllerProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
 
-    const fileSrc = useLogFileStore((state) => state.fileSrc);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const {setFileSrc} = useLogFileStore.getState();
+    const {loadFile} = useLogFileStore.getState();
 
     const {isPrettified} = useViewStore.getState();
-    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
@@ -96,36 +109,28 @@ const AppController = ({children}: AppControllerProps) => {
     const {setUiState} = useUiStore.getState();
 
     useEffect(() => {
-        const handleHashChange = () => {
-            const hashParams = getWindowUrlHashParams();
-
-            if (null !== hashParams.logEventNum) {
-                setLogEventNum(hashParams.logEventNum);
-            }
-
-            if (null !== hashParams.isPrettified) {
-                updateIsPrettified(hashParams.isPrettified);
-            }
-
-            // Also check search params to handle initial page load and maintain full URL state
-            const searchParams = getWindowUrlSearchParams();
-
-            if (null !== searchParams.filePath) {
-                setFileSrc(searchParams.filePath);
-            }
-        };
-
         handleHashChange();
-
         window.addEventListener("hashchange", handleHashChange);
+
+        // Handle initial page load and maintain full URL state
+        const searchParams = getWindowUrlSearchParams();
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
+            let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
+                cursor = {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: logEventNum},
+                };
+            }
+            loadFile(searchParams.filePath, cursor);
+        }
 
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
     }, [
-        updateIsPrettified,
-        setFileSrc,
-        setLogEventNum,
+        loadFile,
+        logEventNum,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -169,26 +174,6 @@ const AppController = ({children}: AppControllerProps) => {
         setLogEventNum,
         setUiState,
         updatePageData,
-    ]);
-
-    // On `fileSrc` update, load file.
-    useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.filePath === fileSrc) {
-            return;
-        }
-
-        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
-            cursor = {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
-            };
-        }
-        loadFile(fileSrc, cursor);
-    }, [
-        fileSrc,
-        loadFile,
-        logEventNum,
     ]);
 
     return children;
