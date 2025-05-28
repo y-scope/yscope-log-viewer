@@ -174,7 +174,7 @@ class ClpIrDecoder implements Decoder {
     }
 
     /**
-     * Formats unstructured log messages by prepending a formatted timestamp to each message
+     * Formats unstructured log events by prepending a formatted timestamp to each message.
      *
      * @param logEvents
      * @return The formatted log events.
