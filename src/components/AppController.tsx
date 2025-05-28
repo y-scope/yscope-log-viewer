@@ -78,6 +78,7 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function,max-statements
 const AppController = ({children}: AppControllerProps) => {
     const {
         filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,

@@ -214,6 +214,7 @@ const getWindowUrlSearchParams = () => {
  *
  * @return An object containing the hash parameters.
  */
+// eslint-disable-next-line max-statements
 const getWindowUrlHashParams = () => {
     const urlHashParams: NullableProperties<UrlHashParams> =
         structuredClone(URL_HASH_PARAMS_DEFAULT);
