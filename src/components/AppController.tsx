@@ -13,7 +13,7 @@ import {
 import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
-import {handleErrorWithNotification} from "../stores/notificationStore.ts";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {UI_STATE} from "../typings/states";
