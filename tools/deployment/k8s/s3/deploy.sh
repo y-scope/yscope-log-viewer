@@ -11,14 +11,15 @@ set -u
 #   c. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly
 #   d. Refer to AWS CLI docs for more authentication options.
 
-# Function to emit a log MESSAGE to stderr with auto-generated ISO timestamp, VERBOSITY and MESSAGE
+# Emits a log event to stderr with an auto-generated ISO timestamp as well as the given level
+# and message.
 #
-# @param $1: Verbosity level string
+# @param $1: Level string
 # @param $2: Message to be logged
 log() {
-    local -r VERBOSITY=$1
+    local -r LEVEL=$1
     local -r MESSAGE=$2
-    echo "$(date --utc --date="now" +"%Y-%m-%dT%H:%M:%SZ") [$VERBOSITY] $MESSAGE" >&2
+    echo "$(date --utc --date="now" +"%Y-%m-%dT%H:%M:%SZ") [${LEVEL}] ${MESSAGE}" >&2
 }
 
 # Function waits until S3 endpoint is available by listing available buckets from the S3 endpoint.
