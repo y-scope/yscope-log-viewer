@@ -14,6 +14,7 @@ import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
+import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {UI_STATE} from "../typings/states";
@@ -78,7 +79,10 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {filePath, isPrettified, logEventNum, timestamp} = useContext(UrlContext);
+    const {
+        filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
+        timestamp,
+    } = useContext(UrlContext);
 
     // States
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
@@ -88,6 +92,7 @@ const AppController = ({children}: AppControllerProps) => {
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
+    const uiState = useUiStore((state) => state.uiState);
     const setUiState = useUiStore((state) => state.setUiState);
 
     // Refs
@@ -194,6 +199,36 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         filePath,
         loadFile,
+    ]);
+
+    // Synchronize `queryIsCaseSensitive` with the Zustand QueryStore.
+    useEffect(() => {
+        if (null !== queryIsCaseSensitive) {
+            const {setQueryIsCaseSensitive} = useQueryStore.getState();
+            setQueryIsCaseSensitive(queryIsCaseSensitive);
+        }
+    }, [queryIsCaseSensitive]);
+
+    // Synchronize `queryIsRegex` with the Zustand QueryStore.
+    useEffect(() => {
+        if (null !== queryIsRegex) {
+            const {setQueryIsRegex} = useQueryStore.getState();
+            setQueryIsRegex(queryIsRegex);
+        }
+    }, [queryIsRegex]);
+
+    useEffect(() => {
+        if (null !== queryString) {
+            const {setQueryString} = useQueryStore.getState();
+            setQueryString(queryString);
+        }
+        if (UI_STATE.READY === uiState) {
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        }
+    }, [
+        uiState,
+        queryString,
     ]);
 
     return children;

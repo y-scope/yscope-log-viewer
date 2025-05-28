@@ -75,7 +75,7 @@ class LogFileManagerProxy {
      */
     #getLogFileManager (): LogFileManager {
         if (null === this.logFileManager) {
-            throw new Error("LogFileManager hasn't initialized");
+            throw new Error("LogFileManager hasn't been initialized");
         }
 
         return this.logFileManager;
