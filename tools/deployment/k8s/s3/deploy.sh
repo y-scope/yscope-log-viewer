@@ -96,7 +96,7 @@ download_and_upload_assets() {
         RELEASE_TARBALL_URL=$(curl --silent --show-error "$GITHUB_RELEASES_API_ENDPOINT" \
             | jq --raw-output "map(select(.prerelease)) | first | .assets[0].browser_download_url")
     fi
-    if [[ -z "$RELEASE_TARBALL_URL" ]]; then
+    if ! [[ -v RELEASE_TARBALL_URL ]]; then
         log "ERROR" "Cannot resolve release tarball URL."
         exit 1
     fi
@@ -149,7 +149,7 @@ readonly REQUIRED_ENV_VARS=(
     "LOG_VIEWER_BUCKET"
 )
 for var in "${REQUIRED_ENV_VARS[@]}"; do
-    if [[ -z "$var" ]]; then
+    if ! [[ -v "$var" ]]; then
         log "ERROR" "$var environment variable must be set."
         exit 1
     fi
