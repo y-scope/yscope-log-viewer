@@ -110,8 +110,8 @@ download_and_upload_assets() {
 
     # Upload all assets to object store at the root of the provided bucket
     # NOTE: Uploads can fail with invalid/unknown checksum sent error. This typically occurs with
-    # older versions of MinIO. If this happens, update to a release after late 2024. See this
-    # GitHub issue for details: https://github.com/minio/minio/pull/19680
+    # older versions of MinIO. If this happens, update to a release after late 2024. See this GitHub
+    # issue for details: https://github.com/minio/minio/pull/19680
     log "INFO" "Uploading yscope-log-viewer assets to ${LOG_VIEWER_BUCKET_S3_URI}"
     aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "$LOG_VIEWER_BUCKET_S3_URI" \
         --recursive --endpoint-url "$AWS_ENDPOINT_URL"
