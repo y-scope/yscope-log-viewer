@@ -87,11 +87,11 @@ download_and_upload_assets() {
     if [[ -v TAG_NAME ]]; then
         RELEASE_TARBALL_URL=$(curl --silent --show-error \
             "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
-            | jq --raw-output '.assets[0].browser_download_url')
+            | jq --raw-output ".assets[0].browser_download_url")
     else
         # If not defined, use latest prerelease
         RELEASE_TARBALL_URL=$(curl --silent --show-error "$GITHUB_RELEASES_API_ENDPOINT" \
-            | jq --raw-output 'map(select(.prerelease)) | first | .assets[0].browser_download_url')
+            | jq --raw-output "map(select(.prerelease)) | first | .assets[0].browser_download_url")
     fi
     if [[ -z "$RELEASE_TARBALL_URL" ]]; then
         log "ERROR" "Cannot resolve release tarball URL."
@@ -125,11 +125,11 @@ print_deployment_completion_prompt() {
     MESSAGE_length=${#prompt_MESSAGE}
     total_length=$((MESSAGE_length + 6))
     printf "\n\n"
-    printf "+%${total_length}s+\n" | tr ' ' "-"
+    printf "+%${total_length}s+\n" | tr " " "-"
     printf "|%${total_length}s|\n"
     printf "|   %s   |\n" "$prompt_MESSAGE"
     printf "|%${total_length}s|\n"
-    printf "+%${total_length}s+\n" | tr ' ' "-"
+    printf "+%${total_length}s+\n" | tr " " "-"
 }
 
 # Validate required environment variables and populate optional one if not provided
