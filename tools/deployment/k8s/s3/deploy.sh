@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
 
+# Deploys the yscope-log-viewer to an S3-compatible object store.
+#
+# Requirements:
+#
+# * Tools:
+#   * curl
+#   * gzip
+#   * jq
+#   * tar
+# * AWS CLI authentication configured using any supported method---for example:
+#   * A credentials file in $HOME/.aws/credentials
+#   * AWS_CONFIG_FILE pointing to a custom credentials file
+#   * Environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+# * Environment variables:
+#   * AWS_ENDPOINT_URL: The S3-compatible object store endpoint URL
+#   * LOG_VIEWER_BUCKET: The name of the bucket where the log viewer should be deployed
+#     * NOTE: This script will make the bucket publicly readable.
+#   * LOG_VIEWER_RELEASE_TAG (Optional): The tag of the log viewer release that should be downloaded
+
 set -e
 set -o pipefail
 set -u
-
-# This script is optimized to run within the AWS CLI Container image. User is responsibility to:
-# 1. Ensure curl, tar, gzip, and jq commands are preinstalled
-# 2. Ensure container is configured with AWS CLI authentication if necessary via various options:
-#   a. Put credentials file under $HOME/.aws/credentials
-#   b. Set AWS_CONFIG_FILE pointing to a custom credentials file path
-#   c. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY directly
-#   d. Refer to AWS CLI docs for more authentication options.
 
 # Emits a log event to stderr with an auto-generated ISO timestamp as well as the given level
 # and message.
@@ -87,9 +98,9 @@ download_and_upload_assets() {
     GITHUB_RELEASES_API_ENDPOINT="https://api.github.com/repos/y-scope/yscope-log-viewer/releases"
     readonly GITHUB_RELEASES_API_ENDPOINT
 
-    if [[ -v TAG_NAME ]]; then
+    if [[ -v LOG_VIEWER_RELEASE_TAG ]]; then
         RELEASE_TARBALL_URL=$(curl --silent --show-error \
-            "${GITHUB_RELEASES_API_ENDPOINT}/${TAG_NAME}" \
+            "${GITHUB_RELEASES_API_ENDPOINT}/${LOG_VIEWER_RELEASE_TAG}" \
             | jq --raw-output ".assets[0].browser_download_url")
     else
         # Use latest prerelease
