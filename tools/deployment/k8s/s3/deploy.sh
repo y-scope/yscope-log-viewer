@@ -118,16 +118,18 @@ download_and_upload_assets() {
     log "INFO" "Deployment completed successfully!"
 }
 
-# Function to print out a completion prompt MESSAGE with a box around it
-print_deployment_completion_prompt() {
-    prompt_MESSAGE="yscope-log-viewer is now available at"
-    prompt_MESSAGE+=" ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
-    MESSAGE_length=${#prompt_MESSAGE}
-    total_length=$((MESSAGE_length + 6))
+# Prints out a message indicating the deployment is complete
+print_deployment_completion_message() {
+    local MESSAGE="yscope-log-viewer is now available at"
+    MESSAGE+=" ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
+    readonly MESSAGE
+    local -r PADDING_SPACES="   "
+
+    total_length=$((${#PADDING_SPACES} + ${#MESSAGE} + ${#PADDING_SPACES}))
     printf "\n\n"
     printf "+%${total_length}s+\n" | tr " " "-"
     printf "|%${total_length}s|\n"
-    printf "|   %s   |\n" "$prompt_MESSAGE"
+    printf "|%s%s%s|\n" "$PADDING_SPACES" "$MESSAGE" "$PADDING_SPACES"
     printf "|%${total_length}s|\n"
     printf "+%${total_length}s+\n" | tr " " "-"
 }
@@ -150,4 +152,4 @@ done
 wait_for_s3_availability
 create_and_configure_bucket
 download_and_upload_assets
-print_deployment_completion_prompt
+print_deployment_completion_message
