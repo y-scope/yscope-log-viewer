@@ -14,7 +14,7 @@ set -u
 # Function to emit a log MESSAGE to stderr with auto-generated ISO timestamp, VERBOSITY and MESSAGE
 #
 # @param $1: Verbosity level string
-# $param $2: Message to be logged
+# @param $2: Message to be logged
 log() {
     local -r VERBOSITY=$1
     local -r MESSAGE=$2
@@ -34,8 +34,8 @@ wait_for_s3_availability() {
         if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null; then
           return
         fi
-        log "WARN" "S3 API endpoint didn't return successfully. Retrying in $RETRY_DELAY_IN_SECS seconds ..."
-        sleep $RETRY_DELAY_IN_SECS
+        log "WARN" "S3 API endpoint didn't return successfully. Retrying in ${RETRY_DELAY_IN_SECS} seconds ..."
+        sleep "$RETRY_DELAY_IN_SECS"
     done
 
     if [[ $retries -eq $MAX_RETRIES ]]; then
