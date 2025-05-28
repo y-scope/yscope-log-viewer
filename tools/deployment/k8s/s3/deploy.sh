@@ -48,8 +48,8 @@ wait_for_s3_availability() {
 create_and_configure_bucket() {
     # Create log-viewer bucket if it doesn't already exist
     log "INFO" "Creating ${LOG_VIEWER_BUCKET_S3_URI} bucket."
-    if ! aws s3api head-bucket \
-        --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
+    if ! aws s3api head-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" \
+        1>/dev/null; then
         aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
     else
         log "WARN" "Bucket ${LOG_VIEWER_BUCKET_S3_URI} already exists."
@@ -73,7 +73,9 @@ create_and_configure_bucket() {
 EOP
     )
     if ! aws s3api put-bucket-policy \
-        --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" --policy "$POLICY"; then
+        --endpoint-url "$AWS_ENDPOINT_URL" \
+        --bucket "$LOG_VIEWER_BUCKET" \
+        --policy "$POLICY"; then
         log "ERROR" "Failed to set bucket policy for ${LOG_VIEWER_BUCKET_S3_URI}"
         exit 1
     fi
@@ -103,18 +105,21 @@ download_and_upload_assets() {
     log "INFO" "Downloading ${RELEASE_TARBALL_URL}"
     local -r DECOMPRESSED_ASSETS_DIRECTORY=$(mktemp -d)
     if ! curl --silent --show-error --location "$RELEASE_TARBALL_URL" \
-        | tar --strip-components 1 -xz -C "$DECOMPRESSED_ASSETS_DIRECTORY"; then
+        | tar --strip-components 1 -xz --directory "$DECOMPRESSED_ASSETS_DIRECTORY"; then
         log "ERROR" "Failed to download and extract release tarball from ${RELEASE_TARBALL_URL}"
         exit 1
     fi
 
     # Upload all assets to object store at the root of the provided bucket
-    # NOTE: Uploads can fail with invalid/unknown checksum sent error. This typically occurs with
+    # NOTE: Uploads can fail with an invalid/unknown checksum sent error. This typically occurs with
     # older versions of MinIO. If this happens, update to a release after late 2024. See this GitHub
     # issue for details: https://github.com/minio/minio/pull/19680
     log "INFO" "Uploading yscope-log-viewer assets to ${LOG_VIEWER_BUCKET_S3_URI}"
-    aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "$LOG_VIEWER_BUCKET_S3_URI" \
-        --recursive --endpoint-url "$AWS_ENDPOINT_URL"
+    aws s3 cp \
+        "$DECOMPRESSED_ASSETS_DIRECTORY" \
+        "$LOG_VIEWER_BUCKET_S3_URI" \
+        --recursive \
+        --endpoint-url "$AWS_ENDPOINT_URL"
 
     log "INFO" "Deployment completed successfully!"
 }
@@ -135,7 +140,7 @@ print_deployment_completion_message() {
     printf "+%${total_length}s+\n" | tr " " "-"
 }
 
-# Validate required environment variables and populate optional one if not provided
+# Validate required environment variables
 readonly REQUIRED_ENV_VARS=(
     # Example: "http://minio:9091"
     "AWS_ENDPOINT_URL"
