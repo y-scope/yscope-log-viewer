@@ -31,8 +31,8 @@ wait_for_s3_availability() {
     local -r RETRY_DELAY_IN_SECS=6
 
     for ((retries = 0; retries < MAX_RETRIES; retries++)); do
-        if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" > /dev/null; then
-          return
+        if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" >/dev/null; then
+            return
         fi
         log "WARN" "S3 API endpoint didn't return successfully. Retrying in ${RETRY_DELAY_IN_SECS} seconds ..."
         sleep "$RETRY_DELAY_IN_SECS"
@@ -46,19 +46,19 @@ wait_for_s3_availability() {
 
 # Function to create and configure log-viewer bucket and configure access policy
 create_and_configure_bucket() {
-  # Create log-viewer bucket if not already exist
-  log "INFO" "Creating s3://${LOG_VIEWER_BUCKET} bucket."
-  if ! aws s3api head-bucket \
-      --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
-      aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
-  else
-      log "WARN" "Bucket s3://${LOG_VIEWER_BUCKET} already exist."
-  fi
+    # Create log-viewer bucket if not already exist
+    log "INFO" "Creating s3://${LOG_VIEWER_BUCKET} bucket."
+    if ! aws s3api head-bucket \
+        --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
+        aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
+    else
+        log "WARN" "Bucket s3://${LOG_VIEWER_BUCKET} already exist."
+    fi
 
-  # Define and apply the Bucket Policy for public read access
-  log "INFO" "Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
-  local -r POLICY=$(
-      cat << EOP
+    # Define and apply the Bucket Policy for public read access
+    log "INFO" "Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
+    local -r POLICY=$(
+        cat <<EOP
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -132,16 +132,16 @@ print_deployment_completion_prompt() {
 
 # Validate required environment variables and populate optional one if not provided
 readonly REQUIRED_ENV_VARS=(
-  # Example: "http://minio:9091"
-  "AWS_ENDPOINT_URL"
+    # Example: "http://minio:9091"
+    "AWS_ENDPOINT_URL"
 
-  # Example: "log-viewer"
-  "LOG_VIEWER_BUCKET"
+    # Example: "log-viewer"
+    "LOG_VIEWER_BUCKET"
 )
 for var in "${REQUIRED_ENV_VARS[@]}"; do
     if [[ -z "$var" ]]; then
-      log "ERROR" "$var environment variable must be set."
-      exit 1
+        log "ERROR" "$var environment variable must be set."
+        exit 1
     fi
 done
 
