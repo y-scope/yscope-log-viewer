@@ -25,7 +25,7 @@ log() {
 # If listing operation succeeds, the function returns immediately. Otherwise, it retries a maximum
 # of 10 times with a delay of 6 seconds between each retry.
 wait_for_s3_availability() {
-    log "INFO" "Waiting until s3://${LOG_VIEWER_BUCKET} endpoint becomes available ..."
+    log "INFO" "Waiting until ${AWS_ENDPOINT_URL} endpoint becomes available."
 
     local -r MAX_RETRIES=10
     local -r RETRY_DELAY_IN_SECS=6
@@ -34,7 +34,7 @@ wait_for_s3_availability() {
         if aws s3 ls --endpoint-url "$AWS_ENDPOINT_URL" >/dev/null; then
             return
         fi
-        log "WARN" "S3 API endpoint unavailable. Retrying in ${RETRY_DELAY_IN_SECS} seconds..."
+        log "WARN" "S3 API endpoint unavailable. Retrying in ${RETRY_DELAY_IN_SECS} seconds."
         sleep "$RETRY_DELAY_IN_SECS"
     done
 
@@ -47,16 +47,16 @@ wait_for_s3_availability() {
 # Function to create and configure log-viewer bucket and configure access policy
 create_and_configure_bucket() {
     # Create log-viewer bucket if not already exist
-    log "INFO" "Creating s3://${LOG_VIEWER_BUCKET} bucket."
+    log "INFO" "Creating ${LOG_VIEWER_BUCKET_S3_URI} bucket."
     if ! aws s3api head-bucket \
         --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" 1>/dev/null; then
         aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
     else
-        log "WARN" "Bucket s3://${LOG_VIEWER_BUCKET} already exist."
+        log "WARN" "Bucket ${LOG_VIEWER_BUCKET_S3_URI} already exists."
     fi
 
     # Define and apply the Bucket Policy for public read access
-    log "INFO" "Applying public read access policy to s3://${LOG_VIEWER_BUCKET}"
+    log "INFO" "Applying public read access policy to ${LOG_VIEWER_BUCKET_S3_URI}"
     local -r POLICY=$(
         cat <<EOP
 {
@@ -74,7 +74,7 @@ EOP
     )
     if ! aws s3api put-bucket-policy \
         --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" --policy "$POLICY"; then
-        log "ERROR" "Failed to set bucket policy for s3://${LOG_VIEWER_BUCKET}"
+        log "ERROR" "Failed to set bucket policy for ${LOG_VIEWER_BUCKET_S3_URI}"
         exit 1
     fi
 }
@@ -111,8 +111,8 @@ download_and_upload_assets() {
     # Note that uploads can fail with invalid/unknown checksum sent error.
     # This typically occurs with old MinIO. If this happens, update to release after late 2024.
     # See this GitHub issue for details: https://github.com/minio/minio/pull/19680
-    log "INFO" "Uploading yscope-log-viewer assets to object store."
-    aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "s3://${LOG_VIEWER_BUCKET}/" \
+    log "INFO" "Uploading yscope-log-viewer assets to ${LOG_VIEWER_BUCKET_S3_URI}"
+    aws s3 cp "$DECOMPRESSED_ASSETS_DIRECTORY" "${LOG_VIEWER_BUCKET_S3_URI}" \
         --recursive --endpoint-url "$AWS_ENDPOINT_URL"
 
     log "INFO" "Deployment completed successfully!"
@@ -148,6 +148,8 @@ for var in "${REQUIRED_ENV_VARS[@]}"; do
         exit 1
     fi
 done
+
+readonly LOG_VIEWER_BUCKET_S3_URI="s3://${LOG_VIEWER_BUCKET}"
 
 wait_for_s3_availability
 create_and_configure_bucket
