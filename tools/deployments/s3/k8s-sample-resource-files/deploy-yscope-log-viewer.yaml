@@ -23,7 +23,7 @@ spec:
         /basic-k8s-s3-deployment/tools/deployment/k8s/s3/deploy.sh | bash"
       env:
         - name: "AWS_ENDPOINT_URL"
-          value: "http://minio:9001"
+          value: "http://minio:9000"
         - name: "LOG_VIEWER_BUCKET"
           value: "log-viewer"
         - name: "LOG_VIEWER_RELEASE_TAG"
