@@ -134,7 +134,7 @@ download_and_upload_assets() {
     log "INFO" "Deployment completed successfully!"
 }
 
-# Prints out a message indicating the deployments is complete
+# Prints out a message indicating the deployment is complete
 print_deployment_completion_message() {
     local MESSAGE="yscope-log-viewer is now available at"
     MESSAGE+=" ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
@@ -152,7 +152,7 @@ print_deployment_completion_message() {
 
 # Validate required environment variables
 readonly REQUIRED_ENV_VARS=(
-    # Example: "http://minio:9091"
+    # Example: "http://minio:9000"
     "AWS_ENDPOINT_URL"
 
     # Example: "log-viewer"
