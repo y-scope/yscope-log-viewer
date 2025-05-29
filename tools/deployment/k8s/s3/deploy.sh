@@ -60,10 +60,8 @@ create_and_configure_bucket() {
     # Create log-viewer bucket if it doesn't already exist
     log "INFO" "Creating ${LOG_VIEWER_BUCKET_S3_URI} bucket."
     if ! aws s3api head-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET" \
-        1>/dev/null; then
+        2>/dev/null; then
         aws s3api create-bucket --endpoint-url "$AWS_ENDPOINT_URL" --bucket "$LOG_VIEWER_BUCKET"
-    else
-        log "WARN" "Bucket ${LOG_VIEWER_BUCKET_S3_URI} already exists."
     fi
 
     # Define and apply the bucket policy for public read access
