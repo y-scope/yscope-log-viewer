@@ -134,7 +134,7 @@ download_and_upload_assets() {
     log "INFO" "Deployment completed successfully!"
 }
 
-# Prints out a message indicating the deployment is complete
+# Prints out a message indicating the deployments is complete
 print_deployment_completion_message() {
     local MESSAGE="yscope-log-viewer is now available at"
     MESSAGE+=" ${AWS_ENDPOINT_URL}/${LOG_VIEWER_BUCKET}/index.html"
