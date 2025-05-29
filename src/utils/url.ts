@@ -24,6 +24,9 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: 0,
+    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
+    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
+    [HASH_PARAM_NAMES.QUERY_STRING]: null,
 });
 
 /**
@@ -62,6 +65,11 @@ const getWindowUrlHashParams = () => {
         structuredClone(URL_HASH_PARAMS_DEFAULT);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
+    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
+    if (null !== isPrettified) {
+        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
+    }
+
     const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
     if (null !== logEventNum) {
         const parsed = Number(logEventNum);
@@ -70,9 +78,20 @@ const getWindowUrlHashParams = () => {
             parsed;
     }
 
-    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
-    if (null !== isPrettified) {
-        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
+    const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
+    if (null !== queryString) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;
+    }
+
+    const queryIsCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
+    if (null !== queryIsCaseSensitive) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
+            "true" === queryIsCaseSensitive;
+    }
+
+    const queryIsRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
+    if (null !== queryIsRegex) {
+        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === queryIsRegex;
     }
 
     return urlHashParams;
@@ -88,6 +107,10 @@ const getWindowUrlSearchParams = () => {
         URL_SEARCH_PARAMS_DEFAULT
     );
     const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
+
+    urlSearchParams.forEach((value, key) => {
+        searchParams[key as keyof UrlSearchParams] = value;
+    });
 
     if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
         // Extract filePath value by finding the parameter and taking everything after it
@@ -176,7 +199,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHashParams = new URLSearchParams(filterNullValuesToStrings(currentParams));
 
     for (const [key, value] of Object.entries(updates)) {
-        if (null === value) {
+        if (null === value || false === value) {
             newHashParams.delete(key);
         } else {
             newHashParams.set(key, String(value));

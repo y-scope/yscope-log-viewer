@@ -12,12 +12,12 @@ import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import {copyPermalinkToClipboard} from "../../../../../contexts/UrlContextProvider";
 import useQueryStore from "../../../../../stores/queryStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {copyPermalinkToClipboard} from "../../../../../utils/url.ts";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
@@ -37,6 +37,10 @@ const SearchTabPanel = () => {
     const queryString = useQueryStore((state) => state.queryString);
     const queryResults = useQueryStore((state) => state.queryResults);
 
+    const {setQueryIsCaseSensitive} = useQueryStore.getState();
+    const {setQueryIsRegex} = useQueryStore.getState();
+    const {setQueryString} = useQueryStore.getState();
+
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 
     const handleCollapseAllButtonClick = useCallback(() => {
@@ -44,6 +48,10 @@ const SearchTabPanel = () => {
     }, []);
 
     const handleShareButtonClick = useCallback(() => {
+        setQueryIsCaseSensitive(queryIsCaseSensitive);
+        setQueryIsRegex(queryIsRegex);
+        setQueryString(queryString);
+
         copyPermalinkToClipboard({}, {
             logEventNum: null,
             queryString: "" === queryString ?
@@ -56,6 +64,9 @@ const SearchTabPanel = () => {
         queryIsCaseSensitive,
         queryIsRegex,
         queryString,
+        setQueryIsCaseSensitive,
+        setQueryIsRegex,
+        setQueryString
     ]);
 
     return (
