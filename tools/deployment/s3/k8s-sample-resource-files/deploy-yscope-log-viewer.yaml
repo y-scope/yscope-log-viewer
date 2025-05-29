@@ -19,8 +19,8 @@ spec:
       args:
         - "yum install -y gzip jq tar \
         && curl -s \
-        https://raw.githubusercontent.com/jackluo923/yscope-log-viewer/refs/heads\
-        /basic-k8s-s3-deployment/tools/deployment/s3/deploy.sh | bash"
+        https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/deployment/s3\
+        /deploy.sh | bash"
       env:
         - name: "AWS_ENDPOINT_URL"
           value: "http://minio:9000"
