@@ -37,6 +37,8 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(matchRange[1]),
     ];
     const handleResultButtonClick = () => {
+        const searchEvent = new CustomEvent("yscope/search", {});
+        document.dispatchEvent(searchEvent);
         updateWindowUrlHashParams({logEventNum});
     };
 

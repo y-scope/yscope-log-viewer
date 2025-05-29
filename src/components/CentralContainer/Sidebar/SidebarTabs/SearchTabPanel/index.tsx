@@ -35,6 +35,11 @@ const SearchTabPanel = () => {
         setIsAllExpanded((v) => !v);
     };
 
+    const handleQueryChange = () => {
+        const clearSearchEvent = new CustomEvent("yscope/closeFind", {});
+        document.dispatchEvent(clearSearchEvent);
+    };
+
     return (
         <CustomTabPanel
             tabName={TAB_NAME.SEARCH}
@@ -53,7 +58,9 @@ const SearchTabPanel = () => {
             }
         >
             <Box className={"search-tab-container"}>
-                <QueryInputBox/>
+                <QueryInputBox onQueryChange={handleQueryChange}/>
+                {" "}
+                {/* Pass the handler to QueryInputBox */}
                 <AccordionGroup
                     className={"query-results"}
                     disableDivider={true}
