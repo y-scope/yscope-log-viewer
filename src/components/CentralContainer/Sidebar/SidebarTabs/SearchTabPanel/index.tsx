@@ -66,7 +66,7 @@ const SearchTabPanel = () => {
         queryString,
         setQueryIsCaseSensitive,
         setQueryIsRegex,
-        setQueryString
+        setQueryString,
     ]);
 
     return (
