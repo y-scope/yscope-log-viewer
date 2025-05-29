@@ -4,6 +4,7 @@ import React, {useEffect} from "react";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
+import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {UI_STATE} from "../typings/states";
@@ -91,6 +92,10 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
+    const {
+        queryString, queryIsRegex, queryIsCaseSensitive,
+    } = useContext(UrlContext);
+
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
 
@@ -174,6 +179,36 @@ const AppController = ({children}: AppControllerProps) => {
         setLogEventNum,
         setUiState,
         updatePageData,
+    ]);
+
+    // Synchronize `queryIsCaseSensitive` with the Zustand QueryStore.
+    useEffect(() => {
+        if (null !== queryIsCaseSensitive) {
+            const {setQueryIsCaseSensitive} = useQueryStore.getState();
+            setQueryIsCaseSensitive(queryIsCaseSensitive);
+        }
+    }, [queryIsCaseSensitive]);
+
+    // Synchronize `queryIsRegex` with the Zustand QueryStore.
+    useEffect(() => {
+        if (null !== queryIsRegex) {
+            const {setQueryIsRegex} = useQueryStore.getState();
+            setQueryIsRegex(queryIsRegex);
+        }
+    }, [queryIsRegex]);
+
+    useEffect(() => {
+        if (null !== queryString) {
+            const {setQueryString} = useQueryStore.getState();
+            setQueryString(queryString);
+        }
+        if (UI_STATE.READY === uiState) {
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        }
+    }, [
+        uiState,
+        queryString,
     ]);
 
     return children;
