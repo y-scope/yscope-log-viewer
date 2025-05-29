@@ -9,8 +9,8 @@ spec:
       image: "busybox"
       command: ["sh", "-c", "while true; do sleep 3600; done"]
   initContainers:
-    # Container which performs deployment once only
-    # To inspect logs, use the following command; kubectl logs <pod> -c <container>
+    # Container to deploy the log viewer. To inspect logs, use the following command:
+    # `kubectl logs deploy-yscope-log-viewer -c deploy-yscope-log-viewer`
     - name: "deploy-yscope-log-viewer"
       image: "amazon/aws-cli:latest"
       command:
