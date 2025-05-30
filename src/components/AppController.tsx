@@ -95,22 +95,16 @@ const AppController = ({children}: AppControllerProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
 
-    const {loadFile} = useLogFileStore.getState();
-
-    const {isPrettified} = useViewStore.getState();
-
-    const {logFileManagerProxy} = useLogFileManagerStore.getState();
     const numEvents = useLogFileStore((state) => state.numEvents);
-
-    const {logEventNum} = useViewStore.getState();
-    const {setLogEventNum} = useViewStore.getState();
 
     const updatePageData = useViewStore((state) => state.updatePageData);
 
     const uiState = useUiStore((state) => state.uiState);
-    const {setUiState} = useUiStore.getState();
 
     useEffect(() => {
+        const {loadFile} = useLogFileStore.getState();
+        const {logEventNum} = useViewStore.getState();
+
         handleHashChange();
         window.addEventListener("hashchange", handleHashChange);
 
@@ -130,13 +124,16 @@ const AppController = ({children}: AppControllerProps) => {
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
-    }, [
-        loadFile,
-        logEventNum,
-    ]);
+    }, []);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        const {isPrettified} = useViewStore.getState();
+        const {logEventNum} = useViewStore.getState();
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
+        const {setLogEventNum} = useViewStore.getState();
+        const {setUiState} = useUiStore.getState();
+
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
@@ -169,12 +166,7 @@ const AppController = ({children}: AppControllerProps) => {
         })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
-        isPrettified,
-        logEventNum,
-        logFileManagerProxy,
         numEvents,
-        setLogEventNum,
-        setUiState,
         updatePageData,
     ]);
 
