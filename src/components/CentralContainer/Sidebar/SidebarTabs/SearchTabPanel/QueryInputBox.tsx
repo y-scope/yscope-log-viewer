@@ -16,12 +16,18 @@ import ToggleIconButton from "./ToggleIconButton";
 import "./QueryInputBox.css";
 
 
+interface QueryInputBoxProps {
+    onQueryChange: () => void;
+}
+
 /**
  * Provides a text input and optional toggles for submitting search queries.
  *
+ * @param root0
+ * @param root0.onQueryChange
  * @return
  */
-const QueryInputBox = () => {
+const QueryInputBox: React.FC<QueryInputBoxProps> = ({onQueryChange}) => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
     const querystring = useQueryStore((state) => state.queryString);
@@ -35,16 +41,19 @@ const QueryInputBox = () => {
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
         startQuery();
+        onQueryChange();
     };
 
     const handleCaseSensitivityButtonClick = () => {
         setQueryIsCaseSensitive(!isCaseSensitive);
         startQuery();
+        onQueryChange();
     };
 
     const handleRegexButtonClick = () => {
         setQueryIsRegex(!isRegex);
         startQuery();
+        onQueryChange();
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
