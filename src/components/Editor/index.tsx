@@ -1,8 +1,8 @@
 /* eslint max-lines: ["error", 350] */
-/* eslint max-lines-per-function: ["error", 170] */
+/* eslint max-lines-per-function: ["error", 200] */
+/* eslint max-statements: ["error", 30] */
 import {
     useCallback,
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -11,10 +11,6 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../contexts/UrlContextProvider";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -36,6 +32,7 @@ import {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -138,16 +135,21 @@ const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
+    const {isPrettified} = useViewStore.getState();
+    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
+
     const logData = useViewStore((state) => state.logData);
+
+    const logEventNum = useViewStore((state) => state.logEventNum);
+    const {setLogEventNum} = useViewStore.getState();
+
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
 
@@ -176,18 +178,25 @@ const Editor = () => {
             case ACTION_NAME.COPY_LOG_EVENT:
                 handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
                 break;
-            case ACTION_NAME.TOGGLE_PRETTIFY:
+            case ACTION_NAME.TOGGLE_PRETTIFY: {
+                const newIsPrettified = false === isPrettified;
                 updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
                 });
+                updateIsPrettified(newIsPrettified);
                 break;
+            }
             case ACTION_NAME.TOGGLE_WORD_WRAP:
                 handleToggleWordWrapAction(editor);
                 break;
             default:
                 break;
         }
-    }, [loadPageByAction]);
+    }, [
+        isPrettified,
+        loadPageByAction,
+        updateIsPrettified,
+    ]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -255,17 +264,13 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-    }, []);
+        setLogEventNum(newLogEventNum);
+    }, [setLogEventNum]);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
-
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-    }, [isPrettified]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

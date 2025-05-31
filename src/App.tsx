@@ -1,6 +1,5 @@
 import AppController from "./components/AppController";
 import Layout from "./components/Layout";
-import UrlContextProvider from "./contexts/UrlContextProvider";
 
 
 /**
@@ -10,11 +9,9 @@ import UrlContextProvider from "./contexts/UrlContextProvider";
  */
 const App = () => {
     return (
-        <UrlContextProvider>
-            <AppController>
-                <Layout/>
-            </AppController>
-        </UrlContextProvider>
+        <AppController>
+            <Layout/>
+        </AppController>
     );
 };
 

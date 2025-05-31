@@ -1,16 +1,6 @@
-import React, {
-    useContext,
-    useEffect,
-    useRef,
-} from "react";
+/* eslint max-statements: ["error", 30] */
+import React, {useEffect} from "react";
 
-import {
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
-    UrlContext,
-} from "../contexts/UrlContextProvider";
-import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
@@ -27,6 +17,13 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
+import {
+    getWindowUrlHashParams,
+    getWindowUrlSearchParams,
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
+} from "../utils/url.ts";
 
 
 /**
@@ -40,9 +37,9 @@ import {clamp} from "../utils/math";
 const updateUrlIfEventOnPage = (
     logEventNum: number,
     logEventNumsOnPage: number[]
-): boolean => {
+): {isUpdated: boolean; nearestLogEventNum: number} => {
     if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return false;
+        return {isUpdated: false, nearestLogEventNum: 0};
     }
 
     const nearestIdx = findNearestLessThanOrEqualElement(
@@ -64,7 +61,23 @@ const updateUrlIfEventOnPage = (
         logEventNum: nearestLogEventNum,
     });
 
-    return true;
+    return {isUpdated: true, nearestLogEventNum: nearestLogEventNum};
+};
+
+/**
+ * Handle the hash parameters change.
+ */
+const handleHashChange = () => {
+    const {setLogEventNum, updateIsPrettified} = useViewStore.getState();
+    const hashParams = getWindowUrlHashParams();
+
+    if (null !== hashParams.logEventNum) {
+        setLogEventNum(hashParams.logEventNum);
+    }
+
+    if (null !== hashParams.isPrettified) {
+        updateIsPrettified(hashParams.isPrettified);
+    }
 };
 
 interface AppControllerProps {
@@ -79,43 +92,47 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {
-        filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
-    } = useContext(UrlContext);
-
     // States
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
-    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const numEvents = useLogFileStore((state) => state.numEvents);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
+
+    const {loadFile} = useLogFileStore.getState();
+
+    const {isPrettified} = useViewStore.getState();
+
+    const {logFileManagerProxy} = useLogFileManagerStore.getState();
+    const numEvents = useLogFileStore((state) => state.numEvents);
+
+    const {logEventNum} = useViewStore.getState();
+    const {setLogEventNum} = useViewStore.getState();
+
     const updatePageData = useViewStore((state) => state.updatePageData);
+
     const uiState = useUiStore((state) => state.uiState);
-    const setUiState = useUiStore((state) => state.setUiState);
+    const {setUiState} = useUiStore.getState();
 
-    // Refs
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
-    const logEventNumRef = useRef(logEventNum);
-
-    // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
-        if (null !== logEventNum) {
-            logEventNumRef.current = logEventNum;
-            setLogEventNum(logEventNum);
+        handleHashChange();
+        window.addEventListener("hashchange", handleHashChange);
+
+        // Handle initial page load and maintain full URL state
+        const searchParams = getWindowUrlSearchParams();
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
+            let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
+                cursor = {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: logEventNum},
+                };
+            }
+            loadFile(searchParams.filePath, cursor);
         }
-    }, [
-        logEventNum,
-        setLogEventNum,
-    ]);
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-        setIsPrettified(isPrettifiedRef.current);
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
     }, [
-        isPrettified,
-        setIsPrettified,
+        loadFile,
+        logEventNum,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -128,8 +145,15 @@ const AppController = ({children}: AppControllerProps) => {
         const logEventNumsOnPage: number [] =
             Array.from(beginLineNumToLogEventNum.values());
 
-        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+        const {
+            isUpdated,
+            nearestLogEventNum,
+        } = updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage);
+
+        if (isUpdated) {
             // No need to request a new page since the log event is on the current page.
+            setLogEventNum(nearestLogEventNum);
+
             return;
         }
 
@@ -140,65 +164,27 @@ const AppController = ({children}: AppControllerProps) => {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: clampedLogEventNum},
             };
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     }, [
         beginLineNumToLogEventNum,
+        isPrettified,
         logEventNum,
         logFileManagerProxy,
         numEvents,
+        setLogEventNum,
         setUiState,
         updatePageData,
     ]);
 
-    // On `filePath` update, load file.
     useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
-            return;
-        }
-
-        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            cursor = {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNumRef.current},
-            };
-        }
-        loadFile(filePath, cursor);
-    }, [
-        filePath,
-        loadFile,
-    ]);
-
-    // Synchronize `queryIsCaseSensitive` with the Zustand QueryStore.
-    useEffect(() => {
-        if (null !== queryIsCaseSensitive) {
-            const {setQueryIsCaseSensitive} = useQueryStore.getState();
-            setQueryIsCaseSensitive(queryIsCaseSensitive);
-        }
-    }, [queryIsCaseSensitive]);
-
-    // Synchronize `queryIsRegex` with the Zustand QueryStore.
-    useEffect(() => {
-        if (null !== queryIsRegex) {
-            const {setQueryIsRegex} = useQueryStore.getState();
-            setQueryIsRegex(queryIsRegex);
-        }
-    }, [queryIsRegex]);
-
-    useEffect(() => {
-        if (null !== queryString) {
-            const {setQueryString} = useQueryStore.getState();
-            setQueryString(queryString);
-        }
         if (UI_STATE.READY === uiState) {
             const {startQuery} = useQueryStore.getState();
             startQuery();
         }
     }, [
         uiState,
-        queryString,
     ]);
 
     return children;
