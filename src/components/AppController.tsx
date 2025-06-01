@@ -68,7 +68,12 @@ const updateUrlIfEventOnPage = (
  * Handle the hash parameters change.
  */
 const handleHashChange = () => {
-    const {setLogEventNum, updateIsPrettified} = useViewStore.getState();
+    const {setLogEventNum} = useViewStore.getState();
+    const {setQueryIsCaseSensitive} = useQueryStore.getState();
+    const {setQueryIsRegex} = useQueryStore.getState();
+    const {setQueryString} = useQueryStore.getState();
+    const {updateIsPrettified} = useViewStore.getState();
+
     const hashParams = getWindowUrlHashParams();
 
     if (null !== hashParams.logEventNum) {
@@ -77,6 +82,18 @@ const handleHashChange = () => {
 
     if (null !== hashParams.isPrettified) {
         updateIsPrettified(hashParams.isPrettified);
+    }
+
+    if (null !== hashParams.queryIsCaseSensitive) {
+        setQueryIsCaseSensitive(hashParams.queryIsCaseSensitive);
+    }
+
+    if (null !== hashParams.queryIsRegex) {
+        setQueryIsRegex(hashParams.queryIsRegex);
+    }
+
+    if (null !== hashParams.queryString) {
+        setQueryString(hashParams.queryString);
     }
 };
 
@@ -94,11 +111,9 @@ interface AppControllerProps {
 const AppController = ({children}: AppControllerProps) => {
     // States
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-
     const numEvents = useLogFileStore((state) => state.numEvents);
-
+    const queryString = useQueryStore((state) => state.queryString);
     const updatePageData = useViewStore((state) => state.updatePageData);
-
     const uiState = useUiStore((state) => state.uiState);
 
     useEffect(() => {
@@ -176,6 +191,7 @@ const AppController = ({children}: AppControllerProps) => {
             startQuery();
         }
     }, [
+        queryString,
         uiState,
     ]);
 

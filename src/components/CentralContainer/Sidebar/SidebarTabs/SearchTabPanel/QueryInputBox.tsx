@@ -11,6 +11,7 @@ import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
+import {updateWindowUrlHashParams} from "../../../../../utils/url.ts";
 import ToggleIconButton from "./ToggleIconButton";
 
 import "./QueryInputBox.css";
@@ -33,17 +34,23 @@ const QueryInputBox = () => {
     const uiState = useUiStore((state) => state.uiState);
 
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setQueryString(ev.target.value);
+        const newQueryString = ev.target.value;
+        updateWindowUrlHashParams({queryString: newQueryString});
+        setQueryString(newQueryString);
         startQuery();
     };
 
     const handleCaseSensitivityButtonClick = () => {
-        setQueryIsCaseSensitive(!isCaseSensitive);
+        const newQueryIsSensitive = !isCaseSensitive;
+        updateWindowUrlHashParams({queryIsCaseSensitive: newQueryIsSensitive});
+        setQueryIsCaseSensitive(newQueryIsSensitive);
         startQuery();
     };
 
     const handleRegexButtonClick = () => {
-        setQueryIsRegex(!isRegex);
+        const newQueryIsRegex = !isRegex;
+        updateWindowUrlHashParams({queryIsRegex: newQueryIsRegex});
+        setQueryIsRegex(newQueryIsRegex);
         startQuery();
     };
 
