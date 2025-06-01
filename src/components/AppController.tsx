@@ -39,7 +39,7 @@ const updateUrlIfEventOnPage = (
     logEventNumsOnPage: number[]
 ): {isUpdated: boolean; nearestLogEventNum: number} => {
     if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return {isUpdated: false, nearestLogEventNum: 0};
+        return {isUpdated: false, nearestLogEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum};
     }
 
     const nearestIdx = findNearestLessThanOrEqualElement(

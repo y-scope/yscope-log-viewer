@@ -11,7 +11,7 @@ import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
-import {updateWindowUrlHashParams} from "../../../../../utils/url.ts";
+import {updateWindowUrlHashParams} from "../../../../../utils/url";
 import ToggleIconButton from "./ToggleIconButton";
 
 import "./QueryInputBox.css";

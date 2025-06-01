@@ -37,10 +37,6 @@ const SearchTabPanel = () => {
     const queryString = useQueryStore((state) => state.queryString);
     const queryResults = useQueryStore((state) => state.queryResults);
 
-    const {setQueryIsCaseSensitive} = useQueryStore.getState();
-    const {setQueryIsRegex} = useQueryStore.getState();
-    const {setQueryString} = useQueryStore.getState();
-
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 
     const handleCollapseAllButtonClick = useCallback(() => {
@@ -48,6 +44,10 @@ const SearchTabPanel = () => {
     }, []);
 
     const handleShareButtonClick = useCallback(() => {
+        const {setQueryIsCaseSensitive} = useQueryStore.getState();
+        const {setQueryIsRegex} = useQueryStore.getState();
+        const {setQueryString} = useQueryStore.getState();
+
         setQueryIsCaseSensitive(queryIsCaseSensitive);
         setQueryIsRegex(queryIsRegex);
         setQueryString(queryString);
@@ -64,9 +64,6 @@ const SearchTabPanel = () => {
         queryIsCaseSensitive,
         queryIsRegex,
         queryString,
-        setQueryIsCaseSensitive,
-        setQueryIsRegex,
-        setQueryString,
     ]);
 
     return (
