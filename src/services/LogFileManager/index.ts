@@ -493,22 +493,28 @@ class LogFileManager {
         const {code, args} = cursor;
 
         let eventNum: number = 0;
-        if (CURSOR_CODE.PAGE_NUM === code) {
-            return getPageNumCursorData(
-                args.pageNum,
-                args.eventPositionOnPage,
-                numActiveEvents,
-                this.#pageSize,
-            );
-        } else if (CURSOR_CODE.LAST_EVENT === code) {
-            return getLastEventCursorData(numActiveEvents, this.#pageSize);
-        } else if (CURSOR_CODE.EVENT_NUM === code) {
-            ({eventNum} = args);
-        } else {
-            const eventIdx = this.#decoder.findNearestLogEventByTimestamp(args.timestamp);
-            if (null !== eventIdx) {
-                eventNum = eventIdx + 1;
+        switch (code) {
+            case CURSOR_CODE.PAGE_NUM:
+                return getPageNumCursorData(
+                    args.pageNum,
+                    args.eventPositionOnPage,
+                    numActiveEvents,
+                    this.#pageSize,
+                );
+            case CURSOR_CODE.LAST_EVENT:
+                return getLastEventCursorData(numActiveEvents, this.#pageSize);
+            case CURSOR_CODE.EVENT_NUM:
+                ({eventNum} = args);
+                break;
+            case CURSOR_CODE.TIMESTAMP: {
+                const eventIdx = this.#decoder.findNearestLogEventByTimestamp(args.timestamp);
+                if (null !== eventIdx) {
+                    eventNum = eventIdx + 1;
+                }
+                break;
             }
+            default:
+                throw new Error(`Unsupported cursor code: ${code as string}`);
         }
 
         return getEventNumCursorData(
