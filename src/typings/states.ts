@@ -84,7 +84,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.LOG_LEVEL_FILTER]: true,
         [UI_ELEMENT.NAVIGATION_BAR]: true,
         [UI_ELEMENT.OPEN_FILE_BUTTON]: true,
-        [UI_ELEMENT.PRETTIFY_BUTTON]: true,
+        [UI_ELEMENT.PRETTIFY_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: true,
         [UI_ELEMENT.QUERY_INPUT_BOX]: false,
     },

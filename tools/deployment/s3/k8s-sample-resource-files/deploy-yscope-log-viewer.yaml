@@ -1,0 +1,36 @@
+apiVersion: "batch/v1"
+kind: "Job"
+metadata:
+  name: "deploy-yscope-log-viewer"
+spec:
+  template:
+    spec:
+      containers:
+        # Container to deploy the log viewer. To inspect logs, use the following command:
+        # `kubectl logs job.batch/deploy-yscope-log-viewer`
+        - name: "deploy-yscope-log-viewer"
+          image: "amazon/aws-cli:latest"
+          command:
+            - "/bin/bash"
+            - "-c"
+          args:
+            - "yum install -y gzip jq tar \
+            && curl -s \
+            https://raw.githubusercontent.com/y-scope/yscope-log-viewer/refs/heads/main/tools/\
+            deployment/s3/deploy.sh | bash"
+          env:
+            - name: "AWS_ENDPOINT_URL"
+              value: "http://minio:9000"
+            - name: "LOG_VIEWER_BUCKET"
+              value: "log-viewer"
+            - name: "LOG_VIEWER_RELEASE_TAG"
+              value: "latest"
+          volumeMounts:
+            - name: "aws-credentials-volume"
+              mountPath: "/root/.aws"
+          imagePullPolicy: "IfNotPresent"
+      restartPolicy: "Never"
+      volumes:
+        - name: "aws-credentials-volume"
+          secret:
+            secretName: "aws-credentials"
