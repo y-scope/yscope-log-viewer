@@ -42,7 +42,7 @@ jobs:
         shell: "bash"
         run: "task docs:site"
 
-      # Upload the built docs so we can download and deploy them from y-scope/yscope-docs
+      # Upload the built docs site if we need to debug any issues
       - if: >-
           contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
           && ('refs/heads/main' == github.ref || startsWith(github.ref, 'refs/tags/v'))
@@ -53,5 +53,5 @@ jobs:
           path: "build/docs/html"
           if-no-files-found: "error"
 
-          # Retain the artifact for a week in case there was a deployment issue
+          # Retain the artifact for a week
           retention-days: 7
