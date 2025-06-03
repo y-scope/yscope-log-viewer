@@ -214,26 +214,23 @@ const getWindowUrlSearchParams = () => {
  *
  * @return An object containing the hash parameters.
  */
-// eslint-disable-next-line max-statements
 const getWindowUrlHashParams = () => {
     const urlHashParams: NullableProperties<UrlHashParams> =
         structuredClone(URL_HASH_PARAMS_DEFAULT);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const numberHashParamNames = [
+    ([
         HASH_PARAM_NAMES.LOG_EVENT_NUM,
         HASH_PARAM_NAMES.TIMESTAMP,
-    ];
-
-    for (const paramName of numberHashParamNames) {
-        const hashParam = hashParams.get(paramName);
-        if (null !== hashParam) {
-            const parsed = Number(hashParam);
+    ] as const).forEach((paramName) => {
+        const paramValue = hashParams.get(paramName);
+        if (null !== paramValue) {
+            const parsed = Number(paramValue);
             urlHashParams[paramName] = Number.isNaN(parsed) ?
                 null :
                 parsed;
         }
-    }
+    });
 
     const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
     if (null !== queryString) {

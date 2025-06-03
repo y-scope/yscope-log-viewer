@@ -492,7 +492,7 @@ class LogFileManager {
     #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
 
-        let eventNum: number = 0;
+        let eventNum = 0;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(

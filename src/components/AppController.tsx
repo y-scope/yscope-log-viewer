@@ -121,9 +121,9 @@ const AppController = ({children}: AppControllerProps) => {
         setIsPrettified,
     ]);
 
-    // On `timestamp` update, findNearestLogEventByTimestamp and clear itself from URL.
+    // On `timestamp` update, find nearest log event by the timestamp and clear the URL parameter.
     useEffect(() => {
-        if (null === timestamp) {
+        if (0 === numEvents || null === timestamp) {
             return;
         }
 
@@ -135,10 +135,12 @@ const AppController = ({children}: AppControllerProps) => {
 
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
             updatePageData(pageData);
+
+            updateWindowUrlHashParams({timestamp: null});
         })().catch(handleErrorWithNotification);
-        updateWindowUrlHashParams({timestamp: null});
     }, [
         logFileManagerProxy,
+        numEvents,
         updatePageData,
         timestamp,
     ]);
@@ -196,6 +198,8 @@ const AppController = ({children}: AppControllerProps) => {
                 args: {timestamp: timestampRef.current},
             };
         }
+        updateWindowUrlHashParams({timestamp: null});
+        timestampRef.current = null;
         loadFile(filePath, cursor);
     }, [
         filePath,

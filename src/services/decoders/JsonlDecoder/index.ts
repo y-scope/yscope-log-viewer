@@ -132,6 +132,8 @@ class JsonlDecoder implements Decoder {
 
         while (low <= high) {
             const mid = Math.floor((low + high) / 2);
+
+            // `mid` is guaranteed to be within bounds since `low <= high`.
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const midTimestamp = this.#logEvents[mid]!.timestamp.valueOf();
             if (midTimestamp <= timestamp) {
