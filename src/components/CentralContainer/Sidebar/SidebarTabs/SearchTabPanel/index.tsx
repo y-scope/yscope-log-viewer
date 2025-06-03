@@ -54,8 +54,6 @@ const SearchTabPanel = () => {
         >
             <Box className={"search-tab-container"}>
                 <QueryInputBox/>
-                {" "}
-                {/* Pass the handler to QueryInputBox */}
                 <AccordionGroup
                     className={"query-results"}
                     disableDivider={true}
