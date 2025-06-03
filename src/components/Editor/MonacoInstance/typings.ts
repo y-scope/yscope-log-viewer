@@ -19,11 +19,12 @@ enum TOKEN_NAME {
 }
 
 /**
- * Gets called when the cursor position is explicitly changed in the editor.
+ * Gets called when the cursor position is either explicitly changed in the editor or
+ * changed by the editor.setPosition function.
  *
  * @param ev The event object containing information about the cursor position change.
  */
-type CursorExplicitPosChangeCallback = (ev: monaco.editor.ICursorPositionChangedEvent) => void;
+type CursorPosChangeCallback = (ev: monaco.editor.ICursorPositionChangedEvent) => void;
 
 /**
  * Gets called from registered Monaco editor actions.
@@ -62,7 +63,7 @@ type BeforeTextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) =>
 type TextUpdateCallback = (editor: monaco.editor.IStandaloneCodeEditor) => void;
 
 interface CustomMonacoEditorHandlers {
-    onCursorExplicitPosChange?: CursorExplicitPosChangeCallback;
+    onCursorExplicitPosChange?: CursorPosChangeCallback;
     onCustomAction?: CustomActionCallback;
 }
 
@@ -70,7 +71,7 @@ export {TOKEN_NAME};
 export type {
     BeforeMountCallback,
     BeforeTextUpdateCallback,
-    CursorExplicitPosChangeCallback,
+    CursorPosChangeCallback as CursorExplicitPosChangeCallback,
     CustomActionCallback,
     CustomMonacoEditorHandlers,
     MountCallback,
