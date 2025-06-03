@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 350] */
+/* eslint max-lines: ["error", 360] */
 /* eslint max-lines-per-function: ["error", 220] */
 /* eslint max-statements: ["error", 25] */
 import {
@@ -17,6 +17,7 @@ import {
     UrlContext,
 } from "../../contexts/UrlContextProvider";
 import useQueryStore from "../../stores/queryStore";
+import useResultsStore from "../../stores/resultsStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -152,7 +153,6 @@ const Editor = () => {
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
-    const searchHandlerRef = useRef<Nullable<() => void>>(null);
 
     const handleEditorCustomAction = useCallback((
         editor: monaco.editor.IStandaloneCodeEditor,
@@ -205,18 +205,17 @@ const Editor = () => {
         editor.onMouseUp(() => {
             isMouseDownRef.current = false;
         });
-        document.removeEventListener("yscope/search", searchHandlerRef.current);
-        searchHandlerRef.current = () => {
+
+        // Update find action parameters when Zustand store changes
+        const updateFindAction = async () => {
             const {queryString, queryIsCaseSensitive, queryIsRegex} = useQueryStore.getState();
             const findAction = editorRef.current.getAction("actions.find");
             const findWithArgsAction = editorRef.current.getAction("editor.actions.findWithArgs");
 
             if (findAction && findWithArgsAction) {
                 try {
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    findAction.run();
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    findWithArgsAction.run({
+                    await findAction.run();
+                    await findWithArgsAction.run({
                         searchString: queryString,
                         matchCase: queryIsCaseSensitive,
                         isRegex: queryIsRegex,
@@ -228,10 +227,8 @@ const Editor = () => {
                 console.error("Find action or Find with args action is not available.");
             }
         };
-        document.addEventListener("yscope/search", searchHandlerRef.current);
 
-        // Close find bar event handler
-        const closeFindHandler = () => {
+        const closeFind = () => {
             const findController = editorRef.current.getContribution(
                 "editor.contrib.findController"
             ) as {closeFindWidget: () => void};
@@ -239,7 +236,16 @@ const Editor = () => {
             findController.closeFindWidget();
         };
 
-        document.addEventListener("yscope/closeFind", closeFindHandler);
+        useQueryStore.subscribe(() => {
+            closeFind();
+        });
+        useResultsStore.subscribe((state) => {
+            if (state.buttonClicked) {
+                updateFindAction().catch((error: unknown) => {
+                    console.error("Error during search:", error);
+                });
+            }
+        });
     }, []);
 
     /**

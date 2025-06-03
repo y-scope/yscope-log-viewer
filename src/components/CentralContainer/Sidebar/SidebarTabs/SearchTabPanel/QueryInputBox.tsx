@@ -7,6 +7,7 @@ import {
 } from "@mui/joy";
 
 import useQueryStore from "../../../../../stores/queryStore";
+import useResultsStore from "../../../../../stores/resultsStore";
 import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
@@ -16,18 +17,12 @@ import ToggleIconButton from "./ToggleIconButton";
 import "./QueryInputBox.css";
 
 
-interface QueryInputBoxProps {
-    onQueryChange: () => void;
-}
-
 /**
  * Provides a text input and optional toggles for submitting search queries.
  *
- * @param root0
- * @param root0.onQueryChange
  * @return
  */
-const QueryInputBox: React.FC<QueryInputBoxProps> = ({onQueryChange}) => {
+const QueryInputBox = () => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
     const querystring = useQueryStore((state) => state.queryString);
@@ -41,19 +36,22 @@ const QueryInputBox: React.FC<QueryInputBoxProps> = ({onQueryChange}) => {
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
         startQuery();
-        onQueryChange();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const handleCaseSensitivityButtonClick = () => {
         setQueryIsCaseSensitive(!isCaseSensitive);
         startQuery();
-        onQueryChange();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const handleRegexButtonClick = () => {
         setQueryIsRegex(!isRegex);
         startQuery();
-        onQueryChange();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);

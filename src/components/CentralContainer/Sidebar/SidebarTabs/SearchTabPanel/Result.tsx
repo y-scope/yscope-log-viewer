@@ -4,6 +4,7 @@ import {
 } from "@mui/joy";
 
 import {updateWindowUrlHashParams} from "../../../../../contexts/UrlContextProvider";
+import useResultsStore from "../../../../../stores/resultsStore";
 
 import "./Result.css";
 
@@ -37,8 +38,8 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(matchRange[1]),
     ];
     const handleResultButtonClick = () => {
-        const searchEvent = new CustomEvent("yscope/search", {});
-        document.dispatchEvent(searchEvent);
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(true);
         updateWindowUrlHashParams({logEventNum});
     };
 
