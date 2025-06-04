@@ -39,7 +39,10 @@ import {
 } from "./utils";
 
 
+const BYTE_SIZE = 8;
 const MAX_QUERY_RESULT_COUNT = 1_000;
+const MAGIC_NUMBER_SIZE = 4;
+const ZST_MAGIC_NUMBER = 0x28b52ffd;
 
 enum FILE_TYPE {
     CLP_TEXT_IR = "clpTextIr",
@@ -203,18 +206,38 @@ class LogFileManager {
         decoderOptions: DecoderOptions
     ): Promise<Decoder> {
         let decoder: Decoder;
-        if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, decoderOptions);
-        } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-        } else {
-            throw new Error(`No decoder supports ${fileName}`);
-        }
 
-        if (fileData.length > MAX_V8_STRING_LENGTH) {
-            throw new Error(`Cannot handle files larger than ${
-                formatSizeInBytes(MAX_V8_STRING_LENGTH)
-            } due to a limitation in Chromium-based browsers.`);
+        const checkFileExtension = async () => {
+            if (fileName.endsWith(".jsonl")) {
+                console.log(`Using JsonlDecoder for ${fileName}`);
+                decoder = new JsonlDecoder(fileData, decoderOptions);
+            } else if (fileName.endsWith(".clp.zst")) {
+                decoder = await ClpIrDecoder.create(fileData, decoderOptions);
+            } else {
+                throw new Error(`No decoder supports ${fileName}`);
+            }
+
+            if (fileData.length > MAX_V8_STRING_LENGTH) {
+                throw new Error(`Cannot handle files larger than ${
+                    formatSizeInBytes(MAX_V8_STRING_LENGTH)
+                } due to a limitation in Chromium-based browsers.`);
+            }
+        };
+
+        if (fileData.length < MAGIC_NUMBER_SIZE) {
+            await checkFileExtension();
+
+            return decoder;
+        }
+        const magicNumber = (fileData[0] << BYTE_SIZE * 3) |
+            (fileData[1] << BYTE_SIZE * 2) | (fileData[2] << BYTE_SIZE) | fileData[3];
+
+        switch (magicNumber) {
+            case ZST_MAGIC_NUMBER:
+                decoder = await ClpIrDecoder.create(fileData, decoderOptions);
+                break;
+            default:
+                await checkFileExtension();
         }
 
         return decoder;
