@@ -5,8 +5,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import useViewStore from "../../../../../stores/viewStore.ts";
-import {updateWindowUrlHashParams} from "../../../../../utils/url.ts";
+import useViewStore from "../../../../../stores/viewStore";
+import {updateWindowUrlHashParams} from "../../../../../utils/url";
 
 import "./Result.css";
 
@@ -39,14 +39,12 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(...matchRange),
         message.slice(matchRange[1]),
     ];
-    const {setLogEventNum} = useViewStore.getState();
+
     const handleResultButtonClick = useCallback(() => {
         updateWindowUrlHashParams({logEventNum});
+        const {setLogEventNum} = useViewStore.getState();
         setLogEventNum(logEventNum);
-    }, [
-        logEventNum,
-        setLogEventNum,
-    ]);
+    }, [logEventNum]);
 
     return (
         <ListItemButton

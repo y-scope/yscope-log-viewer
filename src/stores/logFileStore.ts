@@ -140,6 +140,8 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
             const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
                 fileInfo.fileType === FILE_TYPE.JSONL;
 

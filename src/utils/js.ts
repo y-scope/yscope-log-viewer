@@ -1,24 +1,8 @@
-import {Nullable} from "../typings/common.ts";
 import {
     JsonObject,
     JsonValue,
 } from "../typings/js";
 
-
-/**
- * Returns a new object with null values filtered out, and all values converted to strings.
- *
- * @param obj
- * @return The new object with string values.
- */
-const filterNullValuesToStrings = <K extends string, V>(
-    obj: Record<K, Nullable<V>>
-): Record<K, string> => Object.fromEntries(
-    Object.entries(obj)
-        .filter(([, v]) => null !== v)
-        .map(([k, v]) => [k,
-            String(v)])
-) as Record<K, string>;
 
 /**
  * Gets a nested value from a JSON object.
@@ -57,7 +41,6 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
 };
 
 export {
-    filterNullValuesToStrings,
     getNestedJsonValue,
     jsonValueToString,
 };

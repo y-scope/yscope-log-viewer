@@ -32,9 +32,6 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
-    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
-    const queryString = useQueryStore((state) => state.queryString);
     const queryResults = useQueryStore((state) => state.queryResults);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
@@ -44,9 +41,14 @@ const SearchTabPanel = () => {
     }, []);
 
     const handleShareButtonClick = useCallback(() => {
-        const {setQueryIsCaseSensitive} = useQueryStore.getState();
-        const {setQueryIsRegex} = useQueryStore.getState();
-        const {setQueryString} = useQueryStore.getState();
+        const {
+            queryIsCaseSensitive,
+            queryIsRegex,
+            queryString,
+            setQueryIsCaseSensitive,
+            setQueryIsRegex,
+            setQueryString,
+        } = useQueryStore.getState();
 
         setQueryIsCaseSensitive(queryIsCaseSensitive);
         setQueryIsRegex(queryIsRegex);
@@ -54,17 +56,11 @@ const SearchTabPanel = () => {
 
         copyPermalinkToClipboard({}, {
             logEventNum: null,
-            queryString: "" === queryString ?
-                null :
-                queryString,
+            queryString: queryString,
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,
         });
-    }, [
-        queryIsCaseSensitive,
-        queryIsRegex,
-        queryString,
-    ]);
+    }, []);
 
     return (
         <CustomTabPanel

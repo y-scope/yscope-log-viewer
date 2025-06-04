@@ -1,5 +1,4 @@
 /* eslint max-lines: ["error", 350] */
-import {NullableProperties} from "../typings/common.ts";
 import {
     HASH_PARAM_NAMES,
     SEARCH_PARAM_NAMES,
@@ -7,15 +6,14 @@ import {
     UrlHashParamUpdatesType,
     UrlSearchParams,
     UrlSearchParamUpdatesType,
-} from "../typings/url.ts";
-import {filterNullValuesToStrings} from "../utils/js.ts";
+} from "../typings/url";
 
 
 /**
  * Default values of the search parameters.
  */
 const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
-    [SEARCH_PARAM_NAMES.FILE_PATH]: null,
+    [SEARCH_PARAM_NAMES.FILE_PATH]: "",
 });
 
 /**
@@ -26,7 +24,7 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: 0,
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
-    [HASH_PARAM_NAMES.QUERY_STRING]: null,
+    [HASH_PARAM_NAMES.QUERY_STRING]: "",
 });
 
 /**
@@ -56,63 +54,19 @@ const getAbsoluteUrl = (path: string) => {
 };
 
 /**
- * Retrieves all hash parameters from the current window's URL.
+ * Parses the URL search parameters from the current window's URL.
  *
- * @return An object containing the hash parameters.
+ * @return An object containing the parsed search parameters.
  */
-const getWindowUrlHashParams = () => {
-    const urlHashParams: NullableProperties<UrlHashParams> =
-        structuredClone(URL_HASH_PARAMS_DEFAULT);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
+    const parsedSearchParams : Partial<UrlSearchParams> = {};
+    const searchParams = new URLSearchParams(window.location.search.substring(1));
 
-    const isPrettified = hashParams.get(HASH_PARAM_NAMES.IS_PRETTIFIED);
-    if (null !== isPrettified) {
-        urlHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === isPrettified;
-    }
-
-    const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
-    if (null !== logEventNum) {
-        const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-            null :
-            parsed;
-    }
-
-    const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
-    if (null !== queryString) {
-        urlHashParams[HASH_PARAM_NAMES.QUERY_STRING] = queryString;
-    }
-
-    const queryIsCaseSensitive = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE);
-    if (null !== queryIsCaseSensitive) {
-        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] =
-            "true" === queryIsCaseSensitive;
-    }
-
-    const queryIsRegex = hashParams.get(HASH_PARAM_NAMES.QUERY_IS_REGEX);
-    if (null !== queryIsRegex) {
-        urlHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === queryIsRegex;
-    }
-
-    return urlHashParams;
-};
-
-/**
- * Retrieves all search parameters from the current window's URL.
- *
- * @return An object containing the search parameters.
- */
-const getWindowUrlSearchParams = () => {
-    const searchParams : NullableProperties<UrlSearchParams> = structuredClone(
-        URL_SEARCH_PARAMS_DEFAULT
-    );
-    const urlSearchParams = new URLSearchParams(window.location.search.substring(1));
-
-    urlSearchParams.forEach((value, key) => {
-        searchParams[key as keyof UrlSearchParams] = value;
+    searchParams.forEach((value, key) => {
+        parsedSearchParams[key as keyof UrlSearchParams] = value;
     });
 
-    if (urlSearchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
+    if (searchParams.has(SEARCH_PARAM_NAMES.FILE_PATH)) {
         // Extract filePath value by finding the parameter and taking everything after it
         const filePathIndex = window.location.search.indexOf("filePath=");
         if (-1 !== filePathIndex) {
@@ -124,13 +78,76 @@ const getWindowUrlSearchParams = () => {
                 } catch (e) {
                     console.error("Unable to get absolute URL from filePath:", e);
                 }
-                searchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
+                parsedSearchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
             }
         }
     }
 
-    return searchParams;
+    return parsedSearchParams;
 };
+
+/**
+ * Parses the URL hash parameters from the current window's URL.
+ *
+ * @return An object containing the parsed hash parameters.
+ */
+const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const parsedHashParams: Partial<UrlHashParams> = {};
+
+    hashParams.forEach((value, _key) => {
+        const key = _key as HASH_PARAM_NAMES;
+        if (HASH_PARAM_NAMES.IS_PRETTIFIED === key) {
+            parsedHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === value;
+        } else if (HASH_PARAM_NAMES.LOG_EVENT_NUM === key) {
+            const parsed = Number(value);
+            parsedHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
+                0 :
+                parsed;
+        } else if (HASH_PARAM_NAMES.QUERY_STRING === key) {
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_STRING] = value;
+        } else if (HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE === key) {
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] = "true" === value;
+        } else {
+            // (HASH_PARAM_NAMES.QUERY_IS_REGEX === key)
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === value;
+        }
+    });
+
+    return parsedHashParams;
+};
+
+/**
+ * Retrieves all hash parameters from the current window's URL.
+ *
+ * @return An object containing the hash parameters, including the default values.
+ */
+const getWindowUrlHashParams = (): UrlHashParams => ({
+    ...URL_HASH_PARAMS_DEFAULT,
+    ...parseWindowUrlHashParams(),
+});
+
+/**
+ * Retrieves all search parameters from the current window's URL.
+ *
+ * @return An object containing the search parameters.
+ */
+const getWindowUrlSearchParams = (): UrlSearchParams => ({
+    ...URL_SEARCH_PARAMS_DEFAULT,
+    ...parseWindowUrlSearchParams(),
+});
+
+/**
+ * Checks if a value is empty or falsy.
+ *
+ * @param value
+ * @return `true` if the value is empty or falsy, otherwise `false`.
+ */
+const isEmptyOrFalsy = (value: unknown): boolean => (
+    null === value ||
+    false === value ||
+    ("string" === typeof value && 0 === value.length)
+);
 
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
@@ -141,8 +158,8 @@ const getWindowUrlSearchParams = () => {
  * @private
  */
 const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
-    const currentParams = getWindowUrlSearchParams();
-    const newSearchParams = new URLSearchParams(filterNullValuesToStrings(currentParams));
+    const currentSearchParams = parseWindowUrlSearchParams();
+    const newSearchParams = new URLSearchParams(currentSearchParams);
     const {filePath: newFilePath} = updates;
 
     for (const [key, value] of Object.entries(updates)) {
@@ -150,7 +167,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
             // Updates to `filePath` should be handled last.
             continue;
         }
-        if (null === value) {
+        if (isEmptyOrFalsy(value)) {
             newSearchParams.delete(key);
         } else {
             newSearchParams.set(key, String(value));
@@ -195,11 +212,13 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
  * @private
  */
 const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
-    const currentParams = getWindowUrlHashParams();
-    const newHashParams = new URLSearchParams(filterNullValuesToStrings(currentParams));
+    const currentHashParams = parseWindowUrlHashParams();
+
+    // For non-string values, URLSearchParams::new() will convert them to strings.
+    const newHashParams = new URLSearchParams(currentHashParams as Record<string, string>);
 
     for (const [key, value] of Object.entries(updates)) {
-        if (null === value || false === value) {
+        if (isEmptyOrFalsy(value)) {
             newHashParams.delete(key);
         } else {
             newHashParams.set(key, String(value));
@@ -273,9 +292,6 @@ const openInNewTab = (url: string): void => {
 /**
  * Updates hash parameters in the current window's URL with the given key-value pairs.
  *
- * Note: This function only updates the URL. Callers are responsible for updating corresponding
- * Zustand store state to maintain synchronization.
- *
  * @param updates An object containing key-value pairs to update the hash parameters. If a value is
  * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
@@ -293,9 +309,6 @@ const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
 
 /**
  * Updates search parameters in the current window's URL with the given key-value pairs.
- *
- * Note: This function only updates the URL. Callers are responsible for updating corresponding
- * Zustand store state to maintain synchronization.
  *
  * @param updates An object containing key-value pairs to update the search parameters. If a value
  * is `null`, the corresponding kv-pair will be removed from the URL's search parameters.

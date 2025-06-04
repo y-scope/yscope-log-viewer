@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
     Button,
     Sheet,
@@ -10,7 +12,7 @@ import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
-import useViewStore from "../../stores/viewStore.ts";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
@@ -18,7 +20,7 @@ import {isDisabled} from "../../utils/states";
 import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
-} from "../../utils/url.ts";
+} from "../../utils/url";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 

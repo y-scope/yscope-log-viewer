@@ -15,7 +15,7 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {clamp} from "../utils/math";
-import {updateWindowUrlHashParams} from "../utils/url.ts";
+import {updateWindowUrlHashParams} from "../utils/url";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 import {handleErrorWithNotification} from "./notificationStore";
@@ -110,9 +110,6 @@ const useViewStore = create<ViewState>((set, get) => ({
     filterLogs: (filter: LogLevelFilter) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-
-        const {clearQuery} = useQueryStore.getState();
-        clearQuery();
 
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
