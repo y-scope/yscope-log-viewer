@@ -209,7 +209,6 @@ class LogFileManager {
 
         const checkFileExtension = async () => {
             if (fileName.endsWith(".jsonl")) {
-                console.log(`Using JsonlDecoder for ${fileName}`);
                 decoder = new JsonlDecoder(fileData, decoderOptions);
             } else if (fileName.endsWith(".clp.zst")) {
                 decoder = await ClpIrDecoder.create(fileData, decoderOptions);
