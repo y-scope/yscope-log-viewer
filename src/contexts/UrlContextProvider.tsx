@@ -36,6 +36,7 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
     [HASH_PARAM_NAMES.QUERY_STRING]: null,
+    [HASH_PARAM_NAMES.TIMESTAMP]: null,
 });
 
 /**
@@ -218,13 +219,18 @@ const getWindowUrlHashParams = () => {
         structuredClone(URL_HASH_PARAMS_DEFAULT);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-    const logEventNum = hashParams.get(HASH_PARAM_NAMES.LOG_EVENT_NUM);
-    if (null !== logEventNum) {
-        const parsed = Number(logEventNum);
-        urlHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-            null :
-            parsed;
-    }
+    ([
+        HASH_PARAM_NAMES.LOG_EVENT_NUM,
+        HASH_PARAM_NAMES.TIMESTAMP,
+    ] as const).forEach((paramName) => {
+        const paramValue = hashParams.get(paramName);
+        if (null !== paramValue) {
+            const parsed = Number(paramValue);
+            urlHashParams[paramName] = Number.isNaN(parsed) ?
+                null :
+                parsed;
+        }
+    });
 
     const queryString = hashParams.get(HASH_PARAM_NAMES.QUERY_STRING);
     if (null !== queryString) {

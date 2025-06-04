@@ -78,9 +78,11 @@ interface AppControllerProps {
  * @param props.children
  * @return
  */
+// eslint-disable-next-line max-lines-per-function,max-statements
 const AppController = ({children}: AppControllerProps) => {
     const {
         filePath, isPrettified, logEventNum, queryString, queryIsRegex, queryIsCaseSensitive,
+        timestamp,
     } = useContext(UrlContext);
 
     // States
@@ -97,6 +99,7 @@ const AppController = ({children}: AppControllerProps) => {
     // Refs
     const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const logEventNumRef = useRef(logEventNum);
+    const timestampRef = useRef(timestamp);
 
     // Synchronize `logEventNumRef` with `logEventNum`.
     useEffect(() => {
@@ -116,6 +119,30 @@ const AppController = ({children}: AppControllerProps) => {
     }, [
         isPrettified,
         setIsPrettified,
+    ]);
+
+    // On `timestamp` update, find nearest log event by the timestamp and clear the URL parameter.
+    useEffect(() => {
+        if (0 === numEvents || null === timestamp) {
+            return;
+        }
+
+        (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestamp},
+            };
+
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            updatePageData(pageData);
+
+            updateWindowUrlHashParams({timestamp: null});
+        })().catch(handleErrorWithNotification);
+    }, [
+        logFileManagerProxy,
+        numEvents,
+        updatePageData,
+        timestamp,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
@@ -165,6 +192,14 @@ const AppController = ({children}: AppControllerProps) => {
                 args: {eventNum: logEventNumRef.current},
             };
         }
+        if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestampRef.current) {
+            cursor = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestampRef.current},
+            };
+        }
+        updateWindowUrlHashParams({timestamp: null});
+        timestampRef.current = null;
         loadFile(filePath, cursor);
     }, [
         filePath,
