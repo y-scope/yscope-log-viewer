@@ -7,6 +7,7 @@ import {
 } from "@mui/joy";
 
 import useQueryStore from "../../../../../stores/queryStore";
+import useResultsStore from "../../../../../stores/resultsStore";
 import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
@@ -35,16 +36,22 @@ const QueryInputBox = () => {
     const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQueryString(ev.target.value);
         startQuery();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const handleCaseSensitivityButtonClick = () => {
         setQueryIsCaseSensitive(!isCaseSensitive);
         startQuery();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const handleRegexButtonClick = () => {
         setQueryIsRegex(!isRegex);
         startQuery();
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(false);
     };
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
