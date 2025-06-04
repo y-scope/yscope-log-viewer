@@ -1,4 +1,4 @@
-name: "log-viewer-docs"
+name: "docs"
 
 on:
   pull_request:
