@@ -331,6 +331,8 @@ export {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
     openInNewTab,
+    parseWindowUrlHashParams,
+    parseWindowUrlSearchParams,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,

@@ -9,10 +9,7 @@ import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
-import {
-    Nullable,
-    NullableProperties,
-} from "../typings/common.ts";
+import {Nullable} from "../typings/common";
 import {UI_STATE} from "../typings/states";
 import {UrlHashParams} from "../typings/url";
 import {
@@ -76,15 +73,12 @@ const updateUrlIfEventOnPage = (
  *
  * @param hashParams
  */
-const updateViewHashParams = (hashParams: NullableProperties<UrlHashParams>): void => {
+const updateViewHashParams = (hashParams: UrlHashParams): void => {
     const {isPrettified, logEventNum} = hashParams;
     const {updateIsPrettified, setLogEventNum} = useViewStore.getState();
-    if (null !== isPrettified && URL_HASH_PARAMS_DEFAULT.isPrettified !== isPrettified) {
-        updateIsPrettified(isPrettified);
-    }
-    if (null !== logEventNum && URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNum) {
-        setLogEventNum(logEventNum);
-    }
+
+    updateIsPrettified(isPrettified);
+    setLogEventNum(logEventNum);
 };
 
 /**
@@ -93,7 +87,7 @@ const updateViewHashParams = (hashParams: NullableProperties<UrlHashParams>): vo
  * @param hashParams
  * @return Whether any query parameters were modified.
  */
-const updateQueryHashParams = (hashParams: NullableProperties<UrlHashParams>): boolean => {
+const updateQueryHashParams = (hashParams: UrlHashParams): boolean => {
     const {queryIsCaseSensitive, queryIsRegex, queryString} = hashParams;
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -103,20 +97,17 @@ const updateQueryHashParams = (hashParams: NullableProperties<UrlHashParams>): b
         setQueryIsRegex,
         setQueryString,
     } = useQueryStore.getState();
+
     let isQueryModified = false;
-    if (null !== queryIsCaseSensitive &&
-        URL_HASH_PARAMS_DEFAULT.queryIsCaseSensitive !== queryIsCaseSensitive) {
-        isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
-        setQueryIsCaseSensitive(queryIsCaseSensitive);
-    }
-    if (null !== queryIsRegex && URL_HASH_PARAMS_DEFAULT.queryIsRegex !== queryIsRegex) {
-        isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
-        setQueryIsRegex(queryIsRegex);
-    }
-    if (null !== queryString && URL_HASH_PARAMS_DEFAULT.queryString !== queryString) {
-        isQueryModified ||= queryString !== currentQueryString;
-        setQueryString(queryString);
-    }
+
+    isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
+    setQueryIsCaseSensitive(queryIsCaseSensitive);
+
+    isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
+    setQueryIsRegex(queryIsRegex);
+
+    isQueryModified ||= queryString !== currentQueryString;
+    setQueryString(queryString);
 
     return isQueryModified;
 };
@@ -127,7 +118,7 @@ const updateQueryHashParams = (hashParams: NullableProperties<UrlHashParams>): b
  * @param [ev] The hash change event, or `null` when called on application initialization.
  * @return The parsed URL hash parameters.
  */
-const handleHashChange = (ev: Nullable<HashChangeEvent>): NullableProperties<UrlHashParams> => {
+const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
     const hashParams = getWindowUrlHashParams();
     updateViewHashParams(hashParams);
     const isTriggeredByHashChange = null !== ev;
@@ -173,8 +164,10 @@ const AppController = ({children}: AppControllerProps) => {
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-            if (null !== hashParams.logEventNum &&
-                URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+
+            // Since the default logEventNum is 0, which is not a valid index, so if it is 0, we
+            // don't jump to 0
+            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
                 cursor = {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {eventNum: hashParams.logEventNum},

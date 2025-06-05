@@ -17,7 +17,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {copyPermalinkToClipboard} from "../../../../../utils/url.ts";
+import {copyPermalinkToClipboard} from "../../../../../utils/url";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
