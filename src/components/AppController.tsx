@@ -99,7 +99,6 @@ const updateQueryHashParams = (hashParams: UrlHashParams): boolean => {
     } = useQueryStore.getState();
 
     let isQueryModified = false;
-
     isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
     setQueryIsCaseSensitive(queryIsCaseSensitive);
 
@@ -123,6 +122,11 @@ const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
     updateViewHashParams(hashParams);
     const isTriggeredByHashChange = null !== ev;
     const isQueryModified = updateQueryHashParams(hashParams);
+
+    // This can remove those empty or falsy parameters
+    updateWindowUrlHashParams({
+        ...hashParams,
+    });
     if (isTriggeredByHashChange && isQueryModified) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
