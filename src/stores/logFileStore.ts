@@ -1,7 +1,7 @@
+/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {updateWindowUrlSearchParams} from "../contexts/UrlContextProvider";
 import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
@@ -21,6 +21,7 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
+import {updateWindowUrlSearchParams} from "../utils/url";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
@@ -139,6 +140,8 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
             const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
                 fileInfo.fileType === FILE_TYPE.JSONL;
 
