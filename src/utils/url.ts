@@ -54,6 +54,18 @@ const getAbsoluteUrl = (path: string) => {
 };
 
 /**
+ * Checks if a value is empty or falsy.
+ *
+ * @param value
+ * @return `true` if the value is empty or falsy, otherwise `false`.
+ */
+const isEmptyOrFalsy = (value: unknown): boolean => (
+    null === value ||
+    false === value ||
+    ("string" === typeof value && 0 === value.length)
+);
+
+/**
  * Parses the URL search parameters from the current window's URL.
  *
  * @return An object containing the parsed search parameters.
@@ -85,69 +97,6 @@ const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
 
     return parsedSearchParams;
 };
-
-/**
- * Parses the URL hash parameters from the current window's URL.
- *
- * @return An object containing the parsed hash parameters.
- */
-const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const parsedHashParams: Partial<UrlHashParams> = {};
-
-    hashParams.forEach((value, _key) => {
-        const key = _key as HASH_PARAM_NAMES;
-        if (HASH_PARAM_NAMES.IS_PRETTIFIED === key) {
-            parsedHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === value;
-        } else if (HASH_PARAM_NAMES.LOG_EVENT_NUM === key) {
-            const parsed = Number(value);
-            parsedHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-                0 :
-                parsed;
-        } else if (HASH_PARAM_NAMES.QUERY_STRING === key) {
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_STRING] = value;
-        } else if (HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE === key) {
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] = "true" === value;
-        } else {
-            // (HASH_PARAM_NAMES.QUERY_IS_REGEX === key)
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === value;
-        }
-    });
-
-    return parsedHashParams;
-};
-
-/**
- * Retrieves all hash parameters from the current window's URL.
- *
- * @return An object containing the hash parameters, including the default values.
- */
-const getWindowUrlHashParams = (): UrlHashParams => ({
-    ...URL_HASH_PARAMS_DEFAULT,
-    ...parseWindowUrlHashParams(),
-});
-
-/**
- * Retrieves all search parameters from the current window's URL.
- *
- * @return An object containing the search parameters.
- */
-const getWindowUrlSearchParams = (): UrlSearchParams => ({
-    ...URL_SEARCH_PARAMS_DEFAULT,
-    ...parseWindowUrlSearchParams(),
-});
-
-/**
- * Checks if a value is empty or falsy.
- *
- * @param value
- * @return `true` if the value is empty or falsy, otherwise `false`.
- */
-const isEmptyOrFalsy = (value: unknown): boolean => (
-    null === value ||
-    false === value ||
-    ("string" === typeof value && 0 === value.length)
-);
 
 /**
  * Computes updated URL search parameters based on the provided key-value pairs.
@@ -204,6 +153,47 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
 };
 
 /**
+ * Retrieves all search parameters from the current window's URL.
+ *
+ * @return An object containing the search parameters.
+ */
+const getWindowUrlSearchParams = (): UrlSearchParams => ({
+    ...URL_SEARCH_PARAMS_DEFAULT,
+    ...parseWindowUrlSearchParams(),
+});
+
+/**
+ * Parses the URL hash parameters from the current window's URL.
+ *
+ * @return An object containing the parsed hash parameters.
+ */
+const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const parsedHashParams: Partial<UrlHashParams> = {};
+
+    hashParams.forEach((value, _key) => {
+        const key = _key as HASH_PARAM_NAMES;
+        if (HASH_PARAM_NAMES.IS_PRETTIFIED === key) {
+            parsedHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === value;
+        } else if (HASH_PARAM_NAMES.LOG_EVENT_NUM === key) {
+            const parsed = Number(value);
+            parsedHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
+                0 :
+                parsed;
+        } else if (HASH_PARAM_NAMES.QUERY_STRING === key) {
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_STRING] = value;
+        } else if (HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE === key) {
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] = "true" === value;
+        } else {
+            // (HASH_PARAM_NAMES.QUERY_IS_REGEX === key)
+            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === value;
+        }
+    });
+
+    return parsedHashParams;
+};
+
+/**
  * Computes updated URL hash parameters based on the provided key-value pairs.
  *
  * @param updates An object containing key-value pairs to update the hash parameters. If a key's
@@ -227,6 +217,16 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
 
     return newHashParams.toString();
 };
+
+/**
+ * Retrieves all hash parameters from the current window's URL.
+ *
+ * @return An object containing the hash parameters, including the default values.
+ */
+const getWindowUrlHashParams = (): UrlHashParams => ({
+    ...URL_HASH_PARAMS_DEFAULT,
+    ...parseWindowUrlHashParams(),
+});
 
 /**
  * Copies the current window's URL to the clipboard. If any `updates` parameters are specified,

@@ -120,17 +120,17 @@ const updateQueryHashParams = (hashParams: UrlHashParams): boolean => {
 const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
     const hashParams = getWindowUrlHashParams();
     updateViewHashParams(hashParams);
-    const isTriggeredByHashChange = null !== ev;
     const isQueryModified = updateQueryHashParams(hashParams);
-
-    // This can remove those empty or falsy parameters
-    updateWindowUrlHashParams({
-        ...hashParams,
-    });
+    const isTriggeredByHashChange = null !== ev;
     if (isTriggeredByHashChange && isQueryModified) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
+
+    // Remove empty or falsy parameters.
+    updateWindowUrlHashParams({
+        ...hashParams,
+    });
 
     return hashParams;
 };
@@ -169,8 +169,6 @@ const AppController = ({children}: AppControllerProps) => {
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
 
-            // Since the default logEventNum is 0, which is not a valid index, so if it is 0, we
-            // don't jump to 0
             if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
                 cursor = {
                     code: CURSOR_CODE.EVENT_NUM,

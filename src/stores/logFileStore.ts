@@ -110,9 +110,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {clearQuery} = useQueryStore.getState();
-        clearQuery();
-
         const {setLogData} = useViewStore.getState();
         setLogData("Loading...");
 

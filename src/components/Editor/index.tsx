@@ -185,9 +185,7 @@ const Editor = () => {
     const {mode, systemMode} = useColorScheme();
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-
     const logData = useViewStore((state) => state.logData);
-
     const logEventNum = useViewStore((state) => state.logEventNum);
 
     const [lineNum, setLineNum] = useState<number>(1);
