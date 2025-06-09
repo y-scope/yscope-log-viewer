@@ -1,5 +1,4 @@
 import {FILE_TYPE} from "../services/LogFileManager";
-import {Nullable} from "./common";
 import {ActiveLogCollectionEventIdx} from "./decoders";
 
 
@@ -78,7 +77,7 @@ type LogFileInfo = {
 type PageData = {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     cursorLineNum: number;
-    logEventNum: Nullable<number>;
+    logEventNum: number;
     logs: string;
     numPages: number;
     pageNum: number;
@@ -90,7 +89,7 @@ type PageData = {
 const EMPTY_PAGE_RESP: PageData = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
     cursorLineNum: 1,
-    logEventNum: null,
+    logEventNum: 0,
     logs: "",
     numPages: 1,
     pageNum: 1,
