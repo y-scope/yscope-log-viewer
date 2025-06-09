@@ -10,11 +10,13 @@ interface LogEventCount {
 /**
  * @property formatString The format string to use to serialize records as plain text.
  * @property logLevelKey The key of the kv-pair that contains the log level in every record.
+ * @property timestampFormatString The dayjs timestamp format string for unstructured logs.
  * @property timestampKey The key of the kv-pair that contains the timestamp in every record.
  */
 interface DecoderOptions {
     formatString: string;
     logLevelKey: string;
+    timestampFormatString: string;
     timestampKey: string;
 }
 

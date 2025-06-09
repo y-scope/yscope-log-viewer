@@ -1,22 +1,17 @@
 import React, {
-    useContext,
     useEffect,
     useRef,
 } from "react";
 
-import {
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
-    UrlContext,
-} from "../contexts/UrlContextProvider";
-import useContextStore from "../stores/contextStore";
 import useLogFileManagerStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
+import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
+import {Nullable} from "../typings/common";
 import {UI_STATE} from "../typings/states";
+import {UrlHashParams} from "../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -26,6 +21,13 @@ import {
     isWithinBounds,
 } from "../utils/data";
 import {clamp} from "../utils/math";
+import {
+    getWindowUrlHashParams,
+    getWindowUrlSearchParams,
+    updateWindowUrlHashParams,
+    URL_HASH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT,
+} from "../utils/url";
 
 
 /**
@@ -66,6 +68,73 @@ const updateUrlIfEventOnPage = (
     return true;
 };
 
+/**
+ * Updates view-related parameters from URL hash.
+ *
+ * @param hashParams
+ */
+const updateViewHashParams = (hashParams: UrlHashParams): void => {
+    const {isPrettified, logEventNum} = hashParams;
+    const {updateIsPrettified, setLogEventNum} = useViewStore.getState();
+
+    updateIsPrettified(isPrettified);
+    setLogEventNum(logEventNum);
+};
+
+/**
+ * Updates query-related parameters from URL hash.
+ *
+ * @param hashParams
+ * @return Whether any query parameters were modified.
+ */
+const updateQueryHashParams = (hashParams: UrlHashParams): boolean => {
+    const {queryIsCaseSensitive, queryIsRegex, queryString} = hashParams;
+    const {
+        queryIsCaseSensitive: currentQueryIsCaseSensitive,
+        queryIsRegex: currentQueryIsRegex,
+        queryString: currentQueryString,
+        setQueryIsCaseSensitive,
+        setQueryIsRegex,
+        setQueryString,
+    } = useQueryStore.getState();
+
+    let isQueryModified = false;
+    isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
+    setQueryIsCaseSensitive(queryIsCaseSensitive);
+
+    isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
+    setQueryIsRegex(queryIsRegex);
+
+    isQueryModified ||= queryString !== currentQueryString;
+    setQueryString(queryString);
+
+    return isQueryModified;
+};
+
+/**
+ * Handles hash change events by updating the application state based on the URL hash parameters.
+ *
+ * @param [ev] The hash change event, or `null` when called on application initialization.
+ * @return The parsed URL hash parameters.
+ */
+const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
+    const hashParams = getWindowUrlHashParams();
+    updateViewHashParams(hashParams);
+    const isQueryModified = updateQueryHashParams(hashParams);
+    const isTriggeredByHashChange = null !== ev;
+    if (isTriggeredByHashChange && isQueryModified) {
+        const {startQuery} = useQueryStore.getState();
+        startQuery();
+    }
+
+    // Remove empty or falsy parameters.
+    updateWindowUrlHashParams({
+        ...hashParams,
+    });
+
+    return hashParams;
+};
+
 interface AppControllerProps {
     children: React.ReactNode;
 }
@@ -78,94 +147,74 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    const {filePath, isPrettified, logEventNum} = useContext(UrlContext);
-
     // States
-    const setLogEventNum = useContextStore((state) => state.setLogEventNum);
-    const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
-    const loadFile = useLogFileStore((state) => state.loadFile);
-    const numEvents = useLogFileStore((state) => state.numEvents);
-    const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
-    const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
-    const updatePageData = useViewStore((state) => state.updatePageData);
-    const setUiState = useUiStore((state) => state.setUiState);
+    const logEventNum = useViewStore((state) => state.logEventNum);
 
     // Refs
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
-    const logEventNumRef = useRef(logEventNum);
+    const isInitialized = useRef<boolean>(false);
 
-    // Synchronize `logEventNumRef` with `logEventNum`.
+    // On app init, register hash change handler, and handle hash and search parameters.
     useEffect(() => {
-        if (null !== logEventNum) {
-            logEventNumRef.current = logEventNum;
-            setLogEventNum(logEventNum);
+        window.addEventListener("hashchange", handleHashChange);
+
+        // Prevent re-initialization on re-renders.
+        if (isInitialized.current) {
+            return () => null;
         }
-    }, [
-        logEventNum,
-        setLogEventNum,
-    ]);
+        isInitialized.current = true;
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-        setIsPrettified(isPrettifiedRef.current);
-    }, [
-        isPrettified,
-        setIsPrettified,
-    ]);
+        // Handle initial page load and maintain full URL state
+        const hashParams = handleHashChange(null);
+        const searchParams = getWindowUrlSearchParams();
+        if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
+            let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+
+            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+                cursor = {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: hashParams.logEventNum},
+                };
+            }
+            const {loadFile} = useLogFileStore.getState();
+            loadFile(searchParams.filePath, cursor);
+        }
+
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
+    }, []);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        const {numEvents} = useLogFileStore.getState();
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
 
         const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
-        const logEventNumsOnPage: number [] =
-            Array.from(beginLineNumToLogEventNum.values());
-
+        const {beginLineNumToLogEventNum} = useViewStore.getState();
+        const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return;
         }
 
+        // If the log event is not on the current page, request a new page.
+        const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const cursor: CursorType = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: clampedLogEventNum},
             };
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettifiedRef.current);
+            const {isPrettified} = useViewStore.getState();
+
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
-    }, [
-        beginLineNumToLogEventNum,
-        logEventNum,
-        logFileManagerProxy,
-        numEvents,
-        setUiState,
-        updatePageData,
-    ]);
-
-    // On `filePath` update, load file.
-    useEffect(() => {
-        if (URL_SEARCH_PARAMS_DEFAULT.filePath === filePath) {
-            return;
-        }
-
-        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (URL_HASH_PARAMS_DEFAULT.logEventNum !== logEventNumRef.current) {
-            cursor = {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNumRef.current},
-            };
-        }
-        loadFile(filePath, cursor);
-    }, [
-        filePath,
-        loadFile,
-    ]);
+    }, [logEventNum]);
 
     return children;
 };

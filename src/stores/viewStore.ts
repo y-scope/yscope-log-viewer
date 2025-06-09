@@ -1,6 +1,5 @@
 import {create} from "zustand";
 
-import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
 import {LogLevelFilter} from "../typings/logs";
 import {UI_STATE} from "../typings/states";
@@ -16,7 +15,7 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {clamp} from "../utils/math";
-import useContextStore, {CONTEXT_STORE_DEFAULT} from "./contextStore";
+import {updateWindowUrlHashParams} from "../utils/url";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
 import {handleErrorWithNotification} from "./notificationStore";
@@ -28,6 +27,7 @@ interface ViewStoreValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     isPrettified: boolean;
     logData: string;
+    logEventNum: number;
     numPages: number;
     pageNum: number;
 }
@@ -35,6 +35,7 @@ interface ViewStoreValues {
 interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setLogData: (newLogData: string) => void;
+    setLogEventNum: (newLogEventNum: number) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
     filterLogs: (filter: LogLevelFilter) => void;
@@ -50,6 +51,7 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     isPrettified: false,
     logData: "No file is open.",
+    logEventNum: 0,
     numPages: 0,
     pageNum: 0,
 };
@@ -109,13 +111,9 @@ const useViewStore = create<ViewState>((set, get) => ({
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
-        const {clearQuery} = useQueryStore.getState();
-        clearQuery();
-
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {logEventNum} = useContextStore.getState();
-            const {isPrettified} = get();
+            const {isPrettified, logEventNum} = get();
             const pageData = await logFileManagerProxy.setFilter(
                 {
                     code: CURSOR_CODE.EVENT_NUM,
@@ -137,8 +135,8 @@ const useViewStore = create<ViewState>((set, get) => ({
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
             const {fileSrc, loadFile} = useLogFileStore.getState();
-            const {logEventNum} = useContextStore.getState();
-            if (null === fileSrc || CONTEXT_STORE_DEFAULT.logEventNum === logEventNum) {
+            const {logEventNum} = get();
+            if (null === fileSrc || VIEW_STORE_DEFAULT.logEventNum === logEventNum) {
                 throw new Error(
                     `Unexpected fileSrc=${JSON.stringify(
                         fileSrc
@@ -184,6 +182,9 @@ const useViewStore = create<ViewState>((set, get) => ({
     setLogData: (newLogData) => {
         set({logData: newLogData});
     },
+    setLogEventNum: (newLogEventNum) => {
+        set({logEventNum: newLogEventNum});
+    },
     setNumPages: (newNumPages) => {
         set({numPages: newNumPages});
     },
@@ -201,9 +202,9 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         set({isPrettified: newIsPrettified});
 
-        const {logEventNum} = useContextStore.getState();
+        const {logEventNum} = get();
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
+        if (VIEW_STORE_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNum},
@@ -225,9 +226,12 @@ const useViewStore = create<ViewState>((set, get) => ({
             pageNum: pageData.pageNum,
             beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
         });
+        const newLogEventNum = pageData.logEventNum;
         updateWindowUrlHashParams({
-            logEventNum: pageData.logEventNum,
+            logEventNum: newLogEventNum,
         });
+        const {setLogEventNum} = get();
+        setLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },

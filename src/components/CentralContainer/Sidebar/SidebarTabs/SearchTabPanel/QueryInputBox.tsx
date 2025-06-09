@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 
 import {
     LinearProgress,
@@ -12,6 +12,7 @@ import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
+import {updateWindowUrlHashParams} from "../../../../../utils/url";
 import ToggleIconButton from "./ToggleIconButton";
 
 import "./QueryInputBox.css";
@@ -26,33 +27,40 @@ const QueryInputBox = () => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
     const querystring = useQueryStore((state) => state.queryString);
-    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
-    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
-    const setQueryString = useQueryStore((state) => state.setQueryString);
     const queryProgress = useQueryStore((state) => state.queryProgress);
-    const startQuery = useQueryStore((state) => state.startQuery);
     const uiState = useUiStore((state) => state.uiState);
 
-    const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setQueryString(ev.target.value);
-        startQuery();
+    const resetButtonClicked = () => {
         const {setButtonClicked} = useResultsStore.getState();
         setButtonClicked(false);
     };
 
-    const handleCaseSensitivityButtonClick = () => {
-        setQueryIsCaseSensitive(!isCaseSensitive);
+    const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newQueryString = ev.target.value;
+        updateWindowUrlHashParams({queryString: newQueryString});
+        const {setQueryString, startQuery} = useQueryStore.getState();
+        setQueryString(newQueryString);
         startQuery();
-        const {setButtonClicked} = useResultsStore.getState();
-        setButtonClicked(false);
-    };
+        resetButtonClicked();
+    }, []);
 
-    const handleRegexButtonClick = () => {
-        setQueryIsRegex(!isRegex);
+    const handleCaseSensitivityButtonClick = useCallback(() => {
+        const newQueryIsSensitive = !isCaseSensitive;
+        updateWindowUrlHashParams({queryIsCaseSensitive: newQueryIsSensitive});
+        const {setQueryIsCaseSensitive, startQuery} = useQueryStore.getState();
+        setQueryIsCaseSensitive(newQueryIsSensitive);
         startQuery();
-        const {setButtonClicked} = useResultsStore.getState();
-        setButtonClicked(false);
-    };
+        resetButtonClicked();
+    }, [isCaseSensitive]);
+
+    const handleRegexButtonClick = useCallback(() => {
+        const newQueryIsRegex = !isRegex;
+        updateWindowUrlHashParams({queryIsRegex: newQueryIsRegex});
+        const {setQueryIsRegex, startQuery} = useQueryStore.getState();
+        setQueryIsRegex(newQueryIsRegex);
+        startQuery();
+        resetButtonClicked();
+    }, [isRegex]);
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 

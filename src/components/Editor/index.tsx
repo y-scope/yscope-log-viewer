@@ -1,9 +1,8 @@
-/* eslint max-lines: ["error", 360] */
+/* eslint max-lines: ["error", 375] */
 /* eslint max-lines-per-function: ["error", 220] */
 /* eslint max-statements: ["error", 25] */
 import {
     useCallback,
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -12,10 +11,6 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../contexts/UrlContextProvider";
 import useQueryStore from "../../stores/queryStore";
 import useResultsStore from "../../stores/resultsStore";
 import useViewStore from "../../stores/viewStore";
@@ -39,6 +34,7 @@ import {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -133,6 +129,58 @@ const handleToggleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor)
 };
 
 /**
+ * Handles custom actions in the editor based on the action name.
+ *
+ * @param editor
+ * @param actionName
+ */
+const handleEditorCustomAction = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    actionName: ACTION_NAME
+) => {
+    switch (actionName) {
+        case ACTION_NAME.FIRST_PAGE:
+        case ACTION_NAME.PREV_PAGE:
+        case ACTION_NAME.NEXT_PAGE:
+        case ACTION_NAME.LAST_PAGE: {
+            const {loadPageByAction} = useViewStore.getState();
+            loadPageByAction({code: actionName, args: null});
+            break;
+        }
+        case ACTION_NAME.PAGE_TOP:
+            goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+            break;
+        case ACTION_NAME.PAGE_BOTTOM: {
+            const lineCount = editor.getModel()?.getLineCount();
+            if ("undefined" === typeof lineCount) {
+                break;
+            }
+            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+            break;
+        }
+        case ACTION_NAME.COPY_LOG_EVENT: {
+            const {beginLineNumToLogEventNum} = useViewStore.getState();
+            handleCopyLogEventAction(editor, beginLineNumToLogEventNum);
+            break;
+        }
+        case ACTION_NAME.TOGGLE_PRETTIFY: {
+            const {isPrettified, updateIsPrettified} = useViewStore.getState();
+            const newIsPrettified = !isPrettified;
+            updateWindowUrlHashParams({
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
+            });
+            updateIsPrettified(newIsPrettified);
+            break;
+        }
+        case ACTION_NAME.TOGGLE_WORD_WRAP:
+            handleToggleWordWrapAction(editor);
+            break;
+        default:
+            break;
+    }
+};
+
+/**
  * Renders a read-only editor for viewing logs.
  *
  * @return
@@ -142,55 +190,15 @@ const Editor = () => {
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const logData = useViewStore((state) => state.logData);
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
+    const logEventNum = useViewStore((state) => state.logEventNum);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
-
-    const handleEditorCustomAction = useCallback((
-        editor: monaco.editor.IStandaloneCodeEditor,
-        actionName: ACTION_NAME
-    ) => {
-        switch (actionName) {
-            case ACTION_NAME.FIRST_PAGE:
-            case ACTION_NAME.PREV_PAGE:
-            case ACTION_NAME.NEXT_PAGE:
-            case ACTION_NAME.LAST_PAGE:
-                loadPageByAction({code: actionName, args: null});
-                break;
-            case ACTION_NAME.PAGE_TOP:
-                goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
-                break;
-            case ACTION_NAME.PAGE_BOTTOM: {
-                const lineCount = editor.getModel()?.getLineCount();
-                if ("undefined" === typeof lineCount) {
-                    break;
-                }
-                goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
-                break;
-            }
-            case ACTION_NAME.COPY_LOG_EVENT:
-                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
-                break;
-            case ACTION_NAME.TOGGLE_PRETTIFY:
-                updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
-                });
-                break;
-            case ACTION_NAME.TOGGLE_WORD_WRAP:
-                handleToggleWordWrapAction(editor);
-                break;
-            default:
-                break;
-        }
-    }, [loadPageByAction]);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -231,21 +239,28 @@ const Editor = () => {
         const closeFind = () => {
             const findController = editorRef.current.getContribution(
                 "editor.contrib.findController"
-            ) as {closeFindWidget: () => void};
+            ) as {closeFindWidget: () => void} | null;
 
-            findController.closeFindWidget();
+            if (findController?.closeFindWidget) {
+                findController.closeFindWidget();
+            }
         };
 
-        useQueryStore.subscribe(() => {
+        const unsubscribeQuery = useQueryStore.subscribe(() => {
             closeFind();
         });
-        useResultsStore.subscribe((state) => {
+        const unsubscribeResults = useResultsStore.subscribe((state) => {
             if (state.buttonClicked) {
                 updateFindAction().catch((error: unknown) => {
                     console.error("Error during search:", error);
                 });
             }
         });
+
+        return () => {
+            unsubscribeQuery();
+            unsubscribeResults();
+        };
     }, []);
 
     /**
@@ -299,17 +314,14 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        const {setLogEventNum} = useViewStore.getState();
+        setLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
-
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
-    useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-    }, [isPrettified]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {
