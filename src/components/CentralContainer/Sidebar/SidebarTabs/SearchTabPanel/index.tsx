@@ -12,12 +12,12 @@ import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
-import {copyPermalinkToClipboard} from "../../../../../contexts/UrlContextProvider";
 import useQueryStore from "../../../../../stores/queryStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {copyPermalinkToClipboard} from "../../../../../utils/url";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
@@ -32,9 +32,6 @@ import "./index.css";
  * @return
  */
 const SearchTabPanel = () => {
-    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
-    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
-    const queryString = useQueryStore((state) => state.queryString);
     const queryResults = useQueryStore((state) => state.queryResults);
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
@@ -44,19 +41,26 @@ const SearchTabPanel = () => {
     }, []);
 
     const handleShareButtonClick = useCallback(() => {
+        const {
+            queryIsCaseSensitive,
+            queryIsRegex,
+            queryString,
+            setQueryIsCaseSensitive,
+            setQueryIsRegex,
+            setQueryString,
+        } = useQueryStore.getState();
+
+        setQueryIsCaseSensitive(queryIsCaseSensitive);
+        setQueryIsRegex(queryIsRegex);
+        setQueryString(queryString);
+
         copyPermalinkToClipboard({}, {
             logEventNum: null,
-            queryString: "" === queryString ?
-                null :
-                queryString,
+            queryString: queryString,
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,
         });
-    }, [
-        queryIsCaseSensitive,
-        queryIsRegex,
-        queryString,
-    ]);
+    }, []);
 
     return (
         <CustomTabPanel
