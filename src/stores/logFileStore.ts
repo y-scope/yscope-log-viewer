@@ -1,13 +1,12 @@
+/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {updateWindowUrlSearchParams} from "../contexts/UrlContextProvider";
 import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {LOG_LEVEL} from "../typings/logs";
 import {
-    DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     PopUpMessage,
 } from "../typings/notifications";
@@ -22,9 +21,10 @@ import {
     FileSrcType,
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
-import useContextStore from "./contextStore";
+import {updateWindowUrlSearchParams} from "../utils/url";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
+import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
@@ -100,19 +100,17 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {setFileName, setOnDiskFileSizeInBytes} = get();
-        const {postPopUp} = useContextStore.getState();
-        const {setExportProgress} = useLogExportStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {clearQuery} = useQueryStore.getState();
         const {setUiState} = useUiStore.getState();
-        const {isPrettified, logTimezone, setLogData, updatePageData} = useViewStore.getState();
+        setUiState(UI_STATE.FILE_LOADING);
 
+        const {setFileName, setOnDiskFileSizeInBytes} = get();
         setFileName("Loading...");
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+
+        const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
-        clearQuery();
-        setUiState(UI_STATE.FILE_LOADING);
+
+        const {setLogData} = useViewStore.getState();
         setLogData("Loading...");
 
         set({fileSrc});
@@ -120,8 +118,9 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+            const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
             const fileInfo = await logFileManagerProxy.loadFile(
                 {
                     decoderOptions: decoderOptions,
@@ -131,24 +130,24 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
                 Comlink.proxy(handleExportChunk),
                 Comlink.proxy(handleQueryResults)
             );
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
+
             set(fileInfo);
+
+            const {isPrettified, updatePageData} = useViewStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             updatePageData(pageData);
 
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
             const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
                 fileInfo.fileType === FILE_TYPE.JSONL;
 
             if (0 === decoderOptions.formatString.length && canFormat) {
+                const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }
         })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
+            handleErrorWithNotification(e);
             setUiState(UI_STATE.UNOPENED);
         });
     },

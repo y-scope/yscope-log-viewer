@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React from "react";
 
 import {
     Button,
@@ -10,17 +10,17 @@ import {
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
 
-import {
-    copyPermalinkToClipboard,
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../contexts/UrlContextProvider";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
+import {
+    copyPermalinkToClipboard,
+    updateWindowUrlHashParams,
+} from "../../utils/url";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 import TimezoneSelect from "./TimezoneSelect";
@@ -41,9 +41,11 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
+    const isPrettified = useViewStore((state) => state.isPrettified);
+    const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
+    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
@@ -51,8 +53,9 @@ const StatusBar = () => {
         switch (actionName) {
             case ACTION_NAME.TOGGLE_PRETTIFY:
                 updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified,
+                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
+                updateIsPrettified(!isPrettified);
                 break;
             default:
                 console.error(`Unexpected action: ${actionName}`);
@@ -91,14 +94,14 @@ const StatusBar = () => {
             <StatusBarToggleButton
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 disabled={isPrettifyButtonDisabled}
-                isActive={isPrettified ?? false}
+                isActive={isPrettified}
                 icons={{
                     active: <AutoFixHighRoundedIcon/>,
                     inactive: <AutoFixOffRoundedIcon/>,
                 }}
-                tooltipTitle={isPrettified ?? false ?
-                    "Turn off Prettify" :
-                    "Turn on Prettify"}
+                tooltipTitle={false === isPrettified ?
+                    "Turn on Prettify" :
+                    "Turn off Prettify"}
                 onClick={handleStatusButtonClick}/>
         </Sheet>
     );

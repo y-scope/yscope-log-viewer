@@ -1,10 +1,14 @@
-import {useState} from "react";
+import {
+    useCallback,
+    useState,
+} from "react";
 
 import {
     AccordionGroup,
     Box,
 } from "@mui/joy";
 
+import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
@@ -13,6 +17,7 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
+import {copyPermalinkToClipboard} from "../../../../../utils/url";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
@@ -31,25 +36,55 @@ const SearchTabPanel = () => {
 
     const [isAllExpanded, setIsAllExpanded] = useState<boolean>(true);
 
-    const handleCollapseAllButtonClick = () => {
+    const handleCollapseAllButtonClick = useCallback(() => {
         setIsAllExpanded((v) => !v);
-    };
+    }, []);
+
+    const handleShareButtonClick = useCallback(() => {
+        const {
+            queryIsCaseSensitive,
+            queryIsRegex,
+            queryString,
+            setQueryIsCaseSensitive,
+            setQueryIsRegex,
+            setQueryString,
+        } = useQueryStore.getState();
+
+        setQueryIsCaseSensitive(queryIsCaseSensitive);
+        setQueryIsRegex(queryIsRegex);
+        setQueryString(queryString);
+
+        copyPermalinkToClipboard({}, {
+            logEventNum: null,
+            queryString: queryString,
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
+        });
+    }, []);
 
     return (
         <CustomTabPanel
             tabName={TAB_NAME.SEARCH}
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
-                <PanelTitleButton
-                    title={isAllExpanded ?
-                        "Collapse all" :
-                        "Expand all"}
-                    onClick={handleCollapseAllButtonClick}
-                >
-                    {isAllExpanded ?
-                        <UnfoldLessIcon/> :
-                        <UnfoldMoreIcon/>}
-                </PanelTitleButton>
+                <>
+                    <PanelTitleButton
+                        title={isAllExpanded ?
+                            "Collapse all" :
+                            "Expand all"}
+                        onClick={handleCollapseAllButtonClick}
+                    >
+                        {isAllExpanded ?
+                            <UnfoldLessIcon/> :
+                            <UnfoldMoreIcon/>}
+                    </PanelTitleButton>
+                    <PanelTitleButton
+                        title={"Copy URL with search parameters"}
+                        onClick={handleShareButtonClick}
+                    >
+                        <ShareIcon/>
+                    </PanelTitleButton>
+                </>
             }
         >
             <Box className={"search-tab-container"}>

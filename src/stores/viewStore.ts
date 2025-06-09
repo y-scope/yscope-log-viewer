@@ -1,12 +1,7 @@
 import {create} from "zustand";
 
-import {updateWindowUrlHashParams} from "../contexts/UrlContextProvider";
 import {Nullable} from "../typings/common";
-import {
-    LOG_LEVEL,
-    LogLevelFilter,
-} from "../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../typings/notifications";
+import {LogLevelFilter} from "../typings/logs";
 import {UI_STATE} from "../typings/states";
 import {
     BeginLineNumToLogEventNumMap,
@@ -20,9 +15,10 @@ import {
     NavigationAction,
 } from "../utils/actions";
 import {clamp} from "../utils/math";
-import useContextStore, {CONTEXT_STORE_DEFAULT} from "./contextStore";
+import {updateWindowUrlHashParams} from "../utils/url";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
 import useLogFileStore from "./logFileStore";
+import {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 
@@ -31,7 +27,8 @@ interface ViewStoreValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
     isPrettified: boolean;
     logData: string;
-    logTimezone: string | null;
+    logEventNum: number;
+    logTimezone: string;
     numPages: number;
     pageNum: number;
 }
@@ -39,6 +36,7 @@ interface ViewStoreValues {
 interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setLogData: (newLogData: string) => void;
+    setLogEventNum: (newLogEventNum: number) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
     filterLogs: (filter: LogLevelFilter) => void;
@@ -55,7 +53,8 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     isPrettified: false,
     logData: "No file is open.",
-    logTimezone: null,
+    logEventNum: 0,
+    logTimezone: "",
     numPages: 0,
     pageNum: 0,
 };
@@ -112,13 +111,12 @@ const getPageNumCursor = (
 const useViewStore = create<ViewState>((set, get) => ({
     ...VIEW_STORE_DEFAULT,
     filterLogs: (filter: LogLevelFilter) => {
-        const {updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {isPrettified, logEventNum, logTimezone} = get();
             const pageData = await logFileManagerProxy.setFilter(
                 {
                     code: CURSOR_CODE.EVENT_NUM,
@@ -126,31 +124,23 @@ const useViewStore = create<ViewState>((set, get) => ({
                         eventNum: logEventNum,
                     },
                 },
-                get().isPrettified,
+                isPrettified,
                 filter,
-                get().logTimezone
+                logTimezone
             );
 
+            const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
-        const {startQuery} = useQueryStore.getState();
-        startQuery();
+
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        })().catch(handleErrorWithNotification);
     },
     loadPageByAction: (navAction: NavigationAction) => {
-        const {isPrettified, logTimezone, numPages, pageNum, updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {fileSrc, loadFile} = useLogFileStore.getState();
-        const {uiState, setUiState} = useUiStore.getState();
         if (navAction.code === ACTION_NAME.RELOAD) {
-            if (null === fileSrc || CONTEXT_STORE_DEFAULT.logEventNum === logEventNum) {
+            const {fileSrc, loadFile} = useLogFileStore.getState();
+            const {logEventNum} = get();
+            if (null === fileSrc || VIEW_STORE_DEFAULT.logEventNum === logEventNum) {
                 throw new Error(
                     `Unexpected fileSrc=${JSON.stringify(
                         fileSrc
@@ -165,12 +155,15 @@ const useViewStore = create<ViewState>((set, get) => ({
             return;
         }
 
+        const {uiState, setUiState} = useUiStore.getState();
         if (UI_STATE.READY !== uiState) {
             console.warn("Skipping navigation: page load in progress.");
 
             return;
         }
+        setUiState(UI_STATE.FAST_LOADING);
 
+        const {numPages, pageNum} = get();
         const cursor = getPageNumCursor(navAction, pageNum, numPages);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
@@ -178,25 +171,23 @@ const useViewStore = create<ViewState>((set, get) => ({
             return;
         }
 
-        setUiState(UI_STATE.FAST_LOADING);
-
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {isPrettified, logTimezone} = get();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified. logTimezone);
+
+            const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
     setBeginLineNumToLogEventNum: (newMap) => {
         set({beginLineNumToLogEventNum: newMap});
     },
     setLogData: (newLogData) => {
         set({logData: newLogData});
+    },
+    setLogEventNum: (newLogEventNum) => {
+        set({logEventNum: newLogEventNum});
     },
     setNumPages: (newNumPages) => {
         set({numPages: newNumPages});
@@ -205,18 +196,19 @@ const useViewStore = create<ViewState>((set, get) => ({
         set({pageNum: newPageNum});
     },
     updateIsPrettified: (newIsPrettified: boolean) => {
-        const {updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {setUiState} = useUiStore.getState();
-        if (newIsPrettified === get().isPrettified) {
+        const {isPrettified} = get();
+        if (newIsPrettified === isPrettified) {
             return;
         }
+
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+
         set({isPrettified: newIsPrettified});
 
-        setUiState(UI_STATE.FAST_LOADING);
+        const {logEventNum} = get();
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
+        if (VIEW_STORE_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNum},
@@ -224,35 +216,28 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(
-                cursor,
-                newIsPrettified,
-                get().logTimezone,
-            );
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {logTimezone} = get();
+            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified, logTimezone);
 
+            const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
-    updateLogTimezone: (newLogTimezone: string | null) => {
-        const {updatePageData} = get();
-        const {logEventNum, postPopUp} = useContextStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {setUiState} = useUiStore.getState();
-        if (newLogTimezone === get().logTimezone) {
+    updateLogTimezone: (newLogTimezone: boolean) => {
+        const {logTimezone} = get();
+        if (newLogTimezone === logTimezone) {
             return;
         }
+
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+
         set({logTimezone: newLogTimezone});
 
-        setUiState(UI_STATE.FAST_LOADING);
+        const {logEventNum} = get();
         let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (CONTEXT_STORE_DEFAULT.logEventNum !== logEventNum) {
+        if (VIEW_STORE_DEFAULT.logEventNum !== logEventNum) {
             cursor = {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: logEventNum},
@@ -260,33 +245,28 @@ const useViewStore = create<ViewState>((set, get) => ({
         }
 
         (async () => {
-            const pageData = await logFileManagerProxy.loadPage(
-                cursor,
-                get().isPrettified,
-                newLogTimezone,
-            );
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {isPrettified} = get();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, newLogTimezone);
 
+            const {updatePageData} = get();
             updatePageData(pageData);
-        })().catch((e: unknown) => {
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
     updatePageData: (pageData: PageData) => {
-        const {setUiState} = useUiStore.getState();
         set({
             logData: pageData.logs,
             numPages: pageData.numPages,
             pageNum: pageData.pageNum,
             beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
         });
+        const newLogEventNum = pageData.logEventNum;
         updateWindowUrlHashParams({
-            logEventNum: pageData.logEventNum,
+            logEventNum: newLogEventNum,
         });
+        const {setLogEventNum} = get();
+        setLogEventNum(newLogEventNum);
+        const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },
 }));

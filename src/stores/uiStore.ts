@@ -16,14 +16,14 @@ interface UiStoreActions {
     setUiState: (newUIState: UI_STATE) => void;
 }
 
-type uiStoreState = UiStoreValues & UiStoreActions;
+type UiStoreState = UiStoreValues & UiStoreActions;
 
 const UI_STORE_DEFAULT: UiStoreValues = {
     activeTabName: getConfig(CONFIG_KEY.INITIAL_TAB_NAME),
     uiState: UI_STATE.UNOPENED,
 };
 
-const useUiStore = create<uiStoreState>((set) => ({
+const useUiStore = create<UiStoreState>((set) => ({
     ...UI_STORE_DEFAULT,
     setActiveTabName: (tabName) => {
         set({activeTabName: tabName});
