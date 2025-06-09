@@ -89,7 +89,6 @@ const AppController = ({children}: AppControllerProps) => {
     const setLogEventNum = useContextStore((state) => state.setLogEventNum);
     const logFileManagerProxy = useLogFileManagerStore((state) => state.logFileManagerProxy);
     const loadFile = useLogFileStore((state) => state.loadFile);
-    const numEvents = useLogFileStore((state) => state.numEvents);
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const setIsPrettified = useViewStore((state) => state.updateIsPrettified);
     const updatePageData = useViewStore((state) => state.updatePageData);
@@ -123,6 +122,7 @@ const AppController = ({children}: AppControllerProps) => {
 
     // On `timestamp` update, find nearest log event by the timestamp and clear the URL parameter.
     useEffect(() => {
+        const {numEvents} = useLogFileStore.getState();
         if (0 === numEvents || null === timestamp) {
             return;
         }
@@ -140,13 +140,13 @@ const AppController = ({children}: AppControllerProps) => {
         })().catch(handleErrorWithNotification);
     }, [
         logFileManagerProxy,
-        numEvents,
         updatePageData,
         timestamp,
     ]);
 
     // On `logEventNum` update, clamp it then switch page if necessary or simply update the URL.
     useEffect(() => {
+        const {numEvents} = useLogFileStore.getState();
         if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.logEventNum === logEventNum) {
             return;
         }
@@ -174,7 +174,6 @@ const AppController = ({children}: AppControllerProps) => {
         beginLineNumToLogEventNum,
         logEventNum,
         logFileManagerProxy,
-        numEvents,
         setUiState,
         updatePageData,
     ]);
