@@ -5,6 +5,7 @@ import {create} from "zustand";
 import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {Metadata} from "../typings/decoders";
 import {LOG_LEVEL} from "../typings/logs";
 import {
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -33,12 +34,14 @@ import useViewStore from "./viewStore";
 interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
+    metadata: Nullable<Metadata>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
 }
 
 interface LogFileActions {
     setFileName: (newFileName: string) => void;
+    setMetadata: (newMetadata: Metadata) => void;
     setNumEvents: (newNumEvents: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
 
@@ -50,6 +53,7 @@ type LogFileState = LogFileValues & LogFileActions;
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "",
     fileSrc: null,
+    metadata: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
 };
@@ -153,6 +157,9 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
     },
     setFileName: (newFileName) => {
         set({fileName: newFileName});
+    },
+    setMetadata: (newMetadata) => {
+        set({metadata: newMetadata});
     },
     setNumEvents: (newNumEvents) => {
         set({numEvents: newNumEvents});

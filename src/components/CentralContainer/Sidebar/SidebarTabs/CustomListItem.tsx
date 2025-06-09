@@ -8,10 +8,12 @@ import {
     TypographyProps,
 } from "@mui/joy";
 
+import {Nullable} from "../../../../typings/common.ts";
+
 
 interface CustomListItemProps {
-    content: string;
-    icon: React.ReactNode;
+    content: React.ReactNode;
+    icon: Nullable<React.ReactNode>;
     slotProps?: {
         content?: TypographyProps;
     };
@@ -30,9 +32,10 @@ interface CustomListItemProps {
  */
 const CustomListItem = ({content, icon, slotProps, title}: CustomListItemProps) => (
     <ListItem>
-        <ListItemDecorator>
-            {icon}
-        </ListItemDecorator>
+        {null !== icon &&
+            <ListItemDecorator>
+                {icon}
+            </ListItemDecorator>}
         <ListItemContent>
             <Typography level={"title-sm"}>
                 {title}
