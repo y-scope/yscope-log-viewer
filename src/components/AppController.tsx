@@ -74,11 +74,15 @@ const updateUrlIfEventOnPage = (
  * @param hashParams
  */
 const updateViewHashParams = (hashParams: UrlHashParams): void => {
-    const {isPrettified, logEventNum} = hashParams;
-    const {updateIsPrettified, setLogEventNum} = useViewStore.getState();
+    const {isPrettified, logEventNum, timestamp} = hashParams;
+    const {updateIsPrettified, setLogEventNum, setTimestamp} = useViewStore.getState();
 
     updateIsPrettified(isPrettified);
-    setLogEventNum(logEventNum);
+    if (URL_HASH_PARAMS_DEFAULT.timestamp !== timestamp) {
+        setTimestamp(timestamp);
+    } else {
+        setLogEventNum(logEventNum);
+    }
 };
 
 /**
@@ -149,6 +153,7 @@ interface AppControllerProps {
 const AppController = ({children}: AppControllerProps) => {
     // States
     const logEventNum = useViewStore((state) => state.logEventNum);
+    const timestamp = useViewStore((state) => state.timestamp);
 
     // Refs
     const isInitialized = useRef<boolean>(false);
@@ -174,6 +179,13 @@ const AppController = ({children}: AppControllerProps) => {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {eventNum: hashParams.logEventNum},
                 };
+            }
+            if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
+                cursor = {
+                    code: CURSOR_CODE.TIMESTAMP,
+                    args: {timestamp: hashParams.timestamp},
+                };
+                updateWindowUrlHashParams({timestamp: URL_HASH_PARAMS_DEFAULT.timestamp});
             }
             const {loadFile} = useLogFileStore.getState();
             loadFile(searchParams.filePath, cursor);
@@ -215,6 +227,27 @@ const AppController = ({children}: AppControllerProps) => {
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     }, [logEventNum]);
+
+    // On `timestamp` update, find nearest log event by the timestamp and clear the URL parameter.
+    useEffect(() => {
+        const {numEvents} = useLogFileStore.getState();
+        if (0 === numEvents || URL_HASH_PARAMS_DEFAULT.timestamp === timestamp) {
+            return;
+        }
+
+        (async () => {
+            const cursor: CursorType = {
+                code: CURSOR_CODE.TIMESTAMP,
+                args: {timestamp: timestamp},
+            };
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {isPrettified, updatePageData} = useViewStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            updatePageData(pageData);
+
+            updateWindowUrlHashParams({timestamp: URL_HASH_PARAMS_DEFAULT.timestamp});
+        })().catch(handleErrorWithNotification);
+    }, [timestamp]);
 
     return children;
 };
