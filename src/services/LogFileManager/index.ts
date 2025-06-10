@@ -205,6 +205,12 @@ class LogFileManager {
         fileData: Uint8Array,
         decoderOptions: DecoderOptions
     ): Promise<Decoder> {
+        if (fileData.length > MAX_V8_STRING_LENGTH) {
+            throw new Error(`Cannot handle files larger than ${
+                formatSizeInBytes(MAX_V8_STRING_LENGTH)
+            } due to a limitation in Chromium-based browsers.`);
+        }
+
         let decoder: Decoder;
 
         const checkFileExtension = async () => {
@@ -214,12 +220,6 @@ class LogFileManager {
                 decoder = await ClpIrDecoder.create(fileData, decoderOptions);
             } else {
                 throw new Error(`No decoder supports ${fileName}`);
-            }
-
-            if (fileData.length > MAX_V8_STRING_LENGTH) {
-                throw new Error(`Cannot handle files larger than ${
-                    formatSizeInBytes(MAX_V8_STRING_LENGTH)
-                } due to a limitation in Chromium-based browsers.`);
             }
         };
 
