@@ -44,7 +44,7 @@ class LogFileManagerProxy {
     loadPage (
         cursor: CursorType,
         isPrettified: boolean,
-        logTimezone: string | null
+        logTimezone: string
     ): PageData {
         const logFileManager = this.#getLogFileManager();
         return logFileManager.loadPage(cursor, isPrettified, logTimezone);
@@ -54,7 +54,7 @@ class LogFileManagerProxy {
         cursor: CursorType,
         isPrettified: boolean,
         logLevelFilter: LogLevelFilter,
-        logTimezone: string | null
+        logTimezone: string
     ): PageData {
         const logFileManager = this.#getLogFileManager();
         logFileManager.setLogLevelFilter(logLevelFilter);

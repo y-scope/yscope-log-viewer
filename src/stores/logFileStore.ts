@@ -133,7 +133,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             set(fileInfo);
 
-            const {isPrettified, updatePageData} = useViewStore.getState();
+            const {isPrettified, logTimezone, updatePageData} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             updatePageData(pageData);
 

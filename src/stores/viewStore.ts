@@ -43,7 +43,7 @@ interface ViewStoreActions {
 
     loadPageByAction: (navAction: NavigationAction) => void;
     updateIsPrettified: (newIsPrettified: boolean) => void;
-    updateLogTimezone: (newLogTimezone: string | null) => void;
+    updateLogTimezone: (newLogTimezone: string) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -174,7 +174,7 @@ const useViewStore = create<ViewState>((set, get) => ({
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const {isPrettified, logTimezone} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified. logTimezone);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
 
             const {updatePageData} = get();
             updatePageData(pageData);
@@ -218,13 +218,17 @@ const useViewStore = create<ViewState>((set, get) => ({
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const {logTimezone} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified, logTimezone);
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                newIsPrettified,
+                logTimezone
+            );
 
             const {updatePageData} = get();
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     },
-    updateLogTimezone: (newLogTimezone: boolean) => {
+    updateLogTimezone: (newLogTimezone: string) => {
         const {logTimezone} = get();
         if (newLogTimezone === logTimezone) {
             return;
@@ -247,7 +251,11 @@ const useViewStore = create<ViewState>((set, get) => ({
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const {isPrettified} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, newLogTimezone);
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                isPrettified,
+                newLogTimezone
+            );
 
             const {updatePageData} = get();
             updatePageData(pageData);

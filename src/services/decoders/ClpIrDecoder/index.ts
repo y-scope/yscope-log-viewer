@@ -82,35 +82,6 @@ class ClpIrDecoder implements Decoder {
         return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
-    /**
-     * Formats unstructured log events by prepending a formatted timestamp to each message.
-     *
-     * @param logEvents
-     * @param logTimezone
-     * @return The formatted log events.
-     */
-    static #formatUnstructuredResults = (
-        logEvents: DecodeResult[],
-        logTimezone: string | null
-    ): DecodeResult[] => {
-        for (const r of logEvents) {
-            const [
-                message, timestamp,
-            ] = r;
-
-            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
-            if (null !== logTimezone) {
-                r[0] = dayJsTimestamp.tz(logTimezone).format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
-            } else {
-                // eslint-disable-next-line no-warning-comments
-                // TODO: Replace with the original log timezone
-                r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
-            }
-        }
-
-        return logEvents;
-    };
-
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
     }
@@ -155,7 +126,7 @@ class ClpIrDecoder implements Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean,
-        timezone: string | null
+        timezone: string
     ): Nullable<DecodeResult[]> {
         // eslint-disable-next-line no-warning-comments
         // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
@@ -210,19 +181,28 @@ class ClpIrDecoder implements Decoder {
      * Formats unstructured log events by prepending a formatted timestamp to each message.
      *
      * @param logEvents
+     * @param logTimezone
      * @return The formatted log events.
      */
-    #formatUnstructuredResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
+    #formatUnstructuredResults (
+        logEvents: DecodeResult[],
+        logTimezone: string
+    ): Nullable<DecodeResult[]> {
         for (const r of logEvents) {
             const [
                 message, timestamp,
             ] = r;
 
-            const formattedTimestamp = convertToDayjsTimestamp(timestamp).format(
-                this.#timestampFormatString
-            );
-
-            r[0] = formattedTimestamp + message;
+            const formattedTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
+            if ("" !== logTimezone) {
+                r[0] =
+                    formattedTimestamp.tz(logTimezone).format(this.#timestampFormatString) +
+                    message;
+            } else {
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Replace with the original log timezone
+                r[0] = formattedTimestamp.format(this.#timestampFormatString) + message;
+            }
         }
 
         return logEvents;

@@ -1,8 +1,6 @@
 import React, {
     useCallback,
-    useContext,
     useEffect,
-    useRef,
     useState,
 } from "react";
 
@@ -19,14 +17,12 @@ import {
 
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../../contexts/UrlContextProvider";
 import useUiStore from "../../../stores/uiStore";
+import useViewStore from "../../../stores/viewStore.ts";
 import {UI_ELEMENT} from "../../../typings/states";
 import {HASH_PARAM_NAMES} from "../../../typings/url";
 import {isDisabled} from "../../../utils/states";
+import {updateWindowUrlHashParams} from "../../../utils/url";
 
 import "./index.css";
 
@@ -128,12 +124,12 @@ const renderTimezoneOption = (
  */
 const TimezoneSelect = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const {logTimezone} = useContext(UrlContext);
+
+    const {logTimezone} = useViewStore.getState();
+    const updateLogTimezone = useViewStore((state) => state.updateLogTimezone);
 
     const [browserTimezone, setBrowserTimezone] = useState<string | null>(null);
     const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
-
-    const logTimezoneRef = useRef<string | null>(logTimezone);
 
     const disabled = isDisabled(uiState, UI_ELEMENT.TIMEZONE_SETTER);
 
@@ -143,24 +139,22 @@ const TimezoneSelect = () => {
     }, []);
 
     useEffect(() => {
-        logTimezoneRef.current = logTimezone;
-        if (!disabled) {
-            setSelectedTimezone(logTimezone ?? LOGGER_TIMEZONE);
-        }
-    }, [disabled,
-        logTimezone]);
-
-    useEffect(() => {
-        if (selectedTimezone !== logTimezoneRef.current) {
+        if (!disabled && selectedTimezone !== logTimezone) {
             const updatedTimezone = (LOGGER_TIMEZONE === selectedTimezone) ?
-                null :
-                selectedTimezone;
+                "" :
+                (selectedTimezone ?? "");
 
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.LOG_TIMEZONE]: updatedTimezone,
             });
+            updateLogTimezone(updatedTimezone);
         }
-    }, [selectedTimezone]);
+    }, [
+        disabled,
+        logTimezone,
+        selectedTimezone,
+        updateLogTimezone,
+    ]);
 
     const handleOptionClick = useCallback((ev: React.MouseEvent) => {
         const currentTarget = ev.currentTarget as HTMLElement;

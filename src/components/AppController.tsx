@@ -208,9 +208,9 @@ const AppController = ({children}: AppControllerProps) => {
                 code: CURSOR_CODE.EVENT_NUM,
                 args: {eventNum: clampedLogEventNum},
             };
-            const {isPrettified} = useViewStore.getState();
+            const {isPrettified, logTimezone} = useViewStore.getState();
 
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
