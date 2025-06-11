@@ -39,7 +39,6 @@
     "monaco-editor": "0.50.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-json-tree": "^0.20.0",
     "zustand": "^5.0.4"
   },
   "devDependencies": {

@@ -1,13 +1,14 @@
-import React from "react";
-import {JSONTree} from "react-json-tree";
+import React, {useMemo} from "react";
 
-import {useColorScheme} from "@mui/joy";
+import {Table} from "@mui/joy";
 
 import InfoIcon from "@mui/icons-material/Info";
 
 import useLogFileStore from "../../../../../stores/logFileStore";
-import {Nullable} from "../../../../../typings/common";
+import {flattenObject} from "../../../../../utils/js";
 import CustomListItem from "../CustomListItem";
+
+import "./MetadataListItem.css";
 
 
 /**
@@ -16,38 +17,48 @@ import CustomListItem from "../CustomListItem";
  * @return
  */
 const MetadataListItem = () => {
-    const {mode, systemMode} = useColorScheme();
     const metadata = useLogFileStore((state) => state.metadata);
 
-    let content: React.ReactNode = "Loading...";
-    let icon: Nullable<React.ReactNode> = <InfoIcon/>;
+    const flattenedMetadata = useMemo(() => {
+        if (null === metadata) {
+            return [];
+        }
+
+        return flattenObject(metadata);
+    }, [metadata]);
+
+    let content: string | React.ReactNode = "Loading...";
     if (null !== metadata) {
-        if (0 < Object.keys(metadata).length) {
-            const enabledMode = "system" === mode ?
-                systemMode :
-                mode;
-
-            content = (
-                <JSONTree
-                    data={metadata}
-                    hideRoot={true}
-                    invertTheme={"light" === enabledMode}
-                    shouldExpandNodeInitially={() => true}
-                    sortObjectKeys={true}
-                    theme={"chalk"}/>
-            );
-
-            // Hide the icon if metadata is available.
-            icon = null;
-        } else {
+        if (0 >= flattenedMetadata.length) {
             content = "No metadata available.";
+        } else {
+            content = (
+                <Table
+                    className={"metadata-table"}
+                    size={"sm"}
+                    stripe={"odd"}
+                >
+                    <tbody>
+                        {flattenedMetadata.map(([key, value]) => (
+                            <tr key={key}>
+                                <td>
+                                    {key}
+                                </td>
+                                <td className={"metadata-value"}>
+                                    {String(value)}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            );
         }
     }
 
     return (
         <CustomListItem
             content={content}
-            icon={icon}
+            icon={<InfoIcon/>}
             title={"Metadata"}/>
     );
 };

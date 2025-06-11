@@ -4,6 +4,42 @@ import {
 } from "../typings/js";
 
 
+type KeyValuePair = [string, unknown];
+
+/**
+ * Flattens nested objects into a flat array of key-value pairs, using dot-notation to represent
+ * nested keys.
+ *
+ * @param obj
+ * @param prefix Key prefix for nested properties.
+ * @return The flattened key-value pairs as an array.
+ */
+const flattenObject = (obj: Record<string, unknown>, prefix = ""): KeyValuePair[] => {
+    const result: KeyValuePair[] = [];
+
+    for (const key in obj) {
+        if (false === Object.hasOwn(obj, key)) {
+            continue;
+        }
+
+        const fullKey = prefix ?
+            `${prefix}.${key}` :
+            key;
+        const value = obj[key];
+
+        if ("object" === typeof value && null !== value && false === Array.isArray(value)) {
+            result.push(...flattenObject(value as Record<string, unknown>, fullKey));
+        } else {
+            result.push([
+                fullKey,
+                value,
+            ]);
+        }
+    }
+
+    return result;
+};
+
 /**
  * Gets a nested value from a JSON object.
  *
@@ -40,7 +76,9 @@ const jsonValueToString = (input: JsonValue | undefined): string => {
         String(input);
 };
 
+
 export {
+    flattenObject,
     getNestedJsonValue,
     jsonValueToString,
 };

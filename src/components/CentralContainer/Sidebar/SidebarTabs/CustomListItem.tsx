@@ -3,17 +3,16 @@ import React from "react";
 import {
     ListItem,
     ListItemContent,
-    ListItemDecorator,
     Typography,
     TypographyProps,
 } from "@mui/joy";
 
-import {Nullable} from "../../../../typings/common.ts";
+import "./CustomListItem.css";
 
 
 interface CustomListItemProps {
-    content: React.ReactNode;
-    icon: Nullable<React.ReactNode>;
+    content: string | React.ReactNode;
+    icon: React.ReactNode;
     slotProps?: {
         content?: TypographyProps;
     };
@@ -31,23 +30,29 @@ interface CustomListItemProps {
  * @return
  */
 const CustomListItem = ({content, icon, slotProps, title}: CustomListItemProps) => (
-    <ListItem>
-        {null !== icon &&
-            <ListItemDecorator>
-                {icon}
-            </ListItemDecorator>}
+    <ListItem className={"custom-list-item"}>
         <ListItemContent>
-            <Typography level={"title-sm"}>
+            <Typography
+                level={"title-sm"}
+                startDecorator={icon}
+            >
                 {title}
             </Typography>
-            <Typography
-                {...slotProps?.content}
-                level={"body-sm"}
-            >
-                {content}
-            </Typography>
+            {
+                "string" === typeof content ?
+                    <Typography
+                        {...slotProps?.content}
+                        level={"body-sm"}
+                    >
+                        {content}
+                    </Typography> :
+                    <div>
+                        {content}
+                    </div>
+            }
         </ListItemContent>
     </ListItem>
 );
+
 
 export default CustomListItem;
