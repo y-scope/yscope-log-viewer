@@ -70,6 +70,7 @@ class JsonlDecoder implements Decoder {
         return this.#filteredLogEventMap;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     getMetadata (): Metadata {
         // Metadata is not available for JSONL files.
         return {};
