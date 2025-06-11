@@ -98,15 +98,18 @@ class JsonlDecoder implements Decoder {
         return true;
     }
 
-    decodeRange (beginIdx: number, endIdx: number, useFilter: boolean): Nullable<DecodeResult[]> {
+    decodeRange (
+        beginIdx: number,
+        endIdx: number,
+        useFilter: boolean,
+    ): Nullable<DecodeResult[]> {
         if (useFilter && null === this.#filteredLogEventMap) {
             return null;
         }
 
-        const length: number =
-            useFilter && null !== this.#filteredLogEventMap ?
-                this.#filteredLogEventMap.length :
-                this.#logEvents.length;
+        const length: number = (useFilter && null !== this.#filteredLogEventMap) ?
+            this.#filteredLogEventMap.length :
+            this.#logEvents.length;
 
         if (0 > beginIdx || length < endIdx) {
             return null;
@@ -116,10 +119,9 @@ class JsonlDecoder implements Decoder {
         for (let i = beginIdx; i < endIdx; i++) {
             // Explicit cast since typescript thinks `#filteredLogEventMap[i]` can be undefined, but
             // it shouldn't be since we performed a bounds check at the beginning of the method.
-            const logEventIdx: number =
-                useFilter && null !== this.#filteredLogEventMap ?
-                    (this.#filteredLogEventMap[i] as number) :
-                    i;
+            const logEventIdx: number = (useFilter && null !== this.#filteredLogEventMap) ?
+                (this.#filteredLogEventMap[i] as number) :
+                i;
 
             results.push(this.#decodeLogEvent(logEventIdx));
         }
@@ -141,12 +143,11 @@ class JsonlDecoder implements Decoder {
         let beginIdx = 0;
         while (beginIdx < text.length) {
             const endIdx = text.indexOf("\n", beginIdx);
-            const line =
-                -1 === endIdx ?
-                    text.substring(beginIdx) :
-                    text.substring(beginIdx, endIdx);
+            const line = (-1 === endIdx) ?
+                text.substring(beginIdx) :
+                text.substring(beginIdx, endIdx);
 
-            beginIdx = -1 === endIdx ?
+            beginIdx = (-1 === endIdx) ?
                 text.length :
                 endIdx + 1;
 
@@ -171,10 +172,14 @@ class JsonlDecoder implements Decoder {
             if (false === isJsonObject(fields)) {
                 throw new Error("Unexpected non-object.");
             }
-            level = convertToLogLevelValue(getNestedJsonValue(fields, this.#logLevelKeyParts));
-            timestamp = convertToDayjsTimestamp(
-                getNestedJsonValue(fields, this.#timestampKeyParts),
-            );
+            level = convertToLogLevelValue(getNestedJsonValue(
+                fields,
+                this.#logLevelKeyParts
+            ));
+            timestamp = convertToDayjsTimestamp(getNestedJsonValue(
+                fields,
+                this.#timestampKeyParts
+            ));
         } catch (e) {
             if (0 === line.length) {
                 return;
@@ -242,10 +247,12 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [message,
+        return [
+            message,
             timestamp,
             logLevel,
-            logEventIdx + 1];
+            logEventIdx + 1,
+        ];
     };
 }
 
