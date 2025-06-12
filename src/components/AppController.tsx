@@ -15,7 +15,6 @@ import {
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
-    updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
@@ -24,7 +23,7 @@ import {
 /**
  * Updates view-related parameters from URL hash.
  */
-const updateViewHashParams = (): void => {
+const updateViewHashParams = () => {
     const {isPrettified, logEventNum} = getWindowUrlHashParams();
     const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
 
@@ -37,7 +36,7 @@ const updateViewHashParams = (): void => {
  *
  * @return Whether any query parameters were modified.
  */
-const updateQueryHashParams = (): boolean => {
+const updateQueryHashParams = () => {
     const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -68,6 +67,7 @@ const updateQueryHashParams = (): boolean => {
  * @return The parsed URL hash parameters.
  */
 const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
+    const hashParams = getWindowUrlHashParams();
     updateViewHashParams();
     const isQueryModified = updateQueryHashParams();
     const isTriggeredByHashChange = null !== ev;

@@ -296,7 +296,6 @@ const openInNewTab = (url: string): void => {
  * `null`, the corresponding kv-pair will be removed from the URL's hash parameters.
  */
 const updateWindowUrlHashParams = (updates: UrlHashParamUpdatesType) => {
-    console.warn("updates:", updates);
     const newHash = getUpdatedHashParams(updates);
     const currHash = window.location.hash.substring(1);
     if (newHash === currHash) {
