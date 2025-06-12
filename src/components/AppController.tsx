@@ -76,11 +76,8 @@ const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
         startQuery();
     }
 
-    // Remove empty or falsy parameters.
-    const hashParams = getWindowUrlHashParams();
-    updateWindowUrlHashParams({
-        ...hashParams,
-    });
+    // eslint-disable-next-line no-warning-comments
+    // TODO: Remove empty or falsy parameters.
 
     return hashParams;
 };
