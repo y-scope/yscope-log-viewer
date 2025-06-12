@@ -128,9 +128,9 @@ const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
     }
 
     // Remove empty or falsy parameters.
-    updateWindowUrlHashParams({
-        ...hashParams,
-    });
+    // updateWindowUrlHashParams({
+    //     ...hashParams,
+    // });
 
     return hashParams;
 };
