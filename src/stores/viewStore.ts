@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {create} from "zustand";
 
 import {Nullable} from "../typings/common";
@@ -14,6 +15,7 @@ import {
     ACTION_NAME,
     NavigationAction,
 } from "../utils/actions";
+import {isWithinBounds} from "../utils/data.ts";
 import {clamp} from "../utils/math";
 import {updateWindowUrlHashParams} from "../utils/url";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
@@ -35,12 +37,12 @@ interface ViewStoreValues {
 interface ViewStoreActions {
     setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
     setLogData: (newLogData: string) => void;
-    setLogEventNum: (newLogEventNum: number) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
     filterLogs: (filter: LogLevelFilter) => void;
 
     loadPageByAction: (navAction: NavigationAction) => void;
+    updateLogEventNum: (newLogEventNum: number) => void;
     updateIsPrettified: (newIsPrettified: boolean) => void;
     updatePageData: (pageData: PageData) => void;
 }
@@ -102,6 +104,44 @@ const getPageNumCursor = (
         code: CURSOR_CODE.PAGE_NUM,
         args: {pageNum: newPageNum, eventPositionOnPage: position},
     };
+};
+
+/**
+ * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
+ * `logEventNumsOnPage`.
+ *
+ * @param logEventNum
+ * @param logEventNumsOnPage
+ * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
+ */
+const updateUrlIfEventOnPage = (
+    logEventNum: number,
+    logEventNumsOnPage: number[]
+): boolean => {
+    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
+        return false;
+    }
+
+    // const nearestIdx = findNearestLessThanOrEqualElement(
+    //     logEventNumsOnPage,
+    //     logEventNum
+    // );
+
+    // Since `isWithinBounds` returned `true`, then:
+    // - `logEventNumsOnPage` must bound `logEventNum`.
+    // - `logEventNumsOnPage` cannot be empty.
+    // - `nearestIdx` cannot be `null`.
+    //
+    // Therefore, we can safely cast:
+    // - `nearestIdx` from `Nullable<number>` to `number`.
+    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
+    // const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+
+    // updateWindowUrlHashParams({
+    //     logEventNum: nearestLogEventNum,
+    // });
+
+    return true;
 };
 
 // eslint-disable-next-line max-lines-per-function
@@ -182,9 +222,6 @@ const useViewStore = create<ViewState>((set, get) => ({
     setLogData: (newLogData) => {
         set({logData: newLogData});
     },
-    setLogEventNum: (newLogEventNum) => {
-        set({logEventNum: newLogEventNum});
-    },
     setNumPages: (newNumPages) => {
         set({numPages: newNumPages});
     },
@@ -219,6 +256,37 @@ const useViewStore = create<ViewState>((set, get) => ({
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     },
+    updateLogEventNum: (newLogEventNum) => {
+        const {numEvents} = useLogFileStore.getState();
+        if (0 === numEvents) {
+            return;
+        }
+
+        const clampedLogEventNum = clamp(newLogEventNum, 1, numEvents);
+        const {beginLineNumToLogEventNum} = useViewStore.getState();
+        const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
+        set({logEventNum: clampedLogEventNum});
+        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+            // No need to request a new page since the log event is on the current page.
+            return;
+        }
+
+        // If the log event is not on the current page, request a new page.
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+        (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const cursor: CursorType = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: clampedLogEventNum},
+            };
+            const {isPrettified} = useViewStore.getState();
+
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {updatePageData} = useViewStore.getState();
+            updatePageData(pageData);
+        })().catch(handleErrorWithNotification);
+    },
     updatePageData: (pageData: PageData) => {
         set({
             logData: pageData.logs,
@@ -227,11 +295,9 @@ const useViewStore = create<ViewState>((set, get) => ({
             beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
         });
         const newLogEventNum = pageData.logEventNum;
-        updateWindowUrlHashParams({
-            logEventNum: newLogEventNum,
-        });
-        const {setLogEventNum} = get();
-        setLogEventNum(newLogEventNum);
+        updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        const {updateLogEventNum} = get();
+        updateLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },
