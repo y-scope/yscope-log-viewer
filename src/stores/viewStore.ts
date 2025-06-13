@@ -15,7 +15,10 @@ import {
     ACTION_NAME,
     NavigationAction,
 } from "../utils/actions";
-import {isWithinBounds} from "../utils/data.ts";
+import {
+    findNearestLessThanOrEqualElement,
+    isWithinBounds,
+} from "../utils/data.ts";
 import {clamp} from "../utils/math";
 import {updateWindowUrlHashParams} from "../utils/url";
 import useLogFileManagerStore from "./logFileManagerProxyStore";
@@ -122,10 +125,10 @@ const updateUrlIfEventOnPage = (
         return false;
     }
 
-    // const nearestIdx = findNearestLessThanOrEqualElement(
-    //     logEventNumsOnPage,
-    //     logEventNum
-    // );
+    const nearestIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        logEventNum
+    );
 
     // Since `isWithinBounds` returned `true`, then:
     // - `logEventNumsOnPage` must bound `logEventNum`.
@@ -135,11 +138,11 @@ const updateUrlIfEventOnPage = (
     // Therefore, we can safely cast:
     // - `nearestIdx` from `Nullable<number>` to `number`.
     // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
-    // const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
 
-    // updateWindowUrlHashParams({
-    //     logEventNum: nearestLogEventNum,
-    // });
+    updateWindowUrlHashParams({
+        logEventNum: nearestLogEventNum,
+    });
 
     return true;
 };
