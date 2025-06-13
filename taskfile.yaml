@@ -2,7 +2,7 @@ version: "3"
 
 includes:
   docs: "docs/tasks.yaml"
-  utils: "tools/yscope-dev-utils/taskfiles/tests.yaml"
+  utils: "tools/yscope-dev-utils/exports/taskfiles/utils/utils.yaml"
 
 vars:
   G_BUILD_DIR: "{{.ROOT_DIR}}/build"
