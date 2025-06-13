@@ -30,6 +30,7 @@ interface ViewStoreValues {
     logEventNum: number;
     numPages: number;
     pageNum: number;
+    timestamp: number;
 }
 
 interface ViewStoreActions {
@@ -38,6 +39,7 @@ interface ViewStoreActions {
     setLogEventNum: (newLogEventNum: number) => void;
     setNumPages: (newNumPages: number) => void;
     setPageNum: (newPageNum: number) => void;
+    setTimestamp: (newTimestamp: number) => void;
     filterLogs: (filter: LogLevelFilter) => void;
 
     loadPageByAction: (navAction: NavigationAction) => void;
@@ -54,6 +56,7 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     logEventNum: 0,
     numPages: 0,
     pageNum: 0,
+    timestamp: -1,
 };
 
 /**
@@ -190,6 +193,9 @@ const useViewStore = create<ViewState>((set, get) => ({
     },
     setPageNum: (newPageNum) => {
         set({pageNum: newPageNum});
+    },
+    setTimestamp: (newTimestamp) => {
+        set({timestamp: newTimestamp});
     },
     updateIsPrettified: (newIsPrettified: boolean) => {
         const {isPrettified} = get();
