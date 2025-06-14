@@ -7,6 +7,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
@@ -67,6 +68,12 @@ class JsonlDecoder implements Decoder {
 
     getFilteredLogEventMap (): FilteredLogEventMap {
         return this.#filteredLogEventMap;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getMetadata (): Metadata {
+        // Metadata is not available for JSONL files.
+        return {};
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {

@@ -8,14 +8,15 @@ import {
 import AbcIcon from "@mui/icons-material/Abc";
 import StorageIcon from "@mui/icons-material/Storage";
 
-import useLogFileStore from "../../../../stores/logFileStore";
+import useLogFileStore from "../../../../../stores/logFileStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
-} from "../../../../typings/tab";
-import {formatSizeInBytes} from "../../../../utils/units";
-import CustomListItem from "./CustomListItem";
-import CustomTabPanel from "./CustomTabPanel";
+} from "../../../../../typings/tab";
+import {formatSizeInBytes} from "../../../../../utils/units";
+import CustomListItem from "../CustomListItem";
+import CustomTabPanel from "../CustomTabPanel";
+import MetadataListItem from "./MetadataListItem";
 
 
 /**
@@ -51,6 +52,8 @@ const FileInfoTabPanel = () => {
                         content={formattedOnDiskSize}
                         icon={<StorageIcon/>}
                         title={"On-disk Size"}/>
+                    <Divider/>
+                    <MetadataListItem/>
                 </List>}
         </CustomTabPanel>
     );

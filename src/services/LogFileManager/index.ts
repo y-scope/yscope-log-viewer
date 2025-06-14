@@ -121,6 +121,10 @@ class LogFileManager {
         return this.#onDiskFileSizeInBytes;
     }
 
+    get metadata () {
+        return this.#decoder.getMetadata();
+    }
+
     get numEvents () {
         return this.#numEvents;
     }

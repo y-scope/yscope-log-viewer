@@ -2,6 +2,9 @@ import {Nullable} from "./common";
 import {LogLevelFilter} from "./logs";
 
 
+type Metadata = Record<string, unknown>;
+
+
 interface LogEventCount {
     numValidEvents: number;
     numInvalidEvents: number;
@@ -62,6 +65,11 @@ interface Decoder {
     getFilteredLogEventMap(): FilteredLogEventMap;
 
     /**
+     * @return The metadata of the log file.
+     */
+    getMetadata(): Metadata;
+
+    /**
      * Sets the log level filter for the decoder.
      *
      * @param logLevelFilter
@@ -109,4 +117,5 @@ export type {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 };
