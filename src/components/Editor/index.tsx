@@ -1,4 +1,6 @@
-/* eslint max-lines: ["error", 350] */
+/* eslint max-lines: ["error", 375] */
+/* eslint max-lines-per-function: ["error", 220] */
+/* eslint max-statements: ["error", 25] */
 import {
     useCallback,
     useEffect,
@@ -9,6 +11,8 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import useQueryStore from "../../stores/queryStore";
+import useResultsStore from "../../stores/resultsStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -209,6 +213,54 @@ const Editor = () => {
         editor.onMouseUp(() => {
             isMouseDownRef.current = false;
         });
+
+        // Update find action parameters when Zustand store changes
+        const updateFindAction = async () => {
+            const {queryString, queryIsCaseSensitive, queryIsRegex} = useQueryStore.getState();
+            const findAction = editorRef.current.getAction("actions.find");
+            const findWithArgsAction = editorRef.current.getAction("editor.actions.findWithArgs");
+
+            if (findAction && findWithArgsAction) {
+                try {
+                    await findAction.run();
+                    await findWithArgsAction.run({
+                        searchString: queryString,
+                        matchCase: queryIsCaseSensitive,
+                        isRegex: queryIsRegex,
+                    });
+                } catch (error) {
+                    console.error("Error during search:", error);
+                }
+            } else {
+                console.error("Find action or Find with args action is not available.");
+            }
+        };
+
+        const closeFind = () => {
+            const findController = editorRef.current.getContribution(
+                "editor.contrib.findController"
+            ) as {closeFindWidget: () => void} | null;
+
+            if (findController?.closeFindWidget) {
+                findController.closeFindWidget();
+            }
+        };
+
+        const unsubscribeQuery = useQueryStore.subscribe(() => {
+            closeFind();
+        });
+        const unsubscribeResults = useResultsStore.subscribe((state) => {
+            if (state.buttonClicked) {
+                updateFindAction().catch((error: unknown) => {
+                    console.error("Error during search:", error);
+                });
+            }
+        });
+
+        return () => {
+            unsubscribeQuery();
+            unsubscribeResults();
+        };
     }, []);
 
     /**

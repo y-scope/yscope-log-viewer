@@ -5,6 +5,7 @@ import {
     Typography,
 } from "@mui/joy";
 
+import useResultsStore from "../../../../../stores/resultsStore";
 import useViewStore from "../../../../../stores/viewStore";
 import {updateWindowUrlHashParams} from "../../../../../utils/url";
 
@@ -41,6 +42,8 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
     ];
 
     const handleResultButtonClick = useCallback(() => {
+        const {setButtonClicked} = useResultsStore.getState();
+        setButtonClicked(true);
         updateWindowUrlHashParams({logEventNum});
         const {setLogEventNum} = useViewStore.getState();
         setLogEventNum(logEventNum);
