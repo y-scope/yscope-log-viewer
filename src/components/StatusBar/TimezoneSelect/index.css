@@ -1,0 +1,31 @@
+/* Since timezone is not multi select, and multi select has a different style in Joy components, so we have to manually
+ tune the style
+*/
+.timezone-select {
+    margin-right: 1px;
+}
+
+.timezone-select-render-value-box {
+    display: flex;
+    gap: 2px;
+}
+
+.timezone-select-render-value-box-label {
+    padding: 0 !important;
+
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+
+    background-color: initial !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.timezone-select-render-value-box-label-disabled {
+    color: #686f76 !important;
+}
+
+.timezone-select-listbox {
+    max-height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height)) !important;
+}

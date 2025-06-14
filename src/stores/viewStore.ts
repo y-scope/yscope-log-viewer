@@ -28,6 +28,7 @@ interface ViewStoreValues {
     isPrettified: boolean;
     logData: string;
     logEventNum: number;
+    logTimezone: string;
     numPages: number;
     pageNum: number;
 }
@@ -42,6 +43,7 @@ interface ViewStoreActions {
 
     loadPageByAction: (navAction: NavigationAction) => void;
     updateIsPrettified: (newIsPrettified: boolean) => void;
+    updateLogTimezone: (newLogTimezone: string) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -52,6 +54,7 @@ const VIEW_STORE_DEFAULT: ViewStoreValues = {
     isPrettified: false,
     logData: "No file is open.",
     logEventNum: 0,
+    logTimezone: "",
     numPages: 0,
     pageNum: 0,
 };
@@ -113,7 +116,7 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified, logEventNum} = get();
+            const {isPrettified, logEventNum, logTimezone} = get();
             const pageData = await logFileManagerProxy.setFilter(
                 {
                     code: CURSOR_CODE.EVENT_NUM,
@@ -122,7 +125,8 @@ const useViewStore = create<ViewState>((set, get) => ({
                     },
                 },
                 isPrettified,
-                filter
+                filter,
+                logTimezone
             );
 
             const {updatePageData} = get();
@@ -169,8 +173,8 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {isPrettified, logTimezone} = get();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
 
             const {updatePageData} = get();
             updatePageData(pageData);
@@ -213,7 +217,45 @@ const useViewStore = create<ViewState>((set, get) => ({
 
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
+            const {logTimezone} = get();
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                newIsPrettified,
+                logTimezone
+            );
+
+            const {updatePageData} = get();
+            updatePageData(pageData);
+        })().catch(handleErrorWithNotification);
+    },
+    updateLogTimezone: (newLogTimezone: string) => {
+        const {logTimezone} = get();
+        if (newLogTimezone === logTimezone) {
+            return;
+        }
+
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+
+        set({logTimezone: newLogTimezone});
+
+        const {logEventNum} = get();
+        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+        if (VIEW_STORE_DEFAULT.logEventNum !== logEventNum) {
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            };
+        }
+
+        (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {isPrettified} = get();
+            const pageData = await logFileManagerProxy.loadPage(
+                cursor,
+                isPrettified,
+                newLogTimezone
+            );
 
             const {updatePageData} = get();
             updatePageData(pageData);

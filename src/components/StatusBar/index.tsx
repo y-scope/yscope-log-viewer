@@ -23,6 +23,7 @@ import {
 } from "../../utils/url";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
+import TimezoneSelect from "./TimezoneSelect";
 
 import "./index.css";
 
@@ -70,6 +71,7 @@ const StatusBar = () => {
                 {/* This is left blank intentionally until status messages are implemented. */}
             </Typography>
 
+            <TimezoneSelect/>
             <Tooltip title={"Copy link to clipboard"}>
                 <span>
                     <Button
