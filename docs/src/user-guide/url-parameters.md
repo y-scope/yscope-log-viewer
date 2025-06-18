@@ -1,9 +1,10 @@
 # URL Parameters
 
-The YScope Log Viewer supports various URL parameters to control its behavior and state. Parameters are divided into two categories:
+The YScope Log Viewer supports various URL parameters to control its behavior and state. The 
+parameters are divided into two categories:
 
-- **Search parameters** (after `?`) - trigger page reload when changed, used for initialization.
-- **Hash parameters** (after `#`) - update without reload, used for dynamic state.
+- **Search parameters** (after `?`).
+- **Hash parameters** (after `#`).
 
 ## Search Parameters
 
@@ -54,11 +55,8 @@ https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-
 
 https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#logEventNum=1000&queryString=IllegalArgumentException&queryIsCaseSensitive=true
 
-## Parameter Behavior
+## Other parameter behaviors
 
-- Manually modifying **Search parameters** in the address bar reloads the page.
-- Manually modifying **Hash parameters** in the address bar update the view immediately without
-  reload.
 - Boolean values should use `true`/`false` strings.
 - Empty or falsy values are automatically removed from the URL.
 
