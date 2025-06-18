@@ -17,8 +17,9 @@ bar causes the page to reload. Such parameters are used to initialize the log vi
 
 **Notes for filePath:**
 - Can be a local file URL or remote HTTP(S) URL.
-- If the file URL is not [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be the last parameter to
-  prevent ambiguity with other log viewer search parameters. To include hash parameters in the file URL, percent-encode the entire URL.
+- If the file URL is not [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
+  the last parameter to prevent ambiguity with other log viewer search parameters. To include hash
+  parameters in the file URL, percent-encode the entire URL.
 - Is automatically converted to absolute URL if a relative path is provided.
 
 ## Hash Parameters
