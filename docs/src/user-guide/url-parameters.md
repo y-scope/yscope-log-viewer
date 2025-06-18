@@ -1,4 +1,4 @@
-# URL Parameters
+# URL parameters
 
 The YScope Log Viewer supports various URL parameters to control its behavior and state. The 
 parameters are divided into two categories:
@@ -6,7 +6,7 @@ parameters are divided into two categories:
 - **Search parameters** (after `?`).
 - **Hash parameters** (after `#`).
 
-## Search Parameters
+## Search parameters
 
 Search parameters appear after the `?` in the URL, and manual modification in the browser address
 bar causes the page to reload. Such parameters are used to initialize the log viewer.
@@ -22,7 +22,7 @@ bar causes the page to reload. Such parameters are used to initialize the log vi
   parameters in the file URL, percent-encode the entire URL.
 - Is automatically converted to absolute URL if a relative path is provided.
 
-## Hash Parameters
+## Hash parameters
 
 Hash parameters appear after the `#` in the URL, and can be manually modified in the browser address
 bar without triggering a page reload. Such parameters are used to control the log viewer's state.
@@ -42,7 +42,7 @@ bar without triggering a page reload. Such parameters are used to control the lo
   This behavior is under review and may be removed in future versions.
   :::
 
-## Combined Examples
+## Combined examples
 
 **Load file and navigate to specific event:**
 
