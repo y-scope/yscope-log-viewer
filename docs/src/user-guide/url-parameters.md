@@ -27,8 +27,8 @@ bar without triggering a page reload. Such parameters are used to control the lo
 
 | Parameter | Type | Default | Description | Example |
 |-----------|------|---------|-------------|---------|
-| `logEventNum` | Number | 0 | Navigate to a specific log event (1-based index) | `#logEventNum=1542` |
 | `isPrettified` | Boolean | false | Enable/disable pretty printing of log content | `#isPrettified=true` |
+| `logEventNum` | Number | 0 | Navigate to a specific log event (1-based index) | `#logEventNum=1542` |
 | `queryString` | String | "" | Set search query text | `#queryString=error+database` |
 | `queryIsCaseSensitive` | Boolean | false | Enable/disable case-sensitive search | `#queryIsCaseSensitive=true` |
 | `queryIsRegex` | Boolean | false | Enable/disable regular expression search | `#queryIsRegex=true` |
