@@ -110,9 +110,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {setLogData} = useViewStore.getState();
-        setLogData("Loading...");
-
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});

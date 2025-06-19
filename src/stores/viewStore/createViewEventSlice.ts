@@ -4,7 +4,6 @@ import {UI_STATE} from "../../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
-    PageData,
 } from "../../typings/worker";
 import {
     findNearestLessThanOrEqualElement,
@@ -17,9 +16,9 @@ import useLogFileStore from "../logFileStore";
 import {handleErrorWithNotification} from "../notificationStore";
 import useUiStore from "../uiStore";
 import {
+    ViewEventSlice,
+    ViewEventValues,
     ViewState,
-    ViewUpdateSlice,
-    ViewValues,
 } from "./types";
 
 
@@ -61,67 +60,21 @@ const updateUrlIfEventOnPage = (
     return true;
 };
 
-const VIEW_VALUES_DEFAULT: ViewValues = {
-    beginLineNumToLogEventNum: new Map<number, number>(),
-    isPrettified: false,
-    logData: "No file is open.",
+const VIEW_EVENT_DEFAULT: ViewEventValues = {
     logEventNum: 0,
-    numPages: 0,
-    pageNum: 0,
 };
 
 /**
- * Creates a slice for updating the view state.
+ * Creates a slice for updating log events.
  *
  * @param set
  * @param get
  * @return
  */
-const createViewUpdateSlice: StateCreator<
-    ViewState, [], [], ViewUpdateSlice
-// eslint-disable-next-line max-lines-per-function
+const createViewEventSlice: StateCreator<
+    ViewState, [], [], ViewEventSlice
 > = (set, get) => ({
-    ...VIEW_VALUES_DEFAULT,
-    setBeginLineNumToLogEventNum: (newMap) => {
-        set({beginLineNumToLogEventNum: newMap});
-    },
-    setLogData: (newLogData) => {
-        set({logData: newLogData});
-    },
-    setNumPages: (newNumPages) => {
-        set({numPages: newNumPages});
-    },
-    setPageNum: (newPageNum) => {
-        set({pageNum: newPageNum});
-    },
-    updateIsPrettified: (newIsPrettified: boolean) => {
-        const {isPrettified} = get();
-        if (newIsPrettified === isPrettified) {
-            return;
-        }
-
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FAST_LOADING);
-
-        set({isPrettified: newIsPrettified});
-
-        const {logEventNum} = get();
-        let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-        if (VIEW_VALUES_DEFAULT.logEventNum !== logEventNum) {
-            cursor = {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
-            };
-        }
-
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, newIsPrettified);
-
-            const {updatePageData} = get();
-            updatePageData(pageData);
-        })().catch(handleErrorWithNotification);
-    },
+    ...VIEW_EVENT_DEFAULT,
     updateLogEventNum: (newLogEventNum) => {
         const {numEvents} = useLogFileStore.getState();
         if (0 === numEvents) {
@@ -153,23 +106,7 @@ const createViewUpdateSlice: StateCreator<
             updatePageData(pageData);
         })().catch(handleErrorWithNotification);
     },
-    updatePageData: (pageData: PageData) => {
-        set({
-            logData: pageData.logs,
-            numPages: pageData.numPages,
-            pageNum: pageData.pageNum,
-            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
-        });
-        const newLogEventNum = pageData.logEventNum;
-        updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {updateLogEventNum} = get();
-        updateLogEventNum(newLogEventNum);
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.READY);
-    },
 });
 
-export {
-    createViewUpdateSlice,
-    VIEW_VALUES_DEFAULT,
-};
+export {VIEW_EVENT_DEFAULT};
+export default createViewEventSlice;

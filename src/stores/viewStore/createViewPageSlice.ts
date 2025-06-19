@@ -1,28 +1,29 @@
 import {StateCreator} from "zustand";
 
 import {Nullable} from "../../typings/common";
-import {LogLevelFilter} from "../../typings/logs";
 import {UI_STATE} from "../../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
     EVENT_POSITION_ON_PAGE,
+    PageData,
 } from "../../typings/worker";
 import {
     ACTION_NAME,
     NavigationAction,
 } from "../../utils/actions";
 import {clamp} from "../../utils/math";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import useLogFileStore from "../logFileStore";
 import {handleErrorWithNotification} from "../notificationStore";
-import useQueryStore from "../queryStore";
 import useUiStore from "../uiStore";
-import {VIEW_VALUES_DEFAULT} from "./createViewUpdateSlice.ts";
+import {VIEW_EVENT_DEFAULT} from "./createViewEventSlice";
 import {
+    ViewPageSlice,
+    ViewPageValues,
     ViewState,
-    ViewUtilitySlice,
-} from "./types.ts";
+} from "./types";
 
 
 /**
@@ -73,47 +74,43 @@ const getPageNumCursor = (
     };
 };
 
+const VIEW_VALUES_DEFAULT: ViewPageValues = {
+    beginLineNumToLogEventNum: new Map<number, number>(),
+    logData: "No file is open.",
+    numPages: 0,
+    pageNum: 0,
+};
 
 /**
- * Creates a slice for view utility functions.
+ * Creates a slice for updating the view state.
  *
- * @param _
+ * @param set
  * @param get
  * @return
  */
-const createViewUtilitySlice: StateCreator<
-    ViewState, [], [], ViewUtilitySlice
-// eslint-disable-next-line max-lines-per-function
-> = (_, get) => ({
-    filterLogs: (filter: LogLevelFilter) => {
+const createViewPageSlice: StateCreator<
+    ViewState, [], [], ViewPageSlice
+> = (set, get) => ({
+    ...VIEW_VALUES_DEFAULT,
+    updatePageData: (pageData: PageData) => {
+        set({
+            logData: pageData.logs,
+            numPages: pageData.numPages,
+            pageNum: pageData.pageNum,
+            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
+        });
+        const newLogEventNum = pageData.logEventNum;
+        updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        const {updateLogEventNum} = get();
+        updateLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FAST_LOADING);
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified, logEventNum} = get();
-            const pageData = await logFileManagerProxy.setFilter(
-                {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {
-                        eventNum: logEventNum,
-                    },
-                },
-                isPrettified,
-                filter
-            );
-
-            const {updatePageData} = get();
-            updatePageData(pageData);
-
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
-        })().catch(handleErrorWithNotification);
+        setUiState(UI_STATE.READY);
     },
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
             const {fileSrc, loadFile} = useLogFileStore.getState();
             const {logEventNum} = get();
-            if (null === fileSrc || VIEW_VALUES_DEFAULT.logEventNum === logEventNum) {
+            if (null === fileSrc || VIEW_EVENT_DEFAULT.logEventNum === logEventNum) {
                 throw new Error(
                     `Unexpected fileSrc=${JSON.stringify(
                         fileSrc
@@ -155,4 +152,4 @@ const createViewUtilitySlice: StateCreator<
     },
 });
 
-export {createViewUtilitySlice};
+export default createViewPageSlice;

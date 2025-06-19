@@ -1,13 +1,17 @@
 import {create} from "zustand";
 
-import {createViewUpdateSlice} from "./createViewUpdateSlice";
-import {createViewUtilitySlice} from "./createViewUtilitySlice";
+import createViewEventSlice from "./createViewEventSlice";
+import createViewFilterSlice from "./createViewFilterSlice";
+import createViewFormattingSlice from "./createViewFormattingSlice";
+import createViewPageSlice from "./createViewPageSlice";
 import {ViewState} from "./types";
 
 
 const useViewStore = create<ViewState>((...args) => ({
-    ...createViewUpdateSlice(...args),
-    ...createViewUtilitySlice(...args),
+    ...createViewEventSlice(...args),
+    ...createViewPageSlice(...args),
+    ...createViewFilterSlice(...args),
+    ...createViewFormattingSlice(...args),
 }));
 
 export default useViewStore;

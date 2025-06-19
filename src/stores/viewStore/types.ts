@@ -1,44 +1,58 @@
-import {LogLevelFilter} from "../../typings/logs.ts";
+import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     PageData,
-} from "../../typings/worker.ts";
-import {NavigationAction} from "../../utils/actions.ts";
+} from "../../typings/worker";
+import {NavigationAction} from "../../utils/actions";
 
 
-interface ViewValues {
+interface ViewPageValues {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-    isPrettified: boolean;
     logData: string;
-    logEventNum: number;
     numPages: number;
     pageNum: number;
 }
 
-interface ViewUpdateActions {
-    setBeginLineNumToLogEventNum: (newMap: BeginLineNumToLogEventNumMap) => void;
-    setLogData: (newLogData: string) => void;
-    setNumPages: (newNumPages: number) => void;
-    setPageNum: (newPageNum: number) => void;
-
-    updateLogEventNum: (newLogEventNum: number) => void;
-    updateIsPrettified: (newIsPrettified: boolean) => void;
+interface ViewPageActions {
+    loadPageByAction: (navAction: NavigationAction) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
-type ViewUpdateSlice = ViewValues & ViewUpdateActions;
+type ViewPageSlice = ViewPageValues & ViewPageActions;
 
-interface ViewUtilitySlice {
-    filterLogs: (filter: LogLevelFilter) => void;
-    loadPageByAction: (navAction: NavigationAction) => void;
+interface ViewEventValues {
+    logEventNum: number;
 }
 
-type ViewState = ViewUpdateSlice & ViewUtilitySlice;
+interface ViewEventActions {
+    updateLogEventNum: (newLogEventNum: number) => void;
+}
+
+type ViewEventSlice = ViewEventValues & ViewEventActions;
+
+interface ViewFormattingValues {
+    isPrettified: boolean;
+}
+
+interface ViewFormattingActions {
+    updateIsPrettified: (newIsPrettified: boolean) => void;
+}
+
+type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;
+
+interface ViewFilterSlice {
+    filterLogs: (filter: LogLevelFilter) => void;
+}
+
+type ViewState = ViewPageSlice & ViewEventSlice & ViewFormattingSlice & ViewFilterSlice;
 
 export type {
+    ViewEventSlice,
+    ViewEventValues,
+    ViewFilterSlice,
+    ViewFormattingSlice,
+    ViewFormattingValues,
+    ViewPageSlice,
+    ViewPageValues,
     ViewState,
-    ViewUpdateActions,
-    ViewUpdateSlice,
-    ViewUtilitySlice,
-    ViewValues,
 };
