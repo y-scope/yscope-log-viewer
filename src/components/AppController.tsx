@@ -21,7 +21,8 @@ import {
 
 
 /**
- * Updates view-related parameters from URL hash.
+ * Updates view-related states from URL hash parameters.
+ * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
     const {isPrettified, logEventNum} = getWindowUrlHashParams();
@@ -32,9 +33,10 @@ const updateViewHashParams = () => {
 };
 
 /**
- * Updates query-related parameters from URL hash.
+ * Updates query-related states from URL hash parameters.
+ * NOTE: this may modify the URL parameters.
  *
- * @return Whether any query parameters were modified.
+ * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
     const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
