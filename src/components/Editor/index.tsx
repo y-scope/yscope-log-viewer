@@ -1,6 +1,6 @@
-/* eslint max-lines: ["error", 375] */
-/* eslint max-lines-per-function: ["error", 220] */
-/* eslint max-statements: ["error", 25] */
+/* eslint max-lines: ["error", 425] */
+/* eslint max-lines-per-function: ["error", 235] */
+/* eslint max-statements: ["error", 30] */
 import {
     useCallback,
     useEffect,
@@ -12,7 +12,6 @@ import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import useQueryStore from "../../stores/queryStore";
-import useResultsStore from "../../stores/resultsStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -192,6 +191,12 @@ const Editor = () => {
     const logData = useViewStore((state) => state.logData);
     const logEventNum = useViewStore((state) => state.logEventNum);
 
+    const queryString = useQueryStore((state) => state.queryString);
+    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
+    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
+    const buttonClicked = useQueryStore((state) => state.resultButtonClickSignal);
+    const resultSelection = useQueryStore((state) => state.resultSelection);
+
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
@@ -213,55 +218,106 @@ const Editor = () => {
         editor.onMouseUp(() => {
             isMouseDownRef.current = false;
         });
-
-        // Update find action parameters when Zustand store changes
-        const updateFindAction = async () => {
-            const {queryString, queryIsCaseSensitive, queryIsRegex} = useQueryStore.getState();
-            const findAction = editorRef.current.getAction("actions.find");
-            const findWithArgsAction = editorRef.current.getAction("editor.actions.findWithArgs");
-
-            if (findAction && findWithArgsAction) {
-                try {
-                    await findAction.run();
-                    await findWithArgsAction.run({
-                        searchString: queryString,
-                        matchCase: queryIsCaseSensitive,
-                        isRegex: queryIsRegex,
-                    });
-                } catch (error) {
-                    console.error("Error during search:", error);
-                }
-            } else {
-                console.error("Find action or Find with args action is not available.");
-            }
-        };
-
-        const closeFind = () => {
-            const findController = editorRef.current.getContribution(
-                "editor.contrib.findController"
-            ) as {closeFindWidget: () => void} | null;
-
-            if (findController?.closeFindWidget) {
-                findController.closeFindWidget();
-            }
-        };
-
-        const unsubscribeQuery = useQueryStore.subscribe(() => {
-            closeFind();
-        });
-        const unsubscribeResults = useResultsStore.subscribe((state) => {
-            if (state.buttonClicked) {
-                updateFindAction().catch((error: unknown) => {
-                    console.error("Error during search:", error);
-                });
-            }
-        });
-
-        return () => {
-            unsubscribeQuery();
-            unsubscribeResults();
-        };
     }, []);
+
+    const setEditorSelection = useCallback((
+        selectedLogEventNum:number,
+        beginLineNumToLogEventNumMapRef:React.RefObject<BeginLineNumToLogEventNumMap>
+    ) => {
+        const selectedLogEventLineNum =
+            getMapKeyByValue(beginLineNumToLogEventNumMapRef.current, selectedLogEventNum);
+        const nextLogEventLineNum =
+            getMapKeyByValue(beginLineNumToLogEventNumMapRef.current, selectedLogEventNum + 1);
+
+        if (null === selectedLogEventLineNum) {
+            // logEventNum is not found on the current page.
+            return;
+        }
+
+        let endLineNumber: number;
+        if (null !== nextLogEventLineNum) {
+            endLineNumber = nextLogEventLineNum - 1;
+        } else {
+            // Handle the case when this is the last log event in the file.
+            const model = editorRef.current.getModel();
+            if (null === model) {
+                throw new Error("Unable to get the text model.");
+            }
+            endLineNumber = model.getLineCount() - 1;
+        }
+
+        const selectionRange = new monaco.Range(
+            selectedLogEventLineNum,
+            0,
+            endLineNumber,
+            Infinity
+        );
+
+        editorRef.current.setSelection(selectionRange);
+    }, []);
+
+    // #FixMe: Monaco find indices are always a question mark incorrect on the first
+    //          log event of each page.
+    //      ->The second log event is alway index 1 and so on.
+
+    // Update find action parameters when Zustand store changes
+    const updateFindAction = useCallback(async (
+        selectedLogEventNum:number,
+        beginLineNumToLogEventNumMapRef:React.RefObject<BeginLineNumToLogEventNumMap>
+    ) => {
+        setEditorSelection(selectedLogEventNum, beginLineNumToLogEventNumMapRef);
+        const findAction = editorRef.current.getAction("actions.find");
+        const findWithArgsAction = editorRef.current.getAction("editor.actions.findWithArgs");
+
+        if (findAction && findWithArgsAction) {
+            try {
+                await findAction.run();
+                await findWithArgsAction.run({
+                    searchString: queryString,
+                    isCaseSensitive: queryIsCaseSensitive,
+                    isRegex: queryIsRegex,
+                });
+            } catch (error) {
+                console.error("Error during search:", error);
+            }
+        } else {
+            console.error("Find action or Find with args action is not available.");
+        }
+    }, [queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        setEditorSelection]);
+
+    const closeFind = useCallback(() => {
+        const findController = editorRef.current.getContribution(
+            "editor.contrib.findController"
+        ) as {closeFindWidget: () => void} | null;
+
+        if (findController?.closeFindWidget) {
+            findController.closeFindWidget();
+        }
+    }, []);
+
+    useEffect(() => {
+        closeFind();
+    }, [queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+        closeFind]);
+
+    useEffect(() => {
+        if (buttonClicked) {
+            updateFindAction(
+                resultSelection,
+                beginLineNumToLogEventNumRef
+            ).catch((error: unknown) => {
+                console.error("Error during search:", error);
+            });
+        }
+    }, [buttonClicked,
+        resultSelection,
+        beginLineNumToLogEventNum,
+        updateFindAction]);
 
     /**
      * Backs up the current page size and resets the cached page size in case it causes a client

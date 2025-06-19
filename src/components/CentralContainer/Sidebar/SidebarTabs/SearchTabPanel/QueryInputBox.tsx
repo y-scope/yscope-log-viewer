@@ -7,7 +7,6 @@ import {
 } from "@mui/joy";
 
 import useQueryStore from "../../../../../stores/queryStore";
-import useResultsStore from "../../../../../stores/resultsStore";
 import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
@@ -31,8 +30,8 @@ const QueryInputBox = () => {
     const uiState = useUiStore((state) => state.uiState);
 
     const resetButtonClicked = () => {
-        const {setButtonClicked} = useResultsStore.getState();
-        setButtonClicked(false);
+        const {notifyResultButtonClick} = useQueryStore.getState();
+        notifyResultButtonClick(false);
     };
 
     const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {

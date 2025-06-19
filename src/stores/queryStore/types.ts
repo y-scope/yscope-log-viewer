@@ -5,12 +5,16 @@ interface QueryConfigValues {
     queryString: string;
     queryIsCaseSensitive: boolean;
     queryIsRegex: boolean;
+    resultButtonClickSignal: boolean;
+    resultSelection: number;
 }
 
 interface QueryConfigActions {
-    setQueryString: (newQueryString: string) => void;
+    notifyResultButtonClick: (clickState: boolean) => void;
     setQueryIsCaseSensitive: (newQueryIsCaseSensitive: boolean) => void;
     setQueryIsRegex: (newQueryIsRegex: boolean) => void;
+    setQueryString: (newQueryString: string) => void;
+    setResultSelection: (newResultSelection: number) => void;
 }
 
 type QueryConfigSlice = QueryConfigValues & QueryConfigActions;
