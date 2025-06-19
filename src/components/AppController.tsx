@@ -7,7 +7,6 @@ import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
 import {Nullable} from "../typings/common";
-import {UrlHashParams} from "../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -66,22 +65,17 @@ const updateQueryHashParams = () => {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  *
  * @param [ev] The hash change event, or `null` when called on application initialization.
- * @return The parsed URL hash parameters.
  */
-const handleHashChange = (ev: Nullable<HashChangeEvent>): UrlHashParams => {
-    const hashParams = getWindowUrlHashParams();
+const handleHashChange = (ev: Nullable<HashChangeEvent>) => {
     updateViewHashParams();
-    const isQueryModified = updateQueryHashParams();
     const isTriggeredByHashChange = null !== ev;
-    if (isTriggeredByHashChange && isQueryModified) {
+    if (isTriggeredByHashChange && updateQueryHashParams()) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
 
     // eslint-disable-next-line no-warning-comments
     // TODO: Remove empty or falsy parameters.
-
-    return hashParams;
 };
 
 interface AppControllerProps {
@@ -110,7 +104,8 @@ const AppController = ({children}: AppControllerProps) => {
         isInitialized.current = true;
 
         // Handle initial page load and maintain full URL state
-        const hashParams = handleHashChange(null);
+        handleHashChange(null);
+        const hashParams = getWindowUrlHashParams();
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
