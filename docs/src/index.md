@@ -53,7 +53,12 @@ IR stream log files can currently be generated using these libraries:
 
 You can use GitHub issues to [report a bug][bug-report] or [request a feature][feature-req].
 
-Join us on [Zulip][zulip] to chat with developers and other community members.
+# Community
+
+Need help? Join us on one of our community servers:
+
+* [![Discord][badge-discord]][yscope-community-discord]
+* [![CLP on Zulip][badge-zulip]][yscope-community-zulip]
 
 # Features in development
 
@@ -73,6 +78,8 @@ user-guide/index
 dev-guide/index
 :::
 
+[badge-discord]: https://img.shields.io/discord/1377353873068392580?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235561f5
+[badge-zulip]: https://img.shields.io/badge/Zulip-yscope--clp-1888FA?logo=zulip
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [clp-loglib-py]: https://github.com/y-scope/clp-loglib-py
 [clp-repo]: https://github.com/y-scope/clp
@@ -82,4 +89,5 @@ dev-guide/index
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
 [logback-appenders]: https://github.com/y-scope/logback-appenders
 [online-demo]: https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
-[zulip]: https://yscope-clp.zulipchat.com/
+[yscope-community-discord]: https://discord.gg/7kZA2m5G87
+[yscope-community-zulip]: https://yscope-clp.zulipchat.com
