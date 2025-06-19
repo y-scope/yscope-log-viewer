@@ -84,9 +84,9 @@ const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
         if (-1 !== filePathIndex) {
             const filePath = window.location.search.substring(filePathIndex + "filePath=".length);
             if (0 !== filePath.length) {
-                let resolvedFilePath = filePath;
+                let resolvedFilePath = decodeURIComponent(filePath);
                 try {
-                    resolvedFilePath = getAbsoluteUrl(filePath);
+                    resolvedFilePath = getAbsoluteUrl(resolvedFilePath);
                 } catch (e) {
                     console.error("Unable to get absolute URL from filePath:", e);
                 }
