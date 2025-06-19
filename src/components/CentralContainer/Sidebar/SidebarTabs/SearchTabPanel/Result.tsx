@@ -42,8 +42,8 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
 
     const handleResultButtonClick = useCallback(() => {
         updateWindowUrlHashParams({logEventNum});
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(logEventNum);
+        const {updateLogEventNum} = useViewStore.getState();
+        updateLogEventNum(logEventNum);
     }, [logEventNum]);
 
     return (
