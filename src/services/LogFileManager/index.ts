@@ -51,18 +51,18 @@ interface FileTypeEntry {
     typeName: string;
     extensionList: string[];
     magicNumber: number[];
-    decoder: typeof ClpIrDecoder | typeof JsonlDecoder;
+    Decoder: typeof ClpIrDecoder | typeof JsonlDecoder;
 }
 
+/* eslint-disable @stylistic/array-element-newline, no-magic-numbers */
 const FILE_TYPE_LIST: FileTypeEntry[] = [
     {
         typeName: "Zstd CLP",
         extensionList: [
             ".clp.zst",
         ],
-        // eslint-disable-next-line @stylistic/array-element-newline, no-magic-numbers
         magicNumber: [0x28, 0xb5, 0x2f, 0xfd],
-        decoder: ClpIrDecoder,
+        Decoder: ClpIrDecoder,
     },
     {
         typeName: "JSON Lines",
@@ -70,11 +70,11 @@ const FILE_TYPE_LIST: FileTypeEntry[] = [
             ".jsonl",
             ".ndjson",
         ],
-        // eslint-disable-next-line no-magic-numbers
         magicNumber: [0x7B],
-        decoder: JsonlDecoder,
+        Decoder: JsonlDecoder,
     },
 ];
+/* eslint-enable @stylistic/array-element-newline, no-magic-numbers */
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -241,7 +241,7 @@ class LogFileManager {
         for (const entry of FILE_TYPE_LIST) {
             if (entry.extensionList.some((ext) => fileName.endsWith(ext))) {
                 try {
-                    return await entry.decoder.create(fileData, decoderOptions);
+                    return await entry.Decoder.create(fileData, decoderOptions);
                 } catch (e) {
                     console.warn("File extension matches, but decoder creation failed:", e);
                     break;
@@ -264,7 +264,7 @@ class LogFileManager {
                 )
             ) {
                 try {
-                    return await entry.decoder.create(fileData, decoderOptions);
+                    return await entry.Decoder.create(fileData, decoderOptions);
                 } catch (e) {
                     console.warn("Magic number matches, but decoder creation failed:", e);
                 }
