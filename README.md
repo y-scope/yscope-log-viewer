@@ -2,7 +2,8 @@
 
 ![Open bug reports][bugs-shield]
 ![Open feature requests][feature-requests-shield]
-![CLP on Zulip][zulip-shield]
+[![Discord][badge-discord]][yscope-community-discord]
+[![CLP on Zulip][badge-zulip]][yscope-community-zulip]
 
 The YScope Log Viewer is a tool that can be used to view log files. It currently supports
 [CLP][clp-repo]'s compressed log files (IR streams) and JSON log files. The viewer can be used to
@@ -32,12 +33,19 @@ The log viewer's docs are available [here][docs-site].
 
 You can use GitHub issues to [report a bug][bug-report] or [request a feature][feature-req].
 
-Join us on [Zulip][zulip] to chat with developers and other community members.
+# Community
+
+Need help? Join us on one of our community servers:
+
+* [![Discord][badge-discord]][yscope-community-discord]
+* [![CLP on Zulip][badge-zulip]][yscope-community-zulip]
 
 # Contributing
 
 See the docs in our [developer guide][docs-site/dev-guide].
 
+[badge-discord]: https://img.shields.io/discord/1377353873068392580?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235561f5
+[badge-zulip]: https://img.shields.io/badge/Zulip-yscope--clp-1888FA?logo=zulip
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-repo]: https://github.com/y-scope/clp
@@ -51,5 +59,5 @@ See the docs in our [developer guide][docs-site/dev-guide].
 [feature-requests-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/enhancement?label=feature-requests
 [hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
 [online-demo]: https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst
-[zulip]: https://yscope-clp.zulipchat.com/
-[zulip-shield]: https://img.shields.io/badge/zulip-yscope--clp%20chat-1888FA?logo=zulip
+[yscope-community-discord]: https://discord.gg/7kZA2m5G87
+[yscope-community-zulip]: https://yscope-clp.zulipchat.com
