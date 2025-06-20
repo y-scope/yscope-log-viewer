@@ -14,6 +14,13 @@ A guide to viewing log files in the log viewer.
 :::
 
 :::{grid-item-card}
+:link: url-parameters
+URL Parameters
+^^^
+Complete reference for search and hash parameters.
+:::
+
+:::{grid-item-card}
 :link: struct-logs/index
 Working with structured logs
 ^^^
@@ -33,6 +40,7 @@ A guide to filtering log events by their levels.
 :caption: Quick start
 
 quick-start
+url-parameters
 :::
 
 :::{toctree}
