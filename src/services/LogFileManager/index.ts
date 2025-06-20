@@ -70,7 +70,7 @@ const FILE_TYPE_LIST: FileTypeEntry[] = [
             ".jsonl",
             ".ndjson",
         ],
-        magicNumber: [],
+        magicNumber: [0x7b],
         Decoder: JsonlDecoder,
     },
 ];
