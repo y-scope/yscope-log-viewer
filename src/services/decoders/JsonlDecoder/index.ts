@@ -62,7 +62,7 @@ class JsonlDecoder implements Decoder {
     }
 
     static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
-        return await Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
+        return new JsonlDecoder(dataArray, decoderOptions);
     }
 
     getEstimatedNumEvents (): number {
