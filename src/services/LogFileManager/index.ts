@@ -39,16 +39,42 @@ import {
 } from "./utils";
 
 
-const BYTE_SIZE = 8;
 const MAX_QUERY_RESULT_COUNT = 1_000;
-const MAGIC_NUMBER_SIZE = 4;
-const ZST_MAGIC_NUMBER = 0x28b52ffd;
 
 enum FILE_TYPE {
     CLP_TEXT_IR = "clpTextIr",
     CLP_KV_IR = "clpKvIr",
     JSONL = "jsonl",
 }
+
+interface FileTypeEntry {
+    typeName: string;
+    extensionList: string[];
+    magicNumber: number[];
+    decoder: typeof ClpIrDecoder | typeof JsonlDecoder;
+}
+
+const FILE_TYPE_LIST: FileTypeEntry[] = [
+    {
+        typeName: "Zstd CLP",
+        extensionList: [
+            ".clp.zst",
+        ],
+        // eslint-disable-next-line @stylistic/array-element-newline, no-magic-numbers
+        magicNumber: [0x28, 0xb5, 0x2f, 0xfd],
+        decoder: ClpIrDecoder,
+    },
+    {
+        typeName: "JSON Lines",
+        extensionList: [
+            ".jsonl",
+            ".ndjson",
+        ],
+        // eslint-disable-next-line no-magic-numbers
+        magicNumber: [0x7B],
+        decoder: JsonlDecoder,
+    },
+];
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -211,35 +237,42 @@ class LogFileManager {
             } due to a limitation in Chromium-based browsers.`);
         }
 
-        let decoder: Decoder;
-
-        const checkFileExtension = async () => {
-            if (fileName.endsWith(".jsonl")) {
-                decoder = new JsonlDecoder(fileData, decoderOptions);
-            } else if (fileName.endsWith(".clp.zst")) {
-                decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-            } else {
-                throw new Error(`No decoder supports ${fileName}`);
+        // Try to match the file extension with a decoder.
+        for (const entry of FILE_TYPE_LIST) {
+            if (entry.extensionList.some((ext) => fileName.endsWith(ext))) {
+                try {
+                    return await entry.decoder.create(fileData, decoderOptions);
+                } catch (e) {
+                    console.warn("File extension matches, but decoder creation failed:", e);
+                    break;
+                }
             }
-        };
-
-        if (fileData.length < MAGIC_NUMBER_SIZE) {
-            await checkFileExtension();
-
-            return decoder;
         }
-        const magicNumber = (fileData[0] << BYTE_SIZE * 3) |
-            (fileData[1] << BYTE_SIZE * 2) | (fileData[2] << BYTE_SIZE) | fileData[3];
+        console.warn("No decoder found for file extension, checking magic numbers...");
 
-        switch (magicNumber) {
-            case ZST_MAGIC_NUMBER:
-                decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-                break;
-            default:
-                await checkFileExtension();
+        // No decoder supports the file extension, fall back to magic number check.
+        for (const entry of FILE_TYPE_LIST) {
+            if (0 === entry.magicNumber.length) {
+                continue;
+            }
+
+            // Check if the file starts with the magic number.
+            const magicNumber = new Uint8Array(entry.magicNumber);
+            if (fileData.length >= entry.magicNumber.length &&
+                fileData.slice(0, entry.magicNumber.length).every(
+                    (byte, idx) => byte === magicNumber[idx]
+                )
+            ) {
+                try {
+                    return await entry.decoder.create(fileData, decoderOptions);
+                } catch (e) {
+                    console.warn("Magic number matches, but decoder creation failed:", e);
+                }
+            }
         }
-
-        return decoder;
+        throw new Error(
+            `No decoder supports the file "${fileName}".`
+        );
     }
 
     /* Sets any formatter options that exist in the decoder's options.

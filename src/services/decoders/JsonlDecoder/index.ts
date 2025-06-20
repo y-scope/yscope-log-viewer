@@ -61,6 +61,10 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
+    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        return await Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
+    }
+
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
