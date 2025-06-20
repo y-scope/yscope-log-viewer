@@ -41,7 +41,7 @@ interface LogFileValues {
 
 interface LogFileActions {
     setFileName: (newFileName: string) => void;
-    setMetadata: (newMetadata: Metadata) => void;
+    setMetadata: (newMetadata: Nullable<Metadata>) => void;
     setNumEvents: (newNumEvents: number) => void;
     setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
 
@@ -107,8 +107,9 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        const {setFileName, setOnDiskFileSizeInBytes} = get();
+        const {setFileName, setMetadata, setOnDiskFileSizeInBytes} = get();
         setFileName("Loading...");
+        setMetadata(LOG_FILE_STORE_DEFAULT.metadata);
         setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
 
         const {setExportProgress} = useLogExportStore.getState();
