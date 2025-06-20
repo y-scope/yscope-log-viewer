@@ -27,32 +27,32 @@ const MetadataListItem = () => {
         return flattenObject(metadata);
     }, [metadata]);
 
-    let content: string | React.ReactNode = "Loading...";
-    if (null !== metadata) {
-        if (0 >= flattenedMetadata.length) {
-            content = "No metadata available.";
-        } else {
-            content = (
-                <Table
-                    className={"metadata-table"}
-                    size={"sm"}
-                    stripe={"odd"}
-                >
-                    <tbody>
-                        {flattenedMetadata.map(([key, value]) => (
-                            <tr key={key}>
-                                <td>
-                                    {key}
-                                </td>
-                                <td className={"metadata-value"}>
-                                    {String(value)}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            );
-        }
+    let content: string | React.ReactNode;
+    if (null === metadata) {
+        content = "Loading...";
+    } else if (0 >= flattenedMetadata.length) {
+        content = "No metadata available.";
+    } else {
+        content = (
+            <Table
+                className={"metadata-table"}
+                size={"sm"}
+                stripe={"odd"}
+            >
+                <tbody>
+                    {flattenedMetadata.map(([key, value]) => (
+                        <tr key={key}>
+                            <td>
+                                {key}
+                            </td>
+                            <td className={"metadata-value"}>
+                                {String(value)}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        );
     }
 
     return (
