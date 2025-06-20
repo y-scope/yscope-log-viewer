@@ -8,6 +8,7 @@ import TsConfigArray, {createTsConfigOverride} from "eslint-config-yscope/TsConf
 const EslintConfig = [
     {
         ignores: [
+            "build/",
             "dist/",
             "node_modules/",
         ],

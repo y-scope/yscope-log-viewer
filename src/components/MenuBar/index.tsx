@@ -50,8 +50,8 @@ const MenuBar = () => {
                 <Divider orientation={"vertical"}/>
                 <MenuBarIconButton
                     disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
-                    title={"Open file"}
                     tooltipPlacement={"bottom-start"}
+                    tooltipTitle={"Open file"}
                     onClick={handleOpenFile}
                 >
                     <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
