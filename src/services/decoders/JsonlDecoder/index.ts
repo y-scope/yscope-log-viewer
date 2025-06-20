@@ -62,6 +62,9 @@ class JsonlDecoder implements Decoder {
     }
 
     static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        if (dataArray.length > 0 && dataArray[0] != 0x7B) {
+            throw new Error("Invalid JSONL data: First byte is not '{'.");
+        }
         return new JsonlDecoder(dataArray, decoderOptions);
     }
 

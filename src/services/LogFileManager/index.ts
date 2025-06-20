@@ -70,7 +70,7 @@ const FILE_TYPE_LIST: FileTypeEntry[] = [
             ".jsonl",
             ".ndjson",
         ],
-        magicNumber: [0x7B],
+        magicNumber: [],
         Decoder: JsonlDecoder,
     },
 ];
@@ -243,7 +243,7 @@ class LogFileManager {
                 try {
                     return await entry.Decoder.create(fileData, decoderOptions);
                 } catch (e) {
-                    console.warn("File extension matches, but decoder creation failed:", e);
+                    console.warn("File extension matches, but decoder creation failed.\n", e);
                     break;
                 }
             }
