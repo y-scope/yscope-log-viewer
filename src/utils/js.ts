@@ -29,6 +29,11 @@ const flattenObject = (obj: Record<string, unknown>, prefix = ""): KeyValuePair[
 
         if ("object" === typeof value && null !== value && false === Array.isArray(value)) {
             result.push(...flattenObject(value as Record<string, unknown>, fullKey));
+        } else if (Array.isArray(value)) {
+            result.push([
+                fullKey,
+                JSON.stringify(value),
+            ]);
         } else {
             result.push([
                 fullKey,
