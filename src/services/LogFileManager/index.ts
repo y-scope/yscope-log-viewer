@@ -243,7 +243,8 @@ class LogFileManager {
                 try {
                     return await entry.Decoder.create(fileData, decoderOptions);
                 } catch (e) {
-                    console.warn("File extension matches, but decoder creation failed.\n", e);
+                    console.warn(`File extension matches ${entry.typeName},` +
+                        "but decoder creation failed.", e);
                     break;
                 }
             }
