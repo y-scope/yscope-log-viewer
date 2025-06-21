@@ -36,6 +36,7 @@ class LogFileManagerProxy {
         return {
             fileName: logFileManager.fileName,
             fileType: logFileManager.fileType,
+            metadata: logFileManager.metadata,
             numEvents: logFileManager.numEvents,
             onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
         };
