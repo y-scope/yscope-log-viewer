@@ -44,6 +44,12 @@ Examples:
 * `arrayIndexIdx` for a 0-based indexing variable.
 * `numEvents` for the total number of events.
 
+## Zustand store actions
+When implementing Zustand store actions, we follow these naming conventions:
+
+* Use `setX` for actions that simply change the value of a state.
+* Use `updateX` for actions that do more than simply changing a value (e.g., perform additional logic, make API calls, update multiple states).
+
 # React
 
 ## Omitting state variables from React Hooks
