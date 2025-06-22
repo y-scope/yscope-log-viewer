@@ -40,5 +40,6 @@ still be tested manually:
   * Toggling tabbed panels in the sidebar
   * Using keyboard shortcuts
   * Toggling "Prettify" in both the status bar and the address bar
+  * Select different timezone in the "Timezone" dropdown menu in the status bar or URL
 
 [gh-workflow-test]: https://github.com/y-scope/yscope-log-viewer/blob/main/.github/workflows/test.yaml

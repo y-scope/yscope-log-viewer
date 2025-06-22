@@ -22,6 +22,7 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: 0,
+    [HASH_PARAM_NAMES.LOG_TIMEZONE]: "",
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
     [HASH_PARAM_NAMES.QUERY_STRING]: "",
@@ -180,6 +181,8 @@ const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
             parsedHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
                 0 :
                 parsed;
+        } else if (HASH_PARAM_NAMES.LOG_TIMEZONE === key) {
+            parsedHashParams[HASH_PARAM_NAMES.LOG_TIMEZONE] = value;
         } else if (HASH_PARAM_NAMES.QUERY_STRING === key) {
             parsedHashParams[HASH_PARAM_NAMES.QUERY_STRING] = value;
         } else if (HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE === key) {

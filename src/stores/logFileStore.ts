@@ -138,8 +138,8 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             set(fileInfo);
 
-            const {isPrettified, updatePageData} = useViewStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {isPrettified, logTimezone, updatePageData} = useViewStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified, logTimezone);
             updatePageData(pageData);
 
             const {startQuery} = useQueryStore.getState();

@@ -42,20 +42,25 @@ class LogFileManagerProxy {
         };
     }
 
-    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
+    loadPage (
+        cursor: CursorType,
+        isPrettified: boolean,
+        logTimezone: string
+    ): PageData {
         const logFileManager = this.#getLogFileManager();
-        return logFileManager.loadPage(cursor, isPrettified);
+        return logFileManager.loadPage(cursor, isPrettified, logTimezone);
     }
 
     setFilter (
         cursor: CursorType,
         isPrettified: boolean,
-        logLevelFilter: LogLevelFilter
+        logLevelFilter: LogLevelFilter,
+        logTimezone: string
     ): PageData {
         const logFileManager = this.#getLogFileManager();
         logFileManager.setLogLevelFilter(logLevelFilter);
 
-        return this.loadPage(cursor, isPrettified);
+        return this.loadPage(cursor, isPrettified, logTimezone);
     }
 
     exportLogs (): void {

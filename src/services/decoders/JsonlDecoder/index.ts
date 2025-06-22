@@ -103,6 +103,10 @@ class JsonlDecoder implements Decoder {
         beginIdx: number,
         endIdx: number,
         useFilter: boolean,
+        // eslint-disable-next-line no-warning-comments
+        // TODO: Support specifying timezone for JSON log events.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _: string | null
     ): Nullable<DecodeResult[]> {
         if (useFilter && null === this.#filteredLogEventMap) {
             return null;
