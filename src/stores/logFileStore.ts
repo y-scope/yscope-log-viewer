@@ -29,6 +29,8 @@ import useNotificationStore, {handleErrorWithNotification} from "./notificationS
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
+import {VIEW_EVENT_DEFAULT} from "./viewStore/createViewEventSlice";
+import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
 interface LogFileValues {
@@ -101,6 +103,7 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
+// eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
@@ -115,8 +118,15 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {setLogData} = useViewStore.getState();
-        setLogData("Loading...");
+        const {updatePageData} = useViewStore.getState();
+        updatePageData({
+            beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
+            cursorLineNum: 1,
+            logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
+            logs: "Loading...",
+            numPages: VIEW_PAGE_DEFAULT.numPages,
+            pageNum: VIEW_PAGE_DEFAULT.pageNum,
+        });
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
@@ -138,7 +148,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             set(fileInfo);
 
-            const {isPrettified, updatePageData} = useViewStore.getState();
+            const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
