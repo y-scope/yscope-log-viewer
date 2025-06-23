@@ -74,7 +74,7 @@ const getPageNumCursor = (
     };
 };
 
-const VIEW_VALUES_DEFAULT: ViewPageValues = {
+const VIEW_PAGE_VALUES_DEFAULT: ViewPageValues = {
     beginLineNumToLogEventNum: new Map<number, number>(),
     logData: "No file is open.",
     numPages: 0,
@@ -91,7 +91,7 @@ const VIEW_VALUES_DEFAULT: ViewPageValues = {
 const createViewPageSlice: StateCreator<
     ViewState, [], [], ViewPageSlice
 > = (set, get) => ({
-    ...VIEW_VALUES_DEFAULT,
+    ...VIEW_PAGE_VALUES_DEFAULT,
     updatePageData: (pageData: PageData) => {
         set({
             logData: pageData.logs,
@@ -152,4 +152,6 @@ const createViewPageSlice: StateCreator<
     },
 });
 
+
+export {VIEW_PAGE_VALUES_DEFAULT};
 export default createViewPageSlice;

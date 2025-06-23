@@ -28,6 +28,8 @@ import useNotificationStore, {handleErrorWithNotification} from "./notificationS
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
+import {VIEW_EVENT_DEFAULT} from "./viewStore/createViewEventSlice";
+import {VIEW_PAGE_VALUES_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
 interface LogFileValues {
@@ -109,6 +111,16 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
+
+        const {updatePageData} = useViewStore.getState();
+        updatePageData({
+            beginLineNumToLogEventNum: VIEW_PAGE_VALUES_DEFAULT.beginLineNumToLogEventNum,
+            cursorLineNum: 1,
+            logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
+            logs: "Loading...",
+            numPages: VIEW_PAGE_VALUES_DEFAULT.numPages,
+            pageNum: VIEW_PAGE_VALUES_DEFAULT.pageNum,
+        });
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
