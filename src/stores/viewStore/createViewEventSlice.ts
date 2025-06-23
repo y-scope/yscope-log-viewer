@@ -82,9 +82,9 @@ const createViewEventSlice: StateCreator<
         }
 
         const clampedLogEventNum = clamp(newLogEventNum, 1, numEvents);
+        set({logEventNum: clampedLogEventNum});
         const {beginLineNumToLogEventNum} = get();
         const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
-        set({logEventNum: clampedLogEventNum});
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return;

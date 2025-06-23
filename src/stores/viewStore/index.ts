@@ -9,9 +9,9 @@ import {ViewState} from "./types";
 
 const useViewStore = create<ViewState>((...args) => ({
     ...createViewEventSlice(...args),
-    ...createViewPageSlice(...args),
     ...createViewFilterSlice(...args),
     ...createViewFormattingSlice(...args),
+    ...createViewPageSlice(...args),
 }));
 
 export default useViewStore;
