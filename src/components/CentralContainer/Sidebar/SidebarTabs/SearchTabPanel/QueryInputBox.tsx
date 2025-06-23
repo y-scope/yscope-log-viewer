@@ -29,18 +29,12 @@ const QueryInputBox = () => {
     const queryProgress = useQueryStore((state) => state.queryProgress);
     const uiState = useUiStore((state) => state.uiState);
 
-    const resetButtonClicked = () => {
-        const {notifyResultButtonClick} = useQueryStore.getState();
-        notifyResultButtonClick(false);
-    };
-
     const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newQueryString = ev.target.value;
         updateWindowUrlHashParams({queryString: newQueryString});
         const {setQueryString, startQuery} = useQueryStore.getState();
         setQueryString(newQueryString);
         startQuery();
-        resetButtonClicked();
     }, []);
 
     const handleCaseSensitivityButtonClick = useCallback(() => {
@@ -49,7 +43,6 @@ const QueryInputBox = () => {
         const {setQueryIsCaseSensitive, startQuery} = useQueryStore.getState();
         setQueryIsCaseSensitive(newQueryIsSensitive);
         startQuery();
-        resetButtonClicked();
     }, [isCaseSensitive]);
 
     const handleRegexButtonClick = useCallback(() => {
@@ -58,7 +51,6 @@ const QueryInputBox = () => {
         const {setQueryIsRegex, startQuery} = useQueryStore.getState();
         setQueryIsRegex(newQueryIsRegex);
         startQuery();
-        resetButtonClicked();
     }, [isRegex]);
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);

@@ -11,8 +11,6 @@ const QUERY_CONFIG_DEFAULT: QueryConfigValues = {
     queryIsCaseSensitive: false,
     queryIsRegex: false,
     queryString: "",
-    resultButtonClickSignal: false,
-    resultSelection: -1,
 };
 
 /**
@@ -25,12 +23,6 @@ const createQueryConfigSlice: StateCreator<
     QueryState, [], [], QueryConfigSlice
 > = (set) => ({
     ...QUERY_CONFIG_DEFAULT,
-    notifyResultButtonClick: (clickState) => {
-        set({resultButtonClickSignal: clickState});
-        if (!clickState) {
-            set({resultSelection: -1});
-        }
-    },
     setQueryIsCaseSensitive: (newQueryIsCaseSensitive) => {
         set({queryIsCaseSensitive: newQueryIsCaseSensitive});
     },
@@ -39,9 +31,6 @@ const createQueryConfigSlice: StateCreator<
     },
     setQueryString: (newQueryString) => {
         set({queryString: newQueryString});
-    },
-    setResultSelection: (newResultSelection) => {
-        set({resultSelection: newResultSelection});
     },
 });
 
