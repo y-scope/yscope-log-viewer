@@ -99,6 +99,7 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
+// eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set, get) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
@@ -142,7 +143,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             set(fileInfo);
 
-            const {isPrettified, updatePageData} = useViewStore.getState();
+            const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
