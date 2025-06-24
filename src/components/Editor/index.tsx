@@ -262,8 +262,8 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(newLogEventNum);
+        const {updateLogEventNum} = useViewStore.getState();
+        updateLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.

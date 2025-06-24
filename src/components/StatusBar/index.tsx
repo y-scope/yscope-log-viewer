@@ -2,13 +2,14 @@ import React from "react";
 
 import {
     Button,
+    Divider,
     Sheet,
     Tooltip,
     Typography,
 } from "@mui/joy";
 
-import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
-import AutoFixOffRoundedIcon from "@mui/icons-material/AutoFixOffRounded";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -86,16 +87,19 @@ const StatusBar = () => {
                     </Button>
                 </span>
             </Tooltip>
+            <Divider orientation={"vertical"}/>
 
             <LogLevelSelect/>
+            <Divider orientation={"vertical"}/>
 
             <StatusBarToggleButton
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
                 disabled={isPrettifyButtonDisabled}
                 isActive={isPrettified}
+                tooltipPlacement={"top-end"}
                 icons={{
-                    active: <AutoFixHighRoundedIcon/>,
-                    inactive: <AutoFixOffRoundedIcon/>,
+                    active: <AutoFixHighIcon/>,
+                    inactive: <AutoFixOffIcon/>,
                 }}
                 tooltipTitle={false === isPrettified ?
                     "Turn on Prettify" :
