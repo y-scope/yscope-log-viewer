@@ -23,7 +23,7 @@ import MenuBarIconButton from "./MenuBarIconButton";
  */
 const ExportLogsButton = () => {
     const exportProgress = useLogExportStore((state) => state.exportProgress);
-    const exportLogs = useLogExportStore((state) => state.exportLogs);
+    const {exportLogs} = useLogExportStore.getState();
     const uiState = useUiStore((state) => state.uiState);
 
     return (

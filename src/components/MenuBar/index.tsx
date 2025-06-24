@@ -28,7 +28,7 @@ import "./index.css";
  */
 const MenuBar = () => {
     const fileName = useLogFileStore((state) => state.fileName);
-    const loadFile = useLogFileStore((state) => state.loadFile);
+    const {loadFile} = useLogFileStore.getState();
     const uiState = useUiStore((state) => state.uiState);
 
     const handleOpenFile = () => {

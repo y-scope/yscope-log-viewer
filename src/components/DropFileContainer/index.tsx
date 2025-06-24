@@ -21,7 +21,7 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const loadFile = useLogFileStore((state) => state.loadFile);
+    const {loadFile} = useLogFileStore.getState();
     const uiState = useUiStore((state) => state.uiState);
     const [isFileHovering, setIsFileHovering] = useState(false);
     const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);

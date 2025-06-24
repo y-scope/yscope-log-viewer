@@ -48,7 +48,7 @@ interface SidebarTabsProps {
  */
 const SidebarTabs = ({ref}: SidebarTabsProps) => {
     const activeTabName = useUiStore((state) => state.activeTabName);
-    const setActiveTabName = useUiStore((state) => state.setActiveTabName);
+    const {setActiveTabName} = useUiStore.getState();
     const handleTabButtonClick = (tabName: TAB_NAME) => {
         switch (tabName) {
             case TAB_NAME.DOCUMENTATION:

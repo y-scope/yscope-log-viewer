@@ -39,7 +39,7 @@ interface PopUpMessageProps {
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     const {id, level, primaryAction, message: messageStr, title, timeoutMillis} = message;
 
-    const handlePopUpMessageClose = useNotificationStore((state) => state.handlePopUpMessageClose);
+    const {handlePopUpMessageClose} = useNotificationStore.getState();
 
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
     const intervalCountRef = useRef<number>(0);
