@@ -190,7 +190,6 @@ const Editor = () => {
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const logData = useViewStore((state) => state.logData);
     const logEventNum = useViewStore((state) => state.logEventNum);
-
     const queryString = useQueryStore((state) => state.queryString);
     const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
@@ -297,7 +296,8 @@ const Editor = () => {
                 queryIsRegex,
                 queryIsCaseSensitive,
                 null,
-                true
+                false,
+                Infinity
             );
 
         if ("undefined" === typeof matches || 0 === matches.length) {
