@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     Box,
     Divider,
@@ -28,14 +30,14 @@ import "./index.css";
  */
 const MenuBar = () => {
     const fileName = useLogFileStore((state) => state.fileName);
-    const {loadFile} = useLogFileStore.getState();
     const uiState = useUiStore((state) => state.uiState);
 
-    const handleOpenFile = () => {
+    const handleOpenFile = useCallback(() => {
         openFile((file) => {
+            const {loadFile} = useLogFileStore.getState();
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
-    };
+    }, []);
 
     return (
         <>

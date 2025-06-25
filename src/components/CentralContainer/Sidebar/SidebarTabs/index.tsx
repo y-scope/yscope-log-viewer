@@ -1,4 +1,7 @@
-import {Ref} from "react";
+import {
+    Ref,
+    useCallback,
+} from "react";
 
 import {
     TabList,
@@ -48,8 +51,7 @@ interface SidebarTabsProps {
  */
 const SidebarTabs = ({ref}: SidebarTabsProps) => {
     const activeTabName = useUiStore((state) => state.activeTabName);
-    const {setActiveTabName} = useUiStore.getState();
-    const handleTabButtonClick = (tabName: TAB_NAME) => {
+    const handleTabButtonClick = useCallback((tabName: TAB_NAME) => {
         switch (tabName) {
             case TAB_NAME.DOCUMENTATION:
                 openInNewTab(DOCUMENTATION_URL);
@@ -58,11 +60,11 @@ const SidebarTabs = ({ref}: SidebarTabsProps) => {
                 const newTabName = (activeTabName === tabName) ?
                     TAB_NAME.NONE :
                     tabName;
-
+                const {setActiveTabName} = useUiStore.getState();
                 setActiveTabName(newTabName);
             }
         }
-    };
+    }, [activeTabName]);
 
     return (
         <Tabs

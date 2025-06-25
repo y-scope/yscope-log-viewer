@@ -23,7 +23,6 @@ import MenuBarIconButton from "./MenuBarIconButton";
  */
 const ExportLogsButton = () => {
     const exportProgress = useLogExportStore((state) => state.exportProgress);
-    const {exportLogs} = useLogExportStore.getState();
     const uiState = useUiStore((state) => state.uiState);
 
     return (
@@ -37,7 +36,7 @@ const ExportLogsButton = () => {
                 ) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
-            onClick={exportLogs}
+            onClick={useLogExportStore.getState().exportLogs}
         >
             {null === exportProgress ?
                 <DownloadIcon/> :
