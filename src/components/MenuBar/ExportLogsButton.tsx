@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     CircularProgress,
     Typography,
@@ -25,6 +27,11 @@ const ExportLogsButton = () => {
     const exportProgress = useLogExportStore((state) => state.exportProgress);
     const uiState = useUiStore((state) => state.uiState);
 
+    const handleExportButtonClick = useCallback(() => {
+        const {exportLogs} = useLogExportStore.getState();
+        exportLogs();
+    }, []);
+
     return (
         <MenuBarIconButton
             className={ignorePointerIfFastLoading(uiState)}
@@ -36,7 +43,7 @@ const ExportLogsButton = () => {
                 ) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
-            onClick={useLogExportStore.getState().exportLogs}
+            onClick={handleExportButtonClick}
         >
             {null === exportProgress ?
                 <DownloadIcon/> :
