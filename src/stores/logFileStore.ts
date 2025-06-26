@@ -104,9 +104,15 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        set({fileName: "Loading..."});
-        set({metadata: LOG_FILE_STORE_DEFAULT.metadata});
-        set({onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes});
+        set({
+            fileName: "Loading...",
+            fileSrc: fileSrc,
+            metadata: LOG_FILE_STORE_DEFAULT.metadata,
+            onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes,
+        });
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
 
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
