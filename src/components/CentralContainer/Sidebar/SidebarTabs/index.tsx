@@ -51,6 +51,7 @@ interface SidebarTabsProps {
  */
 const SidebarTabs = ({ref}: SidebarTabsProps) => {
     const activeTabName = useUiStore((state) => state.activeTabName);
+
     const handleTabButtonClick = useCallback((tabName: TAB_NAME) => {
         switch (tabName) {
             case TAB_NAME.DOCUMENTATION:
