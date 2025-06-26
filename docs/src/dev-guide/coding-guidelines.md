@@ -44,12 +44,6 @@ Examples:
 * `arrayIndexIdx` for a 0-based indexing variable.
 * `numEvents` for the total number of events.
 
-## Zustand store actions
-When implementing Zustand store actions, we follow these naming conventions:
-
-* Use `setX` for actions that simply change the value of a state.
-* Use `updateX` for actions that do more than simply changing a value (e.g., perform additional logic, make API calls, update multiple states).
-
 # React
 
 ## Omitting state variables from React Hooks
@@ -58,6 +52,61 @@ To avoid including a state variable in a React Hook's dependency array, you can 
 (mirror) to hold the current value of the state variable. The reference should use the same name as
 the state variable with an additional `Ref` suffix. E.g., `logEventNumRef` is the reference variable
 that corresponds to the `logEventNum` state variable.
+
+# Zustand
+
+## File Naming
+
+When creating Zustand stores, we follow these naming conventions:
+
+* The store file name should be `xxxStore.ts`, where xxx is the name of the store in camelCase.
+* If the file is too large and needs to be sliced, set the folder name to `xxxStore` and the store
+creation file name to `index.ts`.
+
+## Creation
+
+### Values and actions
+
+Zustand stores two types of data: values, which are state variables,
+and actions, which are functions that modify these states.
+
+We split values and actions in two different interfaces during the definition:
+`XxxValues` for values and `XxxActions` for actions, both in PascalCase.
+Then we combine them with a type called `XxxState` for store creation. Here's a real world example:
+
+```ts
+interface LogExportValues {
+    exportProgress: Nullable<number>;
+}
+
+interface LogExportActions {
+    setExportProgress: (newProgress: Nullable<number>) => void;
+}
+
+type LogExportState = LogExportValues & LogExportActions;
+```
+
+### Default values
+
+We define default values for state variables during the creation.
+The default values should be in CAPITAL_SNAKE_CASE. Here's the continuation of the previous example:
+
+```ts
+const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
+    exportProgress: null,
+};
+```
+
+Notice that we define `LOG_EXPORT_STORE_DEFAULT` using `LogExportValues` interface, which can help
+type check the default values.
+
+### Actions Naming
+
+When implementing Zustand store actions, we follow these naming conventions:
+
+* Use `setXXX` for actions that simply change the value of a state.
+* Use `updateXXX` for actions that do more than simply changing a value (e.g., perform additional
+logic, make API calls, update multiple states).
 
 [eslint-config-mjs]: https://github.com/y-scope/yscope-log-viewer/blob/main/eslint.config.mjs
 [vite-worker-query-suffix]: https://vite.dev/guide/features.html#import-with-query-suffixes
