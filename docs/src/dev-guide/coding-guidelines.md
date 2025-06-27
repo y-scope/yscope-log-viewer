@@ -59,21 +59,19 @@ that corresponds to the `logEventNum` state variable.
 
 When creating Zustand stores, we follow these naming conventions:
 
-* The store file name should be `xxxStore.ts`, where xxx is the name of the store in camelCase.
-* If the file is too large and needs to be sliced, set the folder name to `xxxStore` and the store
-creation file name to `index.ts`.
+* Store files: `{name}Store.ts` (camelCase).
+* Large stores: create `{name}Store/` folder with:
+  * `index.ts` - main store file that combines slices.
+  * `create{Name}{Feature}Slice.ts` - individual feature slices (e.g., `createQueryConfigSlice.ts`).
 
-## Creation
+## Store structure
 
-### Values and actions
+### Type definitions
 
-Zustand stores two types of data: state variables, i.e. values, and actions, which are functions that
-modify these state variables.
-
-We split values and actions in two different interfaces during the definition: `XxxValues` for values and `XxxActions`
-for actions, both in PascalCase. Then we combine them with a type called `XxxState` for store creation. This is 
-
-Here's a real-world example:
+Split store types into three interfaces:
+* `{Name}Values` - state variables
+* `{Name}Actions` - action functions  
+* `{Name}State` or `{Name}Slice` - combined type
 
 ```ts
 interface LogExportValues {
@@ -85,45 +83,47 @@ interface LogExportActions {
 }
 
 type LogExportState = LogExportValues & LogExportActions;
-```
 
 ### Default values
 
-We define default values for state variables during the creation.
-The default values should be in CAPITAL_SNAKE_CASE. Here's the continuation of the previous example:
+* Create an object for initial state values.
+* Type with `{Name}Values` interface for validation.
 
 ```ts
 const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
     exportProgress: null,
 };
-```
 
-Notice that we define `LOG_EXPORT_STORE_DEFAULT` using `LogExportValues` interface, which can help
-type check the default values.
+### Action naming
 
-### Actions Naming
+* `set{Property}` - simple state updates.
+* `update{Property}` - complex logic, API calls, or multiple state updates.
 
-When implementing Zustand store actions, we follow these naming conventions:
-
-* Use `setXxx` for actions that simply change the value of a state.
-* Use `updateXxx` for actions that do more than simply changing a value (e.g., perform additional logic, make API calls,
-update multiple states).
+```ts
+const useUserStore = create<UserState>((set, get) => ({
+    setName: (name) => {
+        set({name});
+    },
+    updateProfile: async (data) => {
+        set({isLoading: true});
+        const result = await api.updateProfile(data);
+        set({
+            profile: result,
+            isLoading: false
+        });
+    },
+}));
 
 ## Feature-based slicing
 
-When a Zustand store file becomes too large, we should slice it based on features. Avoid grouping by type (e.g., all
-values / actions in one object) — it's a common anti-pattern.
+When a Zustand store file becomes too large, we should slice it based on features. Avoid slicing by type (e.g., all
+values / actions in one object) - it's a common anti-pattern.
 
-## Store Usage
+## Store access patterns
 
-There are three ways to access Zustand store values and actions:
-* `get() & set()`
-* `const yyy = useXxxStore((state) => state.yyy);`
-* `const {yyy, zzz} = useXxxStore.getState();`
+### Inside store creation
 
-### Inside zustand creation
-
-When accessing store values inside the store creation function, we use`set()` and `get()`. Here's an example:
+Use `get()` and `set()` to access the store's own states:
 
 ```ts
 const useLogExportStore = create<LogExportState>((get, set) => ({
@@ -132,30 +132,25 @@ const useLogExportStore = create<LogExportState>((get, set) => ({
       set({logExportManager});
       
       const {exportProgress} = get();
-      // If name doesn't match, use colon to separate the variable name from the value.
       set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
     },
 }));
-```
 
 
 ### Inside React components
 
-#### State variables
-`const vvv = useXxxStore((state) => state.vvv);`
-
-This will assure whenever `vvv` changes, the component will re-render. For variables that are not subscribing to changes,
-use `const {vvv} = useXxxStore.getState()`; instead. This avoids unnecessary dependencies in react hooks.
-
 #### Actions
-`const {aaa} = useXxxStore.getState();`
 
-Since actions don't change after initialization, we can access them in a non-reactive way.
+Actions usually do not change after initialization, so always access them non-reactively:
+```ts
+const handleExportButtonClick = useCallback(() => {
+    const {exportLogs} = useLogExportStore.getState();
+    exportLogs();
+}, []);
 
 ### Outside React components
 
-When accessing Zustand store values or actions outside React components, we use
-`const {yyy, zzz} = useXxxStore.getState();`.
+Always use non-reactive access since reactive subscriptions do not work outside components.
 
 [eslint-config-mjs]: https://github.com/y-scope/yscope-log-viewer/blob/main/eslint.config.mjs
 [vite-worker-query-suffix]: https://vite.dev/guide/features.html#import-with-query-suffixes
