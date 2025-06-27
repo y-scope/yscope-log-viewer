@@ -1,4 +1,3 @@
-/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
@@ -42,11 +41,6 @@ interface LogFileValues {
 }
 
 interface LogFileActions {
-    setFileName: (newFileName: string) => void;
-    setMetadata: (newMetadata: Nullable<Metadata>) => void;
-    setNumEvents: (newNumEvents: number) => void;
-    setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
-
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
@@ -103,17 +97,22 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-// eslint-disable-next-line max-lines-per-function
-const useLogFileStore = create<LogFileState>((set, get) => ({
+
+const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        const {setFileName, setMetadata, setOnDiskFileSizeInBytes} = get();
-        setFileName("Loading...");
-        setMetadata(LOG_FILE_STORE_DEFAULT.metadata);
-        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+        set({
+            fileName: "Loading...",
+            fileSrc: fileSrc,
+            metadata: LOG_FILE_STORE_DEFAULT.metadata,
+            onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes,
+        });
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
 
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
@@ -165,18 +164,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             handleErrorWithNotification(e);
             setUiState(UI_STATE.UNOPENED);
         });
-    },
-    setFileName: (newFileName) => {
-        set({fileName: newFileName});
-    },
-    setMetadata: (newMetadata) => {
-        set({metadata: newMetadata});
-    },
-    setNumEvents: (newNumEvents) => {
-        set({numEvents: newNumEvents});
-    },
-    setOnDiskFileSizeInBytes: (newSize) => {
-        set({onDiskFileSizeInBytes: newSize});
     },
 }));
 
