@@ -47,6 +47,35 @@ enum FILE_TYPE {
     JSONL = "jsonl",
 }
 
+interface FileTypeEntry {
+    typeName: string;
+    extensionList: string[];
+    magicNumber: number[];
+    Decoder: typeof ClpIrDecoder | typeof JsonlDecoder;
+}
+
+/* eslint-disable @stylistic/array-element-newline, no-magic-numbers */
+const FILE_TYPE_LIST: FileTypeEntry[] = [
+    {
+        typeName: "Zstd CLP",
+        extensionList: [
+            ".clp.zst",
+        ],
+        magicNumber: [0x28, 0xb5, 0x2f, 0xfd],
+        Decoder: ClpIrDecoder,
+    },
+    {
+        typeName: "JSON Lines",
+        extensionList: [
+            ".jsonl",
+            ".ndjson",
+        ],
+        magicNumber: [0x7b],
+        Decoder: JsonlDecoder,
+    },
+];
+/* eslint-enable @stylistic/array-element-newline, no-magic-numbers */
+
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
@@ -206,22 +235,49 @@ class LogFileManager {
         fileData: Uint8Array,
         decoderOptions: DecoderOptions
     ): Promise<Decoder> {
-        let decoder: Decoder;
-        if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, decoderOptions);
-        } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-        } else {
-            throw new Error(`No decoder supports ${fileName}`);
-        }
-
         if (fileData.length > MAX_V8_STRING_LENGTH) {
             throw new Error(`Cannot handle files larger than ${
                 formatSizeInBytes(MAX_V8_STRING_LENGTH)
             } due to a limitation in Chromium-based browsers.`);
         }
 
-        return decoder;
+        // Try to match the file extension with a decoder.
+        for (const entry of FILE_TYPE_LIST) {
+            if (entry.extensionList.some((ext) => fileName.endsWith(ext))) {
+                try {
+                    return await entry.Decoder.create(fileData, decoderOptions);
+                } catch (e) {
+                    console.warn(`File extension matches ${entry.typeName},` +
+                        "but decoder creation failed.", e);
+                    break;
+                }
+            }
+        }
+        console.warn("No decoder found for file extension, checking magic numbers...");
+
+        // No decoder supports the file extension, fall back to magic number check.
+        for (const entry of FILE_TYPE_LIST) {
+            if (0 === entry.magicNumber.length) {
+                continue;
+            }
+
+            // Check if the file starts with the magic number.
+            const magicNumber = new Uint8Array(entry.magicNumber);
+            if (fileData.length >= entry.magicNumber.length &&
+                fileData.slice(0, entry.magicNumber.length).every(
+                    (byte, idx) => byte === magicNumber[idx]
+                )
+            ) {
+                try {
+                    return await entry.Decoder.create(fileData, decoderOptions);
+                } catch (e) {
+                    console.warn("Magic number matches, but decoder creation failed:", e);
+                }
+            }
+        }
+        throw new Error(
+            `No decoder supports the file "${fileName}".`
+        );
     }
 
     /* Sets any formatter options that exist in the decoder's options.
