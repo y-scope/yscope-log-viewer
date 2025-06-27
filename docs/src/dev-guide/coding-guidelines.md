@@ -83,6 +83,7 @@ interface LogExportActions {
 }
 
 type LogExportState = LogExportValues & LogExportActions;
+```
 
 ### Default values
 
@@ -93,6 +94,7 @@ type LogExportState = LogExportValues & LogExportActions;
 const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
     exportProgress: null,
 };
+```
 
 ### Action naming
 
@@ -113,6 +115,7 @@ const useUserStore = create<UserState>((set, get) => ({
         });
     },
 }));
+```
 
 ## Feature-based slicing
 
@@ -135,7 +138,7 @@ const useLogExportStore = create<LogExportState>((get, set) => ({
       set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
     },
 }));
-
+```
 
 ### Inside React components
 
@@ -147,6 +150,7 @@ const handleExportButtonClick = useCallback(() => {
     const {exportLogs} = useLogExportStore.getState();
     exportLogs();
 }, []);
+```
 
 ### Outside React components
 
