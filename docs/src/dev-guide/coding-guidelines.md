@@ -69,6 +69,7 @@ When creating Zustand stores, we follow these naming conventions:
 ### Type definitions
 
 Split store types into three interfaces:
+
 * `{Name}Values` - state variables
 * `{Name}Actions` - action functions  
 * `{Name}State` or `{Name}Slice` - combined type
@@ -147,8 +148,9 @@ const useLogExportStore = create<LogExportState>((get, set) => ({
 Choose access pattern based on usage:
 
 *Reactive access* - when the value is used in JSX or hook dependency arrays:
+
 ```ts
-const exportProgress = useLogExportStore((state) => state.exportProgress));
+const exportProgress = useLogExportStore((state) => state.exportProgress);
 
 // The progress should be printed when `exportProgress` updates.
 useEffect(() => {
@@ -157,6 +159,7 @@ useEffect(() => {
 ```
 
 *Non-reactive access* - when the value should not trigger re-renders or hook re-runs:
+
 ```ts
 // The progress should be printed only once when the component mounts.
 useEffect(() => {
@@ -168,6 +171,7 @@ useEffect(() => {
 #### Actions
 
 Actions usually do not change after initialization, so always access them non-reactively:
+
 ```ts
 const handleExportButtonClick = useCallback(() => {
     const {exportLogs} = useLogExportStore.getState();
