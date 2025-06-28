@@ -142,16 +142,6 @@ const useLogExportStore = create<LogExportState>((get, set) => ({
 
 ### Inside React components
 
-#### Actions
-
-Actions usually do not change after initialization, so always access them non-reactively:
-```ts
-const handleExportButtonClick = useCallback(() => {
-    const {exportLogs} = useLogExportStore.getState();
-    exportLogs();
-}, []);
-```
-
 #### State values
 
 Choose access pattern based on usage:
@@ -172,6 +162,16 @@ useEffect(() => {
 useEffect(() => {
     const {exportProgress} = useLogExportStore.getState();
     console.log(exportProgress);
+}, []);
+```
+
+#### Actions
+
+Actions usually do not change after initialization, so always access them non-reactively:
+```ts
+const handleExportButtonClick = useCallback(() => {
+    const {exportLogs} = useLogExportStore.getState();
+    exportLogs();
 }, []);
 ```
 
