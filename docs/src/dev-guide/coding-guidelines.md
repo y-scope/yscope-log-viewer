@@ -152,6 +152,29 @@ const handleExportButtonClick = useCallback(() => {
 }, []);
 ```
 
+#### State values
+
+Choose access pattern based on usage:
+
+*Reactive access* - when the value is used in JSX or hook dependency arrays:
+```ts
+const exportProgress = useLogExportStore((state) => state.exportProgress));
+
+// The progress should be printed when `exportProgress` updates.
+useEffect(() => {
+    console.log(exportProgress);
+}, [exportProgress]);
+```
+
+*Non-reactive access* - when the value should not trigger re-renders or hook re-runs:
+```ts
+// The progress should be printed only once when the component mounts.
+useEffect(() => {
+    const {exportProgress} = useLogExportStore.getState();
+    console.log(exportProgress);
+}, []);
+```
+
 ### Outside React components
 
 Always use non-reactive access since reactive subscriptions do not work outside components.
