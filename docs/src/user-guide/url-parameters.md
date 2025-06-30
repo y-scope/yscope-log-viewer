@@ -1,7 +1,7 @@
 # URL parameters
 
-The YScope Log Viewer supports various URL parameters to control its behavior and state. The 
-parameters are divided into two categories:
+The log viewer supports various URL parameters to control its behavior and state. The parameters are
+divided into two categories:
 
 - **Search parameters** (after `?`).
 - **Hash parameters** (after `#`).
