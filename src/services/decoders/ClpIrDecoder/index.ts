@@ -11,6 +11,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
@@ -88,6 +89,10 @@ class ClpIrDecoder implements Decoder {
 
     getFilteredLogEventMap (): FilteredLogEventMap {
         return this.#streamReader.getFilteredLogEventMap();
+    }
+
+    getMetadata (): Metadata {
+        return this.#streamReader.getMetadata();
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {

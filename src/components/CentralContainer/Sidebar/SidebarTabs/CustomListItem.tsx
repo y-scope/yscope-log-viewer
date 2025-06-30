@@ -3,17 +3,22 @@ import React from "react";
 import {
     ListItem,
     ListItemContent,
-    ListItemDecorator,
     Typography,
     TypographyProps,
 } from "@mui/joy";
 
+import "./CustomListItem.css";
 
-interface CustomListItemProps {
-    content: string;
+
+type Content = string | React.ReactNode;
+
+interface CustomListItemProps<C extends Content> {
+    content: C;
     icon: React.ReactNode;
     slotProps?: {
-        content?: TypographyProps;
+        content?: C extends string ?
+            TypographyProps :
+            React.HTMLAttributes<HTMLDivElement>;
     };
     title: string;
 }
@@ -28,23 +33,35 @@ interface CustomListItemProps {
  * @param props.title
  * @return
  */
-const CustomListItem = ({content, icon, slotProps, title}: CustomListItemProps) => (
-    <ListItem>
-        <ListItemDecorator>
-            {icon}
-        </ListItemDecorator>
+const CustomListItem = <C extends Content>({
+    content,
+    icon,
+    slotProps,
+    title,
+}: CustomListItemProps<C>) => (
+    <ListItem className={"custom-list-item"}>
         <ListItemContent>
-            <Typography level={"title-sm"}>
+            <Typography
+                level={"title-sm"}
+                startDecorator={icon}
+            >
                 {title}
             </Typography>
-            <Typography
-                {...slotProps?.content}
-                level={"body-sm"}
-            >
-                {content}
-            </Typography>
+            {
+                "string" === typeof content ?
+                    <Typography
+                        level={"body-sm"}
+                        {...slotProps?.content as TypographyProps}
+                    >
+                        {content}
+                    </Typography> :
+                    <div {...slotProps?.content as React.HTMLAttributes<HTMLDivElement>}>
+                        {content}
+                    </div>
+            }
         </ListItemContent>
     </ListItem>
 );
+
 
 export default CustomListItem;
