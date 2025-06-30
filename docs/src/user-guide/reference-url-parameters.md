@@ -6,6 +6,11 @@ divided into two categories:
 - **Search parameters** (after `?`).
 - **Hash parameters** (after `#`).
 
+## General rules
+
+- Boolean values should use `true`/`false` strings.
+- Empty or falsy values should be automatically removed from the URL.
+
 ## Search parameters
 
 Search parameters appear after the `?` in the URL, and are used to initialize the log viewer.
@@ -53,11 +58,6 @@ NOTE:
   :::{note}
   This behavior is under review and may be removed in future versions.
   :::
-
-## Other parameter behaviors
-
-- Boolean values should use `true`/`false` strings.
-- Empty or falsy values are automatically removed from the URL.
 
 
 [rfc-3986-percent-encoding]: https://datatracker.ietf.org/doc/html/rfc3986#section-2.1
