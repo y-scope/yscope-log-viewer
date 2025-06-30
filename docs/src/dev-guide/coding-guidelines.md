@@ -74,7 +74,9 @@ Split store types into three interfaces:
 * `{Name}Actions` - action functions  
 * `{Name}State` or `{Name}Slice` - combined type
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store types
+:emphasize-lines: 1,5,9
 interface LogExportValues {
     exportProgress: Nullable<number>;
 }
@@ -91,7 +93,8 @@ type LogExportState = LogExportValues & LogExportActions;
 * Create an object for initial state values.
 * Type with `{Name}Values` interface for validation.
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store default values
 const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
     exportProgress: null,
 };
@@ -102,7 +105,9 @@ const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
 * `set{Property}` - simple state updates.
 * `update{Property}` - complex logic, API calls, or multiple state updates.
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store actions
+:emphasize-lines: 2,5
 const useUserStore = create<UserState>((set, get) => ({
     setName: (name) => {
         set({name});
@@ -129,12 +134,11 @@ values / actions in one object) - it's a common anti-pattern.
 
 Use `get()` and `set()` to access the store's own states:
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store access - inside store creation
 const useLogExportStore = create<LogExportState>((get, set) => ({
     exportLogs: () => {
-      const logExportManager = new LogExportManager();
-      set({logExportManager});
-      
+    // ...
       const {exportProgress} = get();
       set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
     },
@@ -149,7 +153,8 @@ Choose access pattern based on usage:
 
 *Reactive access* - when the value is used in JSX or hook dependency arrays:
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store value access - reactive
 const exportProgress = useLogExportStore((state) => state.exportProgress);
 
 // The progress should be printed when `exportProgress` updates.
@@ -160,7 +165,8 @@ useEffect(() => {
 
 *Non-reactive access* - when the value should not trigger re-renders or hook re-runs:
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store value access - non-reactive
 // The progress should be printed only once when the component mounts.
 useEffect(() => {
     const {exportProgress} = useLogExportStore.getState();
@@ -172,7 +178,8 @@ useEffect(() => {
 
 Actions usually do not change after initialization, so always access them non-reactively:
 
-```ts
+```{code-block} ts
+:caption: Example: Log export store action access - non-reactive
 const handleExportButtonClick = useCallback(() => {
     const {exportLogs} = useLogExportStore.getState();
     exportLogs();
