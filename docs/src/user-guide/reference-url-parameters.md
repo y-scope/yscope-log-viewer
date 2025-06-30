@@ -24,7 +24,9 @@ NOTE:
 - If a `filePath` URL isn't [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
   the last parameter to prevent ambiguity with other log viewer search parameters. To include hash
   parameters in a URL, percent-encode the entire URL.
-- Relative `filePath` values are automatically converted to absolute URLs.
+- Relative `filePath` values are automatically converted to absolute URLs. e.g.,
+  `http://localhost:3010/?filePath=/test/app.clp.zst` downloads the file from
+  `http://localhost:3010/test/app.clp.zst`.
 
 ## Hash parameters
 
