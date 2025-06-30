@@ -18,12 +18,13 @@ Modifying search parameters causes the page to reload.
 |------------|--------|---------|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `filePath` | String | ""      | Specifies the log file to load on startup | `?filePath=https://example.com/app-log.clp.zst` <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst">https://y-scope.github.io/yscope-log-viewer/?<b>filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst</b></a></details> |
 
-**Notes for filePath:**
-- Can be a local file URL or remote HTTP(S) URL.
-- If the file URL is not [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
+NOTE:
+
+- A `filePath` value can be a local file URL or remote HTTP(S) URL.
+- If a `filePath` URL isn't [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
   the last parameter to prevent ambiguity with other log viewer search parameters. To include hash
-  parameters in the file URL, percent-encode the entire URL.
-- Is automatically converted to absolute URL if a relative path is provided.
+  parameters in a URL, percent-encode the entire URL.
+- Relative `filePath` values are automatically converted to absolute URLs.
 
 ## Hash parameters
 
@@ -41,9 +42,10 @@ Modifying hash parameters doesn't cause the page to reload.
 | `queryIsCaseSensitive` | Boolean | false   | Enable/disable case-sensitive search                                  | `#queryIsCaseSensitive=true`   <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#queryString=RMC&queryIsCaseSensitive=true">https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#queryString=RMC&<b>queryIsCaseSensitive=true</b></a></details> |
 | `queryIsRegex`         | Boolean | false   | Enable/disable regular expression search         <br/><br/><br/><br/> | `#queryIsRegex=true` <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#queryString=172.*43716&queryIsRegex=true">https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#queryString=172.*43716&<b>queryIsRegex=true</b></a></details>             |
 
-**Notes for hash parameters:**
-- `logEventNum` starts from 1 (first log event is `1`, not `0`).
+NOTE:
+
 - Moving the cursor in the editor automatically updates `logEventNum` in the URL.
+
   :::{note}
   This behavior is under review and may be removed in future versions.
   :::
