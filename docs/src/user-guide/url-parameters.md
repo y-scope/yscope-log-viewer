@@ -8,8 +8,11 @@ divided into two categories:
 
 ## Search parameters
 
-Search parameters appear after the `?` in the URL, and manual modification in the browser address
-bar causes the page to reload. Such parameters are used to initialize the log viewer.
+Search parameters appear after the `?` in the URL, and are used to initialize the log viewer.
+
+:::{note}
+Modifying search parameters causes the page to reload.
+:::
 
 | Parameter  | Type   | Default | Description                               | Example                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |------------|--------|---------|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -24,8 +27,11 @@ bar causes the page to reload. Such parameters are used to initialize the log vi
 
 ## Hash parameters
 
-Hash parameters appear after the `#` in the URL, and can be manually modified in the browser address
-bar without triggering a page reload. Such parameters are used to control the log viewer's state.
+Hash parameters appear after the `#` in the URL and are used to control the log viewer's state.
+
+:::{note}
+Modifying hash parameters doesn't cause the page to reload.
+:::
 
 | Parameter              | Type    | Default | Description                                                           | Example                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |------------------------|---------|---------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
