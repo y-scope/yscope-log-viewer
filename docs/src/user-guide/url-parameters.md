@@ -44,6 +44,7 @@ Modifying hash parameters doesn't cause the page to reload.
 
 NOTE:
 
+- `logEventNum` is a 1-based index with a default value of `0`, indicating no specific log event is selected. When `0`, the log viewer loads the page containing the most recent log event.
 - Moving the cursor in the editor automatically updates `logEventNum` in the URL.
 
   :::{note}
