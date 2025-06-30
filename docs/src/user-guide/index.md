@@ -28,7 +28,7 @@ A guide to filtering log events by their levels.
 :::
 
 :::{grid-item-card}
-:link: url-parameters
+:link: reference-url-parameters
 Reference
 ^^^
 Reference docs like URL parameters, etc.
@@ -63,5 +63,5 @@ log-level-filtering
 :hidden:
 :caption: Reference
 
-url-parameters
+reference-url-parameters
 :::
