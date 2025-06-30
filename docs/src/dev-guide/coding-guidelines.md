@@ -71,7 +71,7 @@ When creating Zustand stores, we follow these naming conventions:
 Split store types into three interfaces:
 
 * `{Name}Values` - state variables
-* `{Name}Actions` - action functions  
+* `{Name}Actions` - action functions
 * `{Name}State` or `{Name}Slice` - combined type
 
 ```{code-block} ts
