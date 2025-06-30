@@ -1,4 +1,6 @@
-/* eslint max-lines: ["error", 350] */
+/* eslint max-lines: ["error", 400] */
+/* eslint max-lines-per-function: ["error", 180] */
+/* eslint max-statements: ["error", 25] */
 import {
     useCallback,
     useEffect,
@@ -9,6 +11,7 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -187,6 +190,9 @@ const Editor = () => {
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const logData = useViewStore((state) => state.logData);
     const logEventNum = useViewStore((state) => state.logEventNum);
+    const queryString = useQueryStore((state) => state.queryString);
+    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
+    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
@@ -195,6 +201,9 @@ const Editor = () => {
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
+    const searchDecorationsCollectionRef = useRef<
+        Nullable<monaco.editor.IEditorDecorationsCollection>
+    >(null);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -262,14 +271,52 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(newLogEventNum);
+        const {updateLogEventNum} = useViewStore.getState();
+        updateLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
     useEffect(() => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
+
+    // On `logData`, `queryString`, `queryIsCaseSensitive`, or `queryIsRegex` update, highlight any
+    // matches.
+    useEffect(() => {
+        if (null === editorRef.current) {
+            return;
+        }
+        searchDecorationsCollectionRef.current?.clear();
+
+        const matches = editorRef.current
+            .getModel()
+            ?.findMatches(
+                queryString,
+                false,
+                queryIsRegex,
+                queryIsCaseSensitive,
+                null,
+                false,
+                Infinity
+            );
+
+        if ("undefined" === typeof matches || 0 === matches.length) {
+            return;
+        }
+        searchDecorationsCollectionRef.current = editorRef.current.createDecorationsCollection(
+            matches.map(({range}) => ({
+                range: range,
+                options: {
+                    className: "findMatch",
+                },
+            }))
+        );
+    }, [
+        logData,
+        queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+    ]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

@@ -1,10 +1,10 @@
-/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
 import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {Metadata} from "../typings/decoders";
 import {LOG_LEVEL} from "../typings/logs";
 import {
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -28,20 +28,19 @@ import useNotificationStore, {handleErrorWithNotification} from "./notificationS
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
+import {VIEW_EVENT_DEFAULT} from "./viewStore/createViewEventSlice";
+import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
 interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
+    metadata: Nullable<Metadata>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
 }
 
 interface LogFileActions {
-    setFileName: (newFileName: string) => void;
-    setNumEvents: (newNumEvents: number) => void;
-    setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
-
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
@@ -50,6 +49,7 @@ type LogFileState = LogFileValues & LogFileActions;
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "",
     fileSrc: null,
+    metadata: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
 };
@@ -97,21 +97,35 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-const useLogFileStore = create<LogFileState>((set, get) => ({
+
+const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        const {setFileName, setOnDiskFileSizeInBytes} = get();
-        setFileName("Loading...");
-        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+        set({
+            fileName: "Loading...",
+            fileSrc: fileSrc,
+            metadata: LOG_FILE_STORE_DEFAULT.metadata,
+            onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes,
+        });
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
 
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {setLogData} = useViewStore.getState();
-        setLogData("Loading...");
+        const {updatePageData} = useViewStore.getState();
+        updatePageData({
+            beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
+            cursorLineNum: 1,
+            logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
+            logs: "Loading...",
+            numPages: VIEW_PAGE_DEFAULT.numPages,
+            pageNum: VIEW_PAGE_DEFAULT.pageNum,
+        });
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
@@ -133,7 +147,7 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             set(fileInfo);
 
-            const {isPrettified, updatePageData} = useViewStore.getState();
+            const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
 
@@ -150,15 +164,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             handleErrorWithNotification(e);
             setUiState(UI_STATE.UNOPENED);
         });
-    },
-    setFileName: (newFileName) => {
-        set({fileName: newFileName});
-    },
-    setNumEvents: (newNumEvents) => {
-        set({numEvents: newNumEvents});
-    },
-    setOnDiskFileSizeInBytes: (newSize) => {
-        set({onDiskFileSizeInBytes: newSize});
     },
 }));
 
