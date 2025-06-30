@@ -27,7 +27,6 @@ Log level filtering
 A guide to filtering log events by their levels.
 :::
 
-
 :::{grid-item-card}
 :link: url-parameters
 Reference
