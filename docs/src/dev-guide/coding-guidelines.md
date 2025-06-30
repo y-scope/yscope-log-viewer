@@ -135,12 +135,19 @@ values / actions in one object) - it's a common anti-pattern.
 Use `get()` and `set()` to access the store's own states:
 
 ```{code-block} ts
-:caption: Example: Log export store access - inside store creation
-const useLogExportStore = create<LogExportState>((get, set) => ({
-    exportLogs: () => {
-    // ...
-      const {exportProgress} = get();
-      set({exportProgress: EXPORT_LOGS_PROGRESS_VALUE_MIN});
+:caption: Example: View format store access - inside store slice creation
+:emphasize-lines: 3,5,10
+const createViewFormattingSlice: StateCreator<
+    ViewState, [], [], ViewFormattingSlice
+> = (set, get) => ({
+    updateIsPrettified: (newIsPrettified: boolean) => {
+        const {isPrettified} = get();
+        if (newIsPrettified === isPrettified) {
+            return;
+        }
+        // ...
+        set({isPrettified: newIsPrettified});
+        // ...
     },
 }));
 ```
