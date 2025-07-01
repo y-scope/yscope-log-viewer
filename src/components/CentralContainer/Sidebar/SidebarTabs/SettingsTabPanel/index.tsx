@@ -1,14 +1,11 @@
-import React, {
-    useCallback,
-    useContext,
-} from "react";
+import React, {useCallback} from "react";
 
 import {
     Button,
     Divider,
 } from "@mui/joy";
 
-import {NotificationContext} from "../../../../../contexts/NotificationContextProvider";
+import useNotificationStore from "../../../../../stores/notificationStore";
 import useViewStore from "../../../../../stores/viewStore";
 import {Nullable} from "../../../../../typings/common";
 import {
@@ -46,7 +43,6 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
  * @return
  */
 const SettingsTabPanel = () => {
-    const {postPopUp} = useContext(NotificationContext);
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
@@ -56,13 +52,16 @@ const SettingsTabPanel = () => {
 
         const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
         const logLevelKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_LOG_LEVEL_KEY);
+        const timestampFormatString = getFormDataValue(
+            LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_FORMAT_STRING
+        );
         const timestampKey = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_TIMESTAMP_KEY);
         const pageSize = getFormDataValue(LOCAL_STORAGE_KEY.PAGE_SIZE);
 
         let error: Nullable<string> = null;
         error ||= setConfig({
             key: CONFIG_KEY.DECODER_OPTIONS,
-            value: {formatString, logLevelKey, timestampKey},
+            value: {formatString, logLevelKey, timestampFormatString, timestampKey},
         });
         error ||= setConfig({
             key: CONFIG_KEY.PAGE_SIZE,
@@ -70,6 +69,7 @@ const SettingsTabPanel = () => {
         });
 
         if (null !== error) {
+            const {postPopUp} = useNotificationStore.getState();
             postPopUp({
                 level: LOG_LEVEL.ERROR,
                 message: error,
@@ -79,10 +79,7 @@ const SettingsTabPanel = () => {
         } else {
             loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
         }
-    }, [
-        loadPageByAction,
-        postPopUp,
-    ]);
+    }, [loadPageByAction]);
 
     return (
         <CustomTabPanel

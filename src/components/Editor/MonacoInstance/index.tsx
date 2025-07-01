@@ -19,6 +19,7 @@ import {
     goToPositionAndCenter,
 } from "./utils";
 
+import "./bootstrap.ts";
 import "./index.css";
 
 

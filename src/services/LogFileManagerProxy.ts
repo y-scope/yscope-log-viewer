@@ -36,6 +36,7 @@ class LogFileManagerProxy {
         return {
             fileName: logFileManager.fileName,
             fileType: logFileManager.fileType,
+            metadata: logFileManager.metadata,
             numEvents: logFileManager.numEvents,
             onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
         };
@@ -75,7 +76,7 @@ class LogFileManagerProxy {
      */
     #getLogFileManager (): LogFileManager {
         if (null === this.logFileManager) {
-            throw new Error("LogFileManager hasn't initialized");
+            throw new Error("LogFileManager hasn't been initialized");
         }
 
         return this.logFileManager;

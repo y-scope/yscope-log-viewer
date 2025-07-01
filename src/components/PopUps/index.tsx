@@ -1,11 +1,9 @@
-import {useContext} from "react";
-
 import {
     Snackbar,
     Stack,
 } from "@mui/joy";
 
-import {NotificationContext} from "../../contexts/NotificationContextProvider";
+import useNotificationStore from "../../stores/notificationStore";
 import PopUpMessageBox from "./PopUpMessageBox";
 
 import "./index.css";
@@ -17,7 +15,7 @@ import "./index.css";
  * @return
  */
 const PopUps = () => {
-    const {popUpMessages} = useContext(NotificationContext);
+    const popUpMessages = useNotificationStore((state) => state.popUpMessages);
 
     return (
         <Snackbar

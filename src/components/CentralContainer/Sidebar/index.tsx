@@ -46,14 +46,14 @@ const setPanelWidth = (newValue: number) => {
  */
 const Sidebar = () => {
     const activeTabName = useUiStore((state) => state.activeTabName);
-    const setActiveTabName = useUiStore((state) => state.setActiveTabName);
     const tabListRef = useRef<HTMLDivElement>(null);
 
     const handleResizeHandleRelease = useCallback(() => {
         if (getPanelWidth() === tabListRef.current?.clientWidth) {
+            const {setActiveTabName} = useUiStore.getState();
             setActiveTabName(TAB_NAME.NONE);
         }
-    }, [setActiveTabName]);
+    }, []);
 
     const handleResize = useCallback((resizeHandlePosition: number) => {
         if (null === tabListRef.current) {

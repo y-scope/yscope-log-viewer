@@ -2,19 +2,36 @@ import CommonConfig from "eslint-config-yscope/CommonConfig.mjs";
 import JestConfig from "eslint-config-yscope/JestConfig.mjs";
 import ReactConfigArray from "eslint-config-yscope/ReactConfigArray.mjs";
 import StylisticConfigArray from "eslint-config-yscope/StylisticConfigArray.mjs";
-import TsConfigArray from "eslint-config-yscope/TsConfigArray.mjs";
-import Globals from "globals";
+import TsConfigArray, {createTsConfigOverride} from "eslint-config-yscope/TsConfigArray.mjs";
 
 
 const EslintConfig = [
     {
         ignores: [
+            "build/",
             "dist/",
             "node_modules/",
         ],
     },
     CommonConfig,
+
     ...TsConfigArray,
+    createTsConfigOverride(
+        [
+            "src/**/*.ts",
+            "src/**/*.tsx",
+            "test/**/*.ts",
+        ],
+        "tsconfig.app.json"
+    ),
+    createTsConfigOverride(
+        [
+            "jest.config.ts",
+            "vite.config.ts",
+        ],
+        "tsconfig.node.json"
+    ),
+
     ...StylisticConfigArray,
     ...ReactConfigArray,
     {
@@ -41,13 +58,11 @@ const EslintConfig = [
                 },
             ],
         },
-    },
-    {
-        files: ["webpack.*.js"],
-        languageOptions: {
-            globals: {
-                ...Globals.node,
-            },
+        settings: {
+            // Rule "import/default" complains on Vite's web worker import directives.
+            "import/ignore": [
+                "\\.worker",
+            ],
         },
     },
     {

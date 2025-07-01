@@ -7,6 +7,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
@@ -67,6 +68,12 @@ class JsonlDecoder implements Decoder {
 
     getFilteredLogEventMap (): FilteredLogEventMap {
         return this.#filteredLogEventMap;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getMetadata (): Metadata {
+        // Metadata is not available for JSONL files.
+        return {};
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
@@ -221,7 +228,7 @@ class JsonlDecoder implements Decoder {
      * @return The decoded log event.
      */
     #decodeLogEvent = (logEventIdx: number): DecodeResult => {
-        let timestamp: number;
+        let timestamp: bigint;
         let message: string;
         let logLevel: LOG_LEVEL;
 
@@ -238,12 +245,12 @@ class JsonlDecoder implements Decoder {
             const logEvent = this.#logEvents[logEventIdx] as LogEvent;
             logLevel = logEvent.level;
             message = this.#formatter.formatLogEvent(logEvent);
-            timestamp = logEvent.timestamp.valueOf();
+            timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
         return [
             message,
-            BigInt(timestamp),
+            timestamp,
             logLevel,
             logEventIdx + 1,
         ];

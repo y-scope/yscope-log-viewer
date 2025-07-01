@@ -1,8 +1,8 @@
-/* eslint max-lines: ["error", 350] */
-/* eslint max-lines-per-function: ["error", 170] */
+/* eslint max-lines: ["error", 400] */
+/* eslint max-lines-per-function: ["error", 180] */
+/* eslint max-statements: ["error", 25] */
 import {
     useCallback,
-    useContext,
     useEffect,
     useRef,
     useState,
@@ -11,10 +11,7 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {
-    updateWindowUrlHashParams,
-    UrlContext,
-} from "../../contexts/UrlContextProvider";
+import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
 import {
@@ -36,6 +33,7 @@ import {
     getMapKeyByValue,
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -120,13 +118,65 @@ const handleCopyLogEventAction = (
  *
  * @param editor
  */
-const handleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
+const handleToggleWordWrapAction = (editor: monaco.editor.IStandaloneCodeEditor) => {
     const currentWordWrap = editor.getRawOptions().wordWrap;
     const newWordWrap = "on" === currentWordWrap ?
         "off" :
         "on";
 
     editor.updateOptions({wordWrap: newWordWrap});
+};
+
+/**
+ * Handles custom actions in the editor based on the action name.
+ *
+ * @param editor
+ * @param actionName
+ */
+const handleEditorCustomAction = (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    actionName: ACTION_NAME
+) => {
+    switch (actionName) {
+        case ACTION_NAME.FIRST_PAGE:
+        case ACTION_NAME.PREV_PAGE:
+        case ACTION_NAME.NEXT_PAGE:
+        case ACTION_NAME.LAST_PAGE: {
+            const {loadPageByAction} = useViewStore.getState();
+            loadPageByAction({code: actionName, args: null});
+            break;
+        }
+        case ACTION_NAME.PAGE_TOP:
+            goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+            break;
+        case ACTION_NAME.PAGE_BOTTOM: {
+            const lineCount = editor.getModel()?.getLineCount();
+            if ("undefined" === typeof lineCount) {
+                break;
+            }
+            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+            break;
+        }
+        case ACTION_NAME.COPY_LOG_EVENT: {
+            const {beginLineNumToLogEventNum} = useViewStore.getState();
+            handleCopyLogEventAction(editor, beginLineNumToLogEventNum);
+            break;
+        }
+        case ACTION_NAME.TOGGLE_PRETTIFY: {
+            const {isPrettified, updateIsPrettified} = useViewStore.getState();
+            const newIsPrettified = !isPrettified;
+            updateWindowUrlHashParams({
+                [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
+            });
+            updateIsPrettified(newIsPrettified);
+            break;
+        }
+        case ACTION_NAME.TOGGLE_WORD_WRAP:
+            handleToggleWordWrapAction(editor);
+            break;
+        default:
+            break;
+    }
 };
 
 /**
@@ -139,55 +189,21 @@ const Editor = () => {
 
     const beginLineNumToLogEventNum = useViewStore((state) => state.beginLineNumToLogEventNum);
     const logData = useViewStore((state) => state.logData);
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
-    const {isPrettified, logEventNum} = useContext(UrlContext);
+    const logEventNum = useViewStore((state) => state.logEventNum);
+    const queryString = useQueryStore((state) => state.queryString);
+    const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
+    const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
 
     const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
     const editorRef = useRef<Nullable<monaco.editor.IStandaloneCodeEditor>>(null);
-    const isPrettifiedRef = useRef<boolean>(isPrettified ?? false);
     const isMouseDownRef = useRef<boolean>(false);
     const pageSizeRef = useRef(getConfig(CONFIG_KEY.PAGE_SIZE));
-
-    const handleEditorCustomAction = useCallback((
-        editor: monaco.editor.IStandaloneCodeEditor,
-        actionName: ACTION_NAME
-    ) => {
-        switch (actionName) {
-            case ACTION_NAME.FIRST_PAGE:
-            case ACTION_NAME.PREV_PAGE:
-            case ACTION_NAME.NEXT_PAGE:
-            case ACTION_NAME.LAST_PAGE:
-                loadPageByAction({code: actionName, args: null});
-                break;
-            case ACTION_NAME.PAGE_TOP:
-                goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
-                break;
-            case ACTION_NAME.PAGE_BOTTOM: {
-                const lineCount = editor.getModel()?.getLineCount();
-                if ("undefined" === typeof lineCount) {
-                    break;
-                }
-                goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
-                break;
-            }
-            case ACTION_NAME.COPY_LOG_EVENT:
-                handleCopyLogEventAction(editor, beginLineNumToLogEventNumRef.current);
-                break;
-            case ACTION_NAME.TOGGLE_PRETTIFY:
-                updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettifiedRef.current,
-                });
-                break;
-            case ACTION_NAME.WORD_WRAP:
-                handleWordWrapAction(editor);
-                break;
-            default:
-                break;
-        }
-    }, [loadPageByAction]);
+    const searchDecorationsCollectionRef = useRef<
+        Nullable<monaco.editor.IEditorDecorationsCollection>
+    >(null);
 
     /**
      * Sets `editorRef` and configures callbacks for mouse down detection.
@@ -255,6 +271,8 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
+        const {updateLogEventNum} = useViewStore.getState();
+        updateLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
@@ -262,10 +280,43 @@ const Editor = () => {
         beginLineNumToLogEventNumRef.current = beginLineNumToLogEventNum;
     }, [beginLineNumToLogEventNum]);
 
-    // Synchronize `isPrettifiedRef` with `isPrettified`.
+    // On `logData`, `queryString`, `queryIsCaseSensitive`, or `queryIsRegex` update, highlight any
+    // matches.
     useEffect(() => {
-        isPrettifiedRef.current = isPrettified ?? false;
-    }, [isPrettified]);
+        if (null === editorRef.current) {
+            return;
+        }
+        searchDecorationsCollectionRef.current?.clear();
+
+        const matches = editorRef.current
+            .getModel()
+            ?.findMatches(
+                queryString,
+                false,
+                queryIsRegex,
+                queryIsCaseSensitive,
+                null,
+                false,
+                Infinity
+            );
+
+        if ("undefined" === typeof matches || 0 === matches.length) {
+            return;
+        }
+        searchDecorationsCollectionRef.current = editorRef.current.createDecorationsCollection(
+            matches.map(({range}) => ({
+                range: range,
+                options: {
+                    className: "findMatch",
+                },
+            }))
+        );
+    }, [
+        logData,
+        queryString,
+        queryIsCaseSensitive,
+        queryIsRegex,
+    ]);
 
     // On `logEventNum` update, update line number in the editor.
     useEffect(() => {

@@ -1,5 +1,5 @@
 import React, {
-    useContext,
+    useCallback,
     useEffect,
     useRef,
     useState,
@@ -16,10 +16,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import {
-    NotificationContext,
-    PopUpMessage,
-} from "../../contexts/NotificationContextProvider";
+import useNotificationStore, {PopUpMessage} from "../../stores/notificationStore";
 import {WithId} from "../../typings/common";
 import {LOG_LEVEL} from "../../typings/logs";
 import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
@@ -43,13 +40,13 @@ interface PopUpMessageProps {
 const PopUpMessageBox = ({message}: PopUpMessageProps) => {
     const {id, level, primaryAction, message: messageStr, title, timeoutMillis} = message;
 
-    const {handlePopUpMessageClose} = useContext(NotificationContext);
     const [percentRemaining, setPercentRemaining] = useState<number>(100);
     const intervalCountRef = useRef<number>(0);
 
-    const handleCloseButtonClick = () => {
+    const handleCloseButtonClick = useCallback(() => {
+        const {handlePopUpMessageClose} = useNotificationStore.getState();
         handlePopUpMessageClose(id);
-    };
+    }, [id]);
 
     const handlePrimaryActionClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         primaryAction?.onClick?.(ev);
@@ -69,6 +66,7 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
             intervalCountRef.current++;
             const newPercentRemaining = 100 - (100 * (intervalCountRef.current / totalIntervals));
             if (0 >= newPercentRemaining) {
+                const {handlePopUpMessageClose} = useNotificationStore.getState();
                 handlePopUpMessageClose(id);
             }
             setPercentRemaining(newPercentRemaining);
@@ -79,7 +77,6 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
         };
     }, [
         timeoutMillis,
-        handlePopUpMessageClose,
         id,
     ]);
 

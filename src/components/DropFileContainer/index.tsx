@@ -1,4 +1,7 @@
-import React, {useState} from "react";
+import React, {
+    useCallback,
+    useState,
+} from "react";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -21,12 +24,11 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const loadFile = useLogFileStore((state) => state.loadFile);
     const uiState = useUiStore((state) => state.uiState);
     const [isFileHovering, setIsFileHovering] = useState(false);
     const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);
 
-    const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
+    const handleDrag = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
 
@@ -47,9 +49,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
             setIsFileHovering(false);
         }
-    };
+    }, []);
 
-    const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
+    const handleDrop = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
 
@@ -64,8 +66,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
             return;
         }
+        const {loadFile} = useLogFileStore.getState();
         loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
-    };
+    }, [disabled]);
 
     return (
         <div
