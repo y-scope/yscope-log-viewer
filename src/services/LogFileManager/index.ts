@@ -265,7 +265,7 @@ class LogFileManager {
             );
         }
 
-        const messages = results.map(([msg]) => msg);
+        const messages = results.map(({message}) => message);
         this.#onExportChunk(messages.join(""));
 
         if (endLogEventIdx < this.#numEvents) {
@@ -314,12 +314,10 @@ class LogFileManager {
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
         results.forEach((r) => {
-            const [
-                msg,
-                ,
-                ,
+            const {
+                message: msg,
                 logEventNum,
-            ] = r;
+            } = r;
 
             const printedMsg = (isPrettified) ?
                 `${jsBeautify(msg)}\n` :
@@ -458,7 +456,7 @@ class LogFileManager {
         queryRegex: RegExp,
         results: QueryResults
     ): void {
-        for (const [message, , , logEventNum] of decodedEvents) {
+        for (const {message, logEventNum} of decodedEvents) {
             const matchResult = message.match(queryRegex);
             if (null === matchResult || "number" !== typeof matchResult.index) {
                 continue;

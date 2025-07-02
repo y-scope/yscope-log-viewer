@@ -248,12 +248,15 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
+        // eslint-disable-next-line no-warning-comments
+        // TODO: extract timezone data from jsonl.
+        return {
+            logEventNum: logEventIdx + 1,
+            logLevel: logLevel,
+            message: message,
+            timestamp: timestamp,
+            utcOffset: 0n,
+        };
     };
 }
 

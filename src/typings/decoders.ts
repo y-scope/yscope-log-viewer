@@ -32,7 +32,13 @@ interface DecoderOptions {
  * @property level
  * @property number
  */
-type DecodeResult = [string, bigint, number, number];
+type DecodeResult = {
+    logEventNum: number;
+    logLevel: number;
+    message: string;
+    timestamp: bigint;
+    utcOffset: bigint;
+};
 
 /**
  * Mapping between an index in the filtered log events collection to an index in the unfiltered log
