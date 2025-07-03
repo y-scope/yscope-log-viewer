@@ -57,7 +57,7 @@ interface FileTypeEntry {
 /* eslint-disable @stylistic/array-element-newline, no-magic-numbers */
 const FILE_TYPE_LIST: FileTypeEntry[] = [
     {
-        typeName: "Zstd CLP",
+        typeName: "CLP IR",
         extensionList: [
             ".clp.zst",
         ],
