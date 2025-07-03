@@ -131,10 +131,8 @@ class ClpIrDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]> {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
         const results =
-            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter) as Nullable<DecodeResult[]>;
+            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
 
         if (null === results) {
             return null;
@@ -151,11 +149,11 @@ class ClpIrDecoder implements Decoder {
         }
 
         for (const r of results) {
-            const [
+            const {
                 message,
                 timestamp,
-                level,
-            ] = r;
+                logLevel,
+            } = r;
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 
@@ -168,9 +166,9 @@ class ClpIrDecoder implements Decoder {
                 console.error(e, message);
             }
 
-            r[0] = this.#formatter.formatLogEvent({
+            r.message = this.#formatter.formatLogEvent({
                 fields: fields,
-                level: level,
+                level: logLevel,
                 timestamp: dayJsTimestamp,
             });
         }
@@ -186,15 +184,15 @@ class ClpIrDecoder implements Decoder {
      */
     #formatUnstructuredResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
         for (const r of logEvents) {
-            const [
+            const {
                 message, timestamp,
-            ] = r;
+            } = r;
 
             const formattedTimestamp = convertToDayjsTimestamp(timestamp).format(
                 this.#timestampFormatString
             );
 
-            r[0] = formattedTimestamp + message;
+            r.message = formattedTimestamp + message;
         }
 
         return logEvents;
