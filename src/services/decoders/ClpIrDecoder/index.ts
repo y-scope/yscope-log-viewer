@@ -152,7 +152,7 @@ class ClpIrDecoder implements Decoder {
             const {
                 message,
                 timestamp,
-                logLevel: level,
+                logLevel,
             } = r;
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
@@ -168,7 +168,7 @@ class ClpIrDecoder implements Decoder {
 
             r.message = this.#formatter.formatLogEvent({
                 fields: fields,
-                level: level,
+                level: logLevel,
                 timestamp: dayJsTimestamp,
             });
         }

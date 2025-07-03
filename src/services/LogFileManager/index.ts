@@ -313,19 +313,14 @@ class LogFileManager {
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
-        results.forEach((r) => {
-            const {
-                message: msg,
-                logEventNum,
-            } = r;
-
+        results.forEach(({message, logEventNum}) => {
             const printedMsg = (isPrettified) ?
-                `${jsBeautify(msg)}\n` :
-                msg;
+                `${jsBeautify(message)}\n` :
+                message;
 
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
-            currentLine += msg.split("\n").length - 1;
+            currentLine += message.split("\n").length - 1;
         });
         const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
