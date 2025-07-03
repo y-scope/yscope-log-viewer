@@ -1,0 +1,8 @@
+.timezone-category-chip {
+    cursor: pointer;
+}
+
+.timezone-category-chip-default-timezone {
+    /* Disable `Chip`'s background style. */
+    background-color: initial !important;
+}

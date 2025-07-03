@@ -23,6 +23,9 @@ html {
     --ylv-status-bar-height: 32px;
     --ylv-menu-bar-height: 32px;
     --ylv-panel-resize-handle-width: 4px;
+    --ylv-list-box-max-height: calc(
+        100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height)
+    );
 
     /* z-index globals
      *

@@ -24,6 +24,7 @@ import {
 } from "../../utils/url";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
+import TimezoneSelect from "./TimezoneSelect";
 
 import "./index.css";
 
@@ -89,6 +90,7 @@ const StatusBar = () => {
             </Tooltip>
             <Divider orientation={"vertical"}/>
 
+            <TimezoneSelect/>
             <LogLevelSelect/>
             <Divider orientation={"vertical"}/>
 
