@@ -24,21 +24,19 @@ interface DecoderOptions {
 }
 
 /**
- * Type of the decoded log event. We use an array rather than object so that it's easier to return
- * results from WASM-based decoders.
- *
- * @property message
- * @property timestamp
- * @property level
- * @property number
+ * @property logEventNum The log event's 1-based index in the log file.
+ * @property logLevel The log event's log level as a number (maps to enum LOG_LEVEL).
+ * @property message The log event's message.
+ * @property timestamp The log event's timestamp in milliseconds since the Unix epoch.
+ * @property utcOffset The log event's local time zone offset from UTC, in minutes.
  */
-type DecodeResult = {
+interface DecodeResult {
     logEventNum: number;
     logLevel: number;
     message: string;
     timestamp: bigint;
     utcOffset: bigint;
-};
+}
 
 /**
  * Mapping between an index in the filtered log events collection to an index in the unfiltered log
