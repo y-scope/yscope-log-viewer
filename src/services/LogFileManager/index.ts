@@ -125,30 +125,6 @@ class LogFileManager {
     }
 
     /**
-     * Returns the type of file based on the decoder in use.
-     *
-     * @return The detected file type.
-     * @throws {Error} If the decoder type is unknown.
-     */
-    get fileType (): FILE_TYPE {
-        const decoder = this.#decoder;
-        if (decoder instanceof JsonlDecoder) {
-            return FILE_TYPE.JSONL;
-        } else if (decoder instanceof ClpIrDecoder) {
-            switch (decoder.irStreamType) {
-                case CLP_IR_STREAM_TYPE.STRUCTURED:
-                    return FILE_TYPE.CLP_KV_IR;
-                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
-                    return FILE_TYPE.CLP_TEXT_IR;
-                default:
-
-                    // fall through to unreachable error.
-            }
-        }
-        throw new Error("Unexpected decoder type when determining file type.");
-    }
-
-    /**
      * Creates a new LogFileManager.
      *
      * @param params
