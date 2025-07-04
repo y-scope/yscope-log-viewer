@@ -1,13 +1,14 @@
-import {Nullable} from "../../typings/common.ts";
+import {Nullable} from "../../typings/common";
 import {
     Decoder,
     DecoderOptions,
-} from "../../typings/decoders.ts";
+} from "../../typings/decoders";
 import {
     FILE_TYPE_DEFINITIONS,
     FileTypeDef,
     FileTypeInfo,
-} from "../../typings/file.ts";
+} from "../../typings/file";
+import {getFileFullExtension} from "../../utils/file";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 
@@ -30,18 +31,17 @@ const tryCreateDecoderByExtension = async (
 }>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
         const matchingExtension = entry.extensions.find((ext) => fileName.endsWith(ext));
-        if (matchingExtension) {
-            try {
-                return {
-                    decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
-                    matchingExtension: matchingExtension,
-                    fileTypeDef: entry,
-                };
-            } catch (e) {
-                console.warn(`File extension matches ${entry.name},` +
-                        "but decoder creation failed.", e);
-                break;
-            }
+        if ("undefined" === typeof matchingExtension) {
+            continue;
+        }
+        try {
+            return {
+                decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
+                matchingExtension: matchingExtension,
+                fileTypeDef: entry,
+            };
+        } catch (e) {
+            console.warn(`File extension matches ${entry.name}, but decoder creation failed.`, e);
         }
     }
 
@@ -65,12 +65,11 @@ const tryCreateDecoderBySignature = async (
         }
 
         // Check if the file starts with the magic number.
-        const signature = new Uint8Array(entry.signature);
-        if (fileData.length >= entry.signature.length &&
-            fileData.slice(0, entry.signature.length).every(
-                (byte, idx) => byte === signature[idx]
-            )
-        ) {
+        const isSignatureMatching = fileData
+            .slice(0, entry.signature.length)
+            .every((byte, idx) => byte === entry.signature[idx]);
+
+        if (isSignatureMatching) {
             try {
                 return {
                     decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
@@ -86,18 +85,6 @@ const tryCreateDecoderBySignature = async (
     return null;
 };
 
-/**
- * Gets the full file extension from a filename.
- *
- * @param filename
- * @return The full file extension, or an empty string if no extension is found.
- */
-const getFileFullExtension = (filename: string) => {
-    const parts = filename.split(".");
-    return 1 < parts.length ?
-        parts.slice(1).join(".") :
-        "";
-};
 
 /**
  * Resolves the appropriate decoder and file type information based on the file name and data.
@@ -116,17 +103,15 @@ const resolveDecoderAndFileType = async (
     decoder: Decoder;
     fileTypeInfo: FileTypeInfo;
 }> => {
-    let decoder: Decoder;
-    let fileTypeInfo: FileTypeInfo;
-    const result = await tryCreateDecoderByExtension(fileName, fileData, decoderOptions);
+    const extensionResult = await tryCreateDecoderByExtension(fileName, fileData, decoderOptions);
 
-    if (result) {
-        decoder = result.decoder;
-        fileTypeInfo = {
-            name: result.fileTypeDef.name,
-            signature: result.fileTypeDef.signature,
-            extension: result.matchingExtension,
-            isStructured: result.fileTypeDef.checkIsStructured(decoder),
+    if (null !== extensionResult) {
+        const {decoder} = extensionResult;
+        const fileTypeInfo = {
+            name: extensionResult.fileTypeDef.name,
+            signature: extensionResult.fileTypeDef.signature,
+            extension: extensionResult.matchingExtension,
+            isStructured: extensionResult.fileTypeDef.checkIsStructured(decoder),
         };
 
         return {
@@ -135,14 +120,14 @@ const resolveDecoderAndFileType = async (
         };
     }
 
-    const result2 = await tryCreateDecoderBySignature(fileData, decoderOptions);
-    if (result2) {
-        decoder = result2.decoder;
-        fileTypeInfo = {
-            name: result2.fileTypeDef.name,
-            signature: result2.fileTypeDef.signature,
+    const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
+    if (signatureResult) {
+        const {decoder} = signatureResult;
+        const fileTypeInfo = {
+            name: signatureResult.fileTypeDef.name,
+            signature: signatureResult.fileTypeDef.signature,
             extension: getFileFullExtension(fileName),
-            isStructured: result2.fileTypeDef.checkIsStructured(decoder),
+            isStructured: signatureResult.fileTypeDef.checkIsStructured(decoder),
         };
 
         return {

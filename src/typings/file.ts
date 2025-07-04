@@ -1,7 +1,7 @@
 import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
-import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils.ts";
+import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
-import {Decoder} from "./decoders.ts";
+import {Decoder} from "./decoders";
 
 
 type OnFileOpenCallback = (file: File) => void;
