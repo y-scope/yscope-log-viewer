@@ -6,7 +6,6 @@ import {
     DecodeResult,
     DecoderOptions,
 } from "../../typings/decoders";
-import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     QueryArgs,
@@ -27,11 +26,10 @@ import {
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
-import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../decoders/JsonlDecoder";
-import {resolveDecoderAndFileType} from "./decodeUtils.ts";
+import {resolveDecoderAndFileType} from "./decodeUtils";
 import {
     getEventNumCursorData,
     getLastEventCursorData,
@@ -41,6 +39,12 @@ import {
 
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
+
+enum FILE_TYPE {
+    CLP_TEXT_IR = "clpTextIr",
+    CLP_KV_IR = "clpKvIr",
+    JSONL = "jsonl",
+}
 
 /**
  * Class to manage the retrieval and decoding of a given log file.
@@ -125,6 +129,30 @@ class LogFileManager {
     }
 
     /**
+     * Returns the type of file based on the decoder in use.
+     *
+     * @return The detected file type.
+     * @throws {Error} If the decoder type is unknown.
+     */
+    get fileType (): FILE_TYPE {
+        const decoder = this.#decoder;
+        if (decoder instanceof JsonlDecoder) {
+            return FILE_TYPE.JSONL;
+        } else if (decoder instanceof ClpIrDecoder) {
+            switch (decoder.irStreamType) {
+                case CLP_IR_STREAM_TYPE.STRUCTURED:
+                    return FILE_TYPE.CLP_KV_IR;
+                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
+                    return FILE_TYPE.CLP_TEXT_IR;
+                default:
+
+                    // fall through to unreachable error.
+            }
+        }
+        throw new Error("Unexpected decoder type when determining file type.");
+    }
+
+    /**
      * Creates a new LogFileManager.
      *
      * @param params
@@ -150,7 +178,7 @@ class LogFileManager {
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
+        const {decoder} = await resolveDecoderAndFileType(fileName, fileData, decoderOptions);
 
         return new LogFileManager({
             decoder: decoder,
@@ -161,31 +189,6 @@ class LogFileManager {
             onExportChunk: onExportChunk,
             onQueryResults: onQueryResults,
         });
-    }
-
-    /**
-     * Constructs a decoder instance based on the file extension.
-     *
-     * @param fileName
-     * @param fileData
-     * @param decoderOptions Initial decoder options.
-     * @return The constructed decoder.
-     * @throws {Error} if no decoder supports a file with the given extension.
-     */
-    static async #initDecoder (
-        fileName: string,
-        fileData: Uint8Array,
-        decoderOptions: DecoderOptions
-    ): Promise<Decoder> {
-        if (fileData.length > MAX_V8_STRING_LENGTH) {
-            throw new Error(`Cannot handle files larger than ${
-                formatSizeInBytes(MAX_V8_STRING_LENGTH)
-            } due to a limitation in Chromium-based browsers.`);
-        }
-
-        const {decoder, fileTypeInfo} = await resolveDecoderAndFileType(fileName, fileData, decoderOptions);
-
-        return decoder;
     }
 
     /* Sets any formatter options that exist in the decoder's options.

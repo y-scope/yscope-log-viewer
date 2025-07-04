@@ -8,7 +8,9 @@ import {
     FileTypeDef,
     FileTypeInfo,
 } from "../../typings/file";
+import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {getFileFullExtension} from "../../utils/file";
+import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import JsonlDecoder from "../decoders/JsonlDecoder";
 
@@ -60,7 +62,7 @@ const tryCreateDecoderBySignature = async (
     decoderOptions: DecoderOptions
 ): Promise<Nullable<{decoder: Decoder; fileTypeDef: FileTypeDef}>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
-        if (0 === entry.signature.length) {
+        if (0 === entry.signature.length || fileData.length < entry.signature.length) {
             continue;
         }
 
@@ -76,7 +78,7 @@ const tryCreateDecoderBySignature = async (
                     fileTypeDef: entry,
                 };
             } catch (e) {
-                console.warn("Magic number matches, but decoder creation failed:", e);
+                console.warn(`Magic number matches ${entry.name}, but decoder creation failed:`, e);
                 break;
             }
         }
@@ -103,6 +105,12 @@ const resolveDecoderAndFileType = async (
     decoder: Decoder;
     fileTypeInfo: FileTypeInfo;
 }> => {
+    if (fileData.length > MAX_V8_STRING_LENGTH) {
+        throw new Error(`Cannot handle files larger than ${
+            formatSizeInBytes(MAX_V8_STRING_LENGTH)
+        } due to a limitation in Chromium-based browsers.`);
+    }
+
     const extensionResult = await tryCreateDecoderByExtension(fileName, fileData, decoderOptions);
 
     if (null !== extensionResult) {
