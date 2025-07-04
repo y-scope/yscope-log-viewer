@@ -6,7 +6,6 @@ import {
     DecodeResult,
     DecoderOptions,
 } from "../../typings/decoders";
-import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     QueryArgs,
@@ -27,10 +26,10 @@ import {
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
-import {formatSizeInBytes} from "../../utils/units";
 import ClpIrDecoder from "../decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../decoders/JsonlDecoder";
+import {resolveDecoderAndFileType} from "./decodeUtils";
 import {
     getEventNumCursorData,
     getLastEventCursorData,
@@ -179,7 +178,7 @@ class LogFileManager {
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
+        const {decoder} = await resolveDecoderAndFileType(fileName, fileData, decoderOptions);
 
         return new LogFileManager({
             decoder: decoder,
@@ -190,38 +189,6 @@ class LogFileManager {
             onExportChunk: onExportChunk,
             onQueryResults: onQueryResults,
         });
-    }
-
-    /**
-     * Constructs a decoder instance based on the file extension.
-     *
-     * @param fileName
-     * @param fileData
-     * @param decoderOptions Initial decoder options.
-     * @return The constructed decoder.
-     * @throws {Error} if no decoder supports a file with the given extension.
-     */
-    static async #initDecoder (
-        fileName: string,
-        fileData: Uint8Array,
-        decoderOptions: DecoderOptions
-    ): Promise<Decoder> {
-        let decoder: Decoder;
-        if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, decoderOptions);
-        } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-        } else {
-            throw new Error(`No decoder supports ${fileName}`);
-        }
-
-        if (fileData.length > MAX_V8_STRING_LENGTH) {
-            throw new Error(`Cannot handle files larger than ${
-                formatSizeInBytes(MAX_V8_STRING_LENGTH)
-            } due to a limitation in Chromium-based browsers.`);
-        }
-
-        return decoder;
     }
 
     /* Sets any formatter options that exist in the decoder's options.
