@@ -36,6 +36,7 @@ const tryCreateDecoderByExtension = async (
         if ("undefined" === typeof matchingExtension) {
             continue;
         }
+
         try {
             return {
                 decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
