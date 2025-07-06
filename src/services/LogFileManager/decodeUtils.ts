@@ -112,39 +112,46 @@ const resolveDecoderAndFileType = async (
         } due to a limitation in Chromium-based browsers.`);
     }
 
-    const extensionResult = await tryCreateDecoderByExtension(fileName, fileData, decoderOptions);
+    let fileExtension = getFileFullExtension(fileName);
+    let fileTypeDef = null;
+    let decoder = null;
 
-    if (null !== extensionResult) {
-        const {decoder} = extensionResult;
-        const fileTypeInfo = {
-            name: extensionResult.fileTypeDef.name,
-            signature: extensionResult.fileTypeDef.signature,
-            extension: extensionResult.matchingExtension,
-            isStructured: extensionResult.fileTypeDef.checkIsStructured(decoder),
-        };
+    // Try to create a decoder based on the file extension.
+    if (0 < fileExtension.length) {
+        const extensionResult = await tryCreateDecoderByExtension(
+            fileName,
+            fileData,
+            decoderOptions,
+        );
 
-        return {
-            decoder: decoder,
-            fileTypeInfo: fileTypeInfo,
-        };
+        if (null !== extensionResult) {
+            ({decoder, matchingExtension: fileExtension, fileTypeDef} = extensionResult);
+        }
     }
 
-    const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
-    if (signatureResult) {
-        const {decoder} = signatureResult;
-        const fileTypeInfo = {
-            name: signatureResult.fileTypeDef.name,
-            signature: signatureResult.fileTypeDef.signature,
-            extension: getFileFullExtension(fileName),
-            isStructured: signatureResult.fileTypeDef.checkIsStructured(decoder),
-        };
-
-        return {
-            decoder: decoder,
-            fileTypeInfo: fileTypeInfo,
-        };
+    // If no decoder was found by extension, try to create one based on the file's magic number.
+    if (null === decoder) {
+        console.warn(`No decoder found for file extension "${fileExtension}". ` +
+            "Trying to match by signature.");
+        const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
+        if (null !== signatureResult) {
+            ({decoder, fileTypeDef} = signatureResult);
+        }
     }
-    throw new Error(`No decoder supports the file "${fileName}".`);
+
+    if (null === decoder || null === fileTypeDef) {
+        throw new Error(`No decoder supports the file "${fileName}".`);
+    }
+
+    return {
+        decoder: decoder,
+        fileTypeInfo: {
+            extension: fileExtension,
+            isStructured: fileTypeDef.checkIsStructured(decoder),
+            name: fileTypeDef.name,
+            signature: fileTypeDef.signature,
+        },
+    };
 };
 
 export {resolveDecoderAndFileType};

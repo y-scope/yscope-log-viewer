@@ -6,6 +6,7 @@ import {
     DecodeResult,
     DecoderOptions,
 } from "../../typings/decoders";
+import {FileTypeInfo} from "../../typings/file";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     QueryArgs,
@@ -26,9 +27,6 @@ import {
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
-import ClpIrDecoder from "../decoders/ClpIrDecoder";
-import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
-import JsonlDecoder from "../decoders/JsonlDecoder";
 import {resolveDecoderAndFileType} from "./decodeUtils";
 import {
     getEventNumCursorData,
@@ -40,17 +38,13 @@ import {
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
-enum FILE_TYPE {
-    CLP_TEXT_IR = "clpTextIr",
-    CLP_KV_IR = "clpKvIr",
-    JSONL = "jsonl",
-}
-
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
     readonly #fileName: string;
+
+    readonly #fileTypeInfo: FileTypeInfo;
 
     readonly #numEvents: number = 0;
 
@@ -75,6 +69,7 @@ class LogFileManager {
      * @param params
      * @param params.decoder
      * @param params.fileName
+     * @param params.fileTypeInfo
      * @param params.onDiskFileSizeInBytes
      * @param params.pageSize Page size for setting up pagination.
      * @param params.onExportChunk
@@ -83,6 +78,7 @@ class LogFileManager {
     constructor ({
         decoder,
         fileName,
+        fileTypeInfo,
         onDiskFileSizeInBytes,
         pageSize,
         onExportChunk,
@@ -90,6 +86,7 @@ class LogFileManager {
     }: {
         decoder: Decoder;
         fileName: string;
+        fileTypeInfo: FileTypeInfo;
         onDiskFileSizeInBytes: number;
         pageSize: number;
         onExportChunk: (logs: string) => void;
@@ -97,6 +94,7 @@ class LogFileManager {
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
+        this.#fileTypeInfo = fileTypeInfo;
         this.#pageSize = pageSize;
         this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
         this.#onExportChunk = onExportChunk;
@@ -116,6 +114,10 @@ class LogFileManager {
         return this.#fileName;
     }
 
+    get fileTypeInfo () {
+        return this.#fileTypeInfo;
+    }
+
     get onDiskFileSizeInBytes () {
         return this.#onDiskFileSizeInBytes;
     }
@@ -126,30 +128,6 @@ class LogFileManager {
 
     get numEvents () {
         return this.#numEvents;
-    }
-
-    /**
-     * Returns the type of file based on the decoder in use.
-     *
-     * @return The detected file type.
-     * @throws {Error} If the decoder type is unknown.
-     */
-    get fileType (): FILE_TYPE {
-        const decoder = this.#decoder;
-        if (decoder instanceof JsonlDecoder) {
-            return FILE_TYPE.JSONL;
-        } else if (decoder instanceof ClpIrDecoder) {
-            switch (decoder.irStreamType) {
-                case CLP_IR_STREAM_TYPE.STRUCTURED:
-                    return FILE_TYPE.CLP_KV_IR;
-                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
-                    return FILE_TYPE.CLP_TEXT_IR;
-                default:
-
-                    // fall through to unreachable error.
-            }
-        }
-        throw new Error("Unexpected decoder type when determining file type.");
     }
 
     /**
@@ -178,11 +156,16 @@ class LogFileManager {
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const {decoder} = await resolveDecoderAndFileType(fileName, fileData, decoderOptions);
+        const {decoder, fileTypeInfo} = await resolveDecoderAndFileType(
+            fileName,
+            fileData,
+            decoderOptions
+        );
 
         return new LogFileManager({
             decoder: decoder,
             fileName: fileName,
+            fileTypeInfo: fileTypeInfo,
             onDiskFileSizeInBytes: fileData.length,
             pageSize: pageSize,
 
@@ -485,5 +468,4 @@ class LogFileManager {
     }
 }
 
-export {FILE_TYPE};
 export default LogFileManager;
