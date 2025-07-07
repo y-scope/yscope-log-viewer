@@ -152,10 +152,8 @@ const useLogFileStore = create<LogFileState>((set) => ({
 
             const {startQuery} = useQueryStore.getState();
             startQuery();
-            const canFormat = fileInfo.fileTypeInfo.isStructured ||
-                "JSON Lines" === fileInfo.fileTypeInfo.name;
 
-            if (0 === decoderOptions.formatString.length && canFormat) {
+            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }

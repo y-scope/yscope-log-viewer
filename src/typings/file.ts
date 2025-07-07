@@ -43,7 +43,7 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
         checkIsStructured: () => false,
         extensions: [".jsonl", ".ndjson"],
         name: "JSON Lines",
-        signature: [0x7b],
+        signature: ["{".charCodeAt(0)],
     },
 ];
 /* eslint-enable @stylistic/array-element-newline, no-magic-numbers */
