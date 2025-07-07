@@ -40,7 +40,7 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
     },
     {
         DecoderFactory: JsonlDecoder,
-        checkIsStructured: () => false,
+        checkIsStructured: () => true,
         extensions: [".jsonl", ".ndjson"],
         name: "JSON Lines",
         signature: ["{".charCodeAt(0)],
