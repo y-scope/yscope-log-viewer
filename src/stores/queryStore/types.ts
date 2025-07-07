@@ -2,15 +2,15 @@ import {QueryResults} from "../../typings/query";
 
 
 interface QueryConfigValues {
-    queryString: string;
     queryIsCaseSensitive: boolean;
     queryIsRegex: boolean;
+    queryString: string;
 }
 
 interface QueryConfigActions {
-    setQueryString: (newQueryString: string) => void;
     setQueryIsCaseSensitive: (newQueryIsCaseSensitive: boolean) => void;
     setQueryIsRegex: (newQueryIsRegex: boolean) => void;
+    setQueryString: (newQueryString: string) => void;
 }
 
 type QueryConfigSlice = QueryConfigValues & QueryConfigActions;

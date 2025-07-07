@@ -121,6 +121,10 @@ class LogFileManager {
         return this.#onDiskFileSizeInBytes;
     }
 
+    get metadata () {
+        return this.#decoder.getMetadata();
+    }
+
     get numEvents () {
         return this.#numEvents;
     }
@@ -261,7 +265,7 @@ class LogFileManager {
             );
         }
 
-        const messages = results.map(([msg]) => msg);
+        const messages = results.map(({message}) => message);
         this.#onExportChunk(messages.join(""));
 
         if (endLogEventIdx < this.#numEvents) {
@@ -309,21 +313,14 @@ class LogFileManager {
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
-        results.forEach((r) => {
-            const [
-                msg,
-                ,
-                ,
-                logEventNum,
-            ] = r;
-
+        results.forEach(({message, logEventNum}) => {
             const printedMsg = (isPrettified) ?
-                `${jsBeautify(msg)}\n` :
-                msg;
+                `${jsBeautify(message)}\n` :
+                message;
 
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
-            currentLine += msg.split("\n").length - 1;
+            currentLine += message.split("\n").length - 1;
         });
         const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
@@ -454,7 +451,7 @@ class LogFileManager {
         queryRegex: RegExp,
         results: QueryResults
     ): void {
-        for (const [message, , , logEventNum] of decodedEvents) {
+        for (const {message, logEventNum} of decodedEvents) {
             const matchResult = message.match(queryRegex);
             if (null === matchResult || "number" !== typeof matchResult.index) {
                 continue;

@@ -7,6 +7,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
@@ -67,6 +68,12 @@ class JsonlDecoder implements Decoder {
 
     getFilteredLogEventMap (): FilteredLogEventMap {
         return this.#filteredLogEventMap;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getMetadata (): Metadata {
+        // Metadata is not available for JSONL files.
+        return {};
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
@@ -269,12 +276,15 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
+        // eslint-disable-next-line no-warning-comments
+        // TODO: extract timezone data from jsonl.
+        return {
+            logEventNum: logEventIdx + 1,
+            logLevel: logLevel,
+            message: message,
+            timestamp: timestamp,
+            utcOffset: 0n,
+        };
     };
 }
 

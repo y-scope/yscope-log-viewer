@@ -52,7 +52,7 @@ const StatusBarToggleButton = ({
             <span>
                 <IconButton
                     size={"sm"}
-                    variant={"outlined"}
+                    variant={"soft"}
                     aria-pressed={isActive ?
                         "true" :
                         "false"}
