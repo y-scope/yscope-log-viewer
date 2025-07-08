@@ -21,7 +21,7 @@ const createViewEventSlice: StateCreator<
     ViewState, [], [], ViewEventSlice
 > = (set) => ({
     ...VIEW_EVENT_DEFAULT,
-    updateLogEventNum: (newLogEventNum) => {
+    setLogEventNum: (newLogEventNum) => {
         set({logEventNum: newLogEventNum});
     },
 });

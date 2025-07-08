@@ -83,16 +83,18 @@ const updateViewHashParams = () => {
         isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
-    const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
     const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
     let cursor: Nullable<CursorType> = null;
+    const {
+        isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
+    } = useViewStore.getState();
 
-    if (isPrettified !== useViewStore.getState().isPrettified) {
+    if (isPrettified !== prevIsPrettified) {
         cursor = {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
         };
-        updateIsPrettified(isPrettified);
+        setIsPrettified(isPrettified);
     }
 
     if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
@@ -105,7 +107,7 @@ const updateViewHashParams = () => {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
         };
-        updateLogEventNum(logEventNum);
+        setLogEventNum(logEventNum);
         const {beginLineNumToLogEventNum} = useViewStore.getState();
         const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
