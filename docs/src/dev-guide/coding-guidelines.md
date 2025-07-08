@@ -72,7 +72,11 @@ Split store types into three interfaces:
 
 * `{Name}Values` - state variables
 * `{Name}Actions` - action functions
-* `{Name}State` or `{Name}Slice` - combined type
+* `{Name}State` - union of values and actions
+
+When store gets too large, we slice `{Name}State` to `{Name}{Feature}Slice`.
+Then we unionize these slices to `{Name}State`.
+
 
 ```{code-block} ts
 :caption: Example: Log export store types
