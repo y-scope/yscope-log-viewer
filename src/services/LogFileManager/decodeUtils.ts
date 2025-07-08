@@ -11,8 +11,6 @@ import {
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
 import {getFileFullExtension} from "../../utils/file";
 import {formatSizeInBytes} from "../../utils/units";
-import ClpIrDecoder from "../decoders/ClpIrDecoder";
-import JsonlDecoder from "../decoders/JsonlDecoder";
 
 
 /**
@@ -29,7 +27,7 @@ const tryCreateDecoderByExtension = async (
     fileData: Uint8Array,
     decoderOptions: DecoderOptions
 ): Promise<Nullable<{
-    decoder: ClpIrDecoder | JsonlDecoder; matchingExtension: string; fileTypeDef: FileTypeDef;
+    decoder: Decoder; matchingExtension: string; fileTypeDef: FileTypeDef;
 }>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
         const matchingExtension = entry.extensions.find((ext) => fileName.endsWith(ext));
@@ -131,7 +129,7 @@ const resolveDecoderAndFileType = async (
 
     // If no decoder was found by extension, try to create one based on the file's magic number.
     if (null === decoder) {
-        console.warn(`No decoder found for file extension "${fileExtension}". ` +
+        console.warn(`No valid decoder was found for file extension "${fileExtension}". ` +
             "Trying to match by signature.");
         const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
         if (null !== signatureResult) {
