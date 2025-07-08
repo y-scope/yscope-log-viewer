@@ -191,7 +191,7 @@ const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
                 parsedHashParams[key] = value;
                 break;
             default:
-                throw new Error(`Unknown hash parameter: ${_key}`);
+                break;
         }
     });
 

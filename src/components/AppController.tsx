@@ -3,7 +3,9 @@ import React, {
     useRef,
 } from "react";
 
+import useLogFileManagerProxyStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
 import {Nullable} from "../typings/common";
@@ -12,24 +14,117 @@ import {
     CursorType,
 } from "../typings/worker";
 import {
+    findNearestLessThanOrEqualElement,
+    isWithinBounds,
+} from "../utils/data";
+import {clamp} from "../utils/math.ts";
+import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
+    updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
 
 
 /**
+ * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
+ * `logEventNumsOnPage`.
+ *
+ * @param logEventNum
+ * @param logEventNumsOnPage
+ * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
+ */
+const updateUrlIfEventOnPage = (
+    logEventNum: number,
+    logEventNumsOnPage: number[]
+): boolean => {
+    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
+        return false;
+    }
+
+    const nearestIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        logEventNum
+    );
+
+    // Since `isWithinBounds` returned `true`, then:
+    // - `logEventNumsOnPage` must bound `logEventNum`.
+    // - `logEventNumsOnPage` cannot be empty.
+    // - `nearestIdx` cannot be `null`.
+    //
+    // Therefore, we can safely cast:
+    // - `nearestIdx` from `Nullable<number>` to `number`.
+    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
+    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+
+    updateWindowUrlHashParams({
+        logEventNum: nearestLogEventNum,
+    });
+
+    return true;
+};
+
+/**
  * Updates view-related states from URL hash parameters.
  * NOTE: this may modify the URL parameters.
  */
+// TODO: extract get cursor as a function.
+// eslint-disable-next-line max-statements
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
-    const {updateIsPrettified, updateLogEventNum, updateTimestamp} = useViewStore.getState();
+    const {numEvents} = useLogFileStore.getState();
+    if (0 === numEvents) {
+        // If there are no events, we cannot update the view.
+        return;
+    }
 
-    updateIsPrettified(isPrettified);
-    updateLogEventNum(logEventNum);
-    updateTimestamp(timestamp);
+    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({
+        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+        timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+    });
+    const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
+    const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
+    let cursor: Nullable<CursorType> = null;
+
+    if (isPrettified !== useViewStore.getState().isPrettified) {
+        cursor = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: clampedLogEventNum},
+        };
+        updateIsPrettified(isPrettified);
+    }
+
+    if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
+        cursor = {
+            code: CURSOR_CODE.TIMESTAMP,
+            args: {timestamp: timestamp},
+        };
+    } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
+        cursor = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: clampedLogEventNum},
+        };
+        updateLogEventNum(logEventNum);
+        const {beginLineNumToLogEventNum} = useViewStore.getState();
+        const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
+        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+            // No need to request a new page since the log event is on the current page.
+            return;
+        }
+    }
+
+    if (null === cursor) {
+        // If no cursor was set, we can return early.
+        return;
+    }
+
+    (async () => {
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const {updatePageData} = useViewStore.getState();
+        const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+        updatePageData(pageData);
+    })().catch(handleErrorWithNotification);
 };
 
 /**
@@ -40,6 +135,8 @@ const updateViewHashParams = () => {
  */
 const updateQueryHashParams = () => {
     const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, queryString});
+
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
         queryIsRegex: currentQueryIsRegex,
@@ -91,10 +188,6 @@ interface AppControllerProps {
  * @return
  */
 const AppController = ({children}: AppControllerProps) => {
-    // States
-    const logEventNum = useViewStore((state) => state.logEventNum);
-    const timestamp = useViewStore((state) => state.timestamp);
-
     // Refs
     const isInitialized = useRef<boolean>(false);
 
