@@ -65,57 +65,76 @@ const updateUrlIfEventOnPage = (
     return true;
 };
 
+
 /**
- * Updates view-related states from URL hash parameters.
- * NOTE: this may modify the URL parameters.
+ * Determines the cursor for navigating log events based on URL hash parameters.
+ *
+ * @param params An object containing the following properties:
+ * @param params.isPrettified Whether the log view is in prettified mode.
+ * @param params.logEventNum The log event number from the URL hash.
+ * @param params.timestamp The timestamp from the URL hash.
+ * @return `CursorType` object if a navigation action is needed, or `null` if no action is required.
  */
-// TODO: extract get cursor as a function.
-// eslint-disable-next-line max-statements
-const updateViewHashParams = () => {
+const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
+    isPrettified: boolean; logEventNum: number; timestamp: number;
+}): Nullable<CursorType> => {
     const {numEvents} = useLogFileStore.getState();
     if (0 === numEvents) {
-        // If there are no events, we cannot update the view.
-        return;
+        updateWindowUrlHashParams({logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum});
+
+        return null;
     }
 
-    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({
-        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
-        timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
-    });
-    const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
-    let cursor: Nullable<CursorType> = null;
     const {
         isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
     } = useViewStore.getState();
+    const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
     if (isPrettified !== prevIsPrettified) {
-        cursor = {
+        setIsPrettified(isPrettified);
+
+        return {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
         };
-        setIsPrettified(isPrettified);
     }
 
     if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
-        cursor = {
+        return {
             code: CURSOR_CODE.TIMESTAMP,
             args: {timestamp: timestamp},
         };
     } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
-        cursor = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: clampedLogEventNum},
-        };
         setLogEventNum(logEventNum);
         const {beginLineNumToLogEventNum} = useViewStore.getState();
         const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
-            return;
+            return null;
         }
+
+        return {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: clampedLogEventNum},
+        };
     }
 
+    // If we reach here, we have no valid cursor.
+    return null;
+};
+
+/**
+ * Updates view-related states from URL hash parameters.
+ * NOTE: this may modify the URL parameters.
+ */
+const updateViewHashParams = () => {
+    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({
+        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+        timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+    });
+
+    const cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
     if (null === cursor) {
         // If no cursor was set, we can return early.
         return;
