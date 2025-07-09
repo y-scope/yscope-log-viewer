@@ -74,9 +74,8 @@ Split store types into three interfaces:
 * `{Name}Actions` - action functions
 * `{Name}State` - union of values and actions
 
-When store gets too large, we slice `{Name}State` to `{Name}{Feature}Slice`.
-Then we unionize these slices to `{Name}State`.
-
+When store gets too large and exceeds eslint `max-lines-per-function limit`, we slice `{Name}State`
+to `{Name}{Feature}Slice`. Then we unionize these slices to `{Name}State`.
 
 ```{code-block} ts
 :caption: Example: Log export store types
