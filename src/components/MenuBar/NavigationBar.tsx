@@ -26,7 +26,6 @@ import PageNumInput from "./PageNumInput";
  */
 const NavigationBar = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
     const handleNavButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
@@ -38,9 +37,10 @@ const NavigationBar = () => {
             actionName === ACTION_NAME.NEXT_PAGE ||
             actionName === ACTION_NAME.LAST_PAGE
         ) {
+            const {loadPageByAction} = useViewStore.getState();
             loadPageByAction({code: actionName, args: null});
         }
-    }, [loadPageByAction]);
+    }, []);
 
     return (
         <ButtonGroup
