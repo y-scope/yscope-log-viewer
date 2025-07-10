@@ -116,8 +116,8 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {updatePageData} = useViewStore.getState();
-        updatePageData({
+        const {setPageData} = useViewStore.getState();
+        setPageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
@@ -148,6 +148,7 @@ const useLogFileStore = create<LogFileState>((set) => ({
 
             const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
 
             const {startQuery} = useQueryStore.getState();
