@@ -1,5 +1,6 @@
 import React, {
     memo,
+    useCallback,
     useEffect,
     useState,
 } from "react";
@@ -45,12 +46,12 @@ const ResultsGroup = memo(({
 }: ResultsGroupProps) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(isAllExpanded);
 
-    const handleAccordionChange = (
+    const handleAccordionChange = useCallback((
         _: React.SyntheticEvent,
         newValue: boolean
     ) => {
         setIsExpanded(newValue);
-    };
+    }, []);
 
     // On `isAllExpanded` update, sync current results group's expand status.
     useEffect(() => {

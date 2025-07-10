@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 
 import {ButtonGroup} from "@mui/joy";
 
@@ -28,7 +28,7 @@ const NavigationBar = () => {
     const uiState = useUiStore((state) => state.uiState);
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
-    const handleNavButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    const handleNavButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
 
         // Ensure `actionName` is a valid navigation action code with no args.
@@ -40,7 +40,7 @@ const NavigationBar = () => {
         ) {
             loadPageByAction({code: actionName, args: null});
         }
-    };
+    }, [loadPageByAction]);
 
     return (
         <ButtonGroup
