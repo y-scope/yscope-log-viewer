@@ -100,6 +100,9 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
 const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FILE_LOADING);
+
         set({
             fileName: "Loading...",
             fileSrc: fileSrc,
@@ -122,9 +125,6 @@ const useLogFileStore = create<LogFileState>((set) => ({
             numPages: VIEW_PAGE_DEFAULT.numPages,
             pageNum: VIEW_PAGE_DEFAULT.pageNum,
         });
-
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FILE_LOADING);
 
         set({fileSrc});
         if ("string" !== typeof fileSrc) {
