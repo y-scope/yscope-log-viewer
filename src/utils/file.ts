@@ -17,6 +17,19 @@ const downloadBlob = (blob: Blob, fileName: string) => {
 };
 
 /**
+ * Gets the full file extension from a filename.
+ *
+ * @param filename
+ * @return The full file extension, or an empty string if no extension is found.
+ */
+const getFileFullExtension = (filename: string) => {
+    const parts = filename.split(".");
+    return 1 < parts.length ?
+        parts.slice(1).join(".") :
+        "";
+};
+
+/**
  * Opens a file and invokes the provided callback on the file.
  *
  * @param onOpen
@@ -39,5 +52,6 @@ const openFile = (onOpen: OnFileOpenCallback) => {
 
 export {
     downloadBlob,
+    getFileFullExtension,
     openFile,
 };

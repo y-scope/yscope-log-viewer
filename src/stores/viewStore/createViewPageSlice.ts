@@ -92,16 +92,19 @@ const createViewPageSlice: StateCreator<
     ViewState, [], [], ViewPageSlice
 > = (set, get) => ({
     ...VIEW_PAGE_DEFAULT,
-    updatePageData: (pageData: PageData) => {
+    setPageData: (pageData: PageData) => {
         set({
             logData: pageData.logs,
             numPages: pageData.numPages,
             pageNum: pageData.pageNum,
             beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
         });
+    },
+    updatePageData: (pageData: PageData) => {
+        const {setPageData, updateLogEventNum} = get();
+        setPageData(pageData);
         const newLogEventNum = pageData.logEventNum;
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {updateLogEventNum} = get();
         updateLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
