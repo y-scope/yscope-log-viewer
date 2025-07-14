@@ -1,7 +1,6 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {Metadata} from "../typings/decoders";
@@ -117,8 +116,8 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {updatePageData} = useViewStore.getState();
-        updatePageData({
+        const {setPageData} = useViewStore.getState();
+        setPageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
@@ -149,14 +148,13 @@ const useLogFileStore = create<LogFileState>((set) => ({
 
             const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
 
             const {startQuery} = useQueryStore.getState();
             startQuery();
-            const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
-                fileInfo.fileType === FILE_TYPE.JSONL;
 
-            if (0 === decoderOptions.formatString.length && canFormat) {
+            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }

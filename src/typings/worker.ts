@@ -1,8 +1,8 @@
-import {FILE_TYPE} from "../services/LogFileManager";
 import {
     ActiveLogCollectionEventIdx,
     Metadata,
 } from "./decoders";
+import {FileTypeInfo} from "./file";
 
 
 /**
@@ -72,7 +72,7 @@ type BeginLineNumToLogEventNumMap = Map<number, number>;
 
 type LogFileInfo = {
     fileName: string;
-    fileType: FILE_TYPE;
+    fileTypeInfo: FileTypeInfo;
     metadata: Metadata;
     numEvents: number;
     onDiskFileSizeInBytes: number;

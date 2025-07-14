@@ -15,6 +15,7 @@ interface ViewPageValues {
 
 interface ViewPageActions {
     loadPageByAction: (navAction: NavigationAction) => void;
+    setPageData: (pageData: PageData) => void;
     updatePageData: (pageData: PageData) => void;
 }
 

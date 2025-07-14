@@ -62,6 +62,14 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
+    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        if (0 < dataArray.length && "{".charCodeAt(0) !== dataArray[0]) {
+            throw new Error("Invalid JSONL data: First byte is not '{'.");
+        }
+
+        return Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
+    }
+
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
