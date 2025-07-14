@@ -33,10 +33,12 @@ type ViewEventSlice = ViewEventValues & ViewEventActions;
 
 interface ViewFormattingValues {
     isPrettified: boolean;
+    timezoneName: string;
 }
 
 interface ViewFormattingActions {
     updateIsPrettified: (newIsPrettified: boolean) => void;
+    updateTimezoneName: (newTimezoneName: string) => void;
 }
 
 type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;

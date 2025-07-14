@@ -24,10 +24,11 @@ import {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum} = getWindowUrlHashParams();
-    const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
+    const {isPrettified, logEventNum, timezone} = getWindowUrlHashParams();
+    const {updateIsPrettified, updateTimezoneName, updateLogEventNum} = useViewStore.getState();
 
     updateIsPrettified(isPrettified);
+    updateTimezoneName(timezone);
     updateLogEventNum(logEventNum);
 };
 

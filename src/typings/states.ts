@@ -39,6 +39,7 @@ enum UI_ELEMENT {
     PRETTIFY_BUTTON,
     PROGRESS_BAR,
     QUERY_INPUT_BOX,
+    TIMEZONE_SETTER,
 }
 
 type UiElementRow = {
@@ -65,6 +66,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.PRETTIFY_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: false,
         [UI_ELEMENT.QUERY_INPUT_BOX]: false,
+        [UI_ELEMENT.TIMEZONE_SETTER]: false,
     },
     [UI_STATE.FILE_LOADING]: {
         [UI_ELEMENT.DRAG_AND_DROP]: false,
@@ -76,6 +78,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.PRETTIFY_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: true,
         [UI_ELEMENT.QUERY_INPUT_BOX]: false,
+        [UI_ELEMENT.TIMEZONE_SETTER]: false,
     },
     [UI_STATE.FAST_LOADING]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
@@ -87,6 +90,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.PRETTIFY_BUTTON]: false,
         [UI_ELEMENT.PROGRESS_BAR]: true,
         [UI_ELEMENT.QUERY_INPUT_BOX]: false,
+        [UI_ELEMENT.TIMEZONE_SETTER]: false,
     },
     [UI_STATE.READY]: {
         [UI_ELEMENT.DRAG_AND_DROP]: true,
@@ -98,6 +102,7 @@ const UI_STATE_GRID: UiStateGrid = Object.freeze({
         [UI_ELEMENT.PRETTIFY_BUTTON]: true,
         [UI_ELEMENT.PROGRESS_BAR]: false,
         [UI_ELEMENT.QUERY_INPUT_BOX]: true,
+        [UI_ELEMENT.TIMEZONE_SETTER]: true,
     },
 });
 

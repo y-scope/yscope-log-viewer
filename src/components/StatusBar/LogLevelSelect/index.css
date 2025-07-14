@@ -14,5 +14,5 @@
 }
 
 .log-level-select-listbox {
-    max-height: calc(100vh - var(--ylv-menu-bar-height) - var(--ylv-status-bar-height)) !important;
+    max-height: var(--ylv-list-box-max-height) !important;
 }
