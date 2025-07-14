@@ -163,12 +163,12 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.TOGGLE_PRETTIFY: {
-            const {isPrettified, setIsPrettified} = useViewStore.getState();
+            const {isPrettified, updateIsPrettified} = useViewStore.getState();
             const newIsPrettified = !isPrettified;
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
             });
-            setIsPrettified(newIsPrettified);
+            updateIsPrettified(newIsPrettified);
             break;
         }
         case ACTION_NAME.TOGGLE_WORD_WRAP:
@@ -271,8 +271,8 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(newLogEventNum);
+        const {updateLogEventNum} = useViewStore.getState();
+        updateLogEventNum(newLogEventNum);
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.

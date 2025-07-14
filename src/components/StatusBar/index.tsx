@@ -45,7 +45,7 @@ const StatusBar = () => {
     const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const updateIsPrettified = useViewStore((state) => state.setIsPrettified);
+    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;

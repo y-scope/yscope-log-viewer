@@ -75,7 +75,7 @@ const createViewEventSlice: StateCreator<
     ViewState, [], [], ViewEventSlice
 > = (set, get) => ({
     ...VIEW_EVENT_DEFAULT,
-    setLogEventNum: (newLogEventNum) => {
+    updateLogEventNum: (newLogEventNum) => {
         const {numEvents} = useLogFileStore.getState();
         if (0 === numEvents) {
             return;

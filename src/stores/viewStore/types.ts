@@ -26,7 +26,7 @@ interface ViewEventValues {
 }
 
 interface ViewEventActions {
-    setLogEventNum: (newLogEventNum: number) => void;
+    updateLogEventNum: (newLogEventNum: number) => void;
 }
 
 type ViewEventSlice = ViewEventValues & ViewEventActions;
@@ -36,7 +36,7 @@ interface ViewFormattingValues {
 }
 
 interface ViewFormattingActions {
-    setIsPrettified: (newIsPrettified: boolean) => void;
+    updateIsPrettified: (newIsPrettified: boolean) => void;
 }
 
 type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;

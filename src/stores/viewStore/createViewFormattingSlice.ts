@@ -31,7 +31,7 @@ const createViewFormattingSlice: StateCreator<
     ViewState, [], [], ViewFormattingSlice
 > = (set, get) => ({
     ...VIEW_FORMATTING_DEFAULT,
-    setIsPrettified: (newIsPrettified: boolean) => {
+    updateIsPrettified: (newIsPrettified: boolean) => {
         const {isPrettified} = get();
         if (newIsPrettified === isPrettified) {
             return;

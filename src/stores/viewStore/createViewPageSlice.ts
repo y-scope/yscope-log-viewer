@@ -105,8 +105,8 @@ const createViewPageSlice: StateCreator<
         setPageData(pageData);
         const newLogEventNum = pageData.logEventNum;
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {setLogEventNum} = get();
-        setLogEventNum(newLogEventNum);
+        const {updateLogEventNum} = get();
+        updateLogEventNum(newLogEventNum);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
     },

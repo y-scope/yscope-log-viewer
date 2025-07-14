@@ -86,12 +86,12 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     const {
-        isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
+        isPrettified: prevIsPrettified, updateIsPrettified, updateLogEventNum,
     } = useViewStore.getState();
     const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
     if (isPrettified !== prevIsPrettified) {
-        setIsPrettified(isPrettified);
+        updateIsPrettified(isPrettified);
 
         return {
             code: CURSOR_CODE.EVENT_NUM,
@@ -105,7 +105,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
             args: {timestamp: timestamp},
         };
     } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
-        setLogEventNum(logEventNum);
+        updateLogEventNum(logEventNum);
         const {beginLineNumToLogEventNum} = useViewStore.getState();
         const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
