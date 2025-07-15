@@ -13,57 +13,15 @@ import {
     CURSOR_CODE,
     CursorType,
 } from "../typings/worker";
-import {
-    findNearestLessThanOrEqualElement,
-    isWithinBounds,
-} from "../utils/data";
 import {clamp} from "../utils/math.ts";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
+    updateUrlIfEventOnPage,
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
-
-
-/**
- * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
- * `logEventNumsOnPage`.
- *
- * @param logEventNum
- * @param logEventNumsOnPage
- * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
- */
-const updateUrlIfEventOnPage = (
-    logEventNum: number,
-    logEventNumsOnPage: number[]
-): boolean => {
-    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return false;
-    }
-
-    const nearestIdx = findNearestLessThanOrEqualElement(
-        logEventNumsOnPage,
-        logEventNum
-    );
-
-    // Since `isWithinBounds` returned `true`, then:
-    // - `logEventNumsOnPage` must bound `logEventNum`.
-    // - `logEventNumsOnPage` cannot be empty.
-    // - `nearestIdx` cannot be `null`.
-    //
-    // Therefore, we can safely cast:
-    // - `nearestIdx` from `Nullable<number>` to `number`.
-    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
-    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
-
-    updateWindowUrlHashParams({
-        logEventNum: nearestLogEventNum,
-    });
-
-    return true;
-};
 
 
 /**
