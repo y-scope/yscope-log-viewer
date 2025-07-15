@@ -27,23 +27,23 @@ enum EVENT_POSITION_ON_PAGE {
  * - PAGE_NUM: the first or last event on the given page
  */
 enum CURSOR_CODE {
-    LAST_EVENT = "lastEvent",
     EVENT_NUM = "eventNum",
-    TIMESTAMP = "timestamp",
+    LAST_EVENT = "lastEvent",
     PAGE_NUM = "pageNum",
+    TIMESTAMP = "timestamp",
 }
 
 type CursorArgMap = {
-    [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.EVENT_NUM]: {
         eventNum: number;
     };
-    [CURSOR_CODE.TIMESTAMP]: {
-        timestamp: number;
-    };
+    [CURSOR_CODE.LAST_EVENT]: null;
     [CURSOR_CODE.PAGE_NUM]: {
         pageNum: number;
         eventPositionOnPage: EVENT_POSITION_ON_PAGE;
+    };
+    [CURSOR_CODE.TIMESTAMP]: {
+        timestamp: number;
     };
 };
 

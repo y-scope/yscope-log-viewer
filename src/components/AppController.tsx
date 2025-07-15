@@ -3,7 +3,9 @@ import React, {
     useRef,
 } from "react";
 
+import useLogFileManagerProxyStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
 import {Nullable} from "../typings/common";
@@ -11,24 +13,97 @@ import {
     CURSOR_CODE,
     CursorType,
 } from "../typings/worker";
+import {clamp} from "../utils/math.ts";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
+    updateUrlIfEventOnPage,
+    updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
 
 
 /**
+ * Determines the cursor for navigating log events based on URL hash parameters.
+ *
+ * @param params An object containing the following properties:
+ * @param params.isPrettified Whether the log view is in prettified mode.
+ * @param params.logEventNum The log event number from the URL hash.
+ * @param params.timestamp The timestamp from the URL hash.
+ * @return `CursorType` object if a navigation action is needed, or `null` if no action is required.
+ */
+const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
+    isPrettified: boolean; logEventNum: number; timestamp: number;
+}): Nullable<CursorType> => {
+    const {numEvents} = useLogFileStore.getState();
+    if (0 === numEvents) {
+        updateWindowUrlHashParams({logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum});
+
+        return null;
+    }
+
+    const {
+        isPrettified: prevIsPrettified, updateIsPrettified, updateLogEventNum,
+    } = useViewStore.getState();
+    const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
+
+    if (isPrettified !== prevIsPrettified) {
+        updateIsPrettified(isPrettified);
+
+        return {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: clampedLogEventNum},
+        };
+    }
+
+    if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
+        return {
+            code: CURSOR_CODE.TIMESTAMP,
+            args: {timestamp: timestamp},
+        };
+    } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
+        updateLogEventNum(logEventNum);
+        const {beginLineNumToLogEventNum} = useViewStore.getState();
+        const logEventNumsOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
+        if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
+            // No need to request a new page since the log event is on the current page.
+            return null;
+        }
+
+        return {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: clampedLogEventNum},
+        };
+    }
+
+    // If we reach here, we have no valid cursor.
+    return null;
+};
+
+/**
  * Updates view-related states from URL hash parameters.
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum} = getWindowUrlHashParams();
-    const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
+    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({
+        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+        timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+    });
 
-    updateIsPrettified(isPrettified);
-    updateLogEventNum(logEventNum);
+    const cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
+    if (null === cursor) {
+        // If no cursor was set, we can return early.
+        return;
+    }
+
+    (async () => {
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const {updatePageData} = useViewStore.getState();
+        const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+        updatePageData(pageData);
+    })().catch(handleErrorWithNotification);
 };
 
 /**
@@ -39,6 +114,8 @@ const updateViewHashParams = () => {
  */
 const updateQueryHashParams = () => {
     const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, queryString});
+
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
         queryIsRegex: currentQueryIsRegex,
@@ -110,7 +187,12 @@ const AppController = ({children}: AppControllerProps) => {
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
 
-            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+            if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
+                cursor = {
+                    code: CURSOR_CODE.TIMESTAMP,
+                    args: {timestamp: hashParams.timestamp},
+                };
+            } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
                 cursor = {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {eventNum: hashParams.logEventNum},
