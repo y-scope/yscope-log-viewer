@@ -229,16 +229,15 @@ const AppController = ({children}: AppControllerProps) => {
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
 
-            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
-                cursor = {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {eventNum: hashParams.logEventNum},
-                };
-            }
             if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
                 cursor = {
                     code: CURSOR_CODE.TIMESTAMP,
                     args: {timestamp: hashParams.timestamp},
+                };
+            } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+                cursor = {
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: hashParams.logEventNum},
                 };
             }
             const {loadFile} = useLogFileStore.getState();
