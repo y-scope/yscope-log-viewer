@@ -107,7 +107,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
         updateLogEventNum(logEventNum);
         const {beginLineNumToLogEventNum} = useViewStore.getState();
-        const logEventNumsOnPage: number [] = Array.from(beginLineNumToLogEventNum.values());
+        const logEventNumsOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
             // No need to request a new page since the log event is on the current page.
             return null;
