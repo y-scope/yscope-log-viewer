@@ -220,8 +220,6 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
         }
     }
 
-    console.log(newHashParams.toString());
-
     return newHashParams.toString();
 };
 
