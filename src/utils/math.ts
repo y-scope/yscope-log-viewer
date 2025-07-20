@@ -1,4 +1,4 @@
-import {Nullable} from "../typings/common.ts";
+import {Nullable} from "../typings/common";
 
 
 /**
