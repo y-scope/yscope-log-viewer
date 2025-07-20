@@ -40,7 +40,7 @@ const upperBoundBinarySearch = <T>(
     highIdx: number,
     upperboundValue: T,
 ): Nullable<number> => {
-    if (highIdx < lowIdx) {
+    if (highIdx < lowIdx || "undefined" === typeof (get(highIdx))) {
         return null;
     }
 
