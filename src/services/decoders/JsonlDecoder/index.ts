@@ -138,6 +138,34 @@ class JsonlDecoder implements Decoder {
         return results;
     }
 
+    findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
+        let low = 0;
+        let high = this.#logEvents.length - 1;
+        if (high < low) {
+            return null;
+        }
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+
+            // `mid` is guaranteed to be within bounds since `low <= high`.
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const midTimestamp = this.#logEvents[mid]!.timestamp.valueOf();
+            if (midTimestamp <= timestamp) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        // corner case: all log events have timestamps >= timestamp
+        if (0 > high) {
+            return 0;
+        }
+
+        return high;
+    }
+
     /**
      * Parses each line from the data array and buffers it internally.
      *

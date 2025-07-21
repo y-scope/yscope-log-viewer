@@ -438,6 +438,8 @@ class LogFileManager {
      */
     #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
+
+        let eventNum = 0;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
@@ -449,15 +451,25 @@ class LogFileManager {
             case CURSOR_CODE.LAST_EVENT:
                 return getLastEventCursorData(numActiveEvents, this.#pageSize);
             case CURSOR_CODE.EVENT_NUM:
-                return getEventNumCursorData(
-                    args.eventNum,
-                    numActiveEvents,
-                    this.#pageSize,
-                    this.#decoder.getFilteredLogEventMap(),
-                );
+                ({eventNum} = args);
+                break;
+            case CURSOR_CODE.TIMESTAMP: {
+                const eventIdx = this.#decoder.findNearestLogEventByTimestamp(args.timestamp);
+                if (null !== eventIdx) {
+                    eventNum = eventIdx + 1;
+                }
+                break;
+            }
             default:
-                throw new Error(`Unsupported cursor type: ${code}`);
+                throw new Error(`Unsupported cursor code: ${code as string}`);
         }
+
+        return getEventNumCursorData(
+            eventNum,
+            numActiveEvents,
+            this.#pageSize,
+            this.#decoder.getFilteredLogEventMap(),
+        );
     }
 }
 
