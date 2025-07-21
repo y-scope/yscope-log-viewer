@@ -86,6 +86,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
+    console.error("updateViewHashParams gets called");
     const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
         isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
@@ -144,15 +145,15 @@ const updateQueryHashParams = () => {
  * @param [ev] The hash change event, or `null` when called on application initialization.
  */
 const handleHashChange = (ev: Nullable<HashChangeEvent>) => {
+    if (null === ev) {
+        // If this is called on app initialization, we don't need to update the query params.
+        return;
+    }
     updateViewHashParams();
-    const isTriggeredByHashChange = null !== ev;
-    if (isTriggeredByHashChange && updateQueryHashParams()) {
+    if (updateQueryHashParams()) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
-
-    // eslint-disable-next-line no-warning-comments
-    // TODO: Remove empty or falsy parameters.
 };
 
 interface AppControllerProps {
@@ -183,6 +184,9 @@ const AppController = ({children}: AppControllerProps) => {
         // Handle initial page load and maintain full URL state
         handleHashChange(null);
         const hashParams = getWindowUrlHashParams();
+
+        // TODO: update isPrettified here
+        console.warn("AppController: Initial hash params", hashParams);
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
