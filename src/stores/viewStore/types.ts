@@ -36,6 +36,7 @@ interface ViewFormattingValues {
 }
 
 interface ViewFormattingActions {
+    setIsPrettified: (isPrettified: boolean) => void;
     updateIsPrettified: (newIsPrettified: boolean) => void;
 }
 

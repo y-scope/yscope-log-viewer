@@ -86,7 +86,6 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    console.error("updateViewHashParams gets called");
     const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
         isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
@@ -184,9 +183,10 @@ const AppController = ({children}: AppControllerProps) => {
         // Handle initial page load and maintain full URL state
         handleHashChange(null);
         const hashParams = getWindowUrlHashParams();
-
-        // TODO: update isPrettified here
-        console.warn("AppController: Initial hash params", hashParams);
+        updateWindowUrlHashParams({
+            isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+            timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+        });
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
@@ -202,6 +202,8 @@ const AppController = ({children}: AppControllerProps) => {
                     args: {eventNum: hashParams.logEventNum},
                 };
             }
+            const {setIsPrettified} = useViewStore.getState();
+            setIsPrettified(hashParams.isPrettified);
             const {loadFile} = useLogFileStore.getState();
             loadFile(searchParams.filePath, cursor);
         }
