@@ -158,7 +158,9 @@ const LogLevelSelect = () => {
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
-    const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
+    const handleRenderValue = useCallback((
+        selected: SelectValue<SelectOption<LOG_LEVEL>, true>
+    ) => (
         <Box className={"log-level-select-render-value-box"}>
             <Chip className={"log-level-select-render-value-box-label"}>
                 Log Level
@@ -170,7 +172,7 @@ const LogLevelSelect = () => {
                     value={selectedOption.value}/>
             ))}
         </Box>
-    );
+    ), []);
 
     const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
@@ -216,9 +218,9 @@ const LogLevelSelect = () => {
         updateFilter(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, [updateFilter]);
 
-    const handleSelectClearButtonClick = () => {
+    const handleSelectClearButtonClick = useCallback(() => {
         updateFilter([]);
-    };
+    }, [updateFilter]);
 
     // On `uiState` update, clear `selectedLogLevels` if the state is `UI_STATE.FILE_LOADING`
     useEffect(() => {

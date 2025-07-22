@@ -1,4 +1,5 @@
 import React, {
+    useCallback,
     useEffect,
     useRef,
     useState,
@@ -31,7 +32,6 @@ const PAGE_NUM_INPUT_FIT_EXTRA_WIDTH = 2;
  */
 const PageNumInput = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const loadPageByAction = useViewStore((state) => state.loadPageByAction);
     const numPages = useViewStore((state) => state.numPages);
     const pageNum = useViewStore((state) => state.pageNum);
 
@@ -40,7 +40,7 @@ const PageNumInput = () => {
 
     const disabled = isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR);
 
-    const handleSubmit = (ev?: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = useCallback((ev?: React.FormEvent<HTMLFormElement>) => {
         if ("undefined" !== typeof ev) {
             ev.preventDefault();
         }
@@ -48,34 +48,35 @@ const PageNumInput = () => {
             return;
         }
 
+        const {loadPageByAction} = useViewStore.getState();
         loadPageByAction({
             code: ACTION_NAME.SPECIFIC_PAGE,
             args: {pageNum: Number(inputRef.current.value)},
         });
         setIsEditing(false);
-    };
+    }, [isEditing]);
 
-    const handleBlur = () => {
+    const handleBlur = useCallback(() => {
         handleSubmit();
-    };
+    }, [handleSubmit]);
 
-    const handleInputClick = () => {
+    const handleInputClick = useCallback(() => {
         inputRef.current?.select();
-    };
+    }, []);
 
-    const adjustInputWidth = () => {
+    const adjustInputWidth = useCallback(() => {
         if (null === inputRef.current) {
             return;
         }
         inputRef.current.style.width = "0";
         inputRef.current.style.width =
             `${inputRef.current.scrollWidth + PAGE_NUM_INPUT_FIT_EXTRA_WIDTH}px`;
-    };
+    }, []);
 
-    const handleInputChange = () => {
+    const handleInputChange = useCallback(() => {
         setIsEditing(true);
         adjustInputWidth();
-    };
+    }, [adjustInputWidth]);
 
     useEffect(() => {
         if (null === inputRef.current) {
@@ -83,7 +84,10 @@ const PageNumInput = () => {
         }
         inputRef.current.value = pageNum.toString();
         adjustInputWidth();
-    }, [pageNum]);
+    }, [
+        pageNum,
+        adjustInputWidth,
+    ]);
 
     return (
         <form
