@@ -34,7 +34,7 @@ import {
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../AppController.tsx";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 

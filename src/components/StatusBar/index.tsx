@@ -22,7 +22,7 @@ import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
 } from "../../utils/url";
-import {updateViewHashParams} from "../AppController.tsx";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 

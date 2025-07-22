@@ -6,7 +6,7 @@ import {
 } from "@mui/joy";
 
 import {updateWindowUrlHashParams} from "../../../../../utils/url";
-import {updateViewHashParams} from "../../../../AppController.tsx";
+import {updateViewHashParams} from "../../../../../utils/url/urlHash";
 
 import "./Result.css";
 
