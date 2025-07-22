@@ -33,10 +33,10 @@ const ResizeHandle = ({
 }: ResizeHandleProps) => {
     const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
 
-    const handleMouseDown = (ev: React.MouseEvent) => {
+    const handleMouseDown = useCallback((ev: React.MouseEvent) => {
         ev.preventDefault();
         setIsMouseDown(true);
-    };
+    }, []);
 
     const handleMouseMove = useCallback((ev: MouseEvent) => {
         ev.preventDefault();
