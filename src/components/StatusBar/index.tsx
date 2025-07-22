@@ -22,6 +22,7 @@ import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
 } from "../../utils/url";
+import {updateViewHashParams} from "../AppController.tsx";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
@@ -45,7 +46,6 @@ const StatusBar = () => {
     const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
     const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
@@ -55,7 +55,7 @@ const StatusBar = () => {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
-                updateIsPrettified(!isPrettified);
+                updateViewHashParams();
                 break;
             default:
                 console.error(`Unexpected action: ${actionName}`);

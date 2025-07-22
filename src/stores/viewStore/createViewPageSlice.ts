@@ -13,7 +13,7 @@ import {
     NavigationAction,
 } from "../../utils/actions";
 import {clamp} from "../../utils/math";
-import {updateWindowUrlHashParams} from "../../utils/url";
+import {updateWindowUrlHashParams} from "../../utils/url.ts";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import useLogFileStore from "../logFileStore";
 import {handleErrorWithNotification} from "../notificationStore";
@@ -92,23 +92,15 @@ const createViewPageSlice: StateCreator<
     ViewState, [], [], ViewPageSlice
 > = (set, get) => ({
     ...VIEW_PAGE_DEFAULT,
-    setPageData: (pageData: PageData) => {
+    updatePageData: (pageData: PageData) => {
         set({
+            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
             logData: pageData.logs,
+            logEventNum: pageData.logEventNum,
             numPages: pageData.numPages,
             pageNum: pageData.pageNum,
-            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
         });
-    },
-    updatePageData: (pageData: PageData) => {
-        const {setPageData} = get();
-        setPageData(pageData);
-        const newLogEventNum = pageData.logEventNum;
-        updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {updateLogEventNum} = get();
-        updateLogEventNum(newLogEventNum);
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.READY);
+        updateWindowUrlHashParams({logEventNum: pageData.logEventNum});
     },
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
@@ -149,9 +141,9 @@ const createViewPageSlice: StateCreator<
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const {isPrettified} = get();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-
             const {updatePageData} = get();
             updatePageData(pageData);
+            setUiState(UI_STATE.READY);
         })().catch(handleErrorWithNotification);
     },
 });

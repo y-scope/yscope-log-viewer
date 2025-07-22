@@ -5,8 +5,8 @@ import {
     Typography,
 } from "@mui/joy";
 
-import useViewStore from "../../../../../stores/viewStore";
 import {updateWindowUrlHashParams} from "../../../../../utils/url";
+import {updateViewHashParams} from "../../../../AppController.tsx";
 
 import "./Result.css";
 
@@ -42,8 +42,7 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
 
     const handleResultButtonClick = useCallback(() => {
         updateWindowUrlHashParams({logEventNum});
-        const {updateLogEventNum} = useViewStore.getState();
-        updateLogEventNum(logEventNum);
+        updateViewHashParams();
     }, [logEventNum]);
 
     return (

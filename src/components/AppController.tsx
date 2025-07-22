@@ -7,13 +7,15 @@ import useLogFileManagerProxyStore from "../stores/logFileManagerProxyStore";
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
+import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {Nullable} from "../typings/common";
+import {UI_STATE} from "../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
 } from "../typings/worker";
-import {clamp} from "../utils/math.ts";
+import {clamp} from "../utils/math";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
@@ -44,12 +46,12 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     const {
-        isPrettified: prevIsPrettified, updateIsPrettified, updateLogEventNum,
+        isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
     } = useViewStore.getState();
     const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
     if (isPrettified !== prevIsPrettified) {
-        updateIsPrettified(isPrettified);
+        setIsPrettified(isPrettified);
 
         return {
             code: CURSOR_CODE.EVENT_NUM,
@@ -63,7 +65,8 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
             args: {timestamp: timestamp},
         };
     } else if (logEventNum !== URL_HASH_PARAMS_DEFAULT.logEventNum) {
-        updateLogEventNum(logEventNum);
+        setLogEventNum(clampedLogEventNum);
+        updateWindowUrlHashParams({logEventNum: clampedLogEventNum});
         const {beginLineNumToLogEventNum} = useViewStore.getState();
         const logEventNumsOnPage: number[] = Array.from(beginLineNumToLogEventNum.values());
         if (updateUrlIfEventOnPage(clampedLogEventNum, logEventNumsOnPage)) {
@@ -103,6 +106,8 @@ const updateViewHashParams = () => {
         const {updatePageData} = useViewStore.getState();
         const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
         updatePageData(pageData);
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.READY);
     })().catch(handleErrorWithNotification);
 };
 
@@ -150,9 +155,6 @@ const handleHashChange = (ev: Nullable<HashChangeEvent>) => {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
-
-    // eslint-disable-next-line no-warning-comments
-    // TODO: Remove empty or falsy parameters.
 };
 
 interface AppControllerProps {
@@ -210,5 +212,5 @@ const AppController = ({children}: AppControllerProps) => {
     return children;
 };
 
-
+export {updateViewHashParams};
 export default AppController;
