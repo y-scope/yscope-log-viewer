@@ -2,6 +2,8 @@ name: "docs"
 
 on:
   pull_request:
+    paths:
+        - "docs/**"
   push:
   schedule:
     # Run daily at 00:15 UTC (the 15 is to avoid periods of high load)
