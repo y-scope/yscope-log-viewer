@@ -5,7 +5,7 @@ import React, {
 
 import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
-import {Nullable} from "../typings/common";
+import useViewStore from "../stores/viewStore";
 import {
     CURSOR_CODE,
     CursorType,
@@ -13,6 +13,7 @@ import {
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
+    updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
@@ -24,13 +25,10 @@ import {
 
 /**
  * Handles hash change events by updating the application state based on the URL hash parameters.
- *
- * @param [ev] The hash change event, or `null` when called on application initialization.
  */
-const handleHashChange = (ev: Nullable<HashChangeEvent>) => {
+const handleHashChange = () => {
     updateViewHashParams();
-    const isTriggeredByHashChange = null !== ev;
-    if (isTriggeredByHashChange && updateQueryHashParams()) {
+    if (updateQueryHashParams()) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
@@ -62,8 +60,11 @@ const AppController = ({children}: AppControllerProps) => {
         isInitialized.current = true;
 
         // Handle initial page load and maintain full URL state
-        handleHashChange(null);
         const hashParams = getWindowUrlHashParams();
+        updateWindowUrlHashParams({
+            isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+            timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+        });
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
@@ -74,6 +75,8 @@ const AppController = ({children}: AppControllerProps) => {
                     args: {timestamp: hashParams.timestamp},
                 };
             } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+                const {setLogEventNum} = useViewStore.getState();
+                setLogEventNum(hashParams.logEventNum);
                 cursor = {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {eventNum: hashParams.logEventNum},
