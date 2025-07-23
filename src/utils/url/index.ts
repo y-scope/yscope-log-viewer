@@ -6,11 +6,11 @@ import {
     UrlHashParamUpdatesType,
     UrlSearchParams,
     UrlSearchParamUpdatesType,
-} from "../../typings/url.ts";
+} from "../../typings/url";
 import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
-} from "../data.ts";
+} from "../data";
 
 
 /**
