@@ -5,7 +5,6 @@ import {
     useCallback,
     useEffect,
     useRef,
-    useState,
 } from "react";
 
 import {useColorScheme} from "@mui/joy";
@@ -196,7 +195,6 @@ const Editor = () => {
     const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
 
-    const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
@@ -333,7 +331,7 @@ const Editor = () => {
             return;
         }
 
-        setLineNum(logEventLineNum);
+        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1});
     }, [
         logEventNum,
         beginLineNumToLogEventNum,
@@ -344,7 +342,6 @@ const Editor = () => {
             <MonacoInstance
                 actions={EDITOR_ACTIONS}
                 beforeTextUpdate={resetCachedPageSize}
-                lineNum={lineNum}
                 text={logData}
                 themeName={(("system" === mode) ?
                     systemMode :

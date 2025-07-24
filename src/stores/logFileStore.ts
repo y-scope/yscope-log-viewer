@@ -119,7 +119,6 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {updatePageData} = useViewStore.getState();
         updatePageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
-            cursorLineNum: 1,
             logEventNum: useViewStore.getState().logEventNum,
             logs: "Loading...",
             numPages: VIEW_PAGE_DEFAULT.numPages,
