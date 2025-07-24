@@ -62,6 +62,14 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
+    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        if (0 < dataArray.length && "{".charCodeAt(0) !== dataArray[0]) {
+            throw new Error("Invalid JSONL data: First byte is not '{'.");
+        }
+
+        return Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
+    }
+
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
@@ -128,6 +136,34 @@ class JsonlDecoder implements Decoder {
         }
 
         return results;
+    }
+
+    findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
+        let low = 0;
+        let high = this.#logEvents.length - 1;
+        if (high < low) {
+            return null;
+        }
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+
+            // `mid` is guaranteed to be within bounds since `low <= high`.
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const midTimestamp = this.#logEvents[mid]!.timestamp.valueOf();
+            if (midTimestamp <= timestamp) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        // corner case: all log events have timestamps >= timestamp
+        if (0 > high) {
+            return 0;
+        }
+
+        return high;
     }
 
     /**
@@ -248,12 +284,15 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
+        // eslint-disable-next-line no-warning-comments
+        // TODO: extract timezone data from jsonl.
+        return {
+            logEventNum: logEventIdx + 1,
+            logLevel: logLevel,
+            message: message,
+            timestamp: timestamp,
+            utcOffset: 0n,
+        };
     };
 }
 

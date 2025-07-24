@@ -1,8 +1,6 @@
-/* eslint max-lines-per-function: ["error", 70] */
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {Metadata} from "../typings/decoders";
@@ -42,11 +40,6 @@ interface LogFileValues {
 }
 
 interface LogFileActions {
-    setFileName: (newFileName: string) => void;
-    setMetadata: (newMetadata: Nullable<Metadata>) => void;
-    setNumEvents: (newNumEvents: number) => void;
-    setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
-
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
@@ -103,23 +96,28 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-// eslint-disable-next-line max-lines-per-function
-const useLogFileStore = create<LogFileState>((set, get) => ({
+
+const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
-        const {setFileName, setMetadata, setOnDiskFileSizeInBytes} = get();
-        setFileName("Loading...");
-        setMetadata(LOG_FILE_STORE_DEFAULT.metadata);
-        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
+        set({
+            fileName: "Loading...",
+            fileSrc: fileSrc,
+            metadata: LOG_FILE_STORE_DEFAULT.metadata,
+            onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes,
+        });
+        if ("string" !== typeof fileSrc) {
+            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
+        }
 
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {updatePageData} = useViewStore.getState();
-        updatePageData({
+        const {setPageData} = useViewStore.getState();
+        setPageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
             cursorLineNum: 1,
             logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
@@ -150,14 +148,13 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
 
             const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
 
             const {startQuery} = useQueryStore.getState();
             startQuery();
-            const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
-                fileInfo.fileType === FILE_TYPE.JSONL;
 
-            if (0 === decoderOptions.formatString.length && canFormat) {
+            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }
@@ -165,18 +162,6 @@ const useLogFileStore = create<LogFileState>((set, get) => ({
             handleErrorWithNotification(e);
             setUiState(UI_STATE.UNOPENED);
         });
-    },
-    setFileName: (newFileName) => {
-        set({fileName: newFileName});
-    },
-    setMetadata: (newMetadata) => {
-        set({metadata: newMetadata});
-    },
-    setNumEvents: (newNumEvents) => {
-        set({numEvents: newNumEvents});
-    },
-    setOnDiskFileSizeInBytes: (newSize) => {
-        set({onDiskFileSizeInBytes: newSize});
     },
 }));
 

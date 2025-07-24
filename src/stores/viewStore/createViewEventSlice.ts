@@ -5,12 +5,8 @@ import {
     CURSOR_CODE,
     CursorType,
 } from "../../typings/worker";
-import {
-    findNearestLessThanOrEqualElement,
-    isWithinBounds,
-} from "../../utils/data";
 import {clamp} from "../../utils/math";
-import {updateWindowUrlHashParams} from "../../utils/url";
+import {updateUrlIfEventOnPage} from "../../utils/url";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import useLogFileStore from "../logFileStore";
 import {handleErrorWithNotification} from "../notificationStore";
@@ -21,44 +17,6 @@ import {
     ViewState,
 } from "./types";
 
-
-/**
- * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
- * `logEventNumsOnPage`.
- *
- * @param logEventNum
- * @param logEventNumsOnPage
- * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
- */
-const updateUrlIfEventOnPage = (
-    logEventNum: number,
-    logEventNumsOnPage: number[]
-): boolean => {
-    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
-        return false;
-    }
-
-    const nearestIdx = findNearestLessThanOrEqualElement(
-        logEventNumsOnPage,
-        logEventNum
-    );
-
-    // Since `isWithinBounds` returned `true`, then:
-    // - `logEventNumsOnPage` must bound `logEventNum`.
-    // - `logEventNumsOnPage` cannot be empty.
-    // - `nearestIdx` cannot be `null`.
-    //
-    // Therefore, we can safely cast:
-    // - `nearestIdx` from `Nullable<number>` to `number`.
-    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
-    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
-
-    updateWindowUrlHashParams({
-        logEventNum: nearestLogEventNum,
-    });
-
-    return true;
-};
 
 const VIEW_EVENT_DEFAULT: ViewEventValues = {
     logEventNum: 0,

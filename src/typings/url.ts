@@ -6,11 +6,12 @@ enum SEARCH_PARAM_NAMES {
 }
 
 enum HASH_PARAM_NAMES {
-    LOG_EVENT_NUM = "logEventNum",
     IS_PRETTIFIED = "isPrettified",
+    LOG_EVENT_NUM = "logEventNum",
     QUERY_IS_CASE_SENSITIVE = "queryIsCaseSensitive",
     QUERY_IS_REGEX = "queryIsRegex",
     QUERY_STRING = "queryString",
+    TIMESTAMP = "timestamp",
 }
 
 interface UrlSearchParams {
@@ -23,6 +24,7 @@ interface UrlHashParams {
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: boolean;
     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: boolean;
     [HASH_PARAM_NAMES.QUERY_STRING]: string;
+    [HASH_PARAM_NAMES.TIMESTAMP]: number;
 }
 
 type UrlSearchParamUpdatesType = {

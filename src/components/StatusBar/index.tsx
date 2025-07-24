@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 
 import {
     Button,
@@ -45,23 +45,24 @@ const StatusBar = () => {
     const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
-    const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    const handleStatusButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
 
         switch (actionName) {
-            case ACTION_NAME.TOGGLE_PRETTIFY:
+            case ACTION_NAME.TOGGLE_PRETTIFY: {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
+                const {updateIsPrettified} = useViewStore.getState();
                 updateIsPrettified(!isPrettified);
                 break;
+            }
             default:
                 console.error(`Unexpected action: ${actionName}`);
                 break;
         }
-    };
+    }, [isPrettified]);
 
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 
