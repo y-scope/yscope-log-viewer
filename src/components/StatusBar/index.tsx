@@ -14,7 +14,10 @@ import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
-import {UI_ELEMENT} from "../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
@@ -55,6 +58,7 @@ const StatusBar = () => {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
+                useUiStore.getState().setUiState(UI_STATE.FAST_LOADING);
                 updateViewHashParams();
                 break;
             default:
