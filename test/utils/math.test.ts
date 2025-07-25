@@ -24,7 +24,7 @@ describe("clamp", () => {
     });
 
     test(
-        "returns the upper boundary if the upper boundary is less than the lower boundary",
+        "returns the upper boundary when the upper boundary is less than the lower boundary",
         () => {
             expect(clamp(5, 10, 1)).toBe(1);
         }
