@@ -65,6 +65,9 @@ const AppController = ({children}: AppControllerProps) => {
             isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
             timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
         });
+        const {setIsPrettified} = useViewStore.getState();
+        setIsPrettified(hashParams.isPrettified);
+
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
@@ -94,5 +97,4 @@ const AppController = ({children}: AppControllerProps) => {
     return children;
 };
 
-export {updateViewHashParams};
 export default AppController;
