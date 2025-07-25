@@ -21,13 +21,13 @@ import {
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
 import {updateWindowUrlSearchParams} from "../utils/url";
+import {updateQueryHashParams} from "../utils/url/urlHash";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
-import {VIEW_EVENT_DEFAULT} from "./viewStore/createViewEventSlice";
 import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
@@ -116,11 +116,10 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {setPageData} = useViewStore.getState();
-        setPageData({
+        const {updatePageData} = useViewStore.getState();
+        updatePageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
-            cursorLineNum: 1,
-            logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
+            logEventNum: useViewStore.getState().logEventNum,
             logs: "Loading...",
             numPages: VIEW_PAGE_DEFAULT.numPages,
             pageNum: VIEW_PAGE_DEFAULT.pageNum,
@@ -148,11 +147,13 @@ const useLogFileStore = create<LogFileState>((set) => ({
 
             const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-            const {updatePageData} = useViewStore.getState();
             updatePageData(pageData);
+            setUiState(UI_STATE.READY);
 
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
+            if (updateQueryHashParams()) {
+                const {startQuery} = useQueryStore.getState();
+                startQuery();
+            }
 
             if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
                 const {postPopUp} = useNotificationStore.getState();

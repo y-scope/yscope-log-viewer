@@ -42,6 +42,7 @@ const createViewFilterSlice: StateCreator<
 
             const {updatePageData} = get();
             updatePageData(pageData);
+            setUiState(UI_STATE.READY);
 
             const {startQuery} = useQueryStore.getState();
             startQuery();
