@@ -14,7 +14,10 @@ import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
-import {UI_ELEMENT} from "../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
@@ -22,6 +25,7 @@ import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
 } from "../../utils/url";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
@@ -50,14 +54,13 @@ const StatusBar = () => {
         const {actionName} = ev.currentTarget.dataset;
 
         switch (actionName) {
-            case ACTION_NAME.TOGGLE_PRETTIFY: {
+            case ACTION_NAME.TOGGLE_PRETTIFY:
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
-                const {updateIsPrettified} = useViewStore.getState();
-                updateIsPrettified(!isPrettified);
+                useUiStore.getState().setUiState(UI_STATE.FAST_LOADING);
+                updateViewHashParams();
                 break;
-            }
             default:
                 console.error(`Unexpected action: ${actionName}`);
                 break;

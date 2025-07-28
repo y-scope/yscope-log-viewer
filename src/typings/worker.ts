@@ -80,7 +80,6 @@ type LogFileInfo = {
 
 type PageData = {
     beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap;
-    cursorLineNum: number;
     logEventNum: number;
     logs: string;
     numPages: number;
@@ -92,7 +91,6 @@ type PageData = {
  */
 const EMPTY_PAGE_RESP: PageData = Object.freeze({
     beginLineNumToLogEventNum: new Map(),
-    cursorLineNum: 1,
     logEventNum: 0,
     logs: "",
     numPages: 1,
