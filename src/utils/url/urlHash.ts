@@ -1,6 +1,4 @@
-import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore.ts";
 import useLogFileStore from "../../stores/logFileStore.ts";
-import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
 import useQueryStore from "../../stores/queryStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
@@ -94,14 +92,17 @@ const updateViewHashParams = () => {
         return;
     }
 
-    (async () => {
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {updatePageData} = useViewStore.getState();
-        const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-        updatePageData(pageData);
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.READY);
-    })().catch(handleErrorWithNotification);
+    const {logFileManager} = useLogFileStore.getState();
+    if (null === logFileManager) {
+        console.error("LogFileManager is not initialized.");
+
+        return;
+    }
+    const {updatePageData} = useViewStore.getState();
+    const pageData = logFileManager.loadPage(cursor, isPrettified);
+    updatePageData(pageData);
+    const {setUiState} = useUiStore.getState();
+    setUiState(UI_STATE.READY);
 };
 
 /**
