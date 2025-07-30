@@ -1,7 +1,6 @@
 import {StateCreator} from "zustand";
 
-import useLogFileManagerStore from "../logFileManagerProxyStore";
-import {handleErrorWithNotification} from "../notificationStore";
+import useLogFileStore from "../logFileStore";
 import {QUERY_CONFIG_DEFAULT} from "./createQueryConfigSlice.ts";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {
@@ -40,16 +39,23 @@ const createQueryControllerSlice: StateCreator<
         const {clearQueryResults} = get();
         clearQueryResults();
 
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {
-                queryString,
-                queryIsCaseSensitive,
-                queryIsRegex,
-            } = get();
+        const {logFileManager} = useLogFileStore.getState();
+        if (null === logFileManager) {
+            console.error("LogFileManager is not initialized.");
 
-            await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
-        })().catch(handleErrorWithNotification);
+            return;
+        }
+        const {
+            queryString,
+            queryIsCaseSensitive,
+            queryIsRegex,
+        } = get();
+
+        logFileManager.startQuery({
+            queryString: queryString,
+            isRegex: queryIsRegex,
+            isCaseSensitive: queryIsCaseSensitive,
+        });
     },
 });
 

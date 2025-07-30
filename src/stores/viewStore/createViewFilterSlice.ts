@@ -3,8 +3,7 @@ import {StateCreator} from "zustand";
 import {LogLevelFilter} from "../../typings/logs";
 import {UI_STATE} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
-import useLogFileManagerStore from "../logFileManagerProxyStore";
-import {handleErrorWithNotification} from "../notificationStore";
+import useLogFileStore from "../logFileStore";
 import useQueryStore from "../queryStore";
 import useUiStore from "../uiStore";
 import {
@@ -26,27 +25,29 @@ const createViewFilterSlice: StateCreator<
     filterLogs: (filter: LogLevelFilter) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified, logEventNum} = get();
-            const pageData = await logFileManagerProxy.setFilter(
-                {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {
-                        eventNum: logEventNum,
-                    },
-                },
-                isPrettified,
-                filter
-            );
+        const {logFileManager} = useLogFileStore.getState();
+        if (null === logFileManager) {
+            console.error("LogFileManager is not initialized.");
 
-            const {updatePageData} = get();
-            updatePageData(pageData);
-            setUiState(UI_STATE.READY);
+            return;
+        }
+        const {isPrettified, logEventNum} = get();
+        logFileManager.setLogLevelFilter(filter);
 
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
-        })().catch(handleErrorWithNotification);
+        const pageData = logFileManager.loadPage(
+            {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            },
+            isPrettified
+        );
+
+        const {updatePageData} = get();
+        updatePageData(pageData);
+        setUiState(UI_STATE.READY);
+
+        const {startQuery} = useQueryStore.getState();
+        startQuery();
     },
 
 });

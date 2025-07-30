@@ -1,9 +1,14 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
+import LogFileManager from "../services/LogFileManager";
+import MainWorker from "../services/MainWorker.worker?worker";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
-import {Metadata} from "../typings/decoders";
+import {
+    DecoderOptions,
+    Metadata,
+} from "../typings/decoders";
 import {LOG_LEVEL} from "../typings/logs";
 import {
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -23,7 +28,6 @@ import {getConfig} from "../utils/config";
 import {updateWindowUrlSearchParams} from "../utils/url";
 import {updateQueryHashParams} from "../utils/url/urlHash";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
-import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
@@ -34,6 +38,7 @@ import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
+    logFileManager: Nullable<LogFileManager>;
     metadata: Nullable<Metadata>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
@@ -43,11 +48,22 @@ interface LogFileActions {
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
 }
 
+interface LogFileManagerWorkerApi {
+    create: (params: {
+        fileSrc: FileSrcType;
+        pageSize: number;
+        decoderOptions: DecoderOptions;
+        onExportChunk: Comlink.Remote<(logs: string) => Promise<void>>;
+        onQueryResults: Comlink.Remote<(progress: number, results: QueryResults) => Promise<void>>;
+    }) => Promise<LogFileManager>;
+}
+
 type LogFileState = LogFileValues & LogFileActions;
 
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "",
     fileSrc: null,
+    logFileManager: null,
     metadata: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
@@ -131,22 +147,28 @@ const useLogFileStore = create<LogFileState>((set) => ({
         }
 
         (async () => {
-            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+            const mainWorker = new MainWorker();
+            const logFileManagerApi = Comlink.wrap<LogFileManagerWorkerApi>(mainWorker);
             const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
-            const fileInfo = await logFileManagerProxy.loadFile(
-                {
-                    decoderOptions: decoderOptions,
-                    fileSrc: fileSrc,
-                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                },
-                Comlink.proxy(handleExportChunk),
-                Comlink.proxy(handleQueryResults)
-            );
+            const logFileManager = await logFileManagerApi.create({
+                decoderOptions: decoderOptions,
+                fileSrc: fileSrc,
+                onExportChunk: Comlink.proxy(handleExportChunk),
+                onQueryResults: Comlink.proxy(handleQueryResults),
+                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+            });
 
-            set(fileInfo);
+
+            set({
+                fileName: logFileManager.fileName,
+                logFileManager: logFileManager,
+                metadata: logFileManager.metadata,
+                numEvents: logFileManager.numEvents,
+                onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
+            });
 
             const {isPrettified} = useViewStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = logFileManager.loadPage(cursor, isPrettified);
             updatePageData(pageData);
             setUiState(UI_STATE.READY);
 
@@ -155,7 +177,9 @@ const useLogFileStore = create<LogFileState>((set) => ({
                 startQuery();
             }
 
-            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
+            if (0 === decoderOptions.formatString.length &&
+                logFileManager.fileTypeInfo.isStructured
+            ) {
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }

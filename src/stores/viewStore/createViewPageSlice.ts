@@ -14,9 +14,7 @@ import {
 } from "../../utils/actions";
 import {clamp} from "../../utils/math";
 import {updateWindowUrlHashParams} from "../../utils/url";
-import useLogFileManagerStore from "../logFileManagerProxyStore";
 import useLogFileStore from "../logFileStore";
-import {handleErrorWithNotification} from "../notificationStore";
 import useUiStore from "../uiStore";
 import {VIEW_EVENT_DEFAULT} from "./createViewEventSlice";
 import {
@@ -137,14 +135,17 @@ const createViewPageSlice: StateCreator<
             return;
         }
 
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-            const {updatePageData} = get();
-            updatePageData(pageData);
-            setUiState(UI_STATE.READY);
-        })().catch(handleErrorWithNotification);
+        const {logFileManager} = useLogFileStore.getState();
+        if (null === logFileManager) {
+            console.error("LogFileManager is not initialized.");
+
+            return;
+        }
+        const {isPrettified} = get();
+        const pageData = logFileManager.loadPage(cursor, isPrettified);
+        const {updatePageData} = get();
+        updatePageData(pageData);
+        setUiState(UI_STATE.READY);
     },
 });
 
