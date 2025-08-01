@@ -79,6 +79,11 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
+                <input
+                    step={"0.1"}
+                    type={"datetime-local"}/>
+
+                <Divider orientation={"vertical"}/>
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
 
