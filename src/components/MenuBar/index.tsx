@@ -16,6 +16,8 @@ import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
 import {isDisabled} from "../../utils/states";
+import {updateWindowUrlHashParams} from "../../utils/url";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
@@ -80,8 +82,19 @@ const MenuBar = () => {
 
                 <Divider orientation={"vertical"}/>
                 <input
+                    className={"menu-bar-datetime-input"}
                     step={"0.1"}
-                    type={"datetime-local"}/>
+                    type={"datetime-local"}
+                    onKeyDown={(e) => {
+                        if ("Enter" === e.key) {
+                            const datetime = e.currentTarget.value;
+                            if (datetime) {
+                                const timestamp = new Date(`${datetime}Z`).getTime();
+                                updateWindowUrlHashParams({timestamp: timestamp});
+                                updateViewHashParams();
+                            }
+                        }
+                    }}/>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>

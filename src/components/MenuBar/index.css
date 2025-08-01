@@ -43,6 +43,13 @@
     justify-content: flex-end;
 }
 
+.menu-bar-datetime-input {
+    box-sizing: border-box;
+    height: var(--ylv-menu-bar-height);
+    border: none;
+    font: inherit;
+}
+
 .menu-bar-loading-progress {
     z-index: var(--ylv-loading-progress-z-index);
     margin-bottom: -2px;
