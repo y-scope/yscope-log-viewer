@@ -9,6 +9,7 @@ import {
 } from "@mui/joy";
 
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import SearchIcon from "@mui/icons-material/Search";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -81,20 +82,47 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
-                <input
-                    className={"menu-bar-datetime-input"}
-                    step={"0.1"}
-                    type={"datetime-local"}
-                    onKeyDown={(e) => {
-                        if ("Enter" === e.key) {
-                            const datetime = e.currentTarget.value;
+                <Box
+                    alignItems={"center"}
+                    className={"menu-bar-datetime-container"}
+                    display={"flex"}
+                    flexDirection={"row"}
+                >
+                    <input
+                        className={"menu-bar-datetime-input"}
+                        id={"menu-bar-datetime-input"}
+                        step={"0.1"}
+                        title={"Input date and time in UTC"}
+                        type={"datetime-local"}
+                        onKeyDown={(e) => {
+                            if ("Enter" === e.key) {
+                                const datetime = e.currentTarget.value;
+                                if (datetime) {
+                                    const timestamp = new Date(`${datetime}Z`).getTime();
+                                    updateWindowUrlHashParams({timestamp: timestamp});
+                                    updateViewHashParams();
+                                }
+                            }
+                        }}/>
+                    <MenuBarIconButton
+                        size={"sm"}
+                        tooltipPlacement={"bottom-start"}
+                        tooltipTitle={"Search by timestamp"}
+                        onClick={() => {
+                            const input = document.getElementById(
+                                "menu-bar-datetime-input"
+                            ) as HTMLInputElement;
+                            const datetime = input.value;
                             if (datetime) {
                                 const timestamp = new Date(`${datetime}Z`).getTime();
                                 updateWindowUrlHashParams({timestamp: timestamp});
                                 updateViewHashParams();
                             }
-                        }
-                    }}/>
+                        }}
+                    >
+                        <SearchIcon/>
+                    </MenuBarIconButton>
+                </Box>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
