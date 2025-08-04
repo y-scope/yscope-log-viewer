@@ -17,7 +17,7 @@ import "./TimestampQueryBox.css";
  *
  * @param datetime
  */
-const searchByDateTime = (datetime: string) => {
+const handleTimestampQuery = (datetime: string) => {
     if (datetime) {
         const timestamp = new Date(`${datetime}Z`).getTime();
         updateWindowUrlHashParams({timestamp: timestamp});
@@ -46,7 +46,7 @@ const TimestampQueryBox = () => {
                 type={"datetime-local"}
                 onKeyDown={(e) => {
                     if ("Enter" === e.key) {
-                        searchByDateTime(e.currentTarget.value);
+                        handleTimestampQuery(e.currentTarget.value);
                     }
                 }}/>
             <MenuBarIconButton
@@ -58,7 +58,7 @@ const TimestampQueryBox = () => {
                         "timestamp-query-box-input"
                     ) as HTMLInputElement;
 
-                    searchByDateTime(input.value);
+                    handleTimestampQuery(input.value);
                 }}
             >
                 <SearchIcon/>
