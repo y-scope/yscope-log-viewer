@@ -9,7 +9,6 @@ import {
 } from "@mui/joy";
 
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import SearchIcon from "@mui/icons-material/Search";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -17,11 +16,10 @@ import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
 import {isDisabled} from "../../utils/states";
-import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
+import TimestampSelector from "./TimestampSelector";
 
 import "./index.css";
 
@@ -82,49 +80,7 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
-                <Box
-                    alignItems={"center"}
-                    className={"menu-bar-datetime-container"}
-                    display={"flex"}
-                    flexDirection={"row"}
-                >
-                    <input
-                        className={"menu-bar-datetime-input"}
-                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                        id={"menu-bar-datetime-input"}
-                        step={"0.1"}
-                        title={"Input date and time in UTC"}
-                        type={"datetime-local"}
-                        onKeyDown={(e) => {
-                            if ("Enter" === e.key) {
-                                const datetime = e.currentTarget.value;
-                                if (datetime) {
-                                    const timestamp = new Date(`${datetime}Z`).getTime();
-                                    updateWindowUrlHashParams({timestamp: timestamp});
-                                    updateViewHashParams();
-                                }
-                            }
-                        }}/>
-                    <MenuBarIconButton
-                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                        size={"sm"}
-                        tooltipPlacement={"bottom-start"}
-                        tooltipTitle={"Search by timestamp"}
-                        onClick={() => {
-                            const input = document.getElementById(
-                                "menu-bar-datetime-input"
-                            ) as HTMLInputElement;
-                            const datetime = input.value;
-                            if (datetime) {
-                                const timestamp = new Date(`${datetime}Z`).getTime();
-                                updateWindowUrlHashParams({timestamp: timestamp});
-                                updateViewHashParams();
-                            }
-                        }}
-                    >
-                        <SearchIcon/>
-                    </MenuBarIconButton>
-                </Box>
+                <TimestampSelector/>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
