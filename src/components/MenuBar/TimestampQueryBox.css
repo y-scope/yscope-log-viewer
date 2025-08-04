@@ -1,3 +1,15 @@
+:root {
+    --input-bg: #fff;
+    --input-color: #222;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --input-bg: #222;
+        --input-color: #fff;
+    }
+}
+
 .timestamp-query-box {
     display: flex;
     flex-direction: row;
@@ -8,5 +20,9 @@
     box-sizing: border-box;
     height: var(--ylv-menu-bar-height);
     border: none;
+
     font: inherit;
+    color: var(--input-color);
+
+    background-color: var(--input-bg);
 }
