@@ -13,6 +13,20 @@ import "./TimestampQueryBox.css";
 
 
 /**
+ * Perform timestamp query with the datetime string.
+ *
+ * @param datetime
+ */
+const searchByDateTime = (datetime: string) => {
+    if (datetime) {
+        const timestamp = new Date(`${datetime}Z`).getTime();
+        updateWindowUrlHashParams({timestamp: timestamp});
+        updateViewHashParams();
+    }
+};
+
+
+/**
  * renders a timestamp input field and a search icon button.
  * Users can input a date and time in UTC format and either press "Enter"
  * or click the search button to update the application's state and URL hash parameters.
@@ -26,17 +40,13 @@ const TimestampQueryBox = () => {
             <input
                 className={"timestamp-query-box-input"}
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                id={"timestamp-query-box-input"}
                 step={"0.1"}
                 title={"Input date and time in UTC"}
                 type={"datetime-local"}
                 onKeyDown={(e) => {
                     if ("Enter" === e.key) {
-                        const datetime = e.currentTarget.value;
-                        if (datetime) {
-                            const timestamp = new Date(`${datetime}Z`).getTime();
-                            updateWindowUrlHashParams({timestamp: timestamp});
-                            updateViewHashParams();
-                        }
+                        searchByDateTime(e.currentTarget.value);
                     }
                 }}/>
             <MenuBarIconButton
@@ -44,15 +54,11 @@ const TimestampQueryBox = () => {
                 tooltipPlacement={"bottom-start"}
                 tooltipTitle={"Search by timestamp"}
                 onClick={() => {
-                    const input = document.getElementsByClassName(
+                    const input = document.getElementById(
                         "timestamp-query-box-input"
-                    )[0] as HTMLInputElement;
-                    const datetime = input.value;
-                    if (datetime) {
-                        const timestamp = new Date(`${datetime}Z`).getTime();
-                        updateWindowUrlHashParams({timestamp: timestamp});
-                        updateViewHashParams();
-                    }
+                    ) as HTMLInputElement;
+
+                    searchByDateTime(input.value);
                 }}
             >
                 <SearchIcon/>

@@ -19,7 +19,7 @@ import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
-import TimestampQueryBox from "./TimestampQueryBox.tsx";
+import TimestampQueryBox from "./TimestampQueryBox";
 
 import "./index.css";
 
