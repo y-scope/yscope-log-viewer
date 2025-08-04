@@ -90,6 +90,7 @@ const MenuBar = () => {
                 >
                     <input
                         className={"menu-bar-datetime-input"}
+                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                         id={"menu-bar-datetime-input"}
                         step={"0.1"}
                         title={"Input date and time in UTC"}
@@ -105,6 +106,7 @@ const MenuBar = () => {
                             }
                         }}/>
                     <MenuBarIconButton
+                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                         size={"sm"}
                         tooltipPlacement={"bottom-start"}
                         tooltipTitle={"Search by timestamp"}
