@@ -19,7 +19,7 @@ import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
-import TimestampSelector from "./TimestampSelector";
+import TimestampQueryBox from "./TimestampQueryBox.tsx";
 
 import "./index.css";
 
@@ -80,7 +80,7 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
-                <TimestampSelector/>
+                <TimestampQueryBox/>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>

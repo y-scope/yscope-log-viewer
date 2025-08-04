@@ -9,6 +9,8 @@ import {updateWindowUrlHashParams} from "../../utils/url";
 import {updateViewHashParams} from "../../utils/url/urlHash";
 import MenuBarIconButton from "./MenuBarIconButton";
 
+import "./TimestampQueryBox.css";
+
 
 /**
  * renders a timestamp input field and a search icon button.
@@ -17,19 +19,13 @@ import MenuBarIconButton from "./MenuBarIconButton";
  *
  * @return
  */
-const TimestampSelector = () => {
+const TimestampQueryBox = () => {
     const uiState = useUiStore((state) => state.uiState);
     return (
-        <Box
-            alignItems={"center"}
-            className={"menu-bar-datetime-container"}
-            display={"flex"}
-            flexDirection={"row"}
-        >
+        <Box className={"timestamp-query-box"}>
             <input
-                className={"menu-bar-datetime-input"}
+                className={"timestamp-query-box-input"}
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                id={"menu-bar-datetime-input"}
                 step={"0.1"}
                 title={"Input date and time in UTC"}
                 type={"datetime-local"}
@@ -45,13 +41,12 @@ const TimestampSelector = () => {
                 }}/>
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                size={"sm"}
                 tooltipPlacement={"bottom-start"}
                 tooltipTitle={"Search by timestamp"}
                 onClick={() => {
-                    const input = document.getElementById(
-                        "menu-bar-datetime-input"
-                    ) as HTMLInputElement;
+                    const input = document.getElementsByClassName(
+                        "timestamp-query-box-input"
+                    )[0] as HTMLInputElement;
                     const datetime = input.value;
                     if (datetime) {
                         const timestamp = new Date(`${datetime}Z`).getTime();
@@ -66,4 +61,4 @@ const TimestampSelector = () => {
     );
 };
 
-export default TimestampSelector;
+export default TimestampQueryBox;

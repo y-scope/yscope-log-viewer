@@ -1,0 +1,12 @@
+.timestamp-query-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.timestamp-query-box-input {
+    box-sizing: border-box;
+    height: var(--ylv-menu-bar-height);
+    border: none;
+    font: inherit;
+}
