@@ -83,7 +83,7 @@ dev-guide/index
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [clp-loglib-py]: https://github.com/y-scope/clp-loglib-py
 [clp-repo]: https://github.com/y-scope/clp
-[datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[datasets]: https://docs.yscope.com/clp/main/user-docs/resources-datasets
 [feature-req]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=enhancement&template=feature-request.yml
 [hive-24hrs]: https://zenodo.org/records/7094921#.Y5JbH33MKHs
 [log4j1-appenders]: https://github.com/y-scope/log4j1-appenders
