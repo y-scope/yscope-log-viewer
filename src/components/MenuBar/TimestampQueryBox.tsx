@@ -19,6 +19,7 @@ import "./TimestampQueryBox.css";
  */
 const handleTimestampQuery = (datetime: string) => {
     if (datetime) {
+        console.error(datetime);
         const timestamp = new Date(`${datetime}Z`).getTime();
         updateWindowUrlHashParams({timestamp: timestamp});
         updateViewHashParams();
@@ -44,6 +45,8 @@ const TimestampQueryBox = () => {
                 step={"0.1"}
                 title={"Input date and time in UTC"}
                 type={"datetime-local"}
+                defaultValue={new Date().toISOString()
+                    .slice(0, -1)}
                 onKeyDown={(e) => {
                     if ("Enter" === e.key) {
                         handleTimestampQuery(e.currentTarget.value);

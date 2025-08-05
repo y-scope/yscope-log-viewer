@@ -13,6 +13,7 @@ import {
 
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import CollapseIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
@@ -91,9 +92,12 @@ const MenuBar = () => {
                 <Divider orientation={"vertical"}/>
                 <Box className={"menu-bar-calendar-container"}>
                     <MenuBarIconButton
+                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                         onClick={toggleTimestampQuery}
                     >
-                        <CalendarTodayIcon/>
+                        {showTimestampQuery ?
+                            <CollapseIcon/> :
+                            <CalendarTodayIcon/>}
                     </MenuBarIconButton>
 
                     <div

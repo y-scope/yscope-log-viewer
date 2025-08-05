@@ -23,6 +23,7 @@
 
     font: inherit;
     color: var(--input-color);
+    text-align: center;
 
     background-color: var(--input-bg);
 }
