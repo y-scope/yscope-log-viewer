@@ -38,7 +38,6 @@ const TimestampQueryBox = () => {
     return (
         <Box className={"timestamp-query-box"}>
             <input
-
                 className={"timestamp-query-box-input"}
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 id={"timestamp-query-box-input"}

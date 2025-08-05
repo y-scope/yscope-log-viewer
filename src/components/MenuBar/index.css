@@ -47,3 +47,17 @@
     z-index: var(--ylv-loading-progress-z-index);
     margin-bottom: -2px;
 }
+
+.menu-bar-calendar-container {
+    display: flex;
+}
+
+.timestamp-query-wrapper {
+    overflow: hidden;
+    max-width: 0;
+    transition: max-width 0.3s ease;
+}
+
+.timestamp-query-wrapper.expanded {
+    max-width: 300px;
+}

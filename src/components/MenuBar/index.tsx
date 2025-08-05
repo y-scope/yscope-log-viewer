@@ -1,4 +1,7 @@
-import {useCallback} from "react";
+import {
+    useCallback,
+    useState,
+} from "react";
 
 import {
     Box,
@@ -8,6 +11,7 @@ import {
     Typography,
 } from "@mui/joy";
 
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import useLogFileStore from "../../stores/logFileStore";
@@ -32,12 +36,17 @@ import "./index.css";
 const MenuBar = () => {
     const fileName = useLogFileStore((state) => state.fileName);
     const uiState = useUiStore((state) => state.uiState);
+    const [showTimestampQuery, setShowTimestampQuery] = useState(false);
 
     const handleOpenFile = useCallback(() => {
         openFile((file) => {
             const {loadFile} = useLogFileStore.getState();
             loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
         });
+    }, []);
+
+    const toggleTimestampQuery = useCallback(() => {
+        setShowTimestampQuery((prev) => !prev);
     }, []);
 
     return (
@@ -59,8 +68,8 @@ const MenuBar = () => {
                 >
                     <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
                 </MenuBarIconButton>
-                <Divider orientation={"vertical"}/>
 
+                <Divider orientation={"vertical"}/>
                 <Box
                     className={"menu-bar-filename-container"}
                     title={fileName}
@@ -80,14 +89,29 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
-                <TimestampQueryBox/>
+                <Box className={"menu-bar-calendar-container"}>
+                    <MenuBarIconButton
+                        onClick={toggleTimestampQuery}
+                    >
+                        <CalendarTodayIcon/>
+                    </MenuBarIconButton>
+
+                    <div
+                        className={`timestamp-query-wrapper ${showTimestampQuery ?
+                            "expanded" :
+                            ""}`}
+                    >
+                        <TimestampQueryBox/>
+                    </div>
+                </Box>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
-                <Divider orientation={"vertical"}/>
 
+                <Divider orientation={"vertical"}/>
                 <ExportLogsButton/>
             </Sheet>
+
             {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
                 <LinearProgress
                     className={"menu-bar-loading-progress"}
