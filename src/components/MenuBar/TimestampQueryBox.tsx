@@ -19,7 +19,6 @@ import "./TimestampQueryBox.css";
  */
 const handleTimestampQuery = (datetime: string) => {
     if (datetime) {
-        console.error(datetime);
         const timestamp = new Date(`${datetime}Z`).getTime();
         updateWindowUrlHashParams({timestamp: timestamp});
         updateViewHashParams();
