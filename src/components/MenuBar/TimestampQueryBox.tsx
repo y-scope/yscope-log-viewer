@@ -42,7 +42,7 @@ const TimestampQueryBox = () => {
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 id={"timestamp-query-box-input"}
                 step={"0.1"}
-                title={"Input date and time in UTC"}
+                title={"Timestamp to seek to in UTC"}
                 type={"datetime-local"}
                 defaultValue={new Date().toISOString()
                     .slice(0, -1)}
@@ -54,10 +54,10 @@ const TimestampQueryBox = () => {
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipPlacement={"bottom-start"}
-                tooltipTitle={"Search by timestamp"}
+                tooltipTitle={"Seek to timestamp"}
                 onClick={() => {
                     const input = document.getElementById(
-                        "timestamp-query-box-input"
+                        "timestamp-query-box-input",
                     ) as HTMLInputElement;
 
                     handleTimestampQuery(input.value);

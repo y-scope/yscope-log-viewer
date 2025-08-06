@@ -93,6 +93,10 @@ const MenuBar = () => {
                 <Box className={"menu-bar-calendar-container"}>
                     <MenuBarIconButton
                         disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                        tooltipPlacement={"bottom-start"}
+                        tooltipTitle={showTimestampQuery ?
+                            "Collapse" :
+                            "Seek to timestamp"}
                         onClick={toggleTimestampQuery}
                     >
                         {showTimestampQuery ?
@@ -116,11 +120,12 @@ const MenuBar = () => {
                 <ExportLogsButton/>
             </Sheet>
 
-            {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
+            {false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR) && (
                 <LinearProgress
                     className={"menu-bar-loading-progress"}
                     size={"sm"}
-                    thickness={2}/>}
+                    thickness={2}/>
+            )}
         </>
     );
 };
