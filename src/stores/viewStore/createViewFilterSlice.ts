@@ -28,7 +28,7 @@ const createViewFilterSlice: StateCreator<
         setUiState(UI_STATE.FAST_LOADING);
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified, logEventNum} = get();
+            const {logEventNum} = get();
             const pageData = await logFileManagerProxy.setFilter(
                 {
                     code: CURSOR_CODE.EVENT_NUM,
