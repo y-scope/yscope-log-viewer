@@ -36,7 +36,6 @@ const createViewFilterSlice: StateCreator<
                         eventNum: logEventNum,
                     },
                 },
-                isPrettified,
                 filter
             );
 
