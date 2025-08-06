@@ -145,8 +145,7 @@ const useLogFileStore = create<LogFileState>((set) => ({
 
             set(fileInfo);
 
-            const {isPrettified} = useViewStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor);
             updatePageData(pageData);
             setUiState(UI_STATE.READY);
 
