@@ -95,7 +95,6 @@ const updateViewHashParams = () => {
         const {updatePageData} = useViewStore.getState();
         const {isPrettified: prevIsPrettified, setIsPrettified} = useViewStore.getState();
         if (isPrettified !== prevIsPrettified) {
-            console.error("isPrettified changed to", isPrettified);
             setIsPrettified(isPrettified);
             await logFileManagerProxy.setIsPrettified(isPrettified);
         }
