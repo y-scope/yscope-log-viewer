@@ -139,8 +139,7 @@ const createViewPageSlice: StateCreator<
 
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor);
             const {updatePageData} = get();
             updatePageData(pageData);
             setUiState(UI_STATE.READY);
