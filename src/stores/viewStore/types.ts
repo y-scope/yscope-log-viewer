@@ -15,7 +15,6 @@ interface ViewPageValues {
 
 interface ViewPageActions {
     loadPageByAction: (navAction: NavigationAction) => void;
-    setPageData: (pageData: PageData) => void;
     updatePageData: (pageData: PageData) => void;
 }
 
@@ -26,7 +25,7 @@ interface ViewEventValues {
 }
 
 interface ViewEventActions {
-    updateLogEventNum: (newLogEventNum: number) => void;
+    setLogEventNum: (newLogEventNum: number) => void;
 }
 
 type ViewEventSlice = ViewEventValues & ViewEventActions;
@@ -36,7 +35,7 @@ interface ViewFormattingValues {
 }
 
 interface ViewFormattingActions {
-    updateIsPrettified: (newIsPrettified: boolean) => void;
+    setIsPrettified: (newIsPrettified: boolean) => void;
 }
 
 type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;

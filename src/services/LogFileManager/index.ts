@@ -282,7 +282,6 @@ class LogFileManager {
 
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
-            cursorLineNum: 1,
             logEventNum: matchingLogEventNum,
             logs: messages.join(""),
             numPages: newNumPages,

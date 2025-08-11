@@ -14,18 +14,14 @@ import {
     MountCallback,
     TextUpdateCallback,
 } from "./typings";
-import {
-    createMonacoEditor,
-    goToPositionAndCenter,
-} from "./utils";
+import {createMonacoEditor} from "./utils";
 
-import "./bootstrap.ts";
+import "./bootstrap";
 import "./index.css";
 
 
 interface MonacoEditorProps {
     actions: EditorAction[];
-    lineNum: number;
     text: string;
     themeName: "dark" | "light";
 
@@ -44,7 +40,6 @@ interface MonacoEditorProps {
  *
  * @param props
  * @param props.actions
- * @param props.lineNum
  * @param props.text
  * @param props.themeName
  * @param props.beforeMount
@@ -57,7 +52,6 @@ interface MonacoEditorProps {
  */
 const MonacoInstance = ({
     actions,
-    lineNum,
     text,
     themeName,
     beforeMount,
@@ -69,12 +63,6 @@ const MonacoInstance = ({
 }: MonacoEditorProps) => {
     const editorRef = useRef<null | monaco.editor.IStandaloneCodeEditor>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
-    const lineNumRef = useRef<number>(lineNum);
-
-    // Synchronize `lineNumRef` with `lineNum`.
-    useEffect(() => {
-        lineNumRef.current = lineNum;
-    }, [lineNum]);
 
     useEffect(() => {
         console.log("Initializing Monaco instance...");
@@ -115,21 +103,12 @@ const MonacoInstance = ({
         }
         beforeTextUpdate?.(editorRef.current);
         editorRef.current.setValue(text);
-        goToPositionAndCenter(editorRef.current, {lineNumber: lineNumRef.current, column: 1});
         onTextUpdate?.(editorRef.current);
     }, [
         text,
         beforeTextUpdate,
         onTextUpdate,
     ]);
-
-    // On `lineNum` update, update the cursor's position in the editor.
-    useEffect(() => {
-        if (null === editorRef.current) {
-            return;
-        }
-        goToPositionAndCenter(editorRef.current, {lineNumber: lineNum, column: 1});
-    }, [lineNum]);
 
     return (
         <div
