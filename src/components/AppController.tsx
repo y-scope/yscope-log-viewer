@@ -1,26 +1,18 @@
-import React, {
-    useEffect,
-    useRef,
-} from "react";
+import React, { useEffect, useRef } from "react";
 
 import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
-import {
-    CURSOR_CODE,
-    CursorType,
-} from "../typings/worker";
+import { CURSOR_CODE, CursorType } from "../typings/worker";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT,
+    URL_SEARCH_PARAMS_DEFAULT
 } from "../utils/url";
-import {
-    updateQueryHashParams,
-    updateViewHashParams,
-} from "../utils/url/urlHash";
+import { updateQueryHashParams, updateViewHashParams } from "../utils/url/urlHash";
+import { HASH_PARAM_NAMES } from "../typings/url.ts";
 
 
 /**
@@ -62,7 +54,7 @@ const AppController = ({children}: AppControllerProps) => {
         // Handle initial page load and maintain full URL state
         const hashParams = getWindowUrlHashParams();
         updateWindowUrlHashParams({
-            isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+            isPrettified: hashParams[HASH_PARAM_NAMES.IS_PRETTIFIED],
             timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
         });
         const {setIsPrettified} = useViewStore.getState();
