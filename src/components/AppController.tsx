@@ -6,7 +6,6 @@ import React, {
 import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
-import {Nullable} from "../typings/common";
 import {
     CURSOR_CODE,
     CursorType,
@@ -14,68 +13,25 @@ import {
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
+    updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
+import {
+    updateQueryHashParams,
+    updateViewHashParams,
+} from "../utils/url/urlHash";
 
-
-/**
- * Updates view-related states from URL hash parameters.
- * NOTE: this may modify the URL parameters.
- */
-const updateViewHashParams = () => {
-    const {isPrettified, logEventNum} = getWindowUrlHashParams();
-    const {updateIsPrettified, updateLogEventNum} = useViewStore.getState();
-
-    updateIsPrettified(isPrettified);
-    updateLogEventNum(logEventNum);
-};
-
-/**
- * Updates query-related states from URL hash parameters.
- * NOTE: this may modify the URL parameters.
- *
- * @return Whether any query-related parameters were modified.
- */
-const updateQueryHashParams = () => {
-    const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
-    const {
-        queryIsCaseSensitive: currentQueryIsCaseSensitive,
-        queryIsRegex: currentQueryIsRegex,
-        queryString: currentQueryString,
-        setQueryIsCaseSensitive,
-        setQueryIsRegex,
-        setQueryString,
-    } = useQueryStore.getState();
-
-    let isQueryModified = false;
-    isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
-    setQueryIsCaseSensitive(queryIsCaseSensitive);
-
-    isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
-    setQueryIsRegex(queryIsRegex);
-
-    isQueryModified ||= queryString !== currentQueryString;
-    setQueryString(queryString);
-
-    return isQueryModified;
-};
 
 /**
  * Handles hash change events by updating the application state based on the URL hash parameters.
- *
- * @param [ev] The hash change event, or `null` when called on application initialization.
  */
-const handleHashChange = (ev: Nullable<HashChangeEvent>) => {
+const handleHashChange = () => {
     updateViewHashParams();
-    const isTriggeredByHashChange = null !== ev;
-    if (isTriggeredByHashChange && updateQueryHashParams()) {
+    if (updateQueryHashParams()) {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
-
-    // eslint-disable-next-line no-warning-comments
-    // TODO: Remove empty or falsy parameters.
 };
 
 interface AppControllerProps {
@@ -104,13 +60,26 @@ const AppController = ({children}: AppControllerProps) => {
         isInitialized.current = true;
 
         // Handle initial page load and maintain full URL state
-        handleHashChange(null);
         const hashParams = getWindowUrlHashParams();
+        updateWindowUrlHashParams({
+            isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+            timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
+        });
+        const {setIsPrettified} = useViewStore.getState();
+        setIsPrettified(hashParams.isPrettified);
+
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
             let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
 
-            if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+            if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
+                cursor = {
+                    code: CURSOR_CODE.TIMESTAMP,
+                    args: {timestamp: hashParams.timestamp},
+                };
+            } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+                const {setLogEventNum} = useViewStore.getState();
+                setLogEventNum(hashParams.logEventNum);
                 cursor = {
                     code: CURSOR_CODE.EVENT_NUM,
                     args: {eventNum: hashParams.logEventNum},
@@ -127,6 +96,5 @@ const AppController = ({children}: AppControllerProps) => {
 
     return children;
 };
-
 
 export default AppController;

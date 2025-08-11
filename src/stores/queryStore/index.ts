@@ -1,8 +1,8 @@
 import {create} from "zustand";
 
+import {createQueryConfigSlice} from "./createQueryConfigSlice.ts";
 import createQueryControllerSlice from "./createQueryControllerSlice";
 import {createQueryResultsSlice} from "./createQueryResultsSlice";
-import {createQueryConfigSlice} from "./queryConfigSlice";
 import {QueryState} from "./types";
 
 

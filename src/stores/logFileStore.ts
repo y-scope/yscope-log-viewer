@@ -1,7 +1,6 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {Metadata} from "../typings/decoders";
@@ -22,13 +21,13 @@ import {
 } from "../typings/worker";
 import {getConfig} from "../utils/config";
 import {updateWindowUrlSearchParams} from "../utils/url";
+import {updateQueryHashParams} from "../utils/url/urlHash";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
 import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
-import {VIEW_EVENT_DEFAULT} from "./viewStore/createViewEventSlice";
 import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
@@ -120,8 +119,7 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {updatePageData} = useViewStore.getState();
         updatePageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
-            cursorLineNum: 1,
-            logEventNum: VIEW_EVENT_DEFAULT.logEventNum,
+            logEventNum: useViewStore.getState().logEventNum,
             logs: "Loading...",
             numPages: VIEW_PAGE_DEFAULT.numPages,
             pageNum: VIEW_PAGE_DEFAULT.pageNum,
@@ -150,13 +148,14 @@ const useLogFileStore = create<LogFileState>((set) => ({
             const {isPrettified} = useViewStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
             updatePageData(pageData);
+            setUiState(UI_STATE.READY);
 
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
-            const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
-                fileInfo.fileType === FILE_TYPE.JSONL;
+            if (updateQueryHashParams()) {
+                const {startQuery} = useQueryStore.getState();
+                startQuery();
+            }
 
-            if (0 === decoderOptions.formatString.length && canFormat) {
+            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
                 const {postPopUp} = useNotificationStore.getState();
                 postPopUp(FORMAT_POP_UP_MESSAGE);
             }

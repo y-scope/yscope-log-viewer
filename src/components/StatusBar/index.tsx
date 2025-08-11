@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 
 import {
     Button,
@@ -14,7 +14,10 @@ import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
-import {UI_ELEMENT} from "../../typings/states";
+import {
+    UI_ELEMENT,
+    UI_STATE,
+} from "../../typings/states";
 import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
@@ -22,6 +25,7 @@ import {
     copyPermalinkToClipboard,
     updateWindowUrlHashParams,
 } from "../../utils/url";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
@@ -45,9 +49,8 @@ const StatusBar = () => {
     const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
-    const updateIsPrettified = useViewStore((state) => state.updateIsPrettified);
 
-    const handleStatusButtonClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    const handleStatusButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
         const {actionName} = ev.currentTarget.dataset;
 
         switch (actionName) {
@@ -55,13 +58,14 @@ const StatusBar = () => {
                 updateWindowUrlHashParams({
                     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
                 });
-                updateIsPrettified(!isPrettified);
+                useUiStore.getState().setUiState(UI_STATE.FAST_LOADING);
+                updateViewHashParams();
                 break;
             default:
                 console.error(`Unexpected action: ${actionName}`);
                 break;
         }
-    };
+    }, [isPrettified]);
 
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 

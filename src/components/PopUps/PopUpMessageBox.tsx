@@ -48,10 +48,13 @@ const PopUpMessageBox = ({message}: PopUpMessageProps) => {
         handlePopUpMessageClose(id);
     }, [id]);
 
-    const handlePrimaryActionClick = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    const handlePrimaryActionClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
         primaryAction?.onClick?.(ev);
         handleCloseButtonClick();
-    };
+    }, [
+        handleCloseButtonClick,
+        primaryAction,
+    ]);
 
     useEffect(() => {
         if (DO_NOT_TIMEOUT_VALUE === timeoutMillis) {

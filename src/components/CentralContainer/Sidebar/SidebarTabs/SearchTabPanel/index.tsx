@@ -17,7 +17,10 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {copyPermalinkToClipboard} from "../../../../../utils/url";
+import {
+    copyPermalinkToClipboard,
+    URL_HASH_PARAMS_DEFAULT,
+} from "../../../../../utils/url";
 import CustomTabPanel from "../CustomTabPanel";
 import PanelTitleButton from "../PanelTitleButton";
 import QueryInputBox from "./QueryInputBox";
@@ -55,7 +58,7 @@ const SearchTabPanel = () => {
         setQueryString(queryString);
 
         copyPermalinkToClipboard({}, {
-            logEventNum: null,
+            logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
             queryString: queryString,
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,
