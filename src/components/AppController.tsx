@@ -1,18 +1,27 @@
-import React, { useEffect, useRef } from "react";
+import React, {
+    useEffect,
+    useRef,
+} from "react";
 
 import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
-import { CURSOR_CODE, CursorType } from "../typings/worker";
+import {HASH_PARAM_NAMES} from "../typings/url";
+import {
+    CURSOR_CODE,
+    CursorType,
+} from "../typings/worker";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
     updateWindowUrlHashParams,
     URL_HASH_PARAMS_DEFAULT,
-    URL_SEARCH_PARAMS_DEFAULT
+    URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
-import { updateQueryHashParams, updateViewHashParams } from "../utils/url/urlHash";
-import { HASH_PARAM_NAMES } from "../typings/url.ts";
+import {
+    updateQueryHashParams,
+    updateViewHashParams,
+} from "../utils/url/urlHash";
 
 
 /**
