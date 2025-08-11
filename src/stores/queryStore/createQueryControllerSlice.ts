@@ -1,9 +1,7 @@
 import {StateCreator} from "zustand";
 
-import {TAB_NAME} from "../../typings/tab";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {handleErrorWithNotification} from "../notificationStore";
-import useUiStore from "../uiStore";
 import {QUERY_CONFIG_DEFAULT} from "./createQueryConfigSlice.ts";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {
@@ -52,9 +50,6 @@ const createQueryControllerSlice: StateCreator<
 
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
         })().catch(handleErrorWithNotification);
-
-        const {setActiveTabName} = useUiStore.getState();
-        setActiveTabName(TAB_NAME.SEARCH);
     },
 });
 
