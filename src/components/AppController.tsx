@@ -8,6 +8,7 @@ import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {TAB_NAME} from "../typings/tab";
+import {HASH_PARAM_NAMES} from "../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -66,7 +67,7 @@ const AppController = ({children}: AppControllerProps) => {
         // Handle initial page load and maintain full URL state
         const hashParams = getWindowUrlHashParams();
         updateWindowUrlHashParams({
-            isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+            isPrettified: hashParams[HASH_PARAM_NAMES.IS_PRETTIFIED],
             timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
         });
         const {setIsPrettified} = useViewStore.getState();

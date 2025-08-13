@@ -55,12 +55,24 @@ const LOG_FILE_STORE_DEFAULT: LogFileValues = {
 };
 
 /**
+ * Handles the primary action of the format popup by switching to the settings tab.
+ */
+const handleFormatPopupPrimaryAction = () => {
+    const {setActiveTabName} = useUiStore.getState();
+    setActiveTabName(TAB_NAME.SETTINGS);
+};
+
+/**
  * Format popup message shown when a structured log is loaded without a format string.
  */
 const FORMAT_POP_UP_MESSAGE: PopUpMessage = Object.freeze({
     level: LOG_LEVEL.INFO,
     message: "Adding a format string can enhance the readability of your" +
                     " structured logs by customizing how fields are displayed.",
+    primaryAction: {
+        children: "Settings",
+        onClick: handleFormatPopupPrimaryAction,
+    },
     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     title: "A format string has not been configured",
 });
@@ -147,7 +159,9 @@ const useLogFileStore = create<LogFileState>((set) => ({
             set(fileInfo);
 
             const {isPrettified} = useViewStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            await logFileManagerProxy.setIsPrettified(isPrettified);
+
+            const pageData = await logFileManagerProxy.loadPage(cursor);
             updatePageData(pageData);
             setUiState(UI_STATE.READY);
 

@@ -38,14 +38,10 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
         return null;
     }
 
-    const {
-        isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
-    } = useViewStore.getState();
+    const {isPrettified: prevIsPrettified, setLogEventNum} = useViewStore.getState();
     const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
     if (isPrettified !== prevIsPrettified) {
-        setIsPrettified(isPrettified);
-
         return {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
@@ -84,7 +80,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
 const updateViewHashParams = () => {
     const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
-        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+        isPrettified: isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
 
@@ -97,7 +93,12 @@ const updateViewHashParams = () => {
     (async () => {
         const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const {updatePageData} = useViewStore.getState();
-        const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+        const {isPrettified: prevIsPrettified, setIsPrettified} = useViewStore.getState();
+        if (isPrettified !== prevIsPrettified) {
+            setIsPrettified(isPrettified);
+            await logFileManagerProxy.setIsPrettified(isPrettified);
+        }
+        const pageData = await logFileManagerProxy.loadPage(cursor);
         updatePageData(pageData);
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.READY);
