@@ -97,8 +97,8 @@ const updateViewHashParams = () => {
         return;
     }
 
-    const {loadPage} = useViewStore.getState();
-    loadPage(cursor).catch(handleErrorWithNotification);
+    const {loadPageByCursor} = useViewStore.getState();
+    loadPageByCursor(cursor).catch(handleErrorWithNotification);
 };
 
 /**

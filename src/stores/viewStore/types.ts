@@ -15,7 +15,7 @@ interface ViewPageValues {
 }
 
 interface ViewPageActions {
-    loadPage: (cursor: CursorType) => Promise<void>;
+    loadPageByCursor: (cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
     updatePageData: (pageData: PageData) => void;
 }

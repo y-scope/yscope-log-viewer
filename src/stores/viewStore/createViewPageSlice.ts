@@ -92,17 +92,6 @@ const createViewPageSlice: StateCreator<
     ViewState, [], [], ViewPageSlice
 > = (set, get) => ({
     ...VIEW_PAGE_DEFAULT,
-    loadPage: async (cursor: CursorType) => {
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FAST_LOADING);
-
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const pageData = await logFileManagerProxy.loadPage(cursor);
-        const {updatePageData} = get();
-        updatePageData(pageData);
-
-        setUiState(UI_STATE.READY);
-    },
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
             const {fileSrc, loadFile} = useLogFileStore.getState();
@@ -128,14 +117,25 @@ const createViewPageSlice: StateCreator<
 
             return;
         }
-        const {numPages, pageNum, loadPage} = get();
+        const {numPages, pageNum, loadPageByCursor} = get();
         const cursor = getPageNumCursor(navAction, pageNum, numPages);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
             return;
         }
-        loadPage(cursor).catch(handleErrorWithNotification);
+        loadPageByCursor(cursor).catch(handleErrorWithNotification);
+    },
+    loadPageByCursor: async (cursor: CursorType) => {
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
+
+        const {logFileManagerProxy} = useLogFileManagerStore.getState();
+        const pageData = await logFileManagerProxy.loadPage(cursor);
+        const {updatePageData} = get();
+        updatePageData(pageData);
+
+        setUiState(UI_STATE.READY);
     },
     updatePageData: (pageData: PageData) => {
         set({
