@@ -5,7 +5,9 @@ import React, {
 
 import useLogFileStore from "../stores/logFileStore";
 import useQueryStore from "../stores/queryStore";
+import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
+import {TAB_NAME} from "../typings/tab";
 import {HASH_PARAM_NAMES} from "../typings/url";
 import {
     CURSOR_CODE,
@@ -30,6 +32,8 @@ import {
 const handleHashChange = () => {
     updateViewHashParams();
     if (updateQueryHashParams()) {
+        const {setActiveTabName} = useUiStore.getState();
+        setActiveTabName(TAB_NAME.SEARCH);
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }

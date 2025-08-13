@@ -110,6 +110,7 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
 };
 
 
+// eslint-disable-next-line max-lines-per-function
 const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
     loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
@@ -166,6 +167,8 @@ const useLogFileStore = create<LogFileState>((set) => ({
             setUiState(UI_STATE.READY);
 
             if (updateQueryHashParams()) {
+                const {setActiveTabName} = useUiStore.getState();
+                setActiveTabName(TAB_NAME.SEARCH);
                 const {startQuery} = useQueryStore.getState();
                 startQuery();
             }
