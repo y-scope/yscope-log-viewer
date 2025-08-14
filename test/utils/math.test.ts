@@ -56,11 +56,7 @@ describe("upperBoundBinarySearch", () => {
     const emptyArray: number[] = [];
     const singleElementArray = [3];
     const array = [-5, -3, 0, 1, 1, 8, 8, 8, 100];
-    test("returns null if collection is empty with lowIdx < highIdx", () => {
-        const result = upperBoundBinarySearch(emptyArray, 5, (arrayElement) => arrayElement);
-        expect(result).toBeNull();
-    });
-    test("returns null if collection is empty with highIdx < lowIdx", () => {
+    test("returns null if collection is empty", () => {
         const result = upperBoundBinarySearch(emptyArray, 5, (arrayElement) => arrayElement);
         expect(result).toBeNull();
     });
