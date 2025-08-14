@@ -2,10 +2,8 @@ import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore.t
 import useLogFileStore from "../../stores/logFileStore.ts";
 import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
 import useQueryStore from "../../stores/queryStore";
-import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
-import {UI_STATE} from "../../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
@@ -38,10 +36,19 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
         return null;
     }
 
-    const {isPrettified: prevIsPrettified, setLogEventNum} = useViewStore.getState();
+    const {
+        isPrettified: prevIsPrettified, setIsPrettified, setLogEventNum,
+    } = useViewStore.getState();
     const clampedLogEventNum = clamp(logEventNum, 1, numEvents);
 
     if (isPrettified !== prevIsPrettified) {
+        setIsPrettified(isPrettified);
+
+        (async () => {
+            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+            await logFileManagerProxy.setIsPrettified(isPrettified);
+        })().catch(handleErrorWithNotification);
+
         return {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
@@ -90,19 +97,8 @@ const updateViewHashParams = () => {
         return;
     }
 
-    (async () => {
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {updatePageData} = useViewStore.getState();
-        const {isPrettified: prevIsPrettified, setIsPrettified} = useViewStore.getState();
-        if (isPrettified !== prevIsPrettified) {
-            setIsPrettified(isPrettified);
-            await logFileManagerProxy.setIsPrettified(isPrettified);
-        }
-        const pageData = await logFileManagerProxy.loadPage(cursor);
-        updatePageData(pageData);
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.READY);
-    })().catch(handleErrorWithNotification);
+    const {loadPageByCursor} = useViewStore.getState();
+    loadPageByCursor(cursor).catch(handleErrorWithNotification);
 };
 
 /**

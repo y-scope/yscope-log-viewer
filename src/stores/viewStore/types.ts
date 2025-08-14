@@ -1,6 +1,7 @@
 import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
+    CursorType,
     PageData,
 } from "../../typings/worker";
 import {NavigationAction} from "../../utils/actions";
@@ -14,6 +15,7 @@ interface ViewPageValues {
 }
 
 interface ViewPageActions {
+    loadPageByCursor: (cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
     updatePageData: (pageData: PageData) => void;
 }
