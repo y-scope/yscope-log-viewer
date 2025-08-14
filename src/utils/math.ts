@@ -35,7 +35,7 @@ const getChunkNum =
  * elements are greater, or `null` if the collection is empty or the indices are invalid.
  */
 const upperBoundBinarySearch = <T, U>(
-    get: (logEvent: U) => T,
+    get: (arrayElement: U) => T,
     array: U[],
     upperBoundValue: T,
 ): Nullable<number> => {
