@@ -48,7 +48,7 @@ const upperBoundBinarySearch = <T, U>(
     while (lowIdx <= highIdx) {
         const mid = Math.floor((lowIdx + highIdx) / 2);
 
-        // `mid` is guaranteed to be within bounds since `low <= high`.
+        // `mid` is guaranteed to be within bounds since `lowIdx <= highIdx`.
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (get(array[mid]!) <= upperBoundValue) {
             lowIdx = mid + 1;
