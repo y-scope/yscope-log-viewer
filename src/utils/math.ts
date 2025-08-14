@@ -24,22 +24,22 @@ const getChunkNum =
     (itemNum: number, chunkSize: number) => Math.max(1, Math.ceil(itemNum / chunkSize));
 
 /**
- * Finds the index of the last element in a sorted collection that is less than or equal to
- * `upperboundValue`. If all elements in the collection are greater than `upperboundValue`, return
- * the first index of the collection (i.e., `0`).
+ * Finds the last element in a sorted collection that is less than or equal to `upperboundValue`. If
+ * all elements in the collection are greater than `upperboundValue`, returns the first index of the
+ * collection (i.e., `0`).
  *
- * @param get Function provided to access elements in the collection by index.
+ * @param get Function to access elements in the collection by index.
  * @param lowIdx
  * @param highIdx
- * @param upperboundValue
- * @return The index of the last element less than or equal to `upperboundValue`,`0` if all elements
- * are greater, or `null` if the collection is empty or the indices are invalid.
+ * @param upperBoundValue
+ * @return The index of the last element less than or equal to `upperboundValue`, `0` if all
+ * elements are greater, or `null` if the collection is empty or the indices are invalid.
  */
 const upperBoundBinarySearch = <T>(
     get: (index: number) => T,
     lowIdx: number,
     highIdx: number,
-    upperboundValue: T,
+    upperBoundValue: T,
 ): Nullable<number> => {
     if (highIdx < lowIdx || "undefined" === typeof (get(highIdx))) {
         return null;
@@ -49,7 +49,7 @@ const upperBoundBinarySearch = <T>(
         const mid = Math.floor((lowIdx + highIdx) / 2);
 
         // `mid` is guaranteed to be within bounds since `low <= high`.
-        if (get(mid) <= upperboundValue) {
+        if (get(mid) <= upperBoundValue) {
             lowIdx = mid + 1;
         } else {
             highIdx = mid - 1;
