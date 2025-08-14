@@ -32,7 +32,7 @@ const getChunkNum =
  * @param upperBoundValue
  * @param get Function to access an element (or its property) in the collection.
  * @return The index of the last element less than or equal to `upperBoundValue`, `0` if all
- * elements are greater, or `null` if the collection is empty or the indices are invalid.
+ * elements are greater, or `null` if the collection is empty.
  */
 const upperBoundBinarySearch = <T, U>(
     array: U[],
