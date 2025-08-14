@@ -57,57 +57,57 @@ describe("upperBoundBinarySearch", () => {
     const singleElementArray = [3];
     const array = [-5, -3, 0, 1, 1, 8, 8, 8, 100];
     test("returns null if collection is empty with lowIdx < highIdx", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, emptyArray, 5);
+        const result = upperBoundBinarySearch(emptyArray, 5, (arrayElement) => arrayElement);
         expect(result).toBeNull();
     });
     test("returns null if collection is empty with highIdx < lowIdx", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, emptyArray, 5);
+        const result = upperBoundBinarySearch(emptyArray, 5, (arrayElement) => arrayElement);
         expect(result).toBeNull();
     });
     test("returns the first index if upperboundValue < all elements in array", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, -10);
+        const result = upperBoundBinarySearch(array, -10, (arrayElement) => arrayElement);
         expect(result).toBe(0);
     });
     test("returns the first index if upperboundValue < element in singleElementArray", () => {
         const result = upperBoundBinarySearch(
-            (arrayElement) => arrayElement,
             singleElementArray,
-            -10
+            -10,
+            (arrayElement) => arrayElement
         );
 
         expect(result).toBe(0);
     });
     test("returns the last index if upperboundValue > all elements in array", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, 200);
+        const result = upperBoundBinarySearch(array, 200, (arrayElement) => arrayElement);
         expect(result).toBe(array.length - 1);
     });
     test("returns the last index if upperboundValue > element in singleElementArray", () => {
         const result = upperBoundBinarySearch(
-            (arrayElement) => arrayElement,
             singleElementArray,
-            200
+            200,
+            (arrayElement) => arrayElement
         );
 
         expect(result).toBe(0);
     });
     test("returns the correct index if upperboundValue doesn't match any elements", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, 2);
+        const result = upperBoundBinarySearch(array, 2, (arrayElement) => arrayElement);
         expect(result).toBe(4);
     });
     test("returns the correct index if upperboundValue matches a unique element", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, 0);
+        const result = upperBoundBinarySearch(array, 0, (arrayElement) => arrayElement);
         expect(result).toBe(2);
     });
     test("returns the last matched index if upperboundValue matches a duplicated element", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, 8);
+        const result = upperBoundBinarySearch(array, 8, (arrayElement) => arrayElement);
         expect(result).toBe(7);
     });
     test("returns index 0 if upperboundValue matches the first element", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, -5);
+        const result = upperBoundBinarySearch(array, -5, (arrayElement) => arrayElement);
         expect(result).toBe(0);
     });
     test("returns the last index if upperboundValue matches the last element", () => {
-        const result = upperBoundBinarySearch((arrayElement) => arrayElement, array, 100);
+        const result = upperBoundBinarySearch(array, 100, (arrayElement) => arrayElement);
         expect(result).toBe(array.length - 1);
     });
 });

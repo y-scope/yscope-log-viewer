@@ -28,16 +28,16 @@ const getChunkNum =
  * all elements in the collection are greater than `upperBoundValue`, returns the first index of the
  * collection (i.e., `0`).
  *
- * @param get Function to access an element (or its property) in the collection.
- * @param array
+ * @param array The entire collection in ascending order.
  * @param upperBoundValue
+ * @param get Function to access an element (or its property) in the collection.
  * @return The index of the last element less than or equal to `upperBoundValue`, `0` if all
  * elements are greater, or `null` if the collection is empty or the indices are invalid.
  */
 const upperBoundBinarySearch = <T, U>(
-    get: (arrayElement: U) => T,
     array: U[],
     upperBoundValue: T,
+    get: (arrayElement: U) => T,
 ): Nullable<number> => {
     if (0 === array.length) {
         return null;
