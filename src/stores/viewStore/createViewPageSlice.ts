@@ -81,6 +81,8 @@ const VIEW_PAGE_DEFAULT: ViewPageValues = {
     pageNum: 0,
 };
 
+let pageLoadInFlight: Nullable<Promise<void>> = null;
+
 /**
  * Creates a slice for updating the view state.
  *
@@ -111,12 +113,6 @@ const createViewPageSlice: StateCreator<
             return;
         }
 
-        const {uiState} = useUiStore.getState();
-        if (UI_STATE.READY !== uiState) {
-            console.warn("Skipping navigation: page load in progress.");
-
-            return;
-        }
         const {numPages, pageNum, loadPageByCursor} = get();
         const cursor = getPageNumCursor(navAction, pageNum, numPages);
         if (null === cursor) {
@@ -126,18 +122,30 @@ const createViewPageSlice: StateCreator<
         }
         loadPageByCursor(cursor).catch(handleErrorWithNotification);
     },
-    loadPageByCursor: async (cursor: CursorType) => {
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FAST_LOADING);
+    loadPageByCursor: (cursor: CursorType) => {
+        if (pageLoadInFlight) {
+            console.warn("Page load already in flight, ignoring new request.");
 
-        try {
-            const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const pageData = await logFileManagerProxy.loadPage(cursor);
-            const {updatePageData} = get();
-            updatePageData(pageData);
-        } finally {
-            setUiState(UI_STATE.READY);
+            return pageLoadInFlight;
         }
+
+        pageLoadInFlight = (async () => {
+            const {setUiState} = useUiStore.getState();
+            setUiState(UI_STATE.FAST_LOADING);
+
+            try {
+                const {logFileManagerProxy} = useLogFileManagerStore.getState();
+                const pageData = await logFileManagerProxy.loadPage(cursor);
+                const {updatePageData} = get();
+                updatePageData(pageData);
+            } finally {
+                setUiState(UI_STATE.READY);
+            }
+        })();
+
+        return pageLoadInFlight.finally(() => {
+            pageLoadInFlight = null;
+        });
     },
     updatePageData: (pageData: PageData) => {
         set({
