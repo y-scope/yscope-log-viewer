@@ -141,9 +141,8 @@ class JsonlDecoder implements Decoder {
 
     findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
         return upperBoundBinarySearch(
-            (idx) => this.#logEvents[idx]?.timestamp.valueOf(),
-            0,
-            this.#logEvents.length - 1,
+            (logEvent) => logEvent.timestamp.valueOf(),
+            this.#logEvents,
             timestamp
         );
     }
