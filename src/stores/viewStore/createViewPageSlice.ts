@@ -130,12 +130,14 @@ const createViewPageSlice: StateCreator<
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const pageData = await logFileManagerProxy.loadPage(cursor);
-        const {updatePageData} = get();
-        updatePageData(pageData);
-
-        setUiState(UI_STATE.READY);
+        try {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const pageData = await logFileManagerProxy.loadPage(cursor);
+            const {updatePageData} = get();
+            updatePageData(pageData);
+        } finally {
+            setUiState(UI_STATE.READY);
+        }
     },
     updatePageData: (pageData: PageData) => {
         set({
