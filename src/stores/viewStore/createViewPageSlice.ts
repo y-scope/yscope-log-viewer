@@ -126,7 +126,7 @@ const createViewPageSlice: StateCreator<
         }
         loadPageByCursor(cursor).catch(handleErrorWithNotification);
     },
-    loadPageByCursor: (cursor: CursorType) => {
+    loadPageByCursor: async (cursor: CursorType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FAST_LOADING);
 
