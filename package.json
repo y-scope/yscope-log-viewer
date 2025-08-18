@@ -31,7 +31,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/joy": "^5.0.0-beta.52",
-    "axios": "^1.8.2",
+    "axios": "^1.11.0",
     "clp-ffi-js": "^0.6.0",
     "comlink": "^4.4.2",
     "dayjs": "^1.11.13",

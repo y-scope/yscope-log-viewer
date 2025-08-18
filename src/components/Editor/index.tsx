@@ -5,7 +5,6 @@ import {
     useCallback,
     useEffect,
     useRef,
-    useState,
 } from "react";
 
 import {useColorScheme} from "@mui/joy";
@@ -34,6 +33,7 @@ import {
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import {updateWindowUrlHashParams} from "../../utils/url";
+import {updateViewHashParams} from "../../utils/url/urlHash";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -163,12 +163,13 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.TOGGLE_PRETTIFY: {
-            const {isPrettified, updateIsPrettified} = useViewStore.getState();
+            const {isPrettified, setIsPrettified} = useViewStore.getState();
             const newIsPrettified = !isPrettified;
             updateWindowUrlHashParams({
                 [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
             });
-            updateIsPrettified(newIsPrettified);
+            setIsPrettified(newIsPrettified);
+            updateViewHashParams();
             break;
         }
         case ACTION_NAME.TOGGLE_WORD_WRAP:
@@ -194,7 +195,6 @@ const Editor = () => {
     const queryIsCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const queryIsRegex = useQueryStore((state) => state.queryIsRegex);
 
-    const [lineNum, setLineNum] = useState<number>(1);
     const beginLineNumToLogEventNumRef = useRef<BeginLineNumToLogEventNumMap>(
         beginLineNumToLogEventNum
     );
@@ -271,8 +271,7 @@ const Editor = () => {
             return;
         }
         updateWindowUrlHashParams({logEventNum: newLogEventNum});
-        const {updateLogEventNum} = useViewStore.getState();
-        updateLogEventNum(newLogEventNum);
+        updateViewHashParams();
     }, []);
 
     // Synchronize `beginLineNumToLogEventNumRef` with `beginLineNumToLogEventNum`.
@@ -332,7 +331,7 @@ const Editor = () => {
             return;
         }
 
-        setLineNum(logEventLineNum);
+        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1});
     }, [
         logEventNum,
         beginLineNumToLogEventNum,
@@ -343,7 +342,6 @@ const Editor = () => {
             <MonacoInstance
                 actions={EDITOR_ACTIONS}
                 beforeTextUpdate={resetCachedPageSize}
-                lineNum={lineNum}
                 text={logData}
                 themeName={(("system" === mode) ?
                     systemMode :

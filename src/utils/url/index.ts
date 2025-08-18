@@ -6,11 +6,11 @@ import {
     UrlHashParamUpdatesType,
     UrlSearchParams,
     UrlSearchParamUpdatesType,
-} from "../typings/url";
+} from "../../typings/url";
 import {
     findNearestLessThanOrEqualElement,
     isWithinBounds,
-} from "../utils/data";
+} from "../data";
 
 
 /**
@@ -79,9 +79,10 @@ const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
             if (0 !== filePath.length) {
                 let resolvedFilePath = filePath;
                 try {
-                    resolvedFilePath = getAbsoluteUrl(filePath);
+                    resolvedFilePath = decodeURIComponent(filePath);
+                    resolvedFilePath = getAbsoluteUrl(resolvedFilePath);
                 } catch (e) {
-                    console.error("Unable to get absolute URL from filePath:", e);
+                    console.error("Failed to decode filePath or resolve it to an absolute URL:", e);
                 }
                 parsedSearchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
             }
