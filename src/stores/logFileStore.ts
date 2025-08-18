@@ -108,7 +108,6 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
 
 const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
-    // eslint-disable-next-line max-statements
     loadFile: async (fileSrc: FileSrcType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
@@ -135,10 +134,6 @@ const useLogFileStore = create<LogFileState>((set) => ({
             pageNum: VIEW_PAGE_DEFAULT.pageNum,
         });
 
-        set({fileSrc});
-        if ("string" !== typeof fileSrc) {
-            updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
-        }
         const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
         const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
         const fileInfo = await logFileManagerProxy.loadFile(
