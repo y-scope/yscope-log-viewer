@@ -103,10 +103,14 @@ const createViewPageSlice: StateCreator<
                     )}, logEventNum=${logEventNum} when reloading.`
                 );
             }
-            loadFile(fileSrc, {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
-            });
+            (async () => {
+                await loadFile(fileSrc);
+                const {loadPageByCursor} = get();
+                await loadPageByCursor({
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: logEventNum},
+                });
+            })().catch(handleErrorWithNotification);
 
             return;
         }

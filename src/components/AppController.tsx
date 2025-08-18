@@ -4,9 +4,13 @@ import React, {
 } from "react";
 
 import useLogFileStore from "../stores/logFileStore";
+import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
 import useViewStore from "../stores/viewStore";
-import {HASH_PARAM_NAMES} from "../typings/url";
+import {
+    HASH_PARAM_NAMES,
+    UrlHashParams,
+} from "../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -33,6 +37,32 @@ const handleHashChange = () => {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
+};
+
+/**
+ * Returns the initial load file cursor based on the URL hash parameters.
+ *
+ * @param hashParams
+ * @return
+ */
+const getInitialCursor = (hashParams: UrlHashParams) => {
+    let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
+
+    if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
+        cursor = {
+            code: CURSOR_CODE.TIMESTAMP,
+            args: {timestamp: hashParams.timestamp},
+        };
+    } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
+        const {setLogEventNum} = useViewStore.getState();
+        setLogEventNum(hashParams.logEventNum);
+        cursor = {
+            code: CURSOR_CODE.EVENT_NUM,
+            args: {eventNum: hashParams.logEventNum},
+        };
+    }
+
+    return cursor;
 };
 
 interface AppControllerProps {
@@ -71,23 +101,16 @@ const AppController = ({children}: AppControllerProps) => {
 
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
-            let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-
-            if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
-                cursor = {
-                    code: CURSOR_CODE.TIMESTAMP,
-                    args: {timestamp: hashParams.timestamp},
-                };
-            } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
-                const {setLogEventNum} = useViewStore.getState();
-                setLogEventNum(hashParams.logEventNum);
-                cursor = {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {eventNum: hashParams.logEventNum},
-                };
-            }
             const {loadFile} = useLogFileStore.getState();
-            loadFile(searchParams.filePath, cursor);
+            (async () => {
+                await loadFile(searchParams.filePath);
+                const {loadPageByCursor} = useViewStore.getState();
+                await loadPageByCursor(getInitialCursor(hashParams));
+            })().catch(handleErrorWithNotification);
+            if (updateQueryHashParams()) {
+                const {startQuery} = useQueryStore.getState();
+                startQuery();
+            }
         }
 
         return () => {

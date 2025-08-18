@@ -16,16 +16,12 @@ import {
 import {UI_STATE} from "../typings/states";
 import {TAB_NAME} from "../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
-import {
-    CursorType,
-    FileSrcType,
-} from "../typings/worker";
+import {FileSrcType} from "../typings/worker";
 import {getConfig} from "../utils/config";
 import {updateWindowUrlSearchParams} from "../utils/url";
-import {updateQueryHashParams} from "../utils/url/urlHash";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
-import useNotificationStore, {handleErrorWithNotification} from "./notificationStore";
+import useNotificationStore from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
@@ -41,7 +37,7 @@ interface LogFileValues {
 }
 
 interface LogFileActions {
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
+    loadFile: (fileSrc: FileSrcType) => Promise<void>;
 }
 
 type LogFileState = LogFileValues & LogFileActions;
@@ -112,7 +108,8 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
 
 const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
+    // eslint-disable-next-line max-statements
+    loadFile: async (fileSrc: FileSrcType) => {
         const {setUiState} = useUiStore.getState();
         setUiState(UI_STATE.FILE_LOADING);
 
@@ -142,42 +139,27 @@ const useLogFileStore = create<LogFileState>((set) => ({
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
+        const fileInfo = await logFileManagerProxy.loadFile(
+            {
+                decoderOptions: decoderOptions,
+                fileSrc: fileSrc,
+                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+            },
+            Comlink.proxy(handleExportChunk),
+            Comlink.proxy(handleQueryResults)
+        );
 
-        (async () => {
-            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-            const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
-            const fileInfo = await logFileManagerProxy.loadFile(
-                {
-                    decoderOptions: decoderOptions,
-                    fileSrc: fileSrc,
-                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                },
-                Comlink.proxy(handleExportChunk),
-                Comlink.proxy(handleQueryResults)
-            );
+        set(fileInfo);
 
-            set(fileInfo);
+        const {isPrettified} = useViewStore.getState();
+        await logFileManagerProxy.setIsPrettified(isPrettified);
 
-            const {isPrettified} = useViewStore.getState();
-            await logFileManagerProxy.setIsPrettified(isPrettified);
-
-            const pageData = await logFileManagerProxy.loadPage(cursor);
-            updatePageData(pageData);
-            setUiState(UI_STATE.READY);
-
-            if (updateQueryHashParams()) {
-                const {startQuery} = useQueryStore.getState();
-                startQuery();
-            }
-
-            if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
-                const {postPopUp} = useNotificationStore.getState();
-                postPopUp(FORMAT_POP_UP_MESSAGE);
-            }
-        })().catch((e: unknown) => {
-            handleErrorWithNotification(e);
-            setUiState(UI_STATE.UNOPENED);
-        });
+        if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
+            const {postPopUp} = useNotificationStore.getState();
+            postPopUp(FORMAT_POP_UP_MESSAGE);
+        }
     },
 }));
 

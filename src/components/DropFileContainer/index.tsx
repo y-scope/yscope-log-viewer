@@ -4,7 +4,9 @@ import React, {
 } from "react";
 
 import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {isDisabled} from "../../utils/states";
@@ -66,8 +68,12 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
             return;
         }
-        const {loadFile} = useLogFileStore.getState();
-        loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+        (async () => {
+            const {loadFile} = useLogFileStore.getState();
+            await loadFile(file);
+            const {loadPageByCursor} = useViewStore.getState();
+            await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
+        })().catch(handleErrorWithNotification);
     }, [disabled]);
 
     return (
