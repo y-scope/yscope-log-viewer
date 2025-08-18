@@ -106,11 +106,11 @@ const AppController = ({children}: AppControllerProps) => {
                 await loadFile(searchParams.filePath);
                 const {loadPageByCursor} = useViewStore.getState();
                 await loadPageByCursor(getInitialCursor(hashParams));
+                if (updateQueryHashParams()) {
+                    const {startQuery} = useQueryStore.getState();
+                    startQuery();
+                }
             })().catch(handleErrorWithNotification);
-            if (updateQueryHashParams()) {
-                const {startQuery} = useQueryStore.getState();
-                startQuery();
-            }
         }
 
         return () => {
