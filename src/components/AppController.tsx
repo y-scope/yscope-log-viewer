@@ -6,7 +6,9 @@ import React, {
 import useLogFileStore from "../stores/logFileStore";
 import {handleErrorWithNotification} from "../stores/notificationStore";
 import useQueryStore from "../stores/queryStore";
+import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
+import {TAB_NAME} from "../typings/tab";
 import {
     HASH_PARAM_NAMES,
     UrlHashParams,
@@ -34,6 +36,8 @@ import {
 const handleHashChange = () => {
     updateViewHashParams();
     if (updateQueryHashParams()) {
+        const {setActiveTabName} = useUiStore.getState();
+        setActiveTabName(TAB_NAME.SEARCH);
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
@@ -107,6 +111,8 @@ const AppController = ({children}: AppControllerProps) => {
                 const {loadPageByCursor} = useViewStore.getState();
                 await loadPageByCursor(getInitialCursor(hashParams));
                 if (updateQueryHashParams()) {
+                    const {setActiveTabName} = useUiStore.getState();
+                    setActiveTabName(TAB_NAME.SEARCH);
                     const {startQuery} = useQueryStore.getState();
                     startQuery();
                 }
