@@ -1,6 +1,7 @@
 import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
+import ZstdDecoder from "../services/decoders/ZstdDecoder";
 import {Decoder} from "./decoders";
 
 
@@ -44,6 +45,13 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
         extensions: [".jsonl", ".ndjson"],
         name: "JSON Lines",
         signature: ["{".charCodeAt(0)],
+    },
+    {
+        DecoderFactory: ZstdDecoder,
+        checkIsStructured: () => false,
+        extensions: [".zst", ".zstd"],
+        name: "Zstandard",
+        signature: [0x28, 0xb5, 0x2f, 0xfd],
     },
 ];
 /* eslint-enable @stylistic/array-element-newline, no-magic-numbers */
