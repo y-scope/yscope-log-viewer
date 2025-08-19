@@ -16,7 +16,9 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import CollapseIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
@@ -41,8 +43,12 @@ const MenuBar = () => {
 
     const handleOpenFile = useCallback(() => {
         openFile((file) => {
-            const {loadFile} = useLogFileStore.getState();
-            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+            (async () => {
+                const {loadFile} = useLogFileStore.getState();
+                await loadFile(file);
+                const {loadPageByCursor} = useViewStore.getState();
+                await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
+            })().catch(handleErrorWithNotification);
         });
     }, []);
 
