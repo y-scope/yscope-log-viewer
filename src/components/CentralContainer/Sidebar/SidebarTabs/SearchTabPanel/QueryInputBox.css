@@ -1,4 +1,6 @@
 .query-input-box-with-progress {
+    width: 100%;
+
     /* JoyUI has a rounding issue when calculating the Textarea width, causing it to overflow its
       container. */
     margin-right: 1px;

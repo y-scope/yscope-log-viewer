@@ -154,7 +154,6 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  */
 const LogLevelSelect = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const filterLogs = useViewStore((state) => state.filterLogs);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
@@ -177,11 +176,12 @@ const LogLevelSelect = () => {
     const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
 
-        filterLogs((0 === logLevels.length ?
+        const {filterLogs, setLogLevelFilter} = useViewStore.getState();
+        setLogLevelFilter((0 === logLevels.length ?
             null :
             logLevels));
+        filterLogs();
     }, [
-        filterLogs,
         setSelectedLogLevels,
     ]);
 

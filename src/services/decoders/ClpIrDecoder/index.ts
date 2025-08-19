@@ -99,8 +99,13 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.findNearestLogEventByTimestamp(BigInt(timestamp));
     }
 
-    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        this.#streamReader.filterLogEvents(logLevelFilter);
+    setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
+        try {
+            this.#streamReader.filterLogEvents(logLevelFilter, kqlFilter);
+        } catch (err: unknown) {
+            console.error("Failed to execute the KQL query.");
+            throw new Error("Failed to execute the KQL query.", {cause: err});
+        }
 
         return true;
     }
