@@ -15,7 +15,7 @@ import {
     LogEventCount,
     Metadata,
 } from "../../../typings/decoders";
-import {LogLevelFilter} from "../../../typings/logs.ts";
+import {LogLevelFilter} from "../../../typings/logs";
 
 
 /**
@@ -31,7 +31,10 @@ class ZstdDecoder implements Decoder {
         this.#logs = lines;
     }
 
-    static async create (dataArray: Uint8Array): Promise<ZstdDecoder> {
+    static async create (
+        dataArray: Uint8Array,
+        decoderOptions: DecoderOptions
+    ): Promise<ZstdDecoder> {
         await init();
         const logArrayBuffer = decompress(dataArray);
         const textDecoder = new TextDecoder();

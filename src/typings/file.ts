@@ -21,7 +21,7 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder;
+    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder | typeof ZstdDecoder;
 
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
     extensions: FileTypeInfo["extension"][];
