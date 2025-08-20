@@ -2,7 +2,7 @@ name: "docs"
 
 on:
   pull_request:
-    paths:
+    paths: &docs_paths
       - "docs/**"
       - ".github/workflows/log-viewer-docs.yaml"
       - ".gitmodules"
@@ -10,13 +10,7 @@ on:
       - "tools/scripts/**"
       - "tools/yscope-dev-utils"
   push:
-    paths:
-      - "docs/**"
-      - ".github/workflows/log-viewer-docs.yaml"
-      - ".gitmodules"
-      - "taskfile.yaml"
-      - "tools/scripts/**"
-      - "tools/yscope-dev-utils"
+    paths: *docs_paths
   schedule:
     # Run daily at 00:15 UTC (the 15 is to avoid periods of high load)
     - cron: "15 0 * * *"
