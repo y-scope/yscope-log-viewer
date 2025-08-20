@@ -3,7 +3,7 @@ import Layout from "./components/Layout";
 
 
 /**
- * Renders the main application.
+ * Renders the main Application.
  *
  * @return
  */
