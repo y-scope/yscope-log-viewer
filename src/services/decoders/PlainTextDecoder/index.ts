@@ -1,15 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable class-methods-use-this */
 import {Nullable} from "../../../typings/common";
 import {
     Decoder,
     DecodeResult,
-    DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
     Metadata,
 } from "../../../typings/decoders";
-import {LogLevelFilter} from "../../../typings/logs";
 
 
 class PlainTextDecoder implements Decoder {
@@ -20,7 +16,7 @@ class PlainTextDecoder implements Decoder {
         this.#logs = textDecoder.decode(dataArray).split(/\r\n|\r|\n/);
     }
 
-    static async create (dataArray: Uint8Array, _decoderOptions: DecoderOptions) {
+    static async create (dataArray: Uint8Array) {
         return Promise.resolve(new PlainTextDecoder(dataArray));
     }
 
@@ -28,15 +24,18 @@ class PlainTextDecoder implements Decoder {
         return this.#logs.length;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     getFilteredLogEventMap (): FilteredLogEventMap {
         return null;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     getMetadata (): Metadata {
         return {};
     }
 
-    setLogLevelFilter (_logLevelFilter: LogLevelFilter): boolean {
+    // eslint-disable-next-line class-methods-use-this
+    setLogLevelFilter (): boolean {
         return false;
     }
 
@@ -47,11 +46,12 @@ class PlainTextDecoder implements Decoder {
         };
     }
 
-    setFormatterOptions (_options: DecoderOptions): boolean {
+    // eslint-disable-next-line class-methods-use-this
+    setFormatterOptions (): boolean {
         return false;
     }
 
-    decodeRange (beginIdx: number, endIdx: number, _useFilter: boolean): Nullable<DecodeResult[]> {
+    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResult[]> {
         return this.#logs.slice(beginIdx, endIdx).map((log, i) => ({
             logEventNum: beginIdx + i,
             logLevel: 0,
@@ -61,7 +61,8 @@ class PlainTextDecoder implements Decoder {
         }));
     }
 
-    findNearestLogEventByTimestamp (_timestamp: number): Nullable<number> {
+    // eslint-disable-next-line class-methods-use-this
+    findNearestLogEventByTimestamp (): Nullable<number> {
         return null;
     }
 }
