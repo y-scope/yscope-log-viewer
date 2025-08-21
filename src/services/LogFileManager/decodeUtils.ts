@@ -78,7 +78,6 @@ const tryCreateDecoderBySignature = async (
                 };
             } catch (e) {
                 console.warn(`Magic number matches ${entry.name}, but decoder creation failed:`, e);
-                break;
             }
         }
     }
