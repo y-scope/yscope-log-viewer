@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {Nullable} from "../../../typings/common";
 import {
     Decoder,
     DecodeResult,
-    DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
     Metadata,
 } from "../../../typings/decoders";
-import {LogLevelFilter} from "../../../typings/logs";
 
 
 class PlainTextDecoder implements Decoder {
@@ -19,7 +16,7 @@ class PlainTextDecoder implements Decoder {
         this.#logs = textDecoder.decode(dataArray).split(/\r\n|\r|\n/);
     }
 
-    static async create (dataArray: Uint8Array, _decoderOptions: DecoderOptions) {
+    static async create (dataArray: Uint8Array) {
         return Promise.resolve(new PlainTextDecoder(dataArray));
     }
 
@@ -38,7 +35,7 @@ class PlainTextDecoder implements Decoder {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    setLogLevelFilter (_logLevelFilter: LogLevelFilter): boolean {
+    setLogLevelFilter (): boolean {
         return false;
     }
 
@@ -50,11 +47,11 @@ class PlainTextDecoder implements Decoder {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    setFormatterOptions (_options: DecoderOptions): boolean {
+    setFormatterOptions (): boolean {
         return false;
     }
 
-    decodeRange (beginIdx: number, endIdx: number, _useFilter: boolean): Nullable<DecodeResult[]> {
+    decodeRange (beginIdx: number, endIdx: number): Nullable<DecodeResult[]> {
         return this.#logs.slice(beginIdx, endIdx).map((log, i) => ({
             logEventNum: beginIdx + i,
             logLevel: 0,
@@ -65,7 +62,7 @@ class PlainTextDecoder implements Decoder {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    findNearestLogEventByTimestamp (_timestamp: number): Nullable<number> {
+    findNearestLogEventByTimestamp (): Nullable<number> {
         return null;
     }
 }
