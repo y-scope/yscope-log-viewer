@@ -92,16 +92,6 @@ const createViewPageSlice: StateCreator<
     ViewState, [], [], ViewPageSlice
 > = (set, get) => ({
     ...VIEW_PAGE_DEFAULT,
-    updatePageData: (pageData: PageData) => {
-        set({
-            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
-            logData: pageData.logs,
-            logEventNum: pageData.logEventNum,
-            numPages: pageData.numPages,
-            pageNum: pageData.pageNum,
-        });
-        updateWindowUrlHashParams({logEventNum: pageData.logEventNum});
-    },
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
             const {fileSrc, loadFile} = useLogFileStore.getState();
@@ -113,38 +103,55 @@ const createViewPageSlice: StateCreator<
                     )}, logEventNum=${logEventNum} when reloading.`
                 );
             }
-            loadFile(fileSrc, {
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
-            });
+            (async () => {
+                await loadFile(fileSrc);
+                const {loadPageByCursor} = get();
+                await loadPageByCursor({
+                    code: CURSOR_CODE.EVENT_NUM,
+                    args: {eventNum: logEventNum},
+                });
+            })().catch(handleErrorWithNotification);
 
             return;
         }
 
-        const {uiState, setUiState} = useUiStore.getState();
+        const {uiState} = useUiStore.getState();
         if (UI_STATE.READY !== uiState) {
             console.warn("Skipping navigation: page load in progress.");
 
             return;
         }
-        setUiState(UI_STATE.FAST_LOADING);
-
-        const {numPages, pageNum} = get();
+        const {numPages, pageNum, loadPageByCursor} = get();
         const cursor = getPageNumCursor(navAction, pageNum, numPages);
         if (null === cursor) {
             console.error(`Error with nav action ${navAction.code}.`);
 
             return;
         }
+        loadPageByCursor(cursor).catch(handleErrorWithNotification);
+    },
+    loadPageByCursor: async (cursor: CursorType) => {
+        const {setUiState} = useUiStore.getState();
+        setUiState(UI_STATE.FAST_LOADING);
 
-        (async () => {
+        try {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {isPrettified} = get();
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
+            const pageData = await logFileManagerProxy.loadPage(cursor);
             const {updatePageData} = get();
             updatePageData(pageData);
+        } finally {
             setUiState(UI_STATE.READY);
-        })().catch(handleErrorWithNotification);
+        }
+    },
+    updatePageData: (pageData: PageData) => {
+        set({
+            beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
+            logData: pageData.logs,
+            logEventNum: pageData.logEventNum,
+            numPages: pageData.numPages,
+            pageNum: pageData.pageNum,
+        });
+        updateWindowUrlHashParams({logEventNum: pageData.logEventNum});
     },
 });
 

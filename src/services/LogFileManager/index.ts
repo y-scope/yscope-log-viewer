@@ -62,6 +62,8 @@ class LogFileManager {
 
     #queryCount: number = 0;
 
+    #isPrettified: boolean = false;
+
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
@@ -194,6 +196,10 @@ class LogFileManager {
         }
     }
 
+    setIsPrettified (isPrettified: boolean) {
+        this.#isPrettified = isPrettified;
+    }
+
     /**
      * Exports a chunk of log events, sends the results to the renderer, and schedules the next
      * chunk if more log events remain.
@@ -229,12 +235,11 @@ class LogFileManager {
      * Loads a page of log events based on the provided cursor.
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
-     * @param isPrettified Are the log messages pretty printed.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
+    loadPage (cursor: CursorType): PageData {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -264,7 +269,7 @@ class LogFileManager {
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
         results.forEach(({message, logEventNum}) => {
-            const printedMsg = (isPrettified) ?
+            const printedMsg = (this.#isPrettified) ?
                 `${jsBeautify(message)}\n` :
                 message;
 

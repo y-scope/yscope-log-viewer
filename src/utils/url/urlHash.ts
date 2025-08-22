@@ -2,10 +2,8 @@ import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore.t
 import useLogFileStore from "../../stores/logFileStore.ts";
 import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
 import useQueryStore from "../../stores/queryStore";
-import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
-import {UI_STATE} from "../../typings/states";
 import {
     CURSOR_CODE,
     CursorType,
@@ -46,6 +44,11 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     if (isPrettified !== prevIsPrettified) {
         setIsPrettified(isPrettified);
 
+        (async () => {
+            const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+            await logFileManagerProxy.setIsPrettified(isPrettified);
+        })().catch(handleErrorWithNotification);
+
         return {
             code: CURSOR_CODE.EVENT_NUM,
             args: {eventNum: clampedLogEventNum},
@@ -84,7 +87,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
 const updateViewHashParams = () => {
     const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
-        isPrettified: URL_HASH_PARAMS_DEFAULT.isPrettified,
+        isPrettified: isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
 
@@ -94,14 +97,8 @@ const updateViewHashParams = () => {
         return;
     }
 
-    (async () => {
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {updatePageData} = useViewStore.getState();
-        const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-        updatePageData(pageData);
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.READY);
-    })().catch(handleErrorWithNotification);
+    const {loadPageByCursor} = useViewStore.getState();
+    loadPageByCursor(cursor).catch(handleErrorWithNotification);
 };
 
 /**
