@@ -34,11 +34,11 @@ import {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  */
 const handleHashChange = () => {
-    const {filterString} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({filterString});
+    const {query} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({query});
     const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
-    if (filterString !== currentKqlFilter) {
-        setKqlFilter(filterString);
+    if (query !== currentKqlFilter) {
+        setKqlFilter(query);
         filterLogs();
     }
 

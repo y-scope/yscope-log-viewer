@@ -69,11 +69,11 @@ const SearchTabPanel = () => {
         copyPermalinkToClipboard(
             {},
             {
-                filterString: kqlFilter,
                 logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
+                query: kqlFilter,
                 queryIsCaseSensitive: queryIsCaseSensitive,
                 queryIsRegex: queryIsRegex,
-                queryString: queryString,
+                subquery: queryString,
             },
         );
     }, []);

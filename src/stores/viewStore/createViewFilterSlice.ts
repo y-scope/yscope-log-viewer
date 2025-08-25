@@ -44,7 +44,7 @@ const createViewFilterSlice: StateCreator<
 
             set({isFilterApplied: true});
 
-            updateWindowUrlHashParams({filterString: kqlFilter});
+            updateWindowUrlHashParams({query: kqlFilter});
 
             const {loadPageByCursor} = get();
             await loadPageByCursor({

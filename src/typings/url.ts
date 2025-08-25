@@ -6,12 +6,12 @@ enum SEARCH_PARAM_NAMES {
 }
 
 enum HASH_PARAM_NAMES {
-    FILTER_STRING = "filterString",
+    FILTER_STRING = "query",
     IS_PRETTIFIED = "isPrettified",
     LOG_EVENT_NUM = "logEventNum",
     QUERY_IS_CASE_SENSITIVE = "queryIsCaseSensitive",
     QUERY_IS_REGEX = "queryIsRegex",
-    QUERY_STRING = "queryString",
+    QUERY_STRING = "subquery",
     TIMESTAMP = "timestamp",
 }
 
