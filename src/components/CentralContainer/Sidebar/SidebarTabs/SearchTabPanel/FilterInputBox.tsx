@@ -19,11 +19,11 @@ import "./FilterInputBox.css";
  * @return
  */
 const FilterInputBox = () => {
-    const filterApplied = useViewStore((state) => state.filterApplied);
+    const filterApplied = useViewStore((state) => state.isFilterApplied);
     const filterString = useViewStore((state) => state.kqlFilter);
     const uiState = useUiStore((state) => state.uiState);
 
-    const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleFilterInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newQueryString = ev.target.value;
         const {setKqlFilter} = useViewStore.getState();
         setKqlFilter(newQueryString);
@@ -46,7 +46,7 @@ const FilterInputBox = () => {
             endDecorator={
                 <Button
                     className={"filter-button"}
-                    disabled={filterApplied}
+                    disabled={filterApplied || isFilterInputBoxDisabled}
                     variant={"soft"}
                     onClick={handleButtonClick}
                 >
@@ -59,7 +59,7 @@ const FilterInputBox = () => {
                 className: "filter-input-box-textarea",
             },
             endDecorator: {className: "filter-input-box-end-decorator"}}}
-            onChange={handleQueryInputChange}/>
+            onChange={handleFilterInputChange}/>
     );
 };
 

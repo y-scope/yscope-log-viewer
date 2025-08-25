@@ -38,7 +38,6 @@ const handleHashChange = () => {
     updateWindowUrlHashParams({filterString});
     const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
     if (filterString !== currentKqlFilter) {
-        console.error(filterString);
         setKqlFilter(filterString);
         filterLogs();
     }

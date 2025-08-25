@@ -17,7 +17,7 @@ import {
 const VIEW_FILTER_DEFAULT: ViewFilterValues = {
     logLevelFilter: null,
     kqlFilter: "",
-    filterApplied: false,
+    isFilterApplied: false,
 };
 
 /**
@@ -42,9 +42,9 @@ const createViewFilterSlice: StateCreator<
                 kqlFilter
             );
 
-            set({filterApplied: true});
+            set({isFilterApplied: true});
 
-            updateWindowUrlHashParams({filterString: encodeURIComponent(kqlFilter)});
+            updateWindowUrlHashParams({filterString: kqlFilter});
 
             const {loadPageByCursor} = get();
             await loadPageByCursor({
@@ -60,10 +60,10 @@ const createViewFilterSlice: StateCreator<
         })().catch(handleErrorWithNotification);
     },
     setLogLevelFilter: (newValue) => {
-        set({logLevelFilter: newValue, filterApplied: false});
+        set({logLevelFilter: newValue, isFilterApplied: false});
     },
     setKqlFilter: (newValue) => {
-        set({kqlFilter: newValue, filterApplied: false});
+        set({kqlFilter: newValue, isFilterApplied: false});
     },
 });
 

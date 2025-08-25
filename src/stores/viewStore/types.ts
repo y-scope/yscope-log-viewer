@@ -45,7 +45,7 @@ type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;
 interface ViewFilterValues {
     logLevelFilter: LogLevelFilter;
     kqlFilter: string;
-    filterApplied: boolean;
+    isFilterApplied: boolean;
 }
 
 interface ViewFilterActions {

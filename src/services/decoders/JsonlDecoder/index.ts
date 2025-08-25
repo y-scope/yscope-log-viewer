@@ -87,8 +87,9 @@ class JsonlDecoder implements Decoder {
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
-        if ("" === kqlFilter) {
-            console.warn("KQL filters aren't supported for JSONL logs, so they're being ignored.");
+        if ("" !== kqlFilter) {
+            console.warn("KQL filtering isn't supported for JSONL logs;" +
+                "ignoring the provided filter.");
         }
         this.#filterLogEvents(logLevelFilter);
 

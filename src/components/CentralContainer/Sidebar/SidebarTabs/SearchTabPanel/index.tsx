@@ -15,6 +15,7 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
 import useLogFileStore from "../../../../../stores/logFileStore";
 import useQueryStore from "../../../../../stores/queryStore";
+import useViewStore from "../../../../../stores/viewStore";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
@@ -57,6 +58,10 @@ const SearchTabPanel = () => {
             setQueryString,
         } = useQueryStore.getState();
 
+        const {
+            kqlFilter,
+        } = useViewStore.getState();
+
         setQueryIsCaseSensitive(queryIsCaseSensitive);
         setQueryIsRegex(queryIsRegex);
         setQueryString(queryString);
@@ -64,10 +69,11 @@ const SearchTabPanel = () => {
         copyPermalinkToClipboard(
             {},
             {
+                filterString: kqlFilter,
                 logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
-                queryString: queryString,
                 queryIsCaseSensitive: queryIsCaseSensitive,
                 queryIsRegex: queryIsRegex,
+                queryString: queryString,
             },
         );
     }, []);

@@ -194,7 +194,7 @@ const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
                 break;
 
             case HASH_PARAM_NAMES.FILTER_STRING:
-                parsedHashParams[key] = decodeURIComponent(value);
+                parsedHashParams[key] = value;
                 break;
             case HASH_PARAM_NAMES.QUERY_STRING:
                 parsedHashParams[key] = value;
