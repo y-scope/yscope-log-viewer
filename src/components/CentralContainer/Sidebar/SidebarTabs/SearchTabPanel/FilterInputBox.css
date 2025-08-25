@@ -1,0 +1,25 @@
+.filter-input-box {
+    display: flex;
+    flex-direction: row !important;
+
+    width: 100%;
+
+    /* JoyUI has a rounding issue when calculating the Textarea width, causing it to overflow its
+      container. */
+    margin-right: 1px;
+    border-radius: 0 !important;
+}
+
+.filter-input-box-textarea {
+    font-family: monospace !important;
+    word-break: break-all;
+}
+
+.filter-button {
+    width: 48px;
+}
+
+.filter-input-box-end-decorator {
+    display: block !important;
+    margin-block-start: 0 !important;
+}

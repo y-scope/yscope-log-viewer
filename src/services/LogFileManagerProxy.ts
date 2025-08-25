@@ -48,13 +48,11 @@ class LogFileManagerProxy {
     }
 
     setFilter (
-        cursor: CursorType,
-        logLevelFilter: LogLevelFilter
-    ): PageData {
+        logLevelFilter: LogLevelFilter,
+        kqlFilter: string
+    ): void {
         const logFileManager = this.#getLogFileManager();
-        logFileManager.setLogLevelFilter(logLevelFilter);
-
-        return this.loadPage(cursor);
+        logFileManager.setLogLevelFilter(logLevelFilter, kqlFilter);
     }
 
     setIsPrettified (isPrettified: boolean): void {

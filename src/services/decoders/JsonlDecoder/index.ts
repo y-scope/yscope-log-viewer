@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
@@ -85,7 +86,11 @@ class JsonlDecoder implements Decoder {
         return {};
     }
 
-    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+    setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
+        if ("" !== kqlFilter) {
+            console.warn("KQL filtering isn't supported for JSONL logs;" +
+                "ignoring the provided filter.");
+        }
         this.#filterLogEvents(logLevelFilter);
 
         return true;

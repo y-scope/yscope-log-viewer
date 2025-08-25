@@ -34,6 +34,14 @@ import {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  */
 const handleHashChange = () => {
+    const {query} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({query});
+    const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
+    if (query !== currentKqlFilter) {
+        setKqlFilter(query);
+        filterLogs();
+    }
+
     updateViewHashParams();
     if (updateQueryHashParams()) {
         const {setActiveTabName} = useUiStore.getState();
@@ -110,12 +118,7 @@ const AppController = ({children}: AppControllerProps) => {
                 await loadFile(searchParams.filePath);
                 const {loadPageByCursor} = useViewStore.getState();
                 await loadPageByCursor(getInitialCursor(hashParams));
-                if (updateQueryHashParams()) {
-                    const {setActiveTabName} = useUiStore.getState();
-                    setActiveTabName(TAB_NAME.SEARCH);
-                    const {startQuery} = useQueryStore.getState();
-                    startQuery();
-                }
+                handleHashChange();
             })().catch(handleErrorWithNotification);
         }
 

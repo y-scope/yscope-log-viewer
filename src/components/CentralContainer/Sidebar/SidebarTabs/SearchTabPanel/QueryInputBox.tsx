@@ -31,7 +31,7 @@ const QueryInputBox = () => {
 
     const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newQueryString = ev.target.value;
-        updateWindowUrlHashParams({queryString: newQueryString});
+        updateWindowUrlHashParams({subquery: newQueryString});
         const {setQueryString, startQuery} = useQueryStore.getState();
         setQueryString(newQueryString);
         startQuery();

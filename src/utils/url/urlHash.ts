@@ -108,8 +108,9 @@ const updateViewHashParams = () => {
  * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
-    const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, queryString});
+    const {queryIsCaseSensitive, queryIsRegex, subquery} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, subquery});
+    const queryString = subquery;
 
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,

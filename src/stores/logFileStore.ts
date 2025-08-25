@@ -4,6 +4,7 @@ import {create} from "zustand";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
 import {Metadata} from "../typings/decoders";
+import {FileTypeInfo} from "../typings/file";
 import {LOG_LEVEL} from "../typings/logs";
 import {
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
@@ -31,6 +32,7 @@ import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
+    fileTypeInfo: Nullable<FileTypeInfo>;
     metadata: Nullable<Metadata>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
@@ -45,6 +47,7 @@ type LogFileState = LogFileValues & LogFileActions;
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "",
     fileSrc: null,
+    fileTypeInfo: null,
     metadata: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
