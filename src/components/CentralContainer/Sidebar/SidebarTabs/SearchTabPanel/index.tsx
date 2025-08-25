@@ -58,29 +58,24 @@ const SearchTabPanel = () => {
             setQueryString,
         } = useQueryStore.getState();
 
-        const {
-            kqlFilter,
-        } = useViewStore.getState();
+        const {kqlFilter} = useViewStore.getState();
 
         setQueryIsCaseSensitive(queryIsCaseSensitive);
         setQueryIsRegex(queryIsRegex);
         setQueryString(queryString);
 
-        copyPermalinkToClipboard(
-            {},
-            {
-                logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
-                query: kqlFilter,
-                queryIsCaseSensitive: queryIsCaseSensitive,
-                queryIsRegex: queryIsRegex,
-                subquery: queryString,
-            },
-        );
+        copyPermalinkToClipboard({}, {
+            logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
+            query: kqlFilter,
+            queryIsCaseSensitive: queryIsCaseSensitive,
+            queryIsRegex: queryIsRegex,
+            subquery: queryString,
+        });
     }, []);
 
     const isKqlFilteringEnabled = null !== fileTypeInfo &&
-                "CLP IR" === fileTypeInfo.name &&
-                true === fileTypeInfo.isStructured;
+        "CLP IR" === fileTypeInfo.name &&
+        true === fileTypeInfo.isStructured;
 
     return (
         <CustomTabPanel
@@ -109,20 +104,16 @@ const SearchTabPanel = () => {
         >
             <Box className={"search-tab-container"}>
                 { isKqlFilteringEnabled ?
-                    (
-                        <>
-                            <FilterInputBox/>
-                            <div className={"query-input-box-container"}>
-                                <div className={"arrow-right-icon"}>
-                                    <SubdirectoryArrowRightIcon/>
-                                </div>
-                                <QueryInputBox/>
+                    <>
+                        <FilterInputBox/>
+                        <div className={"query-input-box-container"}>
+                            <div className={"arrow-right-icon"}>
+                                <SubdirectoryArrowRightIcon/>
                             </div>
-                        </>
-                    ) :
-                    (
-                        <QueryInputBox/>
-                    )}
+                            <QueryInputBox/>
+                        </div>
+                    </> :
+                    <QueryInputBox/>}
                 <AccordionGroup
                     className={"query-results"}
                     disableDivider={true}

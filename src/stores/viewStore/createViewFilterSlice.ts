@@ -49,9 +49,7 @@ const createViewFilterSlice: StateCreator<
             const {loadPageByCursor} = get();
             await loadPageByCursor({
                 code: CURSOR_CODE.EVENT_NUM,
-                args: {
-                    eventNum: logEventNum,
-                },
+                args: {eventNum: logEventNum},
             });
             setUiState(UI_STATE.READY);
 

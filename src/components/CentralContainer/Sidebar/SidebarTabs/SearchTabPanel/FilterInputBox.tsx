@@ -29,7 +29,7 @@ const FilterInputBox = () => {
         setKqlFilter(newFilterString);
     }, []);
 
-    const handleButtonClick = useCallback(() => {
+    const handleFilterButtonClick = useCallback(() => {
         const {filterLogs} = useViewStore.getState();
         filterLogs();
     }, []);
@@ -48,7 +48,7 @@ const FilterInputBox = () => {
                     className={"filter-button"}
                     disabled={filterApplied || isFilterInputBoxDisabled}
                     variant={"soft"}
-                    onClick={handleButtonClick}
+                    onClick={handleFilterButtonClick}
                 >
                     {" "}
                     Filter

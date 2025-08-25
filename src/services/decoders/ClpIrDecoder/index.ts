@@ -103,7 +103,6 @@ class ClpIrDecoder implements Decoder {
         try {
             this.#streamReader.filterLogEvents(logLevelFilter, kqlFilter);
         } catch (err: unknown) {
-            console.error("Failed to execute the KQL query.");
             throw new Error("Failed to execute the KQL query.", {cause: err});
         }
 
