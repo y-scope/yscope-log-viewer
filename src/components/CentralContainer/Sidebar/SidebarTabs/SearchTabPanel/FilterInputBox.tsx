@@ -24,9 +24,9 @@ const FilterInputBox = () => {
     const uiState = useUiStore((state) => state.uiState);
 
     const handleFilterInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const newQueryString = ev.target.value;
+        const newFilterString = ev.target.value;
         const {setKqlFilter} = useViewStore.getState();
-        setKqlFilter(newQueryString);
+        setKqlFilter(newFilterString);
     }, []);
 
     const handleButtonClick = useCallback(() => {
