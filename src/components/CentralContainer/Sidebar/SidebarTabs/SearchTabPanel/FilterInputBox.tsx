@@ -14,7 +14,7 @@ import "./FilterInputBox.css";
 
 
 /**
- * Provides a text input and optional toggles for submitting search queries.
+ * Provides a text input to apply a KQL filter.
  *
  * @return
  */
