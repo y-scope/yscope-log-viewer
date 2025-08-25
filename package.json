@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/y-scope/yscope-log-viewer#readme",
   "dependencies": {
+    "@bokuweb/zstd-wasm": "^0.0.27",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.0",
