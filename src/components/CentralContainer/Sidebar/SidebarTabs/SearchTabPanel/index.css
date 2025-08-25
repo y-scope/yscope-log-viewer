@@ -1,5 +1,6 @@
 .search-tab-container {
-    overflow-y: hidden;
+    /* We apply overflow-x here because JoyUI has a rounding issue when calculating the Textarea width, causing it to overflow its container. */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     height: 100%;
