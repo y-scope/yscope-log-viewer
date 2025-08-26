@@ -39,7 +39,7 @@
     "monaco-editor": "0.50.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "zstddec": "^0.1.0",
+    "zstddec": "^0.2.0-alpha.3",
     "zustand": "^5.0.4"
   },
   "devDependencies": {
