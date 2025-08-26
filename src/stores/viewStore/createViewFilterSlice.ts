@@ -28,8 +28,8 @@ const createViewFilterSlice: StateCreator<
 > = (set, get) => ({
     ...VIEW_FILTER_DEFAULT,
     filterLogs: () => {
-        const {logLevelFilter, kqlFilter} = get();
         (async () => {
+            const {logLevelFilter, kqlFilter} = get();
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             await logFileManagerProxy.setFilter(
                 logLevelFilter,
