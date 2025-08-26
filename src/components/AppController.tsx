@@ -9,12 +9,9 @@ import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {TAB_NAME} from "../typings/tab";
-import {HASH_PARAM_NAMES} from "../typings/url";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
 import {
@@ -63,18 +60,18 @@ const AppController = ({children}: AppControllerProps) => {
 
         // Handle initial page load and maintain full URL state
         const hashParams = getWindowUrlHashParams();
-        updateWindowUrlHashParams({
-            isPrettified: hashParams[HASH_PARAM_NAMES.IS_PRETTIFIED],
-            timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
-        });
         const {setIsPrettified} = useViewStore.getState();
         setIsPrettified(hashParams.isPrettified);
 
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
-            const {loadFile} = useLogFileStore.getState();
             (async () => {
+                const {setLogEventNum} = useViewStore.getState();
+                setLogEventNum(hashParams.logEventNum);
+
+                const {loadFile} = useLogFileStore.getState();
                 await loadFile(searchParams.filePath);
+
                 handleHashChange();
             })().catch(handleErrorWithNotification);
         }
