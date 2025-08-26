@@ -5,9 +5,12 @@ import {
     Textarea,
 } from "@mui/joy";
 
+import {handleErrorWithNotification} from "../../../../../stores/notificationStore";
+import useQueryStore from "../../../../../stores/queryStore";
 import useUiStore from "../../../../../stores/uiStore";
 import useViewStore from "../../../../../stores/viewStore";
 import {UI_ELEMENT} from "../../../../../typings/states";
+import {CURSOR_CODE} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 
 import "./FilterInputBox.css";
@@ -30,8 +33,18 @@ const FilterInputBox = () => {
     }, []);
 
     const handleFilterButtonClick = useCallback(() => {
-        const {filterLogs} = useViewStore.getState();
+        const {filterLogs, loadPageByCursor, logEventNum} = useViewStore.getState();
         filterLogs();
+
+        (async () => {
+            await loadPageByCursor({
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            });
+
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        })().catch(handleErrorWithNotification);
     }, []);
 
     const isFilterInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);

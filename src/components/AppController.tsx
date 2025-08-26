@@ -9,14 +9,7 @@ import useQueryStore from "../stores/queryStore";
 import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {TAB_NAME} from "../typings/tab";
-import {
-    HASH_PARAM_NAMES,
-    UrlHashParams,
-} from "../typings/url";
-import {
-    CURSOR_CODE,
-    CursorType,
-} from "../typings/worker";
+import {HASH_PARAM_NAMES} from "../typings/url";
 import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
@@ -34,14 +27,6 @@ import {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  */
 const handleHashChange = () => {
-    const {query} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({query});
-    const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
-    if (query !== currentKqlFilter) {
-        setKqlFilter(query);
-        filterLogs();
-    }
-
     updateViewHashParams();
     if (updateQueryHashParams()) {
         const {setActiveTabName} = useUiStore.getState();
@@ -49,32 +34,6 @@ const handleHashChange = () => {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
-};
-
-/**
- * Returns the initial load file cursor based on the URL hash parameters.
- *
- * @param hashParams
- * @return
- */
-const getInitialCursor = (hashParams: UrlHashParams) => {
-    let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-
-    if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
-        cursor = {
-            code: CURSOR_CODE.TIMESTAMP,
-            args: {timestamp: hashParams.timestamp},
-        };
-    } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(hashParams.logEventNum);
-        cursor = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: hashParams.logEventNum},
-        };
-    }
-
-    return cursor;
 };
 
 interface AppControllerProps {
@@ -116,8 +75,6 @@ const AppController = ({children}: AppControllerProps) => {
             const {loadFile} = useLogFileStore.getState();
             (async () => {
                 await loadFile(searchParams.filePath);
-                const {loadPageByCursor} = useViewStore.getState();
-                await loadPageByCursor(getInitialCursor(hashParams));
                 handleHashChange();
             })().catch(handleErrorWithNotification);
         }

@@ -1,12 +1,8 @@
 import {StateCreator} from "zustand";
 
-import {UI_STATE} from "../../typings/states";
-import {CURSOR_CODE} from "../../typings/worker";
 import {updateWindowUrlHashParams} from "../../utils/url";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {handleErrorWithNotification} from "../notificationStore";
-import useQueryStore from "../queryStore";
-import useUiStore from "../uiStore";
 import {
     ViewFilterSlice,
     ViewFilterValues,
@@ -33,10 +29,8 @@ const createViewFilterSlice: StateCreator<
     ...VIEW_FILTER_DEFAULT,
     filterLogs: () => {
         const {logLevelFilter, kqlFilter} = get();
-        const {setUiState} = useUiStore.getState();
         (async () => {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {logEventNum} = get();
             await logFileManagerProxy.setFilter(
                 logLevelFilter,
                 kqlFilter
@@ -45,16 +39,6 @@ const createViewFilterSlice: StateCreator<
             set({isFilterApplied: true});
 
             updateWindowUrlHashParams({query: kqlFilter});
-
-            const {loadPageByCursor} = get();
-            await loadPageByCursor({
-                code: CURSOR_CODE.EVENT_NUM,
-                args: {eventNum: logEventNum},
-            });
-            setUiState(UI_STATE.READY);
-
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
         })().catch(handleErrorWithNotification);
     },
     setLogLevelFilter: (newValue) => {

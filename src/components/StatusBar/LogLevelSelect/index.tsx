@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import React, {
     useCallback,
     useEffect,
@@ -24,6 +25,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
+import {handleErrorWithNotification} from "../../../stores/notificationStore";
+import useQueryStore from "../../../stores/queryStore";
 import useUiStore from "../../../stores/uiStore";
 import useViewStore from "../../../stores/viewStore";
 import {
@@ -36,6 +39,7 @@ import {
     UI_ELEMENT,
     UI_STATE,
 } from "../../../typings/states";
+import {CURSOR_CODE} from "../../../typings/worker";
 import {range} from "../../../utils/data";
 import {
     ignorePointerIfFastLoading,
@@ -152,6 +156,7 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  *
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const LogLevelSelect = () => {
     const uiState = useUiStore((state) => state.uiState);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
@@ -176,11 +181,27 @@ const LogLevelSelect = () => {
     const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
 
-        const {filterLogs, setLogLevelFilter} = useViewStore.getState();
+        const {
+            filterLogs,
+            setLogLevelFilter,
+            loadPageByCursor,
+            logEventNum,
+        } = useViewStore.getState();
+
         setLogLevelFilter((0 === logLevels.length ?
             null :
             logLevels));
         filterLogs();
+
+        (async () => {
+            await loadPageByCursor({
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            });
+
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        })().catch(handleErrorWithNotification);
     }, [
         setSelectedLogLevels,
     ]);

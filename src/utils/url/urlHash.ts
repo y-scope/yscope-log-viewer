@@ -77,7 +77,10 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     // If we reach here, we have no valid cursor.
-    return null;
+    return {
+        code: CURSOR_CODE.LAST_EVENT,
+        args: null,
+    };
 };
 
 /**
@@ -85,11 +88,18 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    const {query, isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
+        query: query,
         isPrettified: isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
+
+    const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
+    if (query !== currentKqlFilter) {
+        setKqlFilter(query);
+        filterLogs();
+    }
 
     const cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
     if (null === cursor) {
