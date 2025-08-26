@@ -103,7 +103,7 @@ const SearchTabPanel = () => {
             }
         >
             <Box className={"search-tab-container"}>
-                { isKqlFilteringEnabled ?
+                {isKqlFilteringEnabled ?
                     <>
                         <FilterInputBox/>
                         <div className={"query-input-box-container"}>
