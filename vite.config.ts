@@ -24,13 +24,7 @@ export default defineConfig({
     optimizeDeps: {
         // Exclude the worker or else `ClpFfiJs-worker.wasm` won't be found when served from the
         // debug server (this option only affects debug builds).
-        exclude: [
-            "clp-ffi-js/worker",
-            "@bokuweb/zstd-wasm",
-        ],
-        esbuildOptions: {
-            target: "es2020",
-        },
+        exclude: ["clp-ffi-js/worker"],
     },
     plugins: [react()],
     server: {
