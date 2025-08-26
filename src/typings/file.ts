@@ -58,8 +58,8 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
     {
         DecoderFactory: PlainTextDecoder,
         checkIsStructured: () => false,
-        extensions: [".txt", ".log"],
-        name: "Text",
+        extensions: [".err", ".log", ".out", ".txt"],
+        name: "Plain Text",
         signature: [],
     },
 ];
