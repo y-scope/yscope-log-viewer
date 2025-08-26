@@ -199,9 +199,7 @@ const LogLevelSelect = () => {
             const {startQuery} = useQueryStore.getState();
             startQuery();
         })().catch(handleErrorWithNotification);
-    }, [setSelectedLogLevels]);
-        setSelectedLogLevels,
-    ]);
+    }, []);
 
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
