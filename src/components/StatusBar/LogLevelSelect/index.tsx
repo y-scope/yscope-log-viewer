@@ -182,10 +182,7 @@ const LogLevelSelect = () => {
         setSelectedLogLevels(logLevels);
 
         const {
-            filterLogs,
-            setLogLevelFilter,
-            loadPageByCursor,
-            logEventNum,
+            filterLogs, loadPageByCursor, logEventNum, setLogLevelFilter,
         } = useViewStore.getState();
 
         setLogLevelFilter((0 === logLevels.length ?
