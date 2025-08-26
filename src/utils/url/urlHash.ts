@@ -88,7 +88,7 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    const {query, isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    const {isPrettified, logEventNum, query, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
         query: query,
         isPrettified: isPrettified,
