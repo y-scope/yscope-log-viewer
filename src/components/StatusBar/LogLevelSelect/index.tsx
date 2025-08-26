@@ -199,7 +199,7 @@ const LogLevelSelect = () => {
             const {startQuery} = useQueryStore.getState();
             startQuery();
         })().catch(handleErrorWithNotification);
-    }, [
+    }, [setSelectedLogLevels]);
         setSelectedLogLevels,
     ]);
 
