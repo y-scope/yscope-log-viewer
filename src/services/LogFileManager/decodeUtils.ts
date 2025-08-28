@@ -61,7 +61,7 @@ const tryCreateDecoderBySignature = async (
     decoderOptions: DecoderOptions
 ): Promise<Nullable<{decoder: Decoder; fileTypeDef: FileTypeDef}>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
-        if (0 === entry.signature.length || fileData.length < entry.signature.length) {
+        if (fileData.length < entry.signature.length) {
             continue;
         }
 
