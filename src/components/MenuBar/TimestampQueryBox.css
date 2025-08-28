@@ -13,13 +13,3 @@
     font: inherit;
     text-align: center;
 }
-
-.timestamp-query-box-input.light {
-    color: #222;
-    background-color: #fff;
-}
-
-.timestamp-query-box-input.dark {
-    color: #fff;
-    background-color: #222;
-}

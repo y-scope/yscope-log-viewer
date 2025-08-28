@@ -1,7 +1,4 @@
-import {
-    useCallback,
-    useState,
-} from "react";
+import {useCallback} from "react";
 
 import {
     Box,
@@ -11,9 +8,7 @@ import {
     Typography,
 } from "@mui/joy";
 
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import CollapseIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 import useLogFileStore from "../../stores/logFileStore";
 import {handleErrorWithNotification} from "../../stores/notificationStore";
@@ -26,7 +21,7 @@ import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
-import TimestampQueryBox from "./TimestampQueryBox";
+import TimestampQueryBoxContainer from "./TimestampQueryBoxContainer";
 
 import "./index.css";
 
@@ -39,7 +34,6 @@ import "./index.css";
 const MenuBar = () => {
     const fileName = useLogFileStore((state) => state.fileName);
     const uiState = useUiStore((state) => state.uiState);
-    const [showTimestampQuery, setShowTimestampQuery] = useState(false);
 
     const handleOpenFile = useCallback(() => {
         openFile((file) => {
@@ -50,10 +44,6 @@ const MenuBar = () => {
                 await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
             })().catch(handleErrorWithNotification);
         });
-    }, []);
-
-    const toggleTimestampQuery = useCallback(() => {
-        setShowTimestampQuery((prev) => !prev);
     }, []);
 
     return (
@@ -96,28 +86,7 @@ const MenuBar = () => {
                 </Box>
 
                 <Divider orientation={"vertical"}/>
-                <Box className={"menu-bar-calendar-container"}>
-                    <MenuBarIconButton
-                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                        tooltipPlacement={"bottom-start"}
-                        tooltipTitle={showTimestampQuery ?
-                            "Collapse" :
-                            "Seek to timestamp"}
-                        onClick={toggleTimestampQuery}
-                    >
-                        {showTimestampQuery ?
-                            <CollapseIcon/> :
-                            <CalendarTodayIcon/>}
-                    </MenuBarIconButton>
-
-                    <div
-                        className={`timestamp-query-wrapper ${showTimestampQuery ?
-                            "expanded" :
-                            ""}`}
-                    >
-                        <TimestampQueryBox/>
-                    </div>
-                </Box>
+                <TimestampQueryBoxContainer/>
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>

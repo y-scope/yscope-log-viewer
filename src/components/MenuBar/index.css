@@ -48,10 +48,6 @@
     margin-bottom: -2px;
 }
 
-.menu-bar-calendar-container {
-    display: flex;
-}
-
 .timestamp-query-wrapper {
     overflow: hidden;
     max-width: 0;
