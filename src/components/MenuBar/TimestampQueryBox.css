@@ -2,11 +2,12 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: var(--ylv-menu-bar-height);
 }
 
 .timestamp-query-box-input {
     box-sizing: border-box;
-    height: var(--ylv-menu-bar-height);
+    height: 100%;
     border: none;
 
     font: inherit;

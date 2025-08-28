@@ -31,7 +31,7 @@ const handleTimestampQuery = (datetime: string) => {
 
 
 /**
- * renders a timestamp input field and a search icon button.
+ * Renders a timestamp input field and a search icon button.
  * Users can input a date and time in UTC format and either press "Enter"
  * or click the search button to update the application's state and URL hash parameters.
  *

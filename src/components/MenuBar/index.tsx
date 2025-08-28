@@ -121,17 +121,15 @@ const MenuBar = () => {
 
                 <Divider orientation={"vertical"}/>
                 <NavigationBar/>
-
                 <Divider orientation={"vertical"}/>
+
                 <ExportLogsButton/>
             </Sheet>
-
-            {false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR) && (
+            {(false === isDisabled(uiState, UI_ELEMENT.PROGRESS_BAR)) &&
                 <LinearProgress
                     className={"menu-bar-loading-progress"}
                     size={"sm"}
-                    thickness={2}/>
-            )}
+                    thickness={2}/>}
         </>
     );
 };
