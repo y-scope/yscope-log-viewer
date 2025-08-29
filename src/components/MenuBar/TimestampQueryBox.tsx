@@ -1,6 +1,9 @@
+import {useCallback} from "react";
+
 import {
     Box,
     Input,
+    Tooltip,
 } from "@mui/joy";
 
 import SearchIcon from "@mui/icons-material/Search";
@@ -29,6 +32,9 @@ const handleTimestampQuery = (datetime: string) => {
 };
 
 
+const currentUtcTime = new Date().toISOString()
+    .slice(0, -1);
+
 /**
  * Renders a timestamp input field and a search icon button.
  * Users can input a date and time in UTC format and either press "Enter"
@@ -38,31 +44,35 @@ const handleTimestampQuery = (datetime: string) => {
  */
 const TimestampQueryBox = () => {
     const uiState = useUiStore((state) => state.uiState);
+    const seekTimestamp = useCallback(() => {
+        return () => {
+            const input = document.getElementById(
+                "timestamp-query-box-input",
+            ) as HTMLInputElement;
+
+            handleTimestampQuery(input.value);
+        };
+    }, []);
+
     return (
         <Box className={"timestamp-query-box"}>
-            <Input
-                disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                id={"timestamp-query-box-input"}
-                title={"Timestamp to seek to in UTC"}
-                type={"datetime-local"}
-                defaultValue={new Date().toISOString()
-                    .slice(0, -1)}
-                onKeyDown={(e) => {
-                    if ("Enter" === e.key) {
-                        handleTimestampQuery(e.currentTarget.value);
-                    }
-                }}/>
+            <Tooltip title={"Jump to last log event at or first log event after this UTC time"}>
+                <Input
+                    defaultValue={currentUtcTime}
+                    disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                    id={"timestamp-query-box-input"}
+                    title={"Timestamp to seek to in UTC"}
+                    type={"datetime-local"}
+                    onKeyDown={(e) => {
+                        if ("Enter" === e.key) {
+                            handleTimestampQuery(e.currentTarget.value);
+                        }
+                    }}/>
+            </Tooltip>
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                tooltipPlacement={"bottom-start"}
-                tooltipTitle={"Seek to timestamp"}
-                onClick={() => {
-                    const input = document.getElementById(
-                        "timestamp-query-box-input",
-                    ) as HTMLInputElement;
-
-                    handleTimestampQuery(input.value);
-                }}
+                tooltipTitle={"Search by timestamp"}
+                onClick={seekTimestamp}
             >
                 <SearchIcon/>
             </MenuBarIconButton>
