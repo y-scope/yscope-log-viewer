@@ -44,14 +44,12 @@ const currentUtcTime = new Date().toISOString()
  */
 const TimestampQueryBox = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const seekTimestamp = useCallback(() => {
-        return () => {
-            const input = document.getElementById(
-                "timestamp-query-box-input",
-            ) as HTMLInputElement;
+    const searchByTimestamp = useCallback(() => {
+        const input = document.getElementById(
+            "timestamp-query-box-input",
+        ) as HTMLInputElement;
 
-            handleTimestampQuery(input.value);
-        };
+        handleTimestampQuery(input.value);
     }, []);
 
     return (
@@ -72,7 +70,7 @@ const TimestampQueryBox = () => {
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipTitle={"Search by timestamp"}
-                onClick={seekTimestamp}
+                onClick={searchByTimestamp}
             >
                 <SearchIcon/>
             </MenuBarIconButton>
