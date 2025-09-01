@@ -18,6 +18,9 @@ import MenuBarIconButton from "./MenuBarIconButton";
 import "./TimestampQueryBox.css";
 
 
+const currentUtcTime = new Date().toISOString()
+    .slice(0, -1);
+
 /**
  * Perform timestamp query with the datetime string.
  *
@@ -31,9 +34,16 @@ const handleTimestampQuery = (datetime: string) => {
     }
 };
 
-
-const currentUtcTime = new Date().toISOString()
-    .slice(0, -1);
+/**
+ * Handle "Enter" key press event to trigger timestamp query.
+ *
+ * @param e Keyboard event
+ */
+const handleKeyboardEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ("Enter" === e.key) {
+        handleTimestampQuery(e.currentTarget.value);
+    }
+};
 
 /**
  * Renders a timestamp input field and a search icon button.
@@ -61,11 +71,7 @@ const TimestampQueryBox = () => {
                     id={"timestamp-query-box-input"}
                     title={"Timestamp to seek to in UTC"}
                     type={"datetime-local"}
-                    onKeyDown={(e) => {
-                        if ("Enter" === e.key) {
-                            handleTimestampQuery(e.currentTarget.value);
-                        }
-                    }}/>
+                    onKeyDown={handleKeyboardEnterPress}/>
             </Tooltip>
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
