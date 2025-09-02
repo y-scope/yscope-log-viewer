@@ -37,7 +37,7 @@ const TimestampQueryBoxContainer = () => {
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipTitle={showTimestampQuery ?
                     "Collapse" :
-                    "Seek to timestamp"}
+                    "Search by timestamp"}
                 onClick={toggleTimestampQuery}
             >
                 {showTimestampQuery ?
