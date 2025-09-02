@@ -38,49 +38,49 @@ const EDITOR_ACTIONS : EditorAction[] = [
     {
         actionName: ACTION_NAME.FIRST_PAGE,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketLeft],
-        label: "First page",
+        label: "Page: First Page",
     },
     {
         actionName: ACTION_NAME.PREV_PAGE,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketLeft],
-        label: "Previous page",
+        label: "Page: Previous Page",
     },
     {
         actionName: ACTION_NAME.NEXT_PAGE,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.BracketRight],
-        label: "Next page",
+        label: "Page: Next Page",
     },
     {
         actionName: ACTION_NAME.LAST_PAGE,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.BracketRight],
-        label: "Last page",
+        label: "Page: Last Page",
     },
     {
         actionName: ACTION_NAME.PAGE_TOP,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyU],
-        label: "Top of page",
+        label: "Page: Top of Page",
     },
     {
         actionName: ACTION_NAME.PAGE_BOTTOM,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI],
-        label: "Bottom of page",
+        label: "Page: Bottom of Page",
     },
     {
         actionName: ACTION_NAME.COPY_LOG_EVENT,
         contextMenuGroupId: "9_cutcopypaste",
         contextMenuOrder: 2,
         keyBindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyC],
-        label: "Copy Log Event",
+        label: "View: Copy Log Event",
     },
     {
         actionName: ACTION_NAME.TOGGLE_PRETTIFY,
         keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF],
-        label: "Toggle Prettify",
+        label: "View: Toggle Prettify",
     },
     {
         actionName: ACTION_NAME.TOGGLE_WORD_WRAP,
         keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyZ],
-        label: "Toggle Word Wrap",
+        label: "View: Toggle Word Wrap",
     },
 ];
 
