@@ -15,6 +15,7 @@ import {updateWindowUrlHashParams} from "../../../../../utils/url";
 import ToggleIconButton from "./ToggleIconButton";
 
 import "./QueryInputBox.css";
+import "./InputBox.css";
 
 
 /**
@@ -56,11 +57,11 @@ const QueryInputBox = () => {
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
     return (
-        <div className={"query-input-box-with-progress"}>
+        <div className={"input-box-container"}>
             <Textarea
-                className={"query-input-box"}
+                className={"input-box"}
                 maxRows={7}
-                placeholder={"Search"}
+                placeholder={"Search (in filtered logs)"}
                 size={"sm"}
                 value={querystring}
                 endDecorator={
@@ -98,7 +99,7 @@ const QueryInputBox = () => {
                         className: "query-input-box-textarea",
                         disabled: isQueryInputBoxDisabled,
                     },
-                    endDecorator: {className: "query-input-box-end-decorator"},
+                    endDecorator: {className: "input-box-end-decorator"},
                 }}
                 onChange={handleQueryInputChange}/>
             <LinearProgress

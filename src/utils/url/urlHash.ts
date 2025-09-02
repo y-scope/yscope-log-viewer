@@ -130,7 +130,6 @@ const updateViewHashParams = () => {
 const updateQueryHashParams = () => {
     const {queryIsCaseSensitive, queryIsRegex, subquery} = getWindowUrlHashParams();
     updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, subquery});
-    const queryString = subquery;
 
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -148,8 +147,8 @@ const updateQueryHashParams = () => {
     isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
     setQueryIsRegex(queryIsRegex);
 
-    isQueryModified ||= queryString !== currentQueryString;
-    setQueryString(queryString);
+    isQueryModified ||= subquery !== currentQueryString;
+    setQueryString(subquery);
 
     return isQueryModified;
 };

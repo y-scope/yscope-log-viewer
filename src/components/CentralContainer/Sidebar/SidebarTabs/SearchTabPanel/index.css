@@ -11,16 +11,6 @@
     flex-grow: 1;
 }
 
-.arrow-right-icon {
-    margin-right: 2px;
-    margin-left: 2px;
-}
-
-.query-input-box-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    margin-top: 10px;
-    margin-bottom: 10px;
+.divider {
+    height: 10px;
 }

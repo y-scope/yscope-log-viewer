@@ -9,7 +9,6 @@ import {
 } from "@mui/joy";
 
 import ShareIcon from "@mui/icons-material/Share";
-import SubdirectoryArrowRightIcon from "@mui/icons-material/SubdirectoryArrowRight";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 
@@ -106,12 +105,8 @@ const SearchTabPanel = () => {
                 {isKqlFilteringEnabled ?
                     <>
                         <FilterInputBox/>
-                        <div className={"query-input-box-container"}>
-                            <div className={"arrow-right-icon"}>
-                                <SubdirectoryArrowRightIcon/>
-                            </div>
-                            <QueryInputBox/>
-                        </div>
+                        <div className={"divider"}/>
+                        <QueryInputBox/>
                     </> :
                     <QueryInputBox/>}
                 <AccordionGroup

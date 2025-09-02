@@ -14,6 +14,7 @@ import {CURSOR_CODE} from "../../../../../typings/worker";
 import {isDisabled} from "../../../../../utils/states";
 
 import "./FilterInputBox.css";
+import "./InputBox.css";
 
 
 /**
@@ -48,14 +49,21 @@ const FilterInputBox = () => {
         })().catch(handleErrorWithNotification);
     }, [kqlFilterInput]);
 
+    const handleTextareaKeyDown = useCallback((ev: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (ev.shiftKey && "Enter" === ev.key) {
+            ev.preventDefault();
+            handleFilterButtonClick();
+        }
+    }, [handleFilterButtonClick]);
+
     const isFilterInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
     const isKqlFilterModified = kqlFilter !== kqlFilterInput;
 
     return (
         <Textarea
-            className={"filter-input-box"}
+            className={"input-box-container input-box"}
             maxRows={7}
-            placeholder={"KQL filter"}
+            placeholder={"KQL log filter"}
             size={"sm"}
             value={kqlFilterInput}
             endDecorator={
@@ -65,7 +73,6 @@ const FilterInputBox = () => {
                     variant={"soft"}
                     onClick={handleFilterButtonClick}
                 >
-                    {" "}
                     Filter
                 </Button>
             }
@@ -73,8 +80,9 @@ const FilterInputBox = () => {
                 disabled: isFilterInputBoxDisabled,
                 className: "filter-input-box-textarea",
             },
-            endDecorator: {className: "filter-input-box-end-decorator"}}}
-            onChange={handleFilterInputChange}/>
+            endDecorator: {className: "input-box-end-decorator"}}}
+            onChange={handleFilterInputChange}
+            onKeyDown={handleTextareaKeyDown}/>
     );
 };
 
