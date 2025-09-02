@@ -58,7 +58,7 @@ const SearchTabPanel = () => {
             setQueryString,
         } = useQueryStore.getState();
 
-        const {kqlFilter} = useViewStore.getState();
+        const {kqlFilterInput} = useViewStore.getState();
 
         setQueryIsCaseSensitive(queryIsCaseSensitive);
         setQueryIsRegex(queryIsRegex);
@@ -66,7 +66,7 @@ const SearchTabPanel = () => {
 
         copyPermalinkToClipboard({}, {
             logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
-            query: kqlFilter,
+            query: kqlFilterInput,
             queryIsCaseSensitive: queryIsCaseSensitive,
             queryIsRegex: queryIsRegex,
             subquery: queryString,

@@ -22,18 +22,19 @@ import "./FilterInputBox.css";
  * @return
  */
 const FilterInputBox = () => {
-    const filterApplied = useViewStore((state) => state.isFilterApplied);
-    const filterString = useViewStore((state) => state.kqlFilter);
+    const kqlFilterInput = useViewStore((state) => state.kqlFilterInput);
+    const kqlFilter = useViewStore((state) => state.kqlFilter);
     const uiState = useUiStore((state) => state.uiState);
 
     const handleFilterInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newFilterString = ev.target.value;
-        const {setKqlFilter} = useViewStore.getState();
-        setKqlFilter(newFilterString);
+        const {setKqlFilterInput} = useViewStore.getState();
+        setKqlFilterInput(newFilterString);
     }, []);
 
     const handleFilterButtonClick = useCallback(() => {
-        const {filterLogs, loadPageByCursor, logEventNum} = useViewStore.getState();
+        const {setKqlFilter, filterLogs, loadPageByCursor, logEventNum} = useViewStore.getState();
+        setKqlFilter(kqlFilterInput);
         filterLogs();
 
         (async () => {
@@ -45,9 +46,10 @@ const FilterInputBox = () => {
             const {startQuery} = useQueryStore.getState();
             startQuery();
         })().catch(handleErrorWithNotification);
-    }, []);
+    }, [kqlFilterInput]);
 
     const isFilterInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
+    const isKqlFilterModified = kqlFilter !== kqlFilterInput;
 
     return (
         <Textarea
@@ -55,11 +57,11 @@ const FilterInputBox = () => {
             maxRows={7}
             placeholder={"KQL filter"}
             size={"sm"}
-            value={filterString}
+            value={kqlFilterInput}
             endDecorator={
                 <Button
                     className={"filter-button"}
-                    disabled={filterApplied || isFilterInputBoxDisabled}
+                    disabled={isFilterInputBoxDisabled || !isKqlFilterModified}
                     variant={"soft"}
                     onClick={handleFilterButtonClick}
                 >

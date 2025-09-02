@@ -95,8 +95,18 @@ const updateViewHashParams = () => {
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
 
-    const {kqlFilter: currentKqlFilter, setKqlFilter, filterLogs} = useViewStore.getState();
-    if (query !== currentKqlFilter) {
+    const {
+        kqlFilterInput,
+        kqlFilter,
+        setKqlFilterInput,
+        setKqlFilter,
+        filterLogs,
+    } = useViewStore.getState();
+
+    if (query !== kqlFilter) {
+        if (kqlFilter === kqlFilterInput) {
+            setKqlFilterInput(query);
+        }
         setKqlFilter(query);
         filterLogs();
     }
