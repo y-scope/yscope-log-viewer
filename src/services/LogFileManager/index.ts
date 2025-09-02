@@ -376,7 +376,7 @@ class LogFileManager {
             return;
         }
 
-        this.#processQueryDecodedEvents(decodedEvents, queryRegex, results);
+        this.#processQueryDecodedEvents(decodedEvents, queryRegex, results, chunkBeginIdx);
 
         // The query progress takes the maximum of the progress based on the number of events
         // queried over total log events, and the number of results over the maximum result limit.
@@ -400,19 +400,21 @@ class LogFileManager {
      * @param decodedEvents
      * @param queryRegex
      * @param results The map to store query results.
+     * @param chunkBeginIdx
      */
     #processQueryDecodedEvents (
         decodedEvents: DecodeResult[],
         queryRegex: RegExp,
-        results: QueryResults
+        results: QueryResults,
+        chunkBeginIdx: number
     ): void {
-        for (const {message, logEventNum} of decodedEvents) {
+        for (const [idx, {message, logEventNum}] of decodedEvents.entries()) {
             const matchResult = message.match(queryRegex);
             if (null === matchResult || "number" !== typeof matchResult.index) {
                 continue;
             }
 
-            const pageNum = Math.ceil(logEventNum / this.#pageSize);
+            const pageNum = 1 + Math.floor((chunkBeginIdx + idx) / this.#pageSize);
             if (false === results.has(pageNum)) {
                 results.set(pageNum, []);
             }
