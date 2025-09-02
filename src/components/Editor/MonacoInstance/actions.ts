@@ -28,8 +28,10 @@ const setupCursorExplicitPosChangeCallback = (
     let posChangeDebounceTimeout: Nullable<ReturnType<typeof setTimeout>> = null;
 
     editor.onDidChangeCursorPosition((ev: monaco.editor.ICursorPositionChangedEvent) => {
-        // only trigger if there was an explicit change that was made by keyboard or mouse
-        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason) {
+        // only trigger if there was an explicit change that was made by keyboard or mouse, or
+        // invoked by setPosition(), which doesn't provide any reason (NotSet)
+        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason &&
+            monaco.editor.CursorChangeReason.NotSet !== ev.reason) {
             return;
         }
         if (null !== posChangeDebounceTimeout) {
