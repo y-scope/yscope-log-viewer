@@ -48,12 +48,12 @@
     margin-bottom: -2px;
 }
 
-.timestamp-query-wrapper {
+.timestamp-query-input-wrapper {
     overflow: hidden;
     max-width: 0;
     transition: max-width 0.3s ease;
 }
 
-.timestamp-query-wrapper.expanded {
+.timestamp-query-input-wrapper.expanded {
     max-width: 320px;
 }

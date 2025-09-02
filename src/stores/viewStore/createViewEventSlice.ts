@@ -7,12 +7,10 @@ import {
 } from "./types";
 
 
-const currentUtcTime = new Date().toISOString()
-    .slice(0, -1);
-
 const VIEW_EVENT_DEFAULT: ViewEventValues = {
     logEventNum: 0,
-    dateTimeString: currentUtcTime,
+    dateTimeString: new Date().toISOString()
+        .slice(0, -1),
 };
 
 /**

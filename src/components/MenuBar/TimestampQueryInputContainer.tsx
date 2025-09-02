@@ -12,18 +12,17 @@ import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {isDisabled} from "../../utils/states";
 import MenuBarIconButton from "./MenuBarIconButton";
-import TimestampQueryBox from "./TimestampQueryBox";
+import TimestampQueryInput from "./TimestampQueryInput.tsx";
 
-import "./TimestampQueryBoxContainer.css";
+import "./TimestampQueryInputContainer.css";
 
 
 /**
- * Wraps TimestampQueryBox with a toggle button.
- * It includes a toggle button to show or hide the Timestamp Query Box and manages its state.
+ * Wraps TimestampQueryInput with a toggle button, which shows or hides the TimestampQueryInput.
  *
- * @return The rendered component.
+ * @return
  */
-const TimestampQueryBoxContainer = () => {
+const TimestampQueryInputContainer = () => {
     const [showTimestampQuery, setShowTimestampQuery] = useState(false);
     const uiState = useUiStore((state) => state.uiState);
 
@@ -32,7 +31,7 @@ const TimestampQueryBoxContainer = () => {
     }, []);
 
     return (
-        <Box className={"timestamp-query-box-container"}>
+        <Box className={"timestamp-query-input-container"}>
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipTitle={showTimestampQuery ?
@@ -46,14 +45,14 @@ const TimestampQueryBoxContainer = () => {
             </MenuBarIconButton>
 
             <div
-                className={`timestamp-query-wrapper ${showTimestampQuery ?
+                className={`timestamp-query-input-wrapper ${showTimestampQuery ?
                     "expanded" :
                     ""}`}
             >
-                <TimestampQueryBox/>
+                <TimestampQueryInput/>
             </div>
         </Box>
     );
 };
 
-export default TimestampQueryBoxContainer;
+export default TimestampQueryInputContainer;

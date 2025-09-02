@@ -16,32 +16,8 @@ import {updateWindowUrlHashParams} from "../../utils/url";
 import {updateViewHashParams} from "../../utils/url/urlHash";
 import MenuBarIconButton from "./MenuBarIconButton";
 
-import "./TimestampQueryBox.css";
+import "./TimestampQueryInput.css";
 
-
-/**
- * Perform timestamp query with the datetime string.
- *
- * @param datetime
- */
-const handleTimestampQuery = (datetime: string) => {
-    if (datetime) {
-        const timestamp = new Date(`${datetime}Z`).getTime();
-        updateWindowUrlHashParams({timestamp: timestamp});
-        updateViewHashParams();
-    }
-};
-
-/**
- * Handle "Enter" key press event to trigger timestamp query.
- *
- * @param e Keyboard event
- */
-const handleKeyboardEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ("Enter" === e.key) {
-        handleTimestampQuery(e.currentTarget.value);
-    }
-};
 
 /**
  * Renders a timestamp input field and a search icon button.
@@ -50,27 +26,32 @@ const handleKeyboardEnterPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
  *
  * @return
  */
-const TimestampQueryBox = () => {
+const TimestampQueryInput = () => {
     const uiState = useUiStore((state) => state.uiState);
     const dateTimeString = useViewStore((state) => state.dateTimeString);
-    const searchByTimestamp = useCallback(() => {
-        const input = document.getElementById(
-            "timestamp-query-box-input",
-        ) as HTMLInputElement;
 
-        handleTimestampQuery(input.value);
-    }, []);
+    const handleTimestampQuery = useCallback(() => {
+        const timestamp = new Date(`${dateTimeString}Z`).getTime();
+        updateWindowUrlHashParams({timestamp: timestamp});
+        updateViewHashParams();
+    }, [dateTimeString]);
+
+    const handleKeyboardEnterPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if ("Enter" === e.key) {
+            handleTimestampQuery();
+        }
+    }, [handleTimestampQuery]);
+
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const {setDateTimeString} = useViewStore.getState();
         setDateTimeString(e.currentTarget.value);
     }, []);
 
     return (
-        <Box className={"timestamp-query-box"}>
-            <Tooltip title={"Jump to last log event at or first log event after this UTC time"}>
+        <Box className={"timestamp-query-input"}>
+            <Tooltip title={"Jump to the nearest log event at/after this UTC time"}>
                 <Input
                     disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                    id={"timestamp-query-box-input"}
                     title={"Timestamp to seek to in UTC"}
                     type={"datetime-local"}
                     value={dateTimeString}
@@ -80,7 +61,7 @@ const TimestampQueryBox = () => {
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipTitle={"Search by timestamp"}
-                onClick={searchByTimestamp}
+                onClick={handleTimestampQuery}
             >
                 <SearchIcon/>
             </MenuBarIconButton>
@@ -88,4 +69,4 @@ const TimestampQueryBox = () => {
     );
 };
 
-export default TimestampQueryBox;
+export default TimestampQueryInput;
