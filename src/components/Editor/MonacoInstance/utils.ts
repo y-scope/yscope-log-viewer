@@ -2,7 +2,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {EditorAction} from "../../../utils/actions";
 import {
-    setupCursorExplicitPosChangeCallback,
+    setupCursorPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,
     setupMobileZoom,
@@ -63,7 +63,7 @@ const createMonacoEditor = (
     );
 
     if ("undefined" !== typeof handlers.onCursorExplicitPosChange) {
-        setupCursorExplicitPosChangeCallback(editor, handlers.onCursorExplicitPosChange);
+        setupCursorPosChangeCallback(editor, handlers.onCursorExplicitPosChange);
     }
     setupMobileZoom(editor, editorContainer);
     setupFocusOnBacktickDown(editor);
