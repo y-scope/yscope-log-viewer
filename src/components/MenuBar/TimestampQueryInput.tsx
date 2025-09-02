@@ -52,6 +52,7 @@ const TimestampQueryInput = () => {
             <Tooltip title={"Jump to the nearest log event at/after this UTC time"}>
                 <Input
                     disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                    size={"sm"}
                     title={"Timestamp to seek to in UTC"}
                     type={"datetime-local"}
                     value={dateTimeString}
