@@ -6,8 +6,10 @@ import {
 import {
     AccordionGroup,
     Box,
+    Link,
 } from "@mui/joy";
 
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import ShareIcon from "@mui/icons-material/Share";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
@@ -82,6 +84,20 @@ const SearchTabPanel = () => {
             title={TAB_DISPLAY_NAMES[TAB_NAME.SEARCH]}
             titleButtons={
                 <>
+                    {isKqlFilteringEnabled &&
+                    <PanelTitleButton
+                        title={"What is KQL log filter?"}
+                    >
+                        <Link
+                            color={"neutral"}
+                            href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/format/index.html"}
+                            level={"body-sm"}
+                            rel={"noopener"}
+                            target={"_blank"}
+                        >
+                            <HelpOutlineIcon/>
+                        </Link>
+                    </PanelTitleButton>}
                     <PanelTitleButton
                         title={isAllExpanded ?
                             "Collapse all" :

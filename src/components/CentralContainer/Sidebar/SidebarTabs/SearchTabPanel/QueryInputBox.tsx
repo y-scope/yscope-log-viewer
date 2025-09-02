@@ -6,6 +6,7 @@ import {
     Textarea,
 } from "@mui/joy";
 
+import useLogFileStore from "../../../../../stores/logFileStore";
 import useQueryStore from "../../../../../stores/queryStore";
 import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
@@ -29,6 +30,7 @@ const QueryInputBox = () => {
     const querystring = useQueryStore((state) => state.queryString);
     const queryProgress = useQueryStore((state) => state.queryProgress);
     const uiState = useUiStore((state) => state.uiState);
+    const fileTypeInfo = useLogFileStore((state) => state.fileTypeInfo);
 
     const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newQueryString = ev.target.value;
@@ -56,12 +58,19 @@ const QueryInputBox = () => {
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
+    const isKqlFilteringEnabled = null !== fileTypeInfo &&
+        "CLP IR" === fileTypeInfo.name &&
+        true === fileTypeInfo.isStructured;
+    const placeholder = isKqlFilteringEnabled ?
+        "Search (in filtered logs)" :
+        "Search";
+
     return (
         <div className={"input-box-container"}>
             <Textarea
                 className={"input-box"}
                 maxRows={7}
-                placeholder={"Search (in filtered logs)"}
+                placeholder={placeholder}
                 size={"sm"}
                 value={querystring}
                 endDecorator={
