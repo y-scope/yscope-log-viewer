@@ -1,6 +1,7 @@
 import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
+    CursorType,
     PageData,
 } from "../../typings/worker";
 import {NavigationAction} from "../../utils/actions";
@@ -14,6 +15,7 @@ interface ViewPageValues {
 }
 
 interface ViewPageActions {
+    loadPageByCursor: (cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
     updatePageData: (pageData: PageData) => void;
 }
@@ -25,7 +27,7 @@ interface ViewEventValues {
 }
 
 interface ViewEventActions {
-    updateLogEventNum: (newLogEventNum: number) => void;
+    setLogEventNum: (newLogEventNum: number) => void;
 }
 
 type ViewEventSlice = ViewEventValues & ViewEventActions;
@@ -35,7 +37,7 @@ interface ViewFormattingValues {
 }
 
 interface ViewFormattingActions {
-    updateIsPrettified: (newIsPrettified: boolean) => void;
+    setIsPrettified: (newIsPrettified: boolean) => void;
 }
 
 type ViewFormattingSlice = ViewFormattingValues & ViewFormattingActions;

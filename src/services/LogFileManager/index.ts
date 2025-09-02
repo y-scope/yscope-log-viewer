@@ -6,7 +6,7 @@ import {
     DecodeResult,
     DecoderOptions,
 } from "../../typings/decoders";
-import {MAX_V8_STRING_LENGTH} from "../../typings/js";
+import {FileTypeInfo} from "../../typings/file";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     QueryArgs,
@@ -27,10 +27,7 @@ import {
 } from "../../utils/config";
 import {getChunkNum} from "../../utils/math";
 import {defer} from "../../utils/time";
-import {formatSizeInBytes} from "../../utils/units";
-import ClpIrDecoder from "../decoders/ClpIrDecoder";
-import {CLP_IR_STREAM_TYPE} from "../decoders/ClpIrDecoder/utils";
-import JsonlDecoder from "../decoders/JsonlDecoder";
+import {resolveDecoderAndFileType} from "./decodeUtils";
 import {
     getEventNumCursorData,
     getLastEventCursorData,
@@ -41,17 +38,13 @@ import {
 
 const MAX_QUERY_RESULT_COUNT = 1_000;
 
-enum FILE_TYPE {
-    CLP_TEXT_IR = "clpTextIr",
-    CLP_KV_IR = "clpKvIr",
-    JSONL = "jsonl",
-}
-
 /**
  * Class to manage the retrieval and decoding of a given log file.
  */
 class LogFileManager {
     readonly #fileName: string;
+
+    readonly #fileTypeInfo: FileTypeInfo;
 
     readonly #numEvents: number = 0;
 
@@ -69,6 +62,8 @@ class LogFileManager {
 
     #queryCount: number = 0;
 
+    #isPrettified: boolean = false;
+
     /**
      * Private constructor for LogFileManager. This is not intended to be invoked publicly.
      * Instead, use LogFileManager.create() to create a new instance of the class.
@@ -76,6 +71,7 @@ class LogFileManager {
      * @param params
      * @param params.decoder
      * @param params.fileName
+     * @param params.fileTypeInfo
      * @param params.onDiskFileSizeInBytes
      * @param params.pageSize Page size for setting up pagination.
      * @param params.onExportChunk
@@ -84,6 +80,7 @@ class LogFileManager {
     constructor ({
         decoder,
         fileName,
+        fileTypeInfo,
         onDiskFileSizeInBytes,
         pageSize,
         onExportChunk,
@@ -91,6 +88,7 @@ class LogFileManager {
     }: {
         decoder: Decoder;
         fileName: string;
+        fileTypeInfo: FileTypeInfo;
         onDiskFileSizeInBytes: number;
         pageSize: number;
         onExportChunk: (logs: string) => void;
@@ -98,6 +96,7 @@ class LogFileManager {
     }) {
         this.#decoder = decoder;
         this.#fileName = fileName;
+        this.#fileTypeInfo = fileTypeInfo;
         this.#pageSize = pageSize;
         this.#onDiskFileSizeInBytes = onDiskFileSizeInBytes;
         this.#onExportChunk = onExportChunk;
@@ -117,6 +116,10 @@ class LogFileManager {
         return this.#fileName;
     }
 
+    get fileTypeInfo () {
+        return this.#fileTypeInfo;
+    }
+
     get onDiskFileSizeInBytes () {
         return this.#onDiskFileSizeInBytes;
     }
@@ -127,30 +130,6 @@ class LogFileManager {
 
     get numEvents () {
         return this.#numEvents;
-    }
-
-    /**
-     * Returns the type of file based on the decoder in use.
-     *
-     * @return The detected file type.
-     * @throws {Error} If the decoder type is unknown.
-     */
-    get fileType (): FILE_TYPE {
-        const decoder = this.#decoder;
-        if (decoder instanceof JsonlDecoder) {
-            return FILE_TYPE.JSONL;
-        } else if (decoder instanceof ClpIrDecoder) {
-            switch (decoder.irStreamType) {
-                case CLP_IR_STREAM_TYPE.STRUCTURED:
-                    return FILE_TYPE.CLP_KV_IR;
-                case CLP_IR_STREAM_TYPE.UNSTRUCTURED:
-                    return FILE_TYPE.CLP_TEXT_IR;
-                default:
-
-                    // fall through to unreachable error.
-            }
-        }
-        throw new Error("Unexpected decoder type when determining file type.");
     }
 
     /**
@@ -179,49 +158,22 @@ class LogFileManager {
         onQueryResults: (queryProgress: number, queryResults: QueryResults) => void;
     }): Promise<LogFileManager> {
         const {fileName, fileData} = await loadFile(fileSrc);
-        const decoder = await LogFileManager.#initDecoder(fileName, fileData, decoderOptions);
+        const {decoder, fileTypeInfo} = await resolveDecoderAndFileType(
+            fileName,
+            fileData,
+            decoderOptions
+        );
 
         return new LogFileManager({
             decoder: decoder,
             fileName: fileName,
+            fileTypeInfo: fileTypeInfo,
             onDiskFileSizeInBytes: fileData.length,
             pageSize: pageSize,
 
             onExportChunk: onExportChunk,
             onQueryResults: onQueryResults,
         });
-    }
-
-    /**
-     * Constructs a decoder instance based on the file extension.
-     *
-     * @param fileName
-     * @param fileData
-     * @param decoderOptions Initial decoder options.
-     * @return The constructed decoder.
-     * @throws {Error} if no decoder supports a file with the given extension.
-     */
-    static async #initDecoder (
-        fileName: string,
-        fileData: Uint8Array,
-        decoderOptions: DecoderOptions
-    ): Promise<Decoder> {
-        let decoder: Decoder;
-        if (fileName.endsWith(".jsonl")) {
-            decoder = new JsonlDecoder(fileData, decoderOptions);
-        } else if (fileName.endsWith(".clp.zst")) {
-            decoder = await ClpIrDecoder.create(fileData, decoderOptions);
-        } else {
-            throw new Error(`No decoder supports ${fileName}`);
-        }
-
-        if (fileData.length > MAX_V8_STRING_LENGTH) {
-            throw new Error(`Cannot handle files larger than ${
-                formatSizeInBytes(MAX_V8_STRING_LENGTH)
-            } due to a limitation in Chromium-based browsers.`);
-        }
-
-        return decoder;
     }
 
     /* Sets any formatter options that exist in the decoder's options.
@@ -242,6 +194,10 @@ class LogFileManager {
         if (false === result) {
             throw new Error("Failed to set log level filter for the decoder.");
         }
+    }
+
+    setIsPrettified (isPrettified: boolean) {
+        this.#isPrettified = isPrettified;
     }
 
     /**
@@ -265,7 +221,7 @@ class LogFileManager {
             );
         }
 
-        const messages = results.map(([msg]) => msg);
+        const messages = results.map(({message}) => message);
         this.#onExportChunk(messages.join(""));
 
         if (endLogEventIdx < this.#numEvents) {
@@ -279,12 +235,11 @@ class LogFileManager {
      * Loads a page of log events based on the provided cursor.
      *
      * @param cursor The cursor indicating the page to load. See {@link CursorType}.
-     * @param isPrettified Are the log messages pretty printed.
      * @return An object containing the logs as a string, a map of line numbers to log event
      * numbers, and the line number of the first line in the cursor identified event.
      * @throws {Error} if any error occurs during decode.
      */
-    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
+    loadPage (cursor: CursorType): PageData {
         console.debug(`loadPage: cursor=${JSON.stringify(cursor)}`);
         const filteredLogEventMap = this.#decoder.getFilteredLogEventMap();
         const numActiveEvents: number = filteredLogEventMap ?
@@ -313,21 +268,14 @@ class LogFileManager {
         const messages: string[] = [];
         const beginLineNumToLogEventNum: BeginLineNumToLogEventNumMap = new Map();
         let currentLine = 1;
-        results.forEach((r) => {
-            const [
-                msg,
-                ,
-                ,
-                logEventNum,
-            ] = r;
-
-            const printedMsg = (isPrettified) ?
-                `${jsBeautify(msg)}\n` :
-                msg;
+        results.forEach(({message, logEventNum}) => {
+            const printedMsg = (this.#isPrettified) ?
+                `${jsBeautify(message)}\n` :
+                message;
 
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
-            currentLine += msg.split("\n").length - 1;
+            currentLine += message.split("\n").length - 1;
         });
         const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
@@ -339,7 +287,6 @@ class LogFileManager {
 
         return {
             beginLineNumToLogEventNum: beginLineNumToLogEventNum,
-            cursorLineNum: 1,
             logEventNum: matchingLogEventNum,
             logs: messages.join(""),
             numPages: newNumPages,
@@ -458,7 +405,7 @@ class LogFileManager {
         queryRegex: RegExp,
         results: QueryResults
     ): void {
-        for (const [message, , , logEventNum] of decodedEvents) {
+        for (const {message, logEventNum} of decodedEvents) {
             const matchResult = message.match(queryRegex);
             if (null === matchResult || "number" !== typeof matchResult.index) {
                 continue;
@@ -495,6 +442,8 @@ class LogFileManager {
      */
     #getCursorData (cursor: CursorType, numActiveEvents: number): CursorData {
         const {code, args} = cursor;
+
+        let eventNum = 0;
         switch (code) {
             case CURSOR_CODE.PAGE_NUM:
                 return getPageNumCursorData(
@@ -506,17 +455,26 @@ class LogFileManager {
             case CURSOR_CODE.LAST_EVENT:
                 return getLastEventCursorData(numActiveEvents, this.#pageSize);
             case CURSOR_CODE.EVENT_NUM:
-                return getEventNumCursorData(
-                    args.eventNum,
-                    numActiveEvents,
-                    this.#pageSize,
-                    this.#decoder.getFilteredLogEventMap(),
-                );
+                ({eventNum} = args);
+                break;
+            case CURSOR_CODE.TIMESTAMP: {
+                const eventIdx = this.#decoder.findNearestLogEventByTimestamp(args.timestamp);
+                if (null !== eventIdx) {
+                    eventNum = eventIdx + 1;
+                }
+                break;
+            }
             default:
-                throw new Error(`Unsupported cursor type: ${code}`);
+                throw new Error(`Unsupported cursor code: ${code as string}`);
         }
+
+        return getEventNumCursorData(
+            eventNum,
+            numActiveEvents,
+            this.#pageSize,
+            this.#decoder.getFilteredLogEventMap(),
+        );
     }
 }
 
-export {FILE_TYPE};
 export default LogFileManager;

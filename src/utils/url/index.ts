@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 350] */
+/* eslint max-lines: ["error", 400] */
 import {
     HASH_PARAM_NAMES,
     SEARCH_PARAM_NAMES,
@@ -6,7 +6,11 @@ import {
     UrlHashParamUpdatesType,
     UrlSearchParams,
     UrlSearchParamUpdatesType,
-} from "../typings/url";
+} from "../../typings/url";
+import {
+    findNearestLessThanOrEqualElement,
+    isWithinBounds,
+} from "../data";
 
 
 /**
@@ -25,6 +29,7 @@ const URL_HASH_PARAMS_DEFAULT = Object.freeze({
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
     [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
     [HASH_PARAM_NAMES.QUERY_STRING]: "",
+    [HASH_PARAM_NAMES.TIMESTAMP]: -1,
 });
 
 /**
@@ -54,18 +59,6 @@ const getAbsoluteUrl = (path: string) => {
 };
 
 /**
- * Checks if a value is empty or falsy.
- *
- * @param value
- * @return `true` if the value is empty or falsy, otherwise `false`.
- */
-const isEmptyOrFalsy = (value: unknown): boolean => (
-    null === value ||
-    false === value ||
-    ("string" === typeof value && 0 === value.length)
-);
-
-/**
  * Parses the URL search parameters from the current window's URL.
  *
  * @return An object containing the parsed search parameters.
@@ -86,9 +79,10 @@ const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
             if (0 !== filePath.length) {
                 let resolvedFilePath = filePath;
                 try {
-                    resolvedFilePath = getAbsoluteUrl(filePath);
+                    resolvedFilePath = decodeURIComponent(filePath);
+                    resolvedFilePath = getAbsoluteUrl(resolvedFilePath);
                 } catch (e) {
-                    console.error("Unable to get absolute URL from filePath:", e);
+                    console.error("Failed to decode filePath or resolve it to an absolute URL:", e);
                 }
                 parsedSearchParams[SEARCH_PARAM_NAMES.FILE_PATH] = resolvedFilePath;
             }
@@ -116,7 +110,7 @@ const getUpdatedSearchParams = (updates: UrlSearchParamUpdatesType) => {
             // Updates to `filePath` should be handled last.
             continue;
         }
-        if (isEmptyOrFalsy(value)) {
+        if (value === URL_SEARCH_PARAMS_DEFAULT[key as SEARCH_PARAM_NAMES]) {
             newSearchParams.delete(key);
         } else {
             newSearchParams.set(key, String(value));
@@ -173,20 +167,36 @@ const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
 
     hashParams.forEach((value, _key) => {
         const key = _key as HASH_PARAM_NAMES;
-        if (HASH_PARAM_NAMES.IS_PRETTIFIED === key) {
-            parsedHashParams[HASH_PARAM_NAMES.IS_PRETTIFIED] = "true" === value;
-        } else if (HASH_PARAM_NAMES.LOG_EVENT_NUM === key) {
-            const parsed = Number(value);
-            parsedHashParams[HASH_PARAM_NAMES.LOG_EVENT_NUM] = Number.isNaN(parsed) ?
-                0 :
-                parsed;
-        } else if (HASH_PARAM_NAMES.QUERY_STRING === key) {
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_STRING] = value;
-        } else if (HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE === key) {
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE] = "true" === value;
-        } else {
-            // (HASH_PARAM_NAMES.QUERY_IS_REGEX === key)
-            parsedHashParams[HASH_PARAM_NAMES.QUERY_IS_REGEX] = "true" === value;
+        switch (key) {
+            case HASH_PARAM_NAMES.LOG_EVENT_NUM: {
+                const parsed = Number(value);
+                parsedHashParams[key] = Number.isNaN(parsed) ?
+                    URL_HASH_PARAMS_DEFAULT[key] :
+                    parsed;
+                break;
+            }
+            case HASH_PARAM_NAMES.TIMESTAMP: {
+                const parsed = Number(value);
+                parsedHashParams[key] = Number.isNaN(parsed) ?
+                    URL_HASH_PARAMS_DEFAULT[key] :
+                    parsed;
+                break;
+            }
+            case HASH_PARAM_NAMES.IS_PRETTIFIED:
+
+                // Fall through
+            case HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE:
+
+                // Fall through
+            case HASH_PARAM_NAMES.QUERY_IS_REGEX:
+                parsedHashParams[key] = "true" === value;
+                break;
+
+            case HASH_PARAM_NAMES.QUERY_STRING:
+                parsedHashParams[key] = value;
+                break;
+            default:
+                break;
         }
     });
 
@@ -208,7 +218,7 @@ const getUpdatedHashParams = (updates: UrlHashParamUpdatesType) => {
     const newHashParams = new URLSearchParams(currentHashParams as Record<string, string>);
 
     for (const [key, value] of Object.entries(updates)) {
-        if (isEmptyOrFalsy(value)) {
+        if (value === URL_HASH_PARAMS_DEFAULT[key as HASH_PARAM_NAMES]) {
             newHashParams.delete(key);
         } else {
             newHashParams.set(key, String(value));
@@ -324,6 +334,44 @@ const updateWindowUrlSearchParams = (updates: UrlSearchParamUpdatesType) => {
     window.history.pushState({}, "", newUrl);
 };
 
+/**
+ * Updates the log event number in the URL to `logEventNum` if it's within the bounds of
+ * `logEventNumsOnPage`.
+ *
+ * @param logEventNum
+ * @param logEventNumsOnPage
+ * @return Whether `logEventNum` is within the bounds of `logEventNumsOnPage`.
+ */
+const updateUrlIfEventOnPage = (
+    logEventNum: number,
+    logEventNumsOnPage: number[]
+): boolean => {
+    if (false === isWithinBounds(logEventNumsOnPage, logEventNum)) {
+        return false;
+    }
+
+    const nearestIdx = findNearestLessThanOrEqualElement(
+        logEventNumsOnPage,
+        logEventNum
+    );
+
+    // Since `isWithinBounds` returned `true`, then:
+    // - `logEventNumsOnPage` must bound `logEventNum`.
+    // - `logEventNumsOnPage` cannot be empty.
+    // - `nearestIdx` cannot be `null`.
+    //
+    // Therefore, we can safely cast:
+    // - `nearestIdx` from `Nullable<number>` to `number`.
+    // - `logEventNumsOnPage[nearestIdx]` from `number | undefined` to `number`.
+    const nearestLogEventNum = logEventNumsOnPage[nearestIdx as number] as number;
+
+    updateWindowUrlHashParams({
+        logEventNum: nearestLogEventNum,
+    });
+
+    return true;
+};
+
 export {
     copyPermalinkToClipboard,
     getAbsoluteUrl,
@@ -333,6 +381,7 @@ export {
     openInNewTab,
     parseWindowUrlHashParams,
     parseWindowUrlSearchParams,
+    updateUrlIfEventOnPage,
     updateWindowUrlHashParams,
     updateWindowUrlSearchParams,
     URL_HASH_PARAMS_DEFAULT,

@@ -18,6 +18,7 @@ import {
     LogLevelFilter,
 } from "../../../typings/logs";
 import {getNestedJsonValue} from "../../../utils/js";
+import {upperBoundBinarySearch} from "../../../utils/math";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {parseFilterKeys} from "../utils";
 import {
@@ -60,6 +61,14 @@ class JsonlDecoder implements Decoder {
         this.#timestampKeyParts = filterKeys.timestampKey.parts;
 
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
+    }
+
+    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        if (0 < dataArray.length && "{".charCodeAt(0) !== dataArray[0]) {
+            throw new Error("Invalid JSONL data: First byte is not '{'.");
+        }
+
+        return Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
     }
 
     getEstimatedNumEvents (): number {
@@ -128,6 +137,14 @@ class JsonlDecoder implements Decoder {
         }
 
         return results;
+    }
+
+    findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
+        return upperBoundBinarySearch(
+            this.#logEvents,
+            (logEvent) => logEvent.timestamp.valueOf(),
+            timestamp
+        );
     }
 
     /**
@@ -248,12 +265,15 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
+        // eslint-disable-next-line no-warning-comments
+        // TODO: extract timezone data from jsonl.
+        return {
+            logEventNum: logEventIdx + 1,
+            logLevel: logLevel,
+            message: message,
+            timestamp: timestamp,
+            utcOffset: 0n,
+        };
     };
 }
 

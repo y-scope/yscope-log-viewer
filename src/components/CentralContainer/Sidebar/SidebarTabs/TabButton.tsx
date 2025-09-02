@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     Tab,
     Tooltip,
@@ -28,9 +30,12 @@ interface TabButtonProps {
  * @return
  */
 const TabButton = ({tabName, Icon, onTabButtonClick}: TabButtonProps) => {
-    const handleClick = () => {
+    const handleClick = useCallback(() => {
         onTabButtonClick(tabName);
-    };
+    }, [
+        onTabButtonClick,
+        tabName,
+    ]);
 
     return (
         <Tooltip
