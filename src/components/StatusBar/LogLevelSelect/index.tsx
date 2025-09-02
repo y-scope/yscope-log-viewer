@@ -242,6 +242,8 @@ const LogLevelSelect = () => {
     useEffect(() => {
         if (UI_STATE.FILE_LOADING === uiState) {
             setSelectedLogLevels([]);
+            const {setLogLevelFilter} = useViewStore.getState();
+            setLogLevelFilter(null);
         }
     }, [uiState]);
 
