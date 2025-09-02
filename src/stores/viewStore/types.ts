@@ -24,10 +24,12 @@ type ViewPageSlice = ViewPageValues & ViewPageActions;
 
 interface ViewEventValues {
     logEventNum: number;
+    dateTimeString: string;
 }
 
 interface ViewEventActions {
     setLogEventNum: (newLogEventNum: number) => void;
+    setDateTimeString: (newDateTimeString: string) => void;
 }
 
 type ViewEventSlice = ViewEventValues & ViewEventActions;

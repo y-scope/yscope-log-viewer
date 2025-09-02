@@ -7,8 +7,12 @@ import {
 } from "./types";
 
 
+const currentUtcTime = new Date().toISOString()
+    .slice(0, -1);
+
 const VIEW_EVENT_DEFAULT: ViewEventValues = {
     logEventNum: 0,
+    dateTimeString: currentUtcTime,
 };
 
 /**
@@ -23,6 +27,9 @@ const createViewEventSlice: StateCreator<
     ...VIEW_EVENT_DEFAULT,
     setLogEventNum: (logEventNum: number) => {
         set({logEventNum});
+    },
+    setDateTimeString: (dateTimeString: string) => {
+        set({dateTimeString});
     },
 });
 
