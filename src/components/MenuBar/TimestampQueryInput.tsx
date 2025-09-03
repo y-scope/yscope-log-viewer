@@ -1,4 +1,4 @@
-import {useCallback} from "react";
+import React, {useCallback} from "react";
 
 import {
     Box,
@@ -42,7 +42,7 @@ const TimestampQueryInput = () => {
         }
     }, [handleTimestampQuery]);
 
-    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDateTimeInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const {setDateTimeString} = useViewStore.getState();
         setDateTimeString(e.currentTarget.value);
     }, []);
@@ -56,16 +56,19 @@ const TimestampQueryInput = () => {
                     title={"Timestamp to seek to in UTC"}
                     type={"datetime-local"}
                     value={dateTimeString}
-                    onChange={handleChange}
+                    endDecorator={
+                        <MenuBarIconButton
+                            disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                            tooltipTitle={"Search by timestamp"}
+                            onClick={handleTimestampQuery}
+                        >
+                            <SearchIcon/>
+                        </MenuBarIconButton>
+                    }
+                    onChange={handleDateTimeInputChange}
                     onKeyDown={handleKeyboardEnterPress}/>
             </Tooltip>
-            <MenuBarIconButton
-                disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                tooltipTitle={"Search by timestamp"}
-                onClick={handleTimestampQuery}
-            >
-                <SearchIcon/>
-            </MenuBarIconButton>
+
         </Box>
     );
 };
