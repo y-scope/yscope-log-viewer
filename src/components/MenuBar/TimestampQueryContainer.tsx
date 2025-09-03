@@ -12,9 +12,9 @@ import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {isDisabled} from "../../utils/states";
 import MenuBarIconButton from "./MenuBarIconButton";
-import TimestampQueryInput from "./TimestampQueryInput.tsx";
+import TimestampQueryInput from "./TimestampQueryInput";
 
-import "./TimestampQueryInputContainer.css";
+import "./TimestampQueryContainer.css";
 
 
 /**
@@ -22,7 +22,7 @@ import "./TimestampQueryInputContainer.css";
  *
  * @return
  */
-const TimestampQueryInputContainer = () => {
+const TimestampQueryContainer = () => {
     const [showTimestampQuery, setShowTimestampQuery] = useState(false);
     const uiState = useUiStore((state) => state.uiState);
 
@@ -31,7 +31,7 @@ const TimestampQueryInputContainer = () => {
     }, []);
 
     return (
-        <Box className={"timestamp-query-input-container"}>
+        <Box className={"timestamp-query-container"}>
             <MenuBarIconButton
                 disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                 tooltipTitle={showTimestampQuery ?
@@ -55,4 +55,4 @@ const TimestampQueryInputContainer = () => {
     );
 };
 
-export default TimestampQueryInputContainer;
+export default TimestampQueryContainer;
