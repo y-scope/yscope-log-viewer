@@ -10,18 +10,8 @@ import useUiStore from "../stores/uiStore";
 import useViewStore from "../stores/viewStore";
 import {TAB_NAME} from "../typings/tab";
 import {
-    HASH_PARAM_NAMES,
-    UrlHashParams,
-} from "../typings/url";
-import {
-    CURSOR_CODE,
-    CursorType,
-} from "../typings/worker";
-import {
     getWindowUrlHashParams,
     getWindowUrlSearchParams,
-    updateWindowUrlHashParams,
-    URL_HASH_PARAMS_DEFAULT,
     URL_SEARCH_PARAMS_DEFAULT,
 } from "../utils/url";
 import {
@@ -41,32 +31,6 @@ const handleHashChange = () => {
         const {startQuery} = useQueryStore.getState();
         startQuery();
     }
-};
-
-/**
- * Returns the initial load file cursor based on the URL hash parameters.
- *
- * @param hashParams
- * @return
- */
-const getInitialCursor = (hashParams: UrlHashParams) => {
-    let cursor: CursorType = {code: CURSOR_CODE.LAST_EVENT, args: null};
-
-    if (URL_HASH_PARAMS_DEFAULT.timestamp !== hashParams.timestamp) {
-        cursor = {
-            code: CURSOR_CODE.TIMESTAMP,
-            args: {timestamp: hashParams.timestamp},
-        };
-    } else if (URL_HASH_PARAMS_DEFAULT.logEventNum !== hashParams.logEventNum) {
-        const {setLogEventNum} = useViewStore.getState();
-        setLogEventNum(hashParams.logEventNum);
-        cursor = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: hashParams.logEventNum},
-        };
-    }
-
-    return cursor;
 };
 
 interface AppControllerProps {
@@ -96,26 +60,19 @@ const AppController = ({children}: AppControllerProps) => {
 
         // Handle initial page load and maintain full URL state
         const hashParams = getWindowUrlHashParams();
-        updateWindowUrlHashParams({
-            isPrettified: hashParams[HASH_PARAM_NAMES.IS_PRETTIFIED],
-            timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
-        });
         const {setIsPrettified} = useViewStore.getState();
         setIsPrettified(hashParams.isPrettified);
 
         const searchParams = getWindowUrlSearchParams();
         if (URL_SEARCH_PARAMS_DEFAULT.filePath !== searchParams.filePath) {
-            const {loadFile} = useLogFileStore.getState();
             (async () => {
+                const {setLogEventNum} = useViewStore.getState();
+                setLogEventNum(hashParams.logEventNum);
+
+                const {loadFile} = useLogFileStore.getState();
                 await loadFile(searchParams.filePath);
-                const {loadPageByCursor} = useViewStore.getState();
-                await loadPageByCursor(getInitialCursor(hashParams));
-                if (updateQueryHashParams()) {
-                    const {setActiveTabName} = useUiStore.getState();
-                    setActiveTabName(TAB_NAME.SEARCH);
-                    const {startQuery} = useQueryStore.getState();
-                    startQuery();
-                }
+
+                handleHashChange();
             })().catch(handleErrorWithNotification);
         }
 
