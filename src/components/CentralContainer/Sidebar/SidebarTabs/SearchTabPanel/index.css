@@ -11,6 +11,8 @@
     flex-grow: 1;
 }
 
-.divider {
-    height: 10px;
+.query-input-boxes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }

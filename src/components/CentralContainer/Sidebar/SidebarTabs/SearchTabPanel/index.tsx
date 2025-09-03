@@ -86,11 +86,11 @@ const SearchTabPanel = () => {
                 <>
                     {isKqlFilteringEnabled &&
                     <PanelTitleButton
-                        title={"What is KQL log filter?"}
+                        title={"KQL query syntax"}
                     >
                         <Link
                             color={"neutral"}
-                            href={"https://docs.yscope.com/yscope-log-viewer/main/user-guide/struct-logs/format/index.html"}
+                            href={"https://docs.yscope.com/clp/main/user-docs/reference-json-search-syntax.html"}
                             level={"body-sm"}
                             rel={"noopener"}
                             target={"_blank"}
@@ -118,13 +118,14 @@ const SearchTabPanel = () => {
             }
         >
             <Box className={"search-tab-container"}>
-                {isKqlFilteringEnabled ?
-                    <>
-                        <FilterInputBox/>
-                        <div className={"divider"}/>
+                {
+                    isKqlFilteringEnabled ?
+                        <div className={"query-input-boxes-container"}>
+                            <FilterInputBox/>
+                            <QueryInputBox/>
+                        </div> :
                         <QueryInputBox/>
-                    </> :
-                    <QueryInputBox/>}
+                }
                 <AccordionGroup
                     className={"query-results"}
                     disableDivider={true}
