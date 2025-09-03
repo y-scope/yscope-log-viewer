@@ -1,0 +1,13 @@
+.input-box-container {
+    width: 100%;
+}
+
+.input-box {
+    flex-direction: row !important;
+    border-radius: 0 !important;
+}
+
+.input-box-end-decorator {
+    display: block !important;
+    margin-block-start: 0 !important;
+}
