@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import {useCallback} from "react";
 
 import {
     Button,
@@ -12,17 +12,14 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 
 import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
+import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice.ts";
 import {UI_ELEMENT} from "../../typings/states";
-import {HASH_PARAM_NAMES} from "../../typings/url";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
-import {
-    copyPermalinkToClipboard,
-    updateWindowUrlHashParams,
-} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash";
+import {copyPermalinkToClipboard} from "../../utils/url";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 
@@ -47,21 +44,9 @@ const StatusBar = () => {
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
 
-    const handleStatusButtonClick = useCallback((ev: React.MouseEvent<HTMLButtonElement>) => {
-        const {actionName} = ev.currentTarget.dataset;
-
-        switch (actionName) {
-            case ACTION_NAME.TOGGLE_PRETTIFY:
-                updateWindowUrlHashParams({
-                    [HASH_PARAM_NAMES.IS_PRETTIFIED]: false === isPrettified,
-                });
-                updateViewHashParams();
-                break;
-            default:
-                console.error(`Unexpected action: ${actionName}`);
-                break;
-        }
-    }, [isPrettified]);
+    const handlePrettifyToggle = useCallback(() => {
+        togglePrettify().catch(handleErrorWithNotification);
+    }, []);
 
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 
@@ -104,7 +89,7 @@ const StatusBar = () => {
                 tooltipTitle={false === isPrettified ?
                     "Turn on Prettify" :
                     "Turn off Prettify"}
-                onClick={handleStatusButtonClick}/>
+                onClick={handlePrettifyToggle}/>
         </Sheet>
     );
 };

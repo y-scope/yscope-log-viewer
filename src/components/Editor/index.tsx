@@ -10,14 +10,15 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
+import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
+import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice.ts";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,
     THEME_NAME,
 } from "../../typings/config";
-import {HASH_PARAM_NAMES} from "../../typings/url";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -163,13 +164,9 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.TOGGLE_PRETTIFY: {
-            const {isPrettified, setIsPrettified} = useViewStore.getState();
-            const newIsPrettified = !isPrettified;
-            updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
-            });
-            setIsPrettified(newIsPrettified);
-            updateViewHashParams();
+            (async () => {
+                await togglePrettify();
+            })().catch(handleErrorWithNotification);
             break;
         }
         case ACTION_NAME.TOGGLE_WORD_WRAP:
