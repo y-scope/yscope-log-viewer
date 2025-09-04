@@ -6,11 +6,12 @@ enum SEARCH_PARAM_NAMES {
 }
 
 enum HASH_PARAM_NAMES {
+    FILTER_STRING = "query",
     IS_PRETTIFIED = "isPrettified",
     LOG_EVENT_NUM = "logEventNum",
     QUERY_IS_CASE_SENSITIVE = "queryIsCaseSensitive",
     QUERY_IS_REGEX = "queryIsRegex",
-    QUERY_STRING = "queryString",
+    QUERY_STRING = "subquery",
     TIMESTAMP = "timestamp",
 }
 
@@ -19,6 +20,7 @@ interface UrlSearchParams {
 }
 
 interface UrlHashParams {
+    [HASH_PARAM_NAMES.FILTER_STRING]: string;
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: boolean;
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: number;
     [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: boolean;

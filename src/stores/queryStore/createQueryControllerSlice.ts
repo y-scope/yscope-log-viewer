@@ -2,7 +2,7 @@ import {StateCreator} from "zustand";
 
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {handleErrorWithNotification} from "../notificationStore";
-import {QUERY_CONFIG_DEFAULT} from "./createQueryConfigSlice.ts";
+import {QUERY_CONFIG_DEFAULT} from "./createQueryConfigSlice";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
 import {
     QueryControllerSlice,
