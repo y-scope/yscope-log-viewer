@@ -29,8 +29,8 @@ interface TimestampQueryInputProps {
  * Users can input a date and time in UTC format and either press "Enter"
  * or click the search button to update the application's state and URL hash parameters.
  *
- * @param root0
- * @param root0.setShowTimestampQuery
+ * @param props
+ * @param props.setShowTimestampQuery
  * @return
  */
 const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) => {
