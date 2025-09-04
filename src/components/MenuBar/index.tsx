@@ -40,6 +40,8 @@ const MenuBar = () => {
             (async () => {
                 const {loadFile} = useLogFileStore.getState();
                 await loadFile(file);
+                const {filterLogs} = useViewStore.getState();
+                filterLogs();
                 const {loadPageByCursor} = useViewStore.getState();
                 await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
             })().catch(handleErrorWithNotification);

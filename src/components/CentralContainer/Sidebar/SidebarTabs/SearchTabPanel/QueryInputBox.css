@@ -1,14 +1,3 @@
-.query-input-box-with-progress {
-    /* JoyUI has a rounding issue when calculating the Textarea width, causing it to overflow its
-      container. */
-    margin-right: 1px;
-}
-
-.query-input-box {
-    flex-direction: row !important;
-    border-radius: 0 !important;
-}
-
 .query-option-button {
     width: 1.5rem !important;
     min-width: 0 !important;
@@ -20,11 +9,7 @@
 
 .query-input-box-textarea {
     width: 0;
-}
-
-.query-input-box-end-decorator {
-    display: block !important;
-    margin-block-start: 0 !important;
+    font-family: monospace !important;
 }
 
 .query-input-box-linear-progress {
