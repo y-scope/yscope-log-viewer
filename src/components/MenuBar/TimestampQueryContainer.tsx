@@ -3,7 +3,10 @@ import {
     useState,
 } from "react";
 
-import {Box} from "@mui/joy";
+import {
+    Box,
+    Divider,
+} from "@mui/joy";
 
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
@@ -32,13 +35,17 @@ const TimestampQueryContainer = () => {
     return (
         <Box className={"timestamp-query-container"}>
             {false === showTimestampQuery && (
-                <MenuBarIconButton
-                    disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                    tooltipTitle={"Search by timestamp"}
-                    onClick={toggleTimestampQuery}
-                >
-                    <CalendarTodayIcon/>
-                </MenuBarIconButton>
+                <>
+                    <Divider orientation={"vertical"}/>
+                    <MenuBarIconButton
+                        disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                        tooltipTitle={"Search by timestamp"}
+                        onClick={toggleTimestampQuery}
+                    >
+                        <CalendarTodayIcon/>
+                    </MenuBarIconButton>
+                    <Divider orientation={"vertical"}/>
+                </>
             )}
             <div
                 className={`timestamp-query-input-wrapper ${showTimestampQuery ?

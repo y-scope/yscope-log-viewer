@@ -67,13 +67,12 @@ const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) 
                 <Input
                     disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                     size={"sm"}
+                    sx={{height: "100%"}}
                     title={"Timestamp to seek to in UTC"}
                     type={"datetime-local"}
                     value={dateTimeString}
                     endDecorator={
                         <MenuBarIconButton
-                            disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                            tooltipTitle={"Search by timestamp"}
                             onClick={handleTimestampQuery}
                         >
                             <SearchIcon/>

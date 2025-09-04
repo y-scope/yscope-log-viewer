@@ -87,7 +87,6 @@ const MenuBar = () => {
                     </Typography>
                 </Box>
 
-                <Divider orientation={"vertical"}/>
                 <TimestampQueryContainer/>
 
                 <NavigationBar/>
