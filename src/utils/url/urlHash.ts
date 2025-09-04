@@ -1,6 +1,6 @@
-import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore.ts";
-import useLogFileStore from "../../stores/logFileStore.ts";
-import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
+import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore";
+import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
@@ -77,7 +77,10 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     // If we reach here, we have no valid cursor.
-    return null;
+    return {
+        code: CURSOR_CODE.LAST_EVENT,
+        args: null,
+    };
 };
 
 /**
@@ -85,11 +88,28 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * NOTE: this may modify the URL parameters.
  */
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
+    const {isPrettified, logEventNum, query, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
+        query: query,
         isPrettified: isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
+
+    const {
+        kqlFilterInput,
+        kqlFilter,
+        setKqlFilterInput,
+        setKqlFilter,
+        filterLogs,
+    } = useViewStore.getState();
+
+    if (query !== kqlFilter) {
+        if (kqlFilter === kqlFilterInput) {
+            setKqlFilterInput(query);
+        }
+        setKqlFilter(query);
+        filterLogs();
+    }
 
     const cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
     if (null === cursor) {
@@ -108,8 +128,8 @@ const updateViewHashParams = () => {
  * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
-    const {queryIsCaseSensitive, queryIsRegex, queryString} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, queryString});
+    const {queryIsCaseSensitive, queryIsRegex, subquery} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, subquery});
 
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -127,8 +147,8 @@ const updateQueryHashParams = () => {
     isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
     setQueryIsRegex(queryIsRegex);
 
-    isQueryModified ||= queryString !== currentQueryString;
-    setQueryString(queryString);
+    isQueryModified ||= subquery !== currentQueryString;
+    setQueryString(subquery);
 
     return isQueryModified;
 };

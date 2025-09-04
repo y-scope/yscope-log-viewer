@@ -95,7 +95,7 @@ const createViewPageSlice: StateCreator<
     loadPageByAction: (navAction: NavigationAction) => {
         if (navAction.code === ACTION_NAME.RELOAD) {
             const {fileSrc, loadFile} = useLogFileStore.getState();
-            const {logEventNum} = get();
+            const {logEventNum, filterLogs} = get();
             if (null === fileSrc || VIEW_EVENT_DEFAULT.logEventNum === logEventNum) {
                 throw new Error(
                     `Unexpected fileSrc=${JSON.stringify(
@@ -105,6 +105,7 @@ const createViewPageSlice: StateCreator<
             }
             (async () => {
                 await loadFile(fileSrc);
+                filterLogs();
                 const {loadPageByCursor} = get();
                 await loadPageByCursor({
                     code: CURSOR_CODE.EVENT_NUM,
@@ -114,7 +115,6 @@ const createViewPageSlice: StateCreator<
 
             return;
         }
-
         const {uiState} = useUiStore.getState();
         if (UI_STATE.READY !== uiState) {
             console.warn("Skipping navigation: page load in progress.");

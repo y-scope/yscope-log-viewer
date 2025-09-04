@@ -1,0 +1,8 @@
+.filter-input-box-textarea {
+    font-family: monospace !important;
+    word-break: break-all;
+}
+
+.filter-button {
+    width: 48px;
+}
