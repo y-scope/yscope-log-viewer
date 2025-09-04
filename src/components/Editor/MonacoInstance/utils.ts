@@ -26,7 +26,7 @@ const goToPositionAndCenter = (
     position: monaco.IPosition,
 ) => {
     editor.revealLineInCenter(position.lineNumber);
-    editor.setPosition(position);
+    editor.setPosition(position, "goToPositionAndCenter");
     editor.focus();
 };
 

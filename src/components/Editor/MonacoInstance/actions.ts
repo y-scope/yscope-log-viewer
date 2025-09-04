@@ -31,7 +31,7 @@ const setupCursorPosChangeCallback = (
         // only trigger if there was an explicit change that was made by keyboard or mouse, or
         // invoked by setPosition(), which doesn't provide any reason (NotSet)
         if (monaco.editor.CursorChangeReason.Explicit !== ev.reason &&
-            monaco.editor.CursorChangeReason.NotSet !== ev.reason) {
+            "goToPositionAndCenter" !== ev.source) {
             return;
         }
         if (null !== posChangeDebounceTimeout) {
