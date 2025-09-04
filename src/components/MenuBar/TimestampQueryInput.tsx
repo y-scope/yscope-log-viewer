@@ -6,6 +6,7 @@ import {
     Tooltip,
 } from "@mui/joy";
 
+import CollapseIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import SearchIcon from "@mui/icons-material/Search";
 
 import useUiStore from "../../stores/uiStore";
@@ -19,14 +20,20 @@ import MenuBarIconButton from "./MenuBarIconButton";
 import "./TimestampQueryInput.css";
 
 
+interface TimestampQueryInputProps {
+    setShowTimestampQuery: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 /**
  * Renders a timestamp input field and a search icon button.
  * Users can input a date and time in UTC format and either press "Enter"
  * or click the search button to update the application's state and URL hash parameters.
  *
+ * @param root0
+ * @param root0.setShowTimestampQuery
  * @return
  */
-const TimestampQueryInput = () => {
+const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) => {
     const uiState = useUiStore((state) => state.uiState);
     const dateTimeString = useViewStore((state) => state.dateTimeString);
 
@@ -36,16 +43,23 @@ const TimestampQueryInput = () => {
         updateViewHashParams();
     }, [dateTimeString]);
 
-    const handleKeyboardEnterPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-        if ("Enter" === e.key) {
-            handleTimestampQuery();
-        }
-    }, [handleTimestampQuery]);
+    const handleKeyboardEnterPress = useCallback(
+        (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if ("Enter" === e.key) {
+                handleTimestampQuery();
+            }
+        },
+        [handleTimestampQuery],
+    );
 
     const handleDateTimeInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const {setDateTimeString} = useViewStore.getState();
         setDateTimeString(e.currentTarget.value);
     }, []);
+
+    const collapseTimestampQueryInput = useCallback(() => {
+        setShowTimestampQuery(false);
+    }, [setShowTimestampQuery]);
 
     return (
         <Box className={"timestamp-query-input"}>
@@ -65,10 +79,16 @@ const TimestampQueryInput = () => {
                             <SearchIcon/>
                         </MenuBarIconButton>
                     }
+                    startDecorator={
+                        <MenuBarIconButton
+                            onClick={collapseTimestampQueryInput}
+                        >
+                            <CollapseIcon/>
+                        </MenuBarIconButton>
+                    }
                     onChange={handleDateTimeInputChange}
                     onKeyDown={handleKeyboardEnterPress}/>
             </Tooltip>
-
         </Box>
     );
 };

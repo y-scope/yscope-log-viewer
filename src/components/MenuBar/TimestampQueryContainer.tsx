@@ -6,7 +6,6 @@ import {
 import {Box} from "@mui/joy";
 
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CollapseIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 import useUiStore from "../../stores/uiStore";
 import {UI_ELEMENT} from "../../typings/states";
@@ -32,24 +31,21 @@ const TimestampQueryContainer = () => {
 
     return (
         <Box className={"timestamp-query-container"}>
-            <MenuBarIconButton
-                disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
-                tooltipTitle={showTimestampQuery ?
-                    "Collapse" :
-                    "Search by timestamp"}
-                onClick={toggleTimestampQuery}
-            >
-                {showTimestampQuery ?
-                    <CollapseIcon/> :
-                    <CalendarTodayIcon/>}
-            </MenuBarIconButton>
-
+            {false === showTimestampQuery && (
+                <MenuBarIconButton
+                    disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
+                    tooltipTitle={"Search by timestamp"}
+                    onClick={toggleTimestampQuery}
+                >
+                    <CalendarTodayIcon/>
+                </MenuBarIconButton>
+            )}
             <div
                 className={`timestamp-query-input-wrapper ${showTimestampQuery ?
                     "expanded" :
                     ""}`}
             >
-                <TimestampQueryInput/>
+                <TimestampQueryInput setShowTimestampQuery={setShowTimestampQuery}/>
             </div>
         </Box>
     );
