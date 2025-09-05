@@ -12,10 +12,10 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 
 import useLogFileStore from "../../stores/logFileStore";
-import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
-import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice.ts";
+import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";

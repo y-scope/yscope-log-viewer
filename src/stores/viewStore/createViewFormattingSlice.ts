@@ -1,12 +1,12 @@
 import {StateCreator} from "zustand";
 
-import {HASH_PARAM_NAMES} from "../../typings/url.ts";
-import {CURSOR_CODE} from "../../typings/worker.ts";
+import {HASH_PARAM_NAMES} from "../../typings/url";
+import {CURSOR_CODE} from "../../typings/worker";
 import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash.ts";
-import useLogFileManagerProxyStore from "../logFileManagerProxyStore.ts";
-import {handleErrorWithNotification} from "../notificationStore.ts";
-import useViewStore from "./index.ts";
+import {updateViewHashParams} from "../../utils/url/urlHash";
+import useLogFileManagerProxyStore from "../logFileManagerProxyStore";
+import {handleErrorWithNotification} from "../notificationStore";
+import useViewStore from "./index";
 import {
     ViewFormattingSlice,
     ViewFormattingValues,

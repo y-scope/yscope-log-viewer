@@ -10,10 +10,10 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
-import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice.ts";
+import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,
