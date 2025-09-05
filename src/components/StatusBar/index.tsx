@@ -12,7 +12,6 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 
 import useLogFileStore from "../../stores/logFileStore";
-import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
 import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
@@ -45,7 +44,7 @@ const StatusBar = () => {
     const uiState = useUiStore((state) => state.uiState);
 
     const handlePrettifyToggle = useCallback(() => {
-        togglePrettify().catch(handleErrorWithNotification);
+        togglePrettify();
     }, []);
 
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);

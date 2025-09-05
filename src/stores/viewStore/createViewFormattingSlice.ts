@@ -1,11 +1,8 @@
 import {StateCreator} from "zustand";
 
 import {HASH_PARAM_NAMES} from "../../typings/url";
-import {CURSOR_CODE} from "../../typings/worker";
 import {updateWindowUrlHashParams} from "../../utils/url";
 import {updateViewHashParams} from "../../utils/url/urlHash";
-import useLogFileManagerProxyStore from "../logFileManagerProxyStore";
-import {handleErrorWithNotification} from "../notificationStore";
 import useViewStore from "./index";
 import {
     ViewFormattingSlice,

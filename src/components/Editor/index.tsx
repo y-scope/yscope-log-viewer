@@ -10,7 +10,6 @@ import {
 import {useColorScheme} from "@mui/joy";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
@@ -164,9 +163,7 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.TOGGLE_PRETTIFY: {
-            (async () => {
-                await togglePrettify();
-            })().catch(handleErrorWithNotification);
+            togglePrettify();
             break;
         }
         case ACTION_NAME.TOGGLE_WORD_WRAP:
