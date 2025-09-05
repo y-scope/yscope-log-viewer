@@ -49,7 +49,7 @@ See the docs in our [developer guide][docs-site/dev-guide].
 [bug-report]: https://github.com/y-scope/yscope-log-viewer/issues/new?labels=bug&template=bug-report.yml
 [bugs-shield]: https://img.shields.io/github/issues/y-scope/yscope-log-viewer/bug?label=bugs
 [clp-repo]: https://github.com/y-scope/clp
-[datasets]: https://docs.yscope.com/clp/main/user-guide/resources-datasets
+[datasets]: https://docs.yscope.com/clp/main/user-docs/resources-datasets
 [docs-site]: https://docs.yscope.com/yscope-log-viewer/main/
 [docs-site/building]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/building-getting-started
 [docs-site/dev-guide]: https://docs.yscope.com/yscope-log-viewer/main/dev-guide/index
