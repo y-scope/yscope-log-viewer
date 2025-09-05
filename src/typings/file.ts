@@ -2,6 +2,7 @@ import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
+import ZstdDecoder from "../services/decoders/ZstdDecoder";
 import {Decoder} from "./decoders";
 
 
@@ -21,7 +22,8 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder | typeof PlainTextDecoder;
+    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder |
+        typeof ZstdDecoder | typeof PlainTextDecoder;
 
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
     extensions: FileTypeInfo["extension"][];
@@ -45,6 +47,13 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
         extensions: [".jsonl", ".ndjson"],
         name: "JSON Lines",
         signature: ["{".charCodeAt(0)],
+    },
+    {
+        DecoderFactory: ZstdDecoder,
+        checkIsStructured: () => false,
+        extensions: [".zst", ".zstd"],
+        name: "Zstandard",
+        signature: [0x28, 0xb5, 0x2f, 0xfd],
     },
     {
         DecoderFactory: PlainTextDecoder,
