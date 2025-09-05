@@ -18,6 +18,19 @@ import {
 
 
 /**
+ * Converts a timestamp to an ISO 8601 date-time string (without the 'Z' suffix)
+ *
+ * @param timestamp
+ */
+const updateDateTimeString = (timestamp: number) => {
+    const dateTimeString = new Date(timestamp).toISOString()
+        .slice(0, -1);
+
+    const {setDateTimeString} = useViewStore.getState();
+    setDateTimeString(dateTimeString);
+};
+
+/**
  * Determines the cursor for navigating log events based on URL hash parameters.
  *
  * @param params An object containing the following properties:
@@ -26,6 +39,7 @@ import {
  * @param params.timestamp The timestamp from the URL hash.
  * @return `CursorType` object if a navigation action is needed, or `null` if no action is required.
  */
+// eslint-disable-next-line max-statements
 const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     isPrettified: boolean; logEventNum: number; timestamp: number;
 }): Nullable<CursorType> => {
@@ -56,6 +70,8 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
+        updateDateTimeString(timestamp);
+
         return {
             code: CURSOR_CODE.TIMESTAMP,
             args: {timestamp: timestamp},

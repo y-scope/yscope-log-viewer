@@ -21,6 +21,7 @@ import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
+import TimestampQueryContainer from "./TimestampQueryContainer";
 
 import "./index.css";
 
@@ -86,7 +87,8 @@ const MenuBar = () => {
                     </Typography>
                 </Box>
 
-                <Divider orientation={"vertical"}/>
+                <TimestampQueryContainer/>
+
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
 
