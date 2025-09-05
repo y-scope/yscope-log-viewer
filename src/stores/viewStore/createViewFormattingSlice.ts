@@ -21,26 +21,10 @@ const VIEW_FORMATTING_DEFAULT: ViewFormattingValues = {
 /**
  * Toggles the prettify state for formatted log viewing.
  */
-const togglePrettify = async () => {
-    const {logEventNum, loadPageByCursor, isPrettified, setIsPrettified} = useViewStore.getState();
-    const newIsPrettified = !isPrettified;
-
-    // Update the URL and store state.
-    updateWindowUrlHashParams({[HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified});
-    setIsPrettified(newIsPrettified);
-
-    // Update the log file manager and reload the page.
-    try {
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        await logFileManagerProxy.setIsPrettified(newIsPrettified);
-        await loadPageByCursor({
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        });
-        updateViewHashParams();
-    } catch (error) {
-        handleErrorWithNotification(error);
-    }
+const togglePrettify = () => {
+    const {isPrettified} = useViewStore.getState();
+    updateWindowUrlHashParams({[HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified});
+    updateViewHashParams();
 };
 
 /**
