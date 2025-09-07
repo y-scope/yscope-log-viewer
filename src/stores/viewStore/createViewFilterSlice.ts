@@ -1,53 +1,48 @@
 import {StateCreator} from "zustand";
 
-import {LogLevelFilter} from "../../typings/logs";
-import {UI_STATE} from "../../typings/states";
-import {CURSOR_CODE} from "../../typings/worker";
+import {updateWindowUrlHashParams} from "../../utils/url";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
 import {handleErrorWithNotification} from "../notificationStore";
-import useQueryStore from "../queryStore";
-import useUiStore from "../uiStore";
 import {
     ViewFilterSlice,
+    ViewFilterValues,
     ViewState,
 } from "./types";
 
 
+const VIEW_FILTER_DEFAULT: ViewFilterValues = {
+    logLevelFilter: null,
+    kqlFilter: "",
+    kqlFilterInput: "",
+};
+
 /**
  * Creates a slice for view utility functions.
  *
- * @param _
+ * @param set
  * @param get
  * @return
  */
-const createViewFilterSlice: StateCreator<
-    ViewState, [], [], ViewFilterSlice
-> = (_, get) => ({
-    filterLogs: (filter: LogLevelFilter) => {
-        const {setUiState} = useUiStore.getState();
-        setUiState(UI_STATE.FAST_LOADING);
+const createViewFilterSlice: StateCreator<ViewState, [], [], ViewFilterSlice> = (set, get) => ({
+    ...VIEW_FILTER_DEFAULT,
+    filterLogs: () => {
         (async () => {
+            const {logLevelFilter, kqlFilter} = get();
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
-            const {logEventNum} = get();
-            const pageData = await logFileManagerProxy.setFilter(
-                {
-                    code: CURSOR_CODE.EVENT_NUM,
-                    args: {
-                        eventNum: logEventNum,
-                    },
-                },
-                filter
-            );
+            await logFileManagerProxy.setFilter(logLevelFilter, kqlFilter);
 
-            const {updatePageData} = get();
-            updatePageData(pageData);
-            setUiState(UI_STATE.READY);
-
-            const {startQuery} = useQueryStore.getState();
-            startQuery();
+            updateWindowUrlHashParams({query: kqlFilter});
         })().catch(handleErrorWithNotification);
     },
-
+    setKqlFilter: (newValue) => {
+        set({kqlFilter: newValue});
+    },
+    setKqlFilterInput: (newValue) => {
+        set({kqlFilterInput: newValue});
+    },
+    setLogLevelFilter: (newValue) => {
+        set({logLevelFilter: newValue});
+    },
 });
 
 export default createViewFilterSlice;
