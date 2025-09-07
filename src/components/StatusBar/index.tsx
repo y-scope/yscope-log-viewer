@@ -1,5 +1,3 @@
-import {useCallback} from "react";
-
 import {
     Button,
     Divider,
@@ -43,10 +41,6 @@ const StatusBar = () => {
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
 
-    const handlePrettifyToggle = useCallback(() => {
-        togglePrettify();
-    }, []);
-
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
 
     return (
@@ -88,7 +82,7 @@ const StatusBar = () => {
                 tooltipTitle={false === isPrettified ?
                     "Turn on Prettify" :
                     "Turn off Prettify"}
-                onClick={handlePrettifyToggle}/>
+                onClick={togglePrettify}/>
         </Sheet>
     );
 };
