@@ -12,7 +12,6 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
-import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,
@@ -33,7 +32,10 @@ import {
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash";
+import {
+    togglePrettify,
+    updateViewHashParams,
+} from "../../utils/url/urlHash";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 

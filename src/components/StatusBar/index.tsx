@@ -12,11 +12,11 @@ import AutoFixOffIcon from "@mui/icons-material/AutoFixOff";
 import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
-import {togglePrettify} from "../../stores/viewStore/createViewFormattingSlice";
 import {UI_ELEMENT} from "../../typings/states";
 import {ACTION_NAME} from "../../utils/actions";
 import {isDisabled} from "../../utils/states";
 import {copyPermalinkToClipboard} from "../../utils/url";
+import {togglePrettify} from "../../utils/url/urlHash";
 import LogLevelSelect from "./LogLevelSelect";
 import StatusBarToggleButton from "./StatusBarToggleButton";
 

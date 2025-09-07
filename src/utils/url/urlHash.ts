@@ -4,6 +4,7 @@ import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
+import {HASH_PARAM_NAMES} from "../../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -153,7 +154,17 @@ const updateQueryHashParams = () => {
     return isQueryModified;
 };
 
+/**
+ * Toggles the prettify state for formatted log viewing.
+ */
+const togglePrettify = () => {
+    const {isPrettified} = useViewStore.getState();
+    updateWindowUrlHashParams({[HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified});
+    updateViewHashParams();
+};
+
 export {
+    togglePrettify,
     updateQueryHashParams,
     updateViewHashParams,
 };

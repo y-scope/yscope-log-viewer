@@ -1,9 +1,5 @@
 import {StateCreator} from "zustand";
 
-import {HASH_PARAM_NAMES} from "../../typings/url";
-import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash";
-import useViewStore from "./index";
 import {
     ViewFormattingSlice,
     ViewFormattingValues,
@@ -13,15 +9,6 @@ import {
 
 const VIEW_FORMATTING_DEFAULT: ViewFormattingValues = {
     isPrettified: false,
-};
-
-/**
- * Toggles the prettify state for formatted log viewing.
- */
-const togglePrettify = () => {
-    const {isPrettified} = useViewStore.getState();
-    updateWindowUrlHashParams({[HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified});
-    updateViewHashParams();
 };
 
 /**
@@ -39,5 +26,4 @@ const createViewFormattingSlice: StateCreator<
     },
 });
 
-export {togglePrettify};
 export default createViewFormattingSlice;
