@@ -257,6 +257,13 @@ const Editor = () => {
     const handleCursorExplicitPosChange = useCallback((
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
+        // only trigger if there was an explicit change that was made by keyboard or mouse, or
+        // invoked by setPosition(), which doesn't provide any reason (NotSet)
+        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason &&
+            "goToPositionAndCenter" !== ev.source) {
+            return;
+        }
+
         const newLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
             beginLineNumToLogEventNumRef.current,
             ev.position.lineNumber

@@ -13,7 +13,6 @@ const MIN_ZOOM_LEVEL = 1;
 const MAX_ZOOM_LEVEL = 10;
 const MOBILE_ZOOM_LEVEL_INCREMENT = 10;
 const MOBILE_ZOOM_LEVEL_DECREMENT = 1;
-const POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS = 50;
 
 /**
  * Sets up a callback for when the cursor position changes in the editor.
@@ -25,22 +24,8 @@ const setupCursorPosChangeCallback = (
     editor: monaco.editor.IStandaloneCodeEditor,
     onCursorExplicitPosChange: CursorExplicitPosChangeCallback
 ) => {
-    let posChangeDebounceTimeout: Nullable<ReturnType<typeof setTimeout>> = null;
-
     editor.onDidChangeCursorPosition((ev: monaco.editor.ICursorPositionChangedEvent) => {
-        // only trigger if there was an explicit change that was made by keyboard or mouse, or
-        // invoked by setPosition(), which doesn't provide any reason (NotSet)
-        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason &&
-            "goToPositionAndCenter" !== ev.source) {
-            return;
-        }
-        if (null !== posChangeDebounceTimeout) {
-            clearTimeout(posChangeDebounceTimeout);
-        }
-        posChangeDebounceTimeout = setTimeout(() => {
-            onCursorExplicitPosChange(ev);
-            posChangeDebounceTimeout = null;
-        }, POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS);
+        onCursorExplicitPosChange(ev);
     });
 };
 
