@@ -147,14 +147,14 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.PAGE_TOP:
-            goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+            goToPositionAndCenter(editor, {lineNumber: 1, column: 1}, true);
             break;
         case ACTION_NAME.PAGE_BOTTOM: {
             const lineCount = editor.getModel()?.getLineCount();
             if ("undefined" === typeof lineCount) {
                 break;
             }
-            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1}, true);
             break;
         }
         case ACTION_NAME.COPY_LOG_EVENT: {
@@ -257,13 +257,6 @@ const Editor = () => {
     const handleCursorExplicitPosChange = useCallback((
         ev: monaco.editor.ICursorPositionChangedEvent
     ) => {
-        // only trigger if there was an explicit change that was made by keyboard or mouse, or
-        // invoked by setPosition(), which doesn't provide any reason (NotSet)
-        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason &&
-            "goToPositionAndCenter" !== ev.source) {
-            return;
-        }
-
         const newLogEventNum = getMapValueWithNearestLessThanOrEqualKey(
             beginLineNumToLogEventNumRef.current,
             ev.position.lineNumber
@@ -338,7 +331,7 @@ const Editor = () => {
             return;
         }
 
-        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1});
+        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1}, false);
     }, [
         logEventNum,
         beginLineNumToLogEventNum,
