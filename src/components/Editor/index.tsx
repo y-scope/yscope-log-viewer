@@ -17,7 +17,6 @@ import {
     CONFIG_KEY,
     THEME_NAME,
 } from "../../typings/config";
-import {HASH_PARAM_NAMES} from "../../typings/url";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
 import {
     ACTION_NAME,
@@ -33,7 +32,10 @@ import {
     getMapValueWithNearestLessThanOrEqualKey,
 } from "../../utils/data";
 import {updateWindowUrlHashParams} from "../../utils/url";
-import {updateViewHashParams} from "../../utils/url/urlHash";
+import {
+    togglePrettify,
+    updateViewHashParams,
+} from "../../utils/url/urlHash";
 import MonacoInstance from "./MonacoInstance";
 import {goToPositionAndCenter} from "./MonacoInstance/utils";
 
@@ -163,13 +165,7 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.TOGGLE_PRETTIFY: {
-            const {isPrettified, setIsPrettified} = useViewStore.getState();
-            const newIsPrettified = !isPrettified;
-            updateWindowUrlHashParams({
-                [HASH_PARAM_NAMES.IS_PRETTIFIED]: newIsPrettified,
-            });
-            setIsPrettified(newIsPrettified);
-            updateViewHashParams();
+            togglePrettify();
             break;
         }
         case ACTION_NAME.TOGGLE_WORD_WRAP:
