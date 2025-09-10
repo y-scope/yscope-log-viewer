@@ -16,17 +16,33 @@ import {CustomMonacoEditorHandlers} from "./typings";
 
 
 /**
+ * Generates a source name for verifying explicit cursor position changes.
+ *
+ * @param funcName
+ * @param isExplicit
+ * @return
+ */
+const generateExplicitSourceName = (funcName: string, isExplicit: boolean) => {
+    return JSON.stringify({funcName, isExplicit});
+};
+
+/**
  * Centers the line in the editor and moves the cursor to the given position.
  *
  * @param editor
  * @param position
+ * @param isExplicit
  */
 const goToPositionAndCenter = (
     editor: monaco.editor.IStandaloneCodeEditor,
     position: monaco.IPosition,
+    isExplicit: boolean,
 ) => {
     editor.revealLineInCenter(position.lineNumber);
-    editor.setPosition(position);
+    editor.setPosition(
+        position,
+        generateExplicitSourceName(goToPositionAndCenter.name, isExplicit)
+    );
     editor.focus();
 };
 
