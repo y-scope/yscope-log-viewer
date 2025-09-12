@@ -74,12 +74,13 @@ interface Decoder {
     getMetadata(): Metadata;
 
     /**
-     * Sets the log level filter for the decoder.
+     * Sets the filters for the decoder.
      *
      * @param logLevelFilter
+     * @param kqlFilter
      * @return Whether the filter was successfully set.
      */
-    setLogLevelFilter(logLevelFilter: LogLevelFilter): boolean;
+    setLogLevelFilter(logLevelFilter: LogLevelFilter, kqlFilter: string): boolean;
 
     /**
      * Deserializes all log events in the file.
