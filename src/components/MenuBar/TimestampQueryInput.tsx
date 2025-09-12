@@ -21,19 +21,18 @@ import "./TimestampQueryInput.css";
 
 
 interface TimestampQueryInputProps {
-    setShowTimestampQuery: React.Dispatch<React.SetStateAction<boolean>>;
+    onInputCollapse: () => void;
 }
 
 /**
- * Renders a timestamp input field and a search icon button.
- * Users can input a date and time in UTC format and either press "Enter"
- * or click the search button to update the application's state and URL hash parameters.
+ * Renders an input allowing the user to jump to the nearest log event at or before a specified UTC
+ * datetime. Collapses the input when requested.
  *
  * @param props
- * @param props.setShowTimestampQuery
+ * @param props.onInputCollapse
  * @return
  */
-const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) => {
+const TimestampQueryInput = ({onInputCollapse}: TimestampQueryInputProps) => {
     const uiState = useUiStore((state) => state.uiState);
     const dateTimeString = useViewStore((state) => state.dateTimeString);
 
@@ -43,27 +42,20 @@ const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) 
         updateViewHashParams();
     }, [dateTimeString]);
 
-    const handleKeyboardEnterPress = useCallback(
-        (e: React.KeyboardEvent<HTMLInputElement>) => {
-            if ("Enter" === e.key) {
-                handleTimestampQuery();
-            }
-        },
-        [handleTimestampQuery],
-    );
+    const handleKeyboardEnterPress = useCallback((ev: React.KeyboardEvent<HTMLInputElement>) => {
+        if ("Enter" === ev.key) {
+            handleTimestampQuery();
+        }
+    }, [handleTimestampQuery]);
 
     const handleDateTimeInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const {setDateTimeString} = useViewStore.getState();
         setDateTimeString(e.currentTarget.value);
     }, []);
 
-    const collapseTimestampQueryInput = useCallback(() => {
-        setShowTimestampQuery(false);
-    }, [setShowTimestampQuery]);
-
     return (
         <Box className={"timestamp-query-input"}>
-            <Tooltip title={"Jump to the nearest log event at/after this UTC time"}>
+            <Tooltip title={"Jump to the nearest log event at / before this UTC time"}>
                 <Input
                     disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                     size={"sm"}
@@ -80,7 +72,7 @@ const TimestampQueryInput = ({setShowTimestampQuery}: TimestampQueryInputProps) 
                     }
                     startDecorator={
                         <MenuBarIconButton
-                            onClick={collapseTimestampQueryInput}
+                            onClick={onInputCollapse}
                         >
                             <CollapseIcon/>
                         </MenuBarIconButton>

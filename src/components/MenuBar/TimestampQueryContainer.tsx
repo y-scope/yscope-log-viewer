@@ -20,27 +20,27 @@ import "./TimestampQueryContainer.css";
 
 
 /**
- * Wraps TimestampQueryInput with a toggle button, which shows or hides the TimestampQueryInput.
+ * Wraps the timestamp query input and toggles its visibility using a calendar button.
  *
  * @return
  */
 const TimestampQueryContainer = () => {
-    const [showTimestampQuery, setShowTimestampQuery] = useState(false);
+    const [isInputVisible, setIsInputVisible] = useState(false);
     const uiState = useUiStore((state) => state.uiState);
 
-    const toggleTimestampQuery = useCallback(() => {
-        setShowTimestampQuery((prev) => !prev);
+    const handleInputVisibilityToggle = useCallback(() => {
+        setIsInputVisible((prev) => !prev);
     }, []);
 
     return (
         <Box className={"timestamp-query-container"}>
-            {false === showTimestampQuery && (
+            {false === isInputVisible && (
                 <>
                     <Divider orientation={"vertical"}/>
                     <MenuBarIconButton
                         disabled={isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR)}
                         tooltipTitle={"Search by timestamp"}
-                        onClick={toggleTimestampQuery}
+                        onClick={handleInputVisibilityToggle}
                     >
                         <CalendarTodayIcon/>
                     </MenuBarIconButton>
@@ -48,11 +48,11 @@ const TimestampQueryContainer = () => {
                 </>
             )}
             <div
-                className={`timestamp-query-input-wrapper ${showTimestampQuery ?
+                className={`timestamp-query-input-wrapper ${isInputVisible ?
                     "expanded" :
                     ""}`}
             >
-                <TimestampQueryInput setShowTimestampQuery={setShowTimestampQuery}/>
+                <TimestampQueryInput onInputCollapse={handleInputVisibilityToggle}/>
             </div>
         </Box>
     );
