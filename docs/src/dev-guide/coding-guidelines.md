@@ -59,10 +59,11 @@ that corresponds to the `logEventNum` state variable.
 
 When creating Zustand stores, we follow these naming conventions:
 
-* Store files: `{name}Store.ts` (camelCase).
+* Simple stores: `{name}Store.ts` (camelCase) - single file containing all state and actions.
 * Large stores: create `{name}Store/` folder with:
-  * `index.ts` - main store file that combines slices.
   * `create{Name}{Feature}Slice.ts` - individual feature slices (e.g., `createQueryConfigSlice.ts`).
+  * `index.ts` - main store file that combines slices and exports the main store hook.
+  * `types.ts` - defines all types / interfaces for the store.
 
 ## Store structure
 
@@ -71,12 +72,11 @@ When creating Zustand stores, we follow these naming conventions:
 Split store types into three interfaces:
 
 * `{Name}Values` - state variables
-* `{Name}Actions` - action functions
+* `{Name}Actions` - action functions (methods that update state)
 * `{Name}State` - union of values and actions
 
-When the store becomes too large and exceeds the ESLint `max-lines-per-function` limit, split
-`{Name}State` into feature-specific slices (`{Name}{Feature}Slice`) and then combine those slices
-back into `{Name}State`.
+For large stores, split `{Name}State` into feature-specific slices (`{Name}{Feature}Slice`) and 
+combine them back into `{Name}State` using TypeScript intersection types.
 
 ```{code-block} ts
 :caption: Example: Log export store types
@@ -94,8 +94,8 @@ type LogExportState = LogExportValues & LogExportActions;
 
 ### Default values
 
-* Create an object for initial state values.
-* Type with `{Name}Values` interface for validation.
+* Create an object for initial state values using the `{Name}Values` interface for type safety.
+* Use uppercase constant naming with `_DEFAULT` suffix
 
 ```{code-block} ts
 :caption: Example: Log export store default values
@@ -106,8 +106,11 @@ const LOG_EXPORT_STORE_DEFAULT: LogExportValues = {
 
 ### Action naming
 
-* `set{Property}` - simple state updates.
-* `update{Property}` - complex logic, API calls, or multiple state updates.
+Use clear, consistent naming patterns:
+
+* `set{Property}` - simple state updates that directly assign a new value.
+* `update{Property}` - complex logic involving API calls, multiple state updates, or asynchronous
+  operations.
 
 ```{code-block} ts
 :caption: Example: Log export store actions
@@ -129,8 +132,16 @@ const useUserStore = create<UserState>((set, get) => ({
 
 ## Feature-based slicing
 
-When a Zustand store file becomes too large, we should slice it based on features. Avoid slicing by type (e.g., all
-values / actions in one object) - it's a common anti-pattern.
+When a Zustand store grows too large, split it into slices based on features such as functional
+areas. 
+
+:::{warning}
+Follow the principle of separation of concerns:
+✅ Do: Slice by feature. e.g., query configuration, query results, or query controller.
+❌ Don't: Slice by type. e.g., one file for all values or one file for all actions
+:::
+
+Each slice should be self-contained and represent a coherent unit of application functionality.
 
 ## Store access patterns
 
@@ -162,7 +173,7 @@ const createViewFormattingSlice: StateCreator<
 
 Choose access pattern based on usage:
 
-*Reactive access* - when the value is used in JSX or hook dependency arrays:
+*Reactive access* - when the value is used in JSX or hook dependency arrays, causing re-renders:
 
 ```{code-block} ts
 :caption: Example: Log export store value access - reactive
@@ -174,7 +185,8 @@ useEffect(() => {
 }, [exportProgress]);
 ```
 
-*Non-reactive access* - when the value should not trigger re-renders or hook re-runs:
+*Non-reactive access* - when the value should not trigger re-renders or hook re-runs, 
+typically for one-time reads:
 
 ```{code-block} ts
 :caption: Example: Log export store value access - non-reactive
@@ -200,6 +212,21 @@ const handleExportButtonClick = useCallback(() => {
 ### Outside React components
 
 Always use non-reactive access since reactive subscriptions do not work outside components.
+
+```{code-block} ts
+:caption: Example: An error handler that accesses the Notification store outside of any component
+:emphasize-lines: 3,4,9
+const handleErrorWithNotification = (e: unknown) => {
+    // ...
+    const {postPopUp} = useNotificationStore.getState();
+    postPopUp({
+        level: LOG_LEVEL.ERROR,
+        message: message,
+        timeoutMillis: DO_NOT_TIMEOUT_VALUE,
+        title: "Action failed",
+    });
+};
+```
 
 [eslint-config-mjs]: https://github.com/y-scope/yscope-log-viewer/blob/main/eslint.config.mjs
 [vite-worker-query-suffix]: https://vite.dev/guide/features.html#import-with-query-suffixes
