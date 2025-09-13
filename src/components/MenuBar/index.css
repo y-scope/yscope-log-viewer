@@ -47,3 +47,13 @@
     z-index: var(--ylv-loading-progress-z-index);
     margin-bottom: -2px;
 }
+
+.timestamp-query-input-wrapper {
+    overflow: hidden;
+    max-width: 0;
+    transition: max-width 0.3s ease;
+}
+
+.timestamp-query-input-wrapper.expanded {
+    max-width: 320px;
+}
