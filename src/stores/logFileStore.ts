@@ -128,8 +128,8 @@ const useLogFileStore = create<LogFileState>((set) => ({
         const {setExportProgress} = useLogExportStore.getState();
         setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-        const {updatePageData} = useViewStore.getState();
-        updatePageData({
+        const {setPageData} = useViewStore.getState();
+        setPageData({
             beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
             logEventNum: useViewStore.getState().logEventNum,
             logs: "Loading...",
