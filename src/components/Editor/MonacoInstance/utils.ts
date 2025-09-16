@@ -2,6 +2,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {EditorAction} from "../../../utils/actions";
 import {
+    generateSourceName,
     setupCursorExplicitPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,
@@ -14,17 +15,6 @@ import {
 import {setupThemes} from "./theme";
 import {CustomMonacoEditorHandlers} from "./typings";
 
-
-/**
- * Generates a source name for verifying explicit cursor position changes.
- *
- * @param funcName
- * @param isExplicit
- * @return
- */
-const generateExplicitSourceName = (funcName: string, isExplicit: boolean) => {
-    return JSON.stringify({funcName, isExplicit});
-};
 
 /**
  * Centers the line in the editor and moves the cursor to the given position.
@@ -41,7 +31,10 @@ const goToPositionAndCenter = (
     editor.revealLineInCenter(position.lineNumber);
     editor.setPosition(
         position,
-        generateExplicitSourceName(goToPositionAndCenter.name, isExplicit)
+        generateSourceName({
+            funcName: goToPositionAndCenter.name,
+            isExplicit: isExplicit,
+        })
     );
     editor.focus();
 };

@@ -6,6 +6,7 @@ import {clamp} from "../../../utils/math";
 import type {
     CursorExplicitPosChangeCallback,
     CustomActionCallback,
+    PositionChangeSourceMeta,
 } from "./typings";
 
 
@@ -14,10 +15,13 @@ const MAX_ZOOM_LEVEL = 10;
 const MOBILE_ZOOM_LEVEL_INCREMENT = 10;
 const MOBILE_ZOOM_LEVEL_DECREMENT = 1;
 
-interface PositionChangeSourceMeta {
-    name: string;
-    isExplicit: boolean;
-}
+/**
+ * Generates a source name with metadata for cursor position changes.
+ *
+ * @param props
+ * @return
+ */
+const generateSourceName = (props: PositionChangeSourceMeta) => JSON.stringify(props);
 
 /**
  * Determines if the source name indicates an explicit cursor position change.
@@ -182,6 +186,7 @@ const setupCustomActions = (
 };
 
 export {
+    generateSourceName,
     setupCursorExplicitPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,
