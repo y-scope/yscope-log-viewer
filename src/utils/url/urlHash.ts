@@ -1,9 +1,10 @@
-import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore.ts";
-import useLogFileStore from "../../stores/logFileStore.ts";
-import {handleErrorWithNotification} from "../../stores/notificationStore.ts";
+import useLogFileManagerProxyStore from "../../stores/logFileManagerProxyStore";
+import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
 import {Nullable} from "../../typings/common";
+import {HASH_PARAM_NAMES} from "../../typings/url";
 import {
     CURSOR_CODE,
     CursorType,
@@ -18,6 +19,19 @@ import {
 
 
 /**
+ * Converts a timestamp to an ISO 8601 date-time string (without the 'Z' suffix)
+ *
+ * @param timestamp
+ */
+const updateDateTimeString = (timestamp: number) => {
+    const dateTimeString = new Date(timestamp).toISOString()
+        .slice(0, -1);
+
+    const {setDateTimeString} = useViewStore.getState();
+    setDateTimeString(dateTimeString);
+};
+
+/**
  * Determines the cursor for navigating log events based on URL hash parameters.
  *
  * @param params An object containing the following properties:
@@ -26,6 +40,7 @@ import {
  * @param params.timestamp The timestamp from the URL hash.
  * @return `CursorType` object if a navigation action is needed, or `null` if no action is required.
  */
+// eslint-disable-next-line max-statements
 const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     isPrettified: boolean; logEventNum: number; timestamp: number;
 }): Nullable<CursorType> => {
@@ -56,6 +71,8 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
     }
 
     if (timestamp !== URL_HASH_PARAMS_DEFAULT.timestamp) {
+        updateDateTimeString(timestamp);
+
         return {
             code: CURSOR_CODE.TIMESTAMP,
             args: {timestamp: timestamp},
@@ -153,7 +170,17 @@ const updateQueryHashParams = () => {
     return isQueryModified;
 };
 
+/**
+ * Toggles the prettify state for formatted log viewing.
+ */
+const togglePrettify = () => {
+    const {isPrettified} = useViewStore.getState();
+    updateWindowUrlHashParams({[HASH_PARAM_NAMES.IS_PRETTIFIED]: !isPrettified});
+    updateViewHashParams();
+};
+
 export {
+    togglePrettify,
     updateQueryHashParams,
     updateViewHashParams,
 };
