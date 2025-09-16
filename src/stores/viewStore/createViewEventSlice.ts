@@ -9,6 +9,8 @@ import {
 
 const VIEW_EVENT_DEFAULT: ViewEventValues = {
     logEventNum: 0,
+    dateTimeString: new Date().toISOString()
+        .slice(0, -1),
 };
 
 /**
@@ -23,6 +25,9 @@ const createViewEventSlice: StateCreator<
     ...VIEW_EVENT_DEFAULT,
     setLogEventNum: (logEventNum: number) => {
         set({logEventNum});
+    },
+    setDateTimeString: (dateTimeString: string) => {
+        set({dateTimeString});
     },
 });
 

@@ -74,7 +74,7 @@ const EDITOR_ACTIONS : EditorAction[] = [
     },
     {
         actionName: ACTION_NAME.TOGGLE_PRETTIFY,
-        keyBindings: [monaco.KeyMod.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF],
+        keyBindings: [monaco.KeyMod.Alt | monaco.KeyMod.Shift | monaco.KeyCode.KeyF],
         label: "View: Toggle Prettify",
     },
     {
