@@ -149,14 +149,14 @@ const handleEditorCustomAction = (
             break;
         }
         case ACTION_NAME.PAGE_TOP:
-            goToPositionAndCenter(editor, {lineNumber: 1, column: 1});
+            goToPositionAndCenter(editor, {lineNumber: 1, column: 1}, true);
             break;
         case ACTION_NAME.PAGE_BOTTOM: {
             const lineCount = editor.getModel()?.getLineCount();
             if ("undefined" === typeof lineCount) {
                 break;
             }
-            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1});
+            goToPositionAndCenter(editor, {lineNumber: lineCount, column: 1}, true);
             break;
         }
         case ACTION_NAME.COPY_LOG_EVENT: {
@@ -327,7 +327,7 @@ const Editor = () => {
             return;
         }
 
-        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1});
+        goToPositionAndCenter(editorRef.current, {lineNumber: logEventLineNum, column: 1}, false);
     }, [
         logEventNum,
         beginLineNumToLogEventNum,
