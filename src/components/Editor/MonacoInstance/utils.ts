@@ -2,6 +2,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import {EditorAction} from "../../../utils/actions";
 import {
+    generateSourceName,
     setupCursorExplicitPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,
@@ -20,13 +21,21 @@ import {CustomMonacoEditorHandlers} from "./typings";
  *
  * @param editor
  * @param position
+ * @param isExplicit
  */
 const goToPositionAndCenter = (
     editor: monaco.editor.IStandaloneCodeEditor,
     position: monaco.IPosition,
+    isExplicit: boolean,
 ) => {
     editor.revealLineInCenter(position.lineNumber);
-    editor.setPosition(position);
+    editor.setPosition(
+        position,
+        generateSourceName({
+            funcName: goToPositionAndCenter.name,
+            isExplicit: isExplicit,
+        })
+    );
     editor.focus();
 };
 

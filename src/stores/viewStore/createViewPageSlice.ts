@@ -137,13 +137,14 @@ const createViewPageSlice: StateCreator<
         try {
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             const pageData = await logFileManagerProxy.loadPage(cursor);
-            const {updatePageData} = get();
-            updatePageData(pageData);
+            const {setPageData} = get();
+            setPageData(pageData);
+            updateWindowUrlHashParams({logEventNum: pageData.logEventNum});
         } finally {
             setUiState(UI_STATE.READY);
         }
     },
-    updatePageData: (pageData: PageData) => {
+    setPageData: (pageData: PageData) => {
         set({
             beginLineNumToLogEventNum: pageData.beginLineNumToLogEventNum,
             logData: pageData.logs,
@@ -151,7 +152,6 @@ const createViewPageSlice: StateCreator<
             numPages: pageData.numPages,
             pageNum: pageData.pageNum,
         });
-        updateWindowUrlHashParams({logEventNum: pageData.logEventNum});
     },
 });
 

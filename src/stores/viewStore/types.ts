@@ -17,17 +17,19 @@ interface ViewPageValues {
 interface ViewPageActions {
     loadPageByCursor: (cursor: CursorType) => Promise<void>;
     loadPageByAction: (navAction: NavigationAction) => void;
-    updatePageData: (pageData: PageData) => void;
+    setPageData: (pageData: PageData) => void;
 }
 
 type ViewPageSlice = ViewPageValues & ViewPageActions;
 
 interface ViewEventValues {
     logEventNum: number;
+    dateTimeString: string;
 }
 
 interface ViewEventActions {
     setLogEventNum: (newLogEventNum: number) => void;
+    setDateTimeString: (newDateTimeString: string) => void;
 }
 
 type ViewEventSlice = ViewEventValues & ViewEventActions;
