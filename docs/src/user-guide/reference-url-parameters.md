@@ -9,7 +9,7 @@ divided into two categories:
 ## General rules
 
 - Boolean values should use `true`/`false` strings.
-- Empty or falsy values should be automatically removed from the URL.
+- If empty or falsy values are provided, the log-viewer will remove them from the URL on load.
 
 ## Search parameters
 
