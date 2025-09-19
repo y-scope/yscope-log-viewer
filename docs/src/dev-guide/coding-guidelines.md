@@ -55,7 +55,10 @@ that corresponds to the `logEventNum` state variable.
 
 # Zustand
 
-## File Naming
+Zustand is a state management tool, which allows creating global state stores that can be accessed
+from anywhere. Please follow the guidelines below when using Zustand stores.
+
+## File naming conventions
 
 When creating Zustand stores, we follow these naming conventions:
 
@@ -65,17 +68,19 @@ When creating Zustand stores, we follow these naming conventions:
   * `index.ts` - main store file that combines slices and exports the main store hook.
   * `types.ts` - defines all types / interfaces for the store.
 
-## Store structure
+## Store conventions
+
+Guidelines for defining types, default values, and action naming conventions in Zustand stores.
 
 ### Type definitions
 
 Split store types into three interfaces:
 
-* `{Name}Values` - state variables
-* `{Name}Actions` - action functions (methods that update state)
-* `{Name}State` - union of values and actions
+* `{Name}Values`: state variables
+* `{Name}Actions`: action functions (methods that update state)
+* `{Name}State`: union of values and actions
 
-For large stores, split `{Name}State` into feature-specific slices (`{Name}{Feature}Slice`) and 
+For large stores, split `{Name}State` into feature-specific slices (`{Name}{Feature}Slice`) and
 combine them back into `{Name}State` using TypeScript intersection types.
 
 ```{code-block} ts
@@ -113,7 +118,7 @@ Use clear, consistent naming patterns:
   operations.
 
 ```{code-block} ts
-:caption: Example: Log export store actions
+:caption: Example: User store actions
 :emphasize-lines: 2,5
 const useUserStore = create<UserState>((set, get) => ({
     setName: (name) => {
@@ -133,17 +138,19 @@ const useUserStore = create<UserState>((set, get) => ({
 ## Feature-based slicing
 
 When a Zustand store grows too large, split it into slices based on features such as functional
-areas. 
+areas.
 
 :::{warning}
 Follow the principle of separation of concerns:
-✅ Do: Slice by feature. e.g., query configuration, query results, or query controller.
-❌ Don't: Slice by type. e.g., one file for all values or one file for all actions
+- Do: Slice by feature. e.g., query configuration, query results, or query controller.
+- Don't: Slice by type. e.g., one file for all values or one file for all actions
 :::
 
 Each slice should be self-contained and represent a coherent unit of application functionality.
 
 ## Store access patterns
+
+There are three ways to access Zustand stores, each with its own use cases.
 
 ### Inside store creation
 
@@ -169,6 +176,8 @@ const createViewFormattingSlice: StateCreator<
 
 ### Inside React components
 
+There are two access patterns depending on whether the access should be reactive or non-reactive.
+
 #### State values
 
 Choose access pattern based on usage:
@@ -185,7 +194,7 @@ useEffect(() => {
 }, [exportProgress]);
 ```
 
-*Non-reactive access* - when the value should not trigger re-renders or hook re-runs, 
+*Non-reactive access* - when the value should not trigger re-renders or hook re-runs,
 typically for one-time reads:
 
 ```{code-block} ts
@@ -211,7 +220,7 @@ const handleExportButtonClick = useCallback(() => {
 
 ### Outside React components
 
-Always use non-reactive access since reactive subscriptions do not work outside components.
+Always use non-reactive access since reactive subscriptions do not work for outside components.
 
 ```{code-block} ts
 :caption: Example: An error handler that accesses the Notification store outside of any component
