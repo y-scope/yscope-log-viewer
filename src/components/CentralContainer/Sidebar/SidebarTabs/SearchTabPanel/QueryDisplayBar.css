@@ -1,0 +1,12 @@
+.query-display-bar {
+    background-color: var(--joy-palette-primary-50);
+    border: 1px solid var(--joy-palette-primary-200);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-family: var(--joy-fontFamily-code);
+}
+
+.query-display-bar strong {
+    color: var(--joy-palette-primary-700);
+}
