@@ -24,8 +24,15 @@ import {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  */
 const handleHashChange = () => {
+    const {query: currentQuery} = getWindowUrlHashParams();
+    const {kqlFilter: previousKqlFilter} = useViewStore.getState();
+
     updateViewHashParams();
-    if (updateQueryHashParams()) {
+
+    // Check if query parameter was processed and differs from previous filter
+    const shouldExpandForQuery = currentQuery !== previousKqlFilter;
+
+    if (updateQueryHashParams() || shouldExpandForQuery) {
         const {setActiveTabName} = useUiStore.getState();
         setActiveTabName(TAB_NAME.SEARCH);
         const {startQuery} = useQueryStore.getState();
