@@ -140,7 +140,7 @@ const updateViewHashParams = () => {
 
     const {loadPageByCursor} = useViewStore.getState();
     loadPageByCursor(cursor).catch(handleErrorWithNotification);
-    
+
     return isQueryModified;
 };
 
