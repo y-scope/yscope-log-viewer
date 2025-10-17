@@ -40,8 +40,7 @@ const convertAxiosError = (e: AxiosError): Error => {
  * returned as a string.
  * @throws {Error} if the download fails.
  */
-const getJsonObjectFrom = async (remoteUrl: string)
-: Promise<JsonValue> => {
+const getJsonObjectFrom = async (remoteUrl: string): Promise<JsonValue> => {
     try {
         const {data} = await axios.get<JsonValue>(remoteUrl, {
             responseType: "json",
@@ -62,8 +61,7 @@ const getJsonObjectFrom = async (remoteUrl: string)
  * @return The file's content.
  * @throws {Error} if the download fails.
  */
-const getUint8ArrayFrom = async (fileUrl: string)
-: Promise<Uint8Array> => {
+const getUint8ArrayFrom = async (fileUrl: string): Promise<Uint8Array> => {
     try {
         const {data} = await axios.get<ArrayBuffer>(fileUrl, {
             responseType: "arraybuffer",

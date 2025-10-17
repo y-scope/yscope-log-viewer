@@ -64,8 +64,8 @@ const getAbsoluteUrl = (path: string) => {
  *
  * @return An object containing the parsed search parameters.
  */
-const parseWindowUrlSearchParams = () : Partial<UrlSearchParams> => {
-    const parsedSearchParams : Partial<UrlSearchParams> = {};
+const parseWindowUrlSearchParams = (): Partial<UrlSearchParams> => {
+    const parsedSearchParams: Partial<UrlSearchParams> = {};
     const searchParams = new URLSearchParams(window.location.search.substring(1));
 
     searchParams.forEach((value, key) => {
@@ -162,7 +162,7 @@ const getWindowUrlSearchParams = (): UrlSearchParams => ({
  *
  * @return An object containing the parsed hash parameters.
  */
-const parseWindowUrlHashParams = () : Partial<UrlHashParams> => {
+const parseWindowUrlHashParams = (): Partial<UrlHashParams> => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const parsedHashParams: Partial<UrlHashParams> = {};
 
