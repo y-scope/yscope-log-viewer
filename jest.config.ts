@@ -2,6 +2,7 @@ import * as os from "node:os";
 import * as pathPosix from "node:path/posix";
 
 import type {Config} from "jest";
+import {fileURLToPath} from "url";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
@@ -57,7 +58,10 @@ const JEST_CONFIG: Config = {
     ],
     showSeed: true,
     testMatch: [
-        pathPosix.join(__dirname, "test/**/?(*)test.{ts,tsx}"),
+        pathPosix.join(
+            pathPosix.dirname(fileURLToPath(import.meta.url)),
+            "test/**/?(*)test.{ts,tsx}"
+        ),
     ],
     testTimeout: 5000,
     transform: {
