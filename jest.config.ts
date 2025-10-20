@@ -55,10 +55,7 @@ const JEST_CONFIG: Config = {
     ],
     showSeed: true,
     testMatch: [
-        pathPosix.join(
-            pathPosix.dirname(fileURLToPath(import.meta.url)),
-            "test/**/?(*)test.{ts,tsx}"
-        ),
+        "<rootDir>/test/**/?(*)test.{ts,tsx}",
     ],
     testTimeout: 5000,
     transform: {
