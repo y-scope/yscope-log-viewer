@@ -103,6 +103,8 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
 /**
  * Updates view-related states from URL hash parameters.
  * NOTE: this may modify the URL parameters.
+ *
+ * @return Whether any query-related parameters were modified.
  */
 const updateViewHashParams = () => {
     const {isPrettified, logEventNum, query, timestamp} = getWindowUrlHashParams();
@@ -120,22 +122,26 @@ const updateViewHashParams = () => {
         filterLogs,
     } = useViewStore.getState();
 
+    let isQueryModified = false;
     if (query !== kqlFilter) {
         if (kqlFilter === kqlFilterInput) {
             setKqlFilterInput(query);
         }
         setKqlFilter(query);
         filterLogs();
+        isQueryModified = true;
     }
 
     const cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
     if (null === cursor) {
         // If no cursor was set, we can return early.
-        return;
+        return isQueryModified;
     }
 
     const {loadPageByCursor} = useViewStore.getState();
     loadPageByCursor(cursor).catch(handleErrorWithNotification);
+
+    return isQueryModified;
 };
 
 /**
