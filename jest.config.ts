@@ -1,8 +1,5 @@
 import * as os from "node:os";
-import * as pathPosix from "node:path/posix";
-
 import type {Config} from "jest";
-import {fileURLToPath} from "url";
 
 
 let PRIMARY_REPORTER: string | [string, Record<string, unknown>] = "default";
