@@ -62,7 +62,7 @@ class ClpIrDecoder implements Decoder {
         }
     }
 
-    get irStreamType () : CLP_IR_STREAM_TYPE {
+    get irStreamType (): CLP_IR_STREAM_TYPE {
         return this.#streamType;
     }
 
