@@ -29,13 +29,13 @@ Below are some important details to be aware of when you're working with search 
 - If a `filePath` URL isn't [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
   the last parameter to prevent ambiguity with other log viewer search parameters. To include hash
   parameters in a URL, percent-encode the entire URL.
-- Relative `filePath` values are automatically converted to absolute URLs. e.g.,
+- Relative `filePath` values are automatically converted to absolute URLs, e.g.,
   `http://localhost:3010/?filePath=/test/app.clp.zst` downloads the file from
   `http://localhost:3010/test/app.clp.zst`.
 
 ## Hash parameters
 
-Hash parameters appear after the `#` in the URL and are used to control the log viewer's state.
+Hash parameters appear after the `#` in the URL, and are used to control the log viewer's state.
 
 :::{note}
 Modifying hash parameters does NOT cause the page to reload.
@@ -51,7 +51,7 @@ Modifying hash parameters does NOT cause the page to reload.
 | `queryIsRegex`         | Boolean | false   | Enable/disable regular expression search           | `#queryIsRegex=true` <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#subquery=172.*43716&queryIsRegex=true">https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#subquery=172.*43716&<b>queryIsRegex=true</b></a></details>           |
 | `timestamp`            | Number  | -1      | Navigate to the log event closest to the timestamp | `#timestamp=1427103813827` <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#timestamp=1427103813827">https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst#<b>timestamp=1427103813827</b></a></details>                                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
-NOTE:
+Below are some important details to be aware of when you're working with hash parameters.
 
 - `logEventNum` is a 1-based index with a default value of `0`, indicating no specific log event is
   selected. When `0`, the log viewer loads the page containing the most recent log event.
@@ -61,14 +61,15 @@ NOTE:
   This behavior is under review and may be removed in future versions.
   :::
 
-- `timestamp` is in milliseconds since the Unix epoch with a default value of `-1`.
-  We do not support negative timestamps.
-- When both `logEventNum` and `timestamp` are specified, `timestamp` takes precedence.
-  It is strongly not recommended to specify both parameters simultaneously.
+- `timestamp` is in milliseconds since the Unix epoch, with a default value of `-1`. We do not
+  support negative timestamps.
+- When both `logEventNum` and `timestamp` are specified, `timestamp` takes precedence. We strongly
+  recommend that you do not specify both parameters simultaneously.
 - Timestamp navigation behavior:
-  - If the log contains an exact match for the specified timestamp, the viewer navigates to the last match.
+  - If the log contains at least one exact match for the specified timestamp, the viewer navigates
+    to the most recent match.
   - If no exact match exists, the viewer navigates to the log event closest to and before the
-    specified timestamp, unless all log events are after the specified timestamp.
-    In this case, the viewer navigates to the first log event.
+    specified timestamp, unless all log events are after the specified timestamp. In this case, the
+    viewer navigates to the first log event.
 
 [rfc-3986-percent-encoding]: https://datatracker.ietf.org/doc/html/rfc3986#section-2.1
