@@ -35,26 +35,29 @@ class LogFileManagerProxy {
 
         return {
             fileName: logFileManager.fileName,
-            fileType: logFileManager.fileType,
+            fileTypeInfo: logFileManager.fileTypeInfo,
+            metadata: logFileManager.metadata,
             numEvents: logFileManager.numEvents,
             onDiskFileSizeInBytes: logFileManager.onDiskFileSizeInBytes,
         };
     }
 
-    loadPage (cursor: CursorType, isPrettified: boolean): PageData {
+    loadPage (cursor: CursorType): PageData {
         const logFileManager = this.#getLogFileManager();
-        return logFileManager.loadPage(cursor, isPrettified);
+        return logFileManager.loadPage(cursor);
     }
 
     setFilter (
-        cursor: CursorType,
-        isPrettified: boolean,
-        logLevelFilter: LogLevelFilter
-    ): PageData {
+        logLevelFilter: LogLevelFilter,
+        kqlFilter: string
+    ): void {
         const logFileManager = this.#getLogFileManager();
-        logFileManager.setLogLevelFilter(logLevelFilter);
+        logFileManager.setLogLevelFilter(logLevelFilter, kqlFilter);
+    }
 
-        return this.loadPage(cursor, isPrettified);
+    setIsPrettified (isPrettified: boolean): void {
+        const logFileManager = this.#getLogFileManager();
+        logFileManager.setIsPrettified(isPrettified);
     }
 
     exportLogs (): void {
@@ -75,7 +78,7 @@ class LogFileManagerProxy {
      */
     #getLogFileManager (): LogFileManager {
         if (null === this.logFileManager) {
-            throw new Error("LogFileManager hasn't initialized");
+            throw new Error("LogFileManager hasn't been initialized");
         }
 
         return this.logFileManager;

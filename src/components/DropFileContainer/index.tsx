@@ -1,7 +1,12 @@
-import React, {useState} from "react";
+import React, {
+    useCallback,
+    useState,
+} from "react";
 
 import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {isDisabled} from "../../utils/states";
@@ -21,12 +26,11 @@ interface DropFileContextProviderProps {
  * @return
  */
 const DropFileContainer = ({children}: DropFileContextProviderProps) => {
-    const loadFile = useLogFileStore((state) => state.loadFile);
     const uiState = useUiStore((state) => state.uiState);
     const [isFileHovering, setIsFileHovering] = useState(false);
     const disabled = isDisabled(uiState, UI_ELEMENT.DRAG_AND_DROP);
 
-    const handleDrag = (ev: React.DragEvent<HTMLDivElement>) => {
+    const handleDrag = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
 
@@ -47,9 +51,9 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
             setIsFileHovering(false);
         }
-    };
+    }, []);
 
-    const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
+    const handleDrop = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
         ev.stopPropagation();
 
@@ -64,8 +68,15 @@ const DropFileContainer = ({children}: DropFileContextProviderProps) => {
 
             return;
         }
-        loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
-    };
+        (async () => {
+            const {loadFile} = useLogFileStore.getState();
+            await loadFile(file);
+            const {filterLogs} = useViewStore.getState();
+            filterLogs();
+            const {loadPageByCursor} = useViewStore.getState();
+            await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
+        })().catch(handleErrorWithNotification);
+    }, [disabled]);
 
     return (
         <div

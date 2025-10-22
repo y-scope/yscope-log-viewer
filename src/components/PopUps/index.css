@@ -7,9 +7,9 @@
     bottom: var(--ylv-status-bar-height) !important;
 
     padding: 0 !important;
+    border: none !important;
 
     background: transparent !important;
-    border: none !important;
     box-shadow: none !important;
 }
 

@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import {Dayjs} from "dayjs";
 
 import {Nullable} from "../../../typings/common";
@@ -7,6 +8,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonValue} from "../../../typings/js";
@@ -17,6 +19,7 @@ import {
     LogLevelFilter,
 } from "../../../typings/logs";
 import {getNestedJsonValue} from "../../../utils/js";
+import {upperBoundBinarySearch} from "../../../utils/math";
 import YscopeFormatter from "../../formatters/YscopeFormatter";
 import {parseFilterKeys} from "../utils";
 import {
@@ -61,6 +64,14 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
+    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+        if (0 < dataArray.length && "{".charCodeAt(0) !== dataArray[0]) {
+            throw new Error("Invalid JSONL data: First byte is not '{'.");
+        }
+
+        return Promise.resolve(new JsonlDecoder(dataArray, decoderOptions));
+    }
+
     getEstimatedNumEvents (): number {
         return this.#logEvents.length;
     }
@@ -69,7 +80,17 @@ class JsonlDecoder implements Decoder {
         return this.#filteredLogEventMap;
     }
 
-    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
+    // eslint-disable-next-line class-methods-use-this
+    getMetadata (): Metadata {
+        // Metadata is not available for JSONL files.
+        return {};
+    }
+
+    setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
+        if ("" !== kqlFilter) {
+            console.warn("KQL filtering isn't supported for JSONL logs;" +
+                "ignoring the provided filter.");
+        }
         this.#filterLogEvents(logLevelFilter);
 
         return true;
@@ -121,6 +142,14 @@ class JsonlDecoder implements Decoder {
         }
 
         return results;
+    }
+
+    findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
+        return upperBoundBinarySearch(
+            this.#logEvents,
+            (logEvent) => logEvent.timestamp.valueOf(),
+            timestamp
+        );
     }
 
     /**
@@ -241,12 +270,15 @@ class JsonlDecoder implements Decoder {
             timestamp = BigInt(logEvent.timestamp.valueOf());
         }
 
-        return [
-            message,
-            timestamp,
-            logLevel,
-            logEventIdx + 1,
-        ];
+        // eslint-disable-next-line no-warning-comments
+        // TODO: extract timezone data from jsonl.
+        return {
+            logEventNum: logEventIdx + 1,
+            logLevel: logLevel,
+            message: message,
+            timestamp: timestamp,
+            utcOffset: 0n,
+        };
     };
 }
 

@@ -1,3 +1,4 @@
+/* eslint max-lines: ["error", 400] */
 import React, {
     useCallback,
     useEffect,
@@ -24,6 +25,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import RemoveIcon from "@mui/icons-material/Remove";
 
+import {handleErrorWithNotification} from "../../../stores/notificationStore";
+import useQueryStore from "../../../stores/queryStore";
 import useUiStore from "../../../stores/uiStore";
 import useViewStore from "../../../stores/viewStore";
 import {
@@ -36,6 +39,7 @@ import {
     UI_ELEMENT,
     UI_STATE,
 } from "../../../typings/states";
+import {CURSOR_CODE} from "../../../typings/worker";
 import {range} from "../../../utils/data";
 import {
     ignorePointerIfFastLoading,
@@ -152,13 +156,15 @@ const ClearFiltersOption = ({onClick}: ClearFiltersOptionProps) => {
  *
  * @return
  */
+// eslint-disable-next-line max-lines-per-function
 const LogLevelSelect = () => {
     const uiState = useUiStore((state) => state.uiState);
-    const filterLogs = useViewStore((state) => state.filterLogs);
     const [selectedLogLevels, setSelectedLogLevels] = useState<LOG_LEVEL[]>([]);
     const disabled = isDisabled(uiState, UI_ELEMENT.LOG_LEVEL_FILTER);
 
-    const handleRenderValue = (selected: SelectValue<SelectOption<LOG_LEVEL>, true>) => (
+    const handleRenderValue = useCallback((
+        selected: SelectValue<SelectOption<LOG_LEVEL>, true>
+    ) => (
         <Box className={"log-level-select-render-value-box"}>
             <Chip className={"log-level-select-render-value-box-label"}>
                 Log Level
@@ -170,18 +176,30 @@ const LogLevelSelect = () => {
                     value={selectedOption.value}/>
             ))}
         </Box>
-    );
+    ), []);
 
     const updateFilter = useCallback((logLevels: LOG_LEVEL[]) => {
         setSelectedLogLevels(logLevels);
 
-        filterLogs((0 === logLevels.length ?
+        const {
+            filterLogs, loadPageByCursor, logEventNum, setLogLevelFilter,
+        } = useViewStore.getState();
+
+        setLogLevelFilter((0 === logLevels.length ?
             null :
             logLevels));
-    }, [
-        filterLogs,
-        setSelectedLogLevels,
-    ]);
+        filterLogs();
+
+        (async () => {
+            await loadPageByCursor({
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            });
+
+            const {startQuery} = useQueryStore.getState();
+            startQuery();
+        })().catch(handleErrorWithNotification);
+    }, []);
 
     const handleCheckboxClick = useCallback((ev: React.MouseEvent<HTMLInputElement>) => {
         ev.preventDefault();
@@ -216,14 +234,16 @@ const LogLevelSelect = () => {
         updateFilter(range({begin: selectedValue, end: 1 + MAX_LOG_LEVEL}));
     }, [updateFilter]);
 
-    const handleSelectClearButtonClick = () => {
+    const handleSelectClearButtonClick = useCallback(() => {
         updateFilter([]);
-    };
+    }, [updateFilter]);
 
     // On `uiState` update, clear `selectedLogLevels` if the state is `UI_STATE.FILE_LOADING`
     useEffect(() => {
         if (UI_STATE.FILE_LOADING === uiState) {
             setSelectedLogLevels([]);
+            const {setLogLevelFilter} = useViewStore.getState();
+            setLogLevelFilter(null);
         }
     }, [uiState]);
 

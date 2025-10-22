@@ -1,11 +1,9 @@
 import {StateCreator} from "zustand";
 
-import {LOG_LEVEL} from "../../typings/logs";
-import {DO_NOT_TIMEOUT_VALUE} from "../../typings/notifications";
-import useContextStore from "../contextStore";
 import useLogFileManagerStore from "../logFileManagerProxyStore";
+import {handleErrorWithNotification} from "../notificationStore";
+import {QUERY_CONFIG_DEFAULT} from "./createQueryConfigSlice";
 import {QUERY_RESULTS_DEFAULT} from "./createQueryResultsSlice";
-import {QUERY_CONFIG_DEFAULT} from "./queryConfigSlice";
 import {
     QueryControllerSlice,
     QueryControllerValues,
@@ -39,28 +37,19 @@ const createQueryControllerSlice: StateCreator<
         set({queryProgress: newProgress});
     },
     startQuery: () => {
-        const {
-            clearQueryResults,
-            queryString,
-            queryIsCaseSensitive,
-            queryIsRegex,
-        } = get();
-        const {logFileManagerProxy} = useLogFileManagerStore.getState();
-        const {postPopUp} = useContextStore.getState();
-
+        const {clearQueryResults} = get();
         clearQueryResults();
 
         (async () => {
+            const {logFileManagerProxy} = useLogFileManagerStore.getState();
+            const {
+                queryString,
+                queryIsCaseSensitive,
+                queryIsRegex,
+            } = get();
+
             await logFileManagerProxy.startQuery(queryString, queryIsRegex, queryIsCaseSensitive);
-        })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-        });
+        })().catch(handleErrorWithNotification);
     },
 });
 

@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     Box,
     Divider,
@@ -9,7 +11,9 @@ import {
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 import useLogFileStore from "../../stores/logFileStore";
+import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
+import useViewStore from "../../stores/viewStore";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
@@ -17,6 +21,7 @@ import {isDisabled} from "../../utils/states";
 import ExportLogsButton from "./ExportLogsButton";
 import MenuBarIconButton from "./MenuBarIconButton";
 import NavigationBar from "./NavigationBar";
+import TimestampQueryContainer from "./TimestampQueryContainer";
 
 import "./index.css";
 
@@ -28,14 +33,20 @@ import "./index.css";
  */
 const MenuBar = () => {
     const fileName = useLogFileStore((state) => state.fileName);
-    const loadFile = useLogFileStore((state) => state.loadFile);
     const uiState = useUiStore((state) => state.uiState);
 
-    const handleOpenFile = () => {
+    const handleOpenFile = useCallback(() => {
         openFile((file) => {
-            loadFile(file, {code: CURSOR_CODE.LAST_EVENT, args: null});
+            (async () => {
+                const {loadFile} = useLogFileStore.getState();
+                await loadFile(file);
+                const {filterLogs} = useViewStore.getState();
+                filterLogs();
+                const {loadPageByCursor} = useViewStore.getState();
+                await loadPageByCursor({code: CURSOR_CODE.LAST_EVENT, args: null});
+            })().catch(handleErrorWithNotification);
         });
-    };
+    }, []);
 
     return (
         <>
@@ -50,8 +61,8 @@ const MenuBar = () => {
                 <Divider orientation={"vertical"}/>
                 <MenuBarIconButton
                     disabled={isDisabled(uiState, UI_ELEMENT.OPEN_FILE_BUTTON)}
-                    title={"Open file"}
                     tooltipPlacement={"bottom-start"}
+                    tooltipTitle={"Open file"}
                     onClick={handleOpenFile}
                 >
                     <FolderOpenIcon className={"menu-bar-open-file-icon"}/>
@@ -76,7 +87,8 @@ const MenuBar = () => {
                     </Typography>
                 </Box>
 
-                <Divider orientation={"vertical"}/>
+                <TimestampQueryContainer/>
+
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>
 

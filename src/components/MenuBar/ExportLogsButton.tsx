@@ -1,3 +1,5 @@
+import {useCallback} from "react";
+
 import {
     CircularProgress,
     Typography,
@@ -23,8 +25,12 @@ import MenuBarIconButton from "./MenuBarIconButton";
  */
 const ExportLogsButton = () => {
     const exportProgress = useLogExportStore((state) => state.exportProgress);
-    const exportLogs = useLogExportStore((state) => state.exportLogs);
     const uiState = useUiStore((state) => state.uiState);
+
+    const handleExportButtonClick = useCallback(() => {
+        const {exportLogs} = useLogExportStore.getState();
+        exportLogs();
+    }, []);
 
     return (
         <MenuBarIconButton
@@ -37,7 +43,7 @@ const ExportLogsButton = () => {
                 ) ||
                 isDisabled(uiState, UI_ELEMENT.EXPORT_LOGS_BUTTON)
             }
-            onClick={exportLogs}
+            onClick={handleExportButtonClick}
         >
             {null === exportProgress ?
                 <DownloadIcon/> :

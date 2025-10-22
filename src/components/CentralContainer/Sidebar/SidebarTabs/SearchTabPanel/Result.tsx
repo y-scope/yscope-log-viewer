@@ -1,9 +1,12 @@
+import {useCallback} from "react";
+
 import {
     ListItemButton,
     Typography,
 } from "@mui/joy";
 
-import {updateWindowUrlHashParams} from "../../../../../contexts/UrlContextProvider";
+import {updateWindowUrlHashParams} from "../../../../../utils/url";
+import {updateViewHashParams} from "../../../../../utils/url/urlHash";
 
 import "./Result.css";
 
@@ -36,9 +39,11 @@ const Result = ({logEventNum, message, matchRange}: ResultProps) => {
         message.slice(...matchRange),
         message.slice(matchRange[1]),
     ];
-    const handleResultButtonClick = () => {
+
+    const handleResultButtonClick = useCallback(() => {
         updateWindowUrlHashParams({logEventNum});
-    };
+        updateViewHashParams();
+    }, [logEventNum]);
 
     return (
         <ListItemButton

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 
 import {
     LinearProgress,
@@ -6,14 +6,17 @@ import {
     Textarea,
 } from "@mui/joy";
 
+import useLogFileStore from "../../../../../stores/logFileStore";
 import useQueryStore from "../../../../../stores/queryStore";
 import useUiStore from "../../../../../stores/uiStore";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
+import {updateWindowUrlHashParams} from "../../../../../utils/url";
 import ToggleIconButton from "./ToggleIconButton";
 
 import "./QueryInputBox.css";
+import "./InputBox.css";
 
 
 /**
@@ -25,36 +28,49 @@ const QueryInputBox = () => {
     const isCaseSensitive = useQueryStore((state) => state.queryIsCaseSensitive);
     const isRegex = useQueryStore((state) => state.queryIsRegex);
     const querystring = useQueryStore((state) => state.queryString);
-    const setQueryIsCaseSensitive = useQueryStore((state) => state.setQueryIsCaseSensitive);
-    const setQueryIsRegex = useQueryStore((state) => state.setQueryIsRegex);
-    const setQueryString = useQueryStore((state) => state.setQueryString);
     const queryProgress = useQueryStore((state) => state.queryProgress);
-    const startQuery = useQueryStore((state) => state.startQuery);
     const uiState = useUiStore((state) => state.uiState);
+    const fileTypeInfo = useLogFileStore((state) => state.fileTypeInfo);
 
-    const handleQueryInputChange = (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setQueryString(ev.target.value);
+    const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newQueryString = ev.target.value;
+        updateWindowUrlHashParams({subquery: newQueryString});
+        const {setQueryString, startQuery} = useQueryStore.getState();
+        setQueryString(newQueryString);
         startQuery();
-    };
+    }, []);
 
-    const handleCaseSensitivityButtonClick = () => {
-        setQueryIsCaseSensitive(!isCaseSensitive);
+    const handleCaseSensitivityButtonClick = useCallback(() => {
+        const newQueryIsSensitive = !isCaseSensitive;
+        updateWindowUrlHashParams({queryIsCaseSensitive: newQueryIsSensitive});
+        const {setQueryIsCaseSensitive, startQuery} = useQueryStore.getState();
+        setQueryIsCaseSensitive(newQueryIsSensitive);
         startQuery();
-    };
+    }, [isCaseSensitive]);
 
-    const handleRegexButtonClick = () => {
-        setQueryIsRegex(!isRegex);
+    const handleRegexButtonClick = useCallback(() => {
+        const newQueryIsRegex = !isRegex;
+        updateWindowUrlHashParams({queryIsRegex: newQueryIsRegex});
+        const {setQueryIsRegex, startQuery} = useQueryStore.getState();
+        setQueryIsRegex(newQueryIsRegex);
         startQuery();
-    };
+    }, [isRegex]);
 
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
+    const isKqlFilteringEnabled = null !== fileTypeInfo &&
+        "CLP IR" === fileTypeInfo.name &&
+        true === fileTypeInfo.isStructured;
+    const placeholder = isKqlFilteringEnabled ?
+        "Search (in filtered logs)" :
+        "Search";
+
     return (
-        <div className={"query-input-box-with-progress"}>
+        <div className={"input-box-container"}>
             <Textarea
-                className={"query-input-box"}
+                className={"input-box"}
                 maxRows={7}
-                placeholder={"Search"}
+                placeholder={placeholder}
                 size={"sm"}
                 value={querystring}
                 endDecorator={
@@ -92,7 +108,7 @@ const QueryInputBox = () => {
                         className: "query-input-box-textarea",
                         disabled: isQueryInputBoxDisabled,
                     },
-                    endDecorator: {className: "query-input-box-end-decorator"},
+                    endDecorator: {className: "input-box-end-decorator"},
                 }}
                 onChange={handleQueryInputChange}/>
             <LinearProgress

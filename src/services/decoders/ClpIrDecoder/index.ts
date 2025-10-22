@@ -11,6 +11,7 @@ import {
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
+    Metadata,
 } from "../../../typings/decoders";
 import {Formatter} from "../../../typings/formatters";
 import {JsonObject} from "../../../typings/js";
@@ -37,6 +38,8 @@ class ClpIrDecoder implements Decoder {
 
     #formatter: Nullable<Formatter> = null;
 
+    #timestampFormatString: string;
+
     constructor (
         ffiModule: MainModule,
         dataArray: Uint8Array,
@@ -49,6 +52,7 @@ class ClpIrDecoder implements Decoder {
                 CLP_IR_STREAM_TYPE.STRUCTURED :
                 CLP_IR_STREAM_TYPE.UNSTRUCTURED;
         this.#structuredIrNamespaceKeys = getStructuredIrNamespaceKeys(ffiModule);
+        this.#timestampFormatString = decoderOptions.timestampFormatString;
 
         if (this.#streamType === CLP_IR_STREAM_TYPE.STRUCTURED) {
             this.#formatter = new YscopeFormatter({
@@ -79,25 +83,6 @@ class ClpIrDecoder implements Decoder {
         return new ClpIrDecoder(module, dataArray, decoderOptions);
     }
 
-    /**
-     * Formats unstructured log events by prepending a formatted timestamp to each message.
-     *
-     * @param logEvents
-     * @return The formatted log events.
-     */
-    static #formatUnstructuredResults = (logEvents: DecodeResult[]): DecodeResult[] => {
-        for (const r of logEvents) {
-            const [
-                message, timestamp,
-            ] = r;
-
-            const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
-            r[0] = dayJsTimestamp.format("YYYY-MM-DDTHH:mm:ss.SSSZ") + message;
-        }
-
-        return logEvents;
-    };
-
     getEstimatedNumEvents (): number {
         return this.#streamReader.getNumEventsBuffered();
     }
@@ -106,8 +91,20 @@ class ClpIrDecoder implements Decoder {
         return this.#streamReader.getFilteredLogEventMap();
     }
 
-    setLogLevelFilter (logLevelFilter: LogLevelFilter): boolean {
-        this.#streamReader.filterLogEvents(logLevelFilter);
+    getMetadata (): Metadata {
+        return this.#streamReader.getMetadata();
+    }
+
+    findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
+        return this.#streamReader.findNearestLogEventByTimestamp(BigInt(timestamp));
+    }
+
+    setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
+        try {
+            this.#streamReader.filterLogEvents(logLevelFilter, kqlFilter);
+        } catch (err: unknown) {
+            throw new Error("Failed to execute the KQL query.", {cause: err});
+        }
 
         return true;
     }
@@ -142,10 +139,8 @@ class ClpIrDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]> {
-        // eslint-disable-next-line no-warning-comments
-        // TODO: Correct DecodeResult typing in `clp-ffi-js` and remove below type assertion.
         const results =
-            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter) as Nullable<DecodeResult[]>;
+            this.#streamReader.decodeRange(beginIdx, endIdx, useFilter);
 
         if (null === results) {
             return null;
@@ -158,15 +153,15 @@ class ClpIrDecoder implements Decoder {
                 throw new Error("Formatter is not set for structured logs.");
             }
 
-            return ClpIrDecoder.#formatUnstructuredResults(results);
+            return this.#formatUnstructuredResults(results);
         }
 
         for (const r of results) {
-            const [
+            const {
                 message,
                 timestamp,
-                level,
-            ] = r;
+                logLevel,
+            } = r;
             const dayJsTimestamp: Dayjs = convertToDayjsTimestamp(timestamp);
             let fields: JsonObject = {};
 
@@ -179,14 +174,36 @@ class ClpIrDecoder implements Decoder {
                 console.error(e, message);
             }
 
-            r[0] = this.#formatter.formatLogEvent({
+            r.message = this.#formatter.formatLogEvent({
                 fields: fields,
-                level: level,
+                level: logLevel,
                 timestamp: dayJsTimestamp,
             });
         }
 
         return results;
+    }
+
+    /**
+     * Formats unstructured log events by prepending a formatted timestamp to each message.
+     *
+     * @param logEvents
+     * @return The formatted log events.
+     */
+    #formatUnstructuredResults (logEvents: DecodeResult[]): Nullable<DecodeResult[]> {
+        for (const r of logEvents) {
+            const {
+                message, timestamp,
+            } = r;
+
+            const formattedTimestamp = convertToDayjsTimestamp(timestamp).format(
+                this.#timestampFormatString
+            );
+
+            r.message = formattedTimestamp + message;
+        }
+
+        return logEvents;
     }
 }
 

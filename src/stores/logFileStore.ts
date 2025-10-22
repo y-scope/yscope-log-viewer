@@ -1,13 +1,12 @@
 import * as Comlink from "comlink";
 import {create} from "zustand";
 
-import {updateWindowUrlSearchParams} from "../contexts/UrlContextProvider";
-import {FILE_TYPE} from "../services/LogFileManager";
 import {Nullable} from "../typings/common";
 import {CONFIG_KEY} from "../typings/config";
+import {Metadata} from "../typings/decoders";
+import {FileTypeInfo} from "../typings/file";
 import {LOG_LEVEL} from "../typings/logs";
 import {
-    DO_NOT_TIMEOUT_VALUE,
     LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     PopUpMessage,
 } from "../typings/notifications";
@@ -16,33 +15,31 @@ import {
     QueryResults,
 } from "../typings/query";
 import {UI_STATE} from "../typings/states";
+import {TAB_NAME} from "../typings/tab";
 import {SEARCH_PARAM_NAMES} from "../typings/url";
-import {
-    CursorType,
-    FileSrcType,
-} from "../typings/worker";
+import {FileSrcType} from "../typings/worker";
 import {getConfig} from "../utils/config";
-import useContextStore from "./contextStore";
+import {updateWindowUrlSearchParams} from "../utils/url";
 import useLogExportStore, {LOG_EXPORT_STORE_DEFAULT} from "./logExportStore";
 import useLogFileManagerProxyStore from "./logFileManagerProxyStore";
+import useNotificationStore from "./notificationStore";
 import useQueryStore from "./queryStore";
 import useUiStore from "./uiStore";
 import useViewStore from "./viewStore";
+import {VIEW_PAGE_DEFAULT} from "./viewStore/createViewPageSlice";
 
 
 interface LogFileValues {
     fileName: string;
     fileSrc: Nullable<FileSrcType>;
+    fileTypeInfo: Nullable<FileTypeInfo>;
+    metadata: Nullable<Metadata>;
     numEvents: number;
     onDiskFileSizeInBytes: number;
 }
 
 interface LogFileActions {
-    setFileName: (newFileName: string) => void;
-    setNumEvents: (newNumEvents: number) => void;
-    setOnDiskFileSizeInBytes: (newOnDiskFileSizeInBytes: number) => void;
-
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => void;
+    loadFile: (fileSrc: FileSrcType) => Promise<void>;
 }
 
 type LogFileState = LogFileValues & LogFileActions;
@@ -50,8 +47,18 @@ type LogFileState = LogFileValues & LogFileActions;
 const LOG_FILE_STORE_DEFAULT: LogFileValues = {
     fileName: "",
     fileSrc: null,
+    fileTypeInfo: null,
+    metadata: null,
     numEvents: 0,
     onDiskFileSizeInBytes: 0,
+};
+
+/**
+ * Handles the primary action of the format popup by switching to the settings tab.
+ */
+const handleFormatPopupPrimaryAction = () => {
+    const {setActiveTabName} = useUiStore.getState();
+    setActiveTabName(TAB_NAME.SETTINGS);
 };
 
 /**
@@ -61,6 +68,10 @@ const FORMAT_POP_UP_MESSAGE: PopUpMessage = Object.freeze({
     level: LOG_LEVEL.INFO,
     message: "Adding a format string can enhance the readability of your" +
                     " structured logs by customizing how fields are displayed.",
+    primaryAction: {
+        children: "Settings",
+        onClick: handleFormatPopupPrimaryAction,
+    },
     timeoutMillis: LONG_AUTO_DISMISS_TIMEOUT_MILLIS,
     title: "A format string has not been configured",
 });
@@ -97,69 +108,56 @@ const handleQueryResults = (progress: number, results: QueryResults) => {
     mergeQueryResults(results);
 };
 
-const useLogFileStore = create<LogFileState>((set, get) => ({
+
+const useLogFileStore = create<LogFileState>((set) => ({
     ...LOG_FILE_STORE_DEFAULT,
-    loadFile: (fileSrc: FileSrcType, cursor: CursorType) => {
-        const {setFileName, setOnDiskFileSizeInBytes} = get();
-        const {postPopUp} = useContextStore.getState();
-        const {setExportProgress} = useLogExportStore.getState();
-        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
-        const {clearQuery} = useQueryStore.getState();
+    loadFile: async (fileSrc: FileSrcType) => {
         const {setUiState} = useUiStore.getState();
-        const {isPrettified, setLogData, updatePageData} = useViewStore.getState();
-
-        setFileName("Loading...");
-        setOnDiskFileSizeInBytes(LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes);
-        setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
-        clearQuery();
         setUiState(UI_STATE.FILE_LOADING);
-        setLogData("Loading...");
 
-        set({fileSrc});
+        set({
+            fileName: "Loading...",
+            fileSrc: fileSrc,
+            metadata: LOG_FILE_STORE_DEFAULT.metadata,
+            onDiskFileSizeInBytes: LOG_FILE_STORE_DEFAULT.onDiskFileSizeInBytes,
+        });
         if ("string" !== typeof fileSrc) {
             updateWindowUrlSearchParams({[SEARCH_PARAM_NAMES.FILE_PATH]: null});
         }
 
-        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
-        (async () => {
-            const fileInfo = await logFileManagerProxy.loadFile(
-                {
-                    decoderOptions: decoderOptions,
-                    fileSrc: fileSrc,
-                    pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
-                },
-                Comlink.proxy(handleExportChunk),
-                Comlink.proxy(handleQueryResults)
-            );
-            const pageData = await logFileManagerProxy.loadPage(cursor, isPrettified);
-            set(fileInfo);
-            updatePageData(pageData);
+        const {setExportProgress} = useLogExportStore.getState();
+        setExportProgress(LOG_EXPORT_STORE_DEFAULT.exportProgress);
 
-            const canFormat = fileInfo.fileType === FILE_TYPE.CLP_KV_IR ||
-                fileInfo.fileType === FILE_TYPE.JSONL;
-
-            if (0 === decoderOptions.formatString.length && canFormat) {
-                postPopUp(FORMAT_POP_UP_MESSAGE);
-            }
-        })().catch((e: unknown) => {
-            console.error(e);
-            postPopUp({
-                level: LOG_LEVEL.ERROR,
-                message: String(e),
-                timeoutMillis: DO_NOT_TIMEOUT_VALUE,
-                title: "Action failed",
-            });
-            setUiState(UI_STATE.UNOPENED);
+        const {setPageData} = useViewStore.getState();
+        setPageData({
+            beginLineNumToLogEventNum: VIEW_PAGE_DEFAULT.beginLineNumToLogEventNum,
+            logEventNum: useViewStore.getState().logEventNum,
+            logs: "Loading...",
+            numPages: VIEW_PAGE_DEFAULT.numPages,
+            pageNum: VIEW_PAGE_DEFAULT.pageNum,
         });
-    },
-    setFileName: (newFileName) => {
-        set({fileName: newFileName});
-    },
-    setNumEvents: (newNumEvents) => {
-        set({numEvents: newNumEvents});
-    },
-    setOnDiskFileSizeInBytes: (newSize) => {
-        set({onDiskFileSizeInBytes: newSize});
+
+        const {logFileManagerProxy} = useLogFileManagerProxyStore.getState();
+        const decoderOptions = getConfig(CONFIG_KEY.DECODER_OPTIONS);
+        const fileInfo = await logFileManagerProxy.loadFile(
+            {
+                decoderOptions: decoderOptions,
+                fileSrc: fileSrc,
+                pageSize: getConfig(CONFIG_KEY.PAGE_SIZE),
+            },
+            Comlink.proxy(handleExportChunk),
+            Comlink.proxy(handleQueryResults)
+        );
+
+        set(fileInfo);
+
+        const {isPrettified} = useViewStore.getState();
+        await logFileManagerProxy.setIsPrettified(isPrettified);
+
+        if (0 === decoderOptions.formatString.length && fileInfo.fileTypeInfo.isStructured) {
+            const {postPopUp} = useNotificationStore.getState();
+            postPopUp(FORMAT_POP_UP_MESSAGE);
+        }
     },
 }));
 
