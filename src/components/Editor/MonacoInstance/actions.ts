@@ -6,6 +6,7 @@ import {clamp} from "../../../utils/math";
 import type {
     CursorExplicitPosChangeCallback,
     CustomActionCallback,
+    PositionChangeSourceMeta,
 } from "./typings";
 
 
@@ -13,7 +14,29 @@ const MIN_ZOOM_LEVEL = 1;
 const MAX_ZOOM_LEVEL = 10;
 const MOBILE_ZOOM_LEVEL_INCREMENT = 10;
 const MOBILE_ZOOM_LEVEL_DECREMENT = 1;
-const POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS = 50;
+
+/**
+ * Generates a source name with metadata for cursor position changes.
+ *
+ * @param props
+ * @return
+ */
+const generateSourceName = (props: PositionChangeSourceMeta) => JSON.stringify(props);
+
+/**
+ * Determines if the source name indicates an explicit cursor position change.
+ *
+ * @param sourceName
+ * @return
+ */
+const isSourceExplicit = (sourceName: string) => {
+    try {
+        const parsed = JSON.parse(sourceName) as PositionChangeSourceMeta;
+        return parsed.isExplicit;
+    } catch {
+        return false;
+    }
+};
 
 /**
  * Sets up a callback for when the cursor position changes in the editor.
@@ -25,20 +48,11 @@ const setupCursorExplicitPosChangeCallback = (
     editor: monaco.editor.IStandaloneCodeEditor,
     onCursorExplicitPosChange: CursorExplicitPosChangeCallback
 ) => {
-    let posChangeDebounceTimeout: Nullable<ReturnType<typeof setTimeout>> = null;
-
     editor.onDidChangeCursorPosition((ev: monaco.editor.ICursorPositionChangedEvent) => {
-        // only trigger if there was an explicit change that was made by keyboard or mouse
-        if (monaco.editor.CursorChangeReason.Explicit !== ev.reason) {
-            return;
-        }
-        if (null !== posChangeDebounceTimeout) {
-            clearTimeout(posChangeDebounceTimeout);
-        }
-        posChangeDebounceTimeout = setTimeout(() => {
+        if (monaco.editor.CursorChangeReason.Explicit === ev.reason ||
+            isSourceExplicit(ev.source)) {
             onCursorExplicitPosChange(ev);
-            posChangeDebounceTimeout = null;
-        }, POSITION_CHANGE_DEBOUNCE_TIMEOUT_MILLIS);
+        }
     });
 };
 
@@ -172,6 +186,7 @@ const setupCustomActions = (
 };
 
 export {
+    generateSourceName,
     setupCursorExplicitPosChangeCallback,
     setupCustomActions,
     setupFocusOnBacktickDown,

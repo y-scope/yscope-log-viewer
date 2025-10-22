@@ -1,5 +1,4 @@
 import * as os from "node:os";
-import * as pathPosix from "node:path/posix";
 
 import type {Config} from "jest";
 
@@ -57,7 +56,7 @@ const JEST_CONFIG: Config = {
     ],
     showSeed: true,
     testMatch: [
-        pathPosix.join(__dirname, "test/**/?(*)test.{ts,tsx}"),
+        "<rootDir>/test/**/?(*)test.{ts,tsx}",
     ],
     testTimeout: 5000,
     transform: {

@@ -66,6 +66,11 @@ interface CustomMonacoEditorHandlers {
     onCustomAction?: CustomActionCallback;
 }
 
+interface PositionChangeSourceMeta {
+    funcName: string;
+    isExplicit: boolean;
+}
+
 export {TOKEN_NAME};
 export type {
     BeforeMountCallback,
@@ -74,5 +79,6 @@ export type {
     CustomActionCallback,
     CustomMonacoEditorHandlers,
     MountCallback,
+    PositionChangeSourceMeta,
     TextUpdateCallback,
 };

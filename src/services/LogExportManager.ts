@@ -11,7 +11,7 @@ class LogExportManager {
     /**
      * Internal buffer which stores decoded chunks of log data.
      */
-    readonly #chunks: string[] = [];
+    readonly #chunks: Blob[] = [];
 
     /**
      * Total number of chunks to export.
@@ -42,7 +42,7 @@ class LogExportManager {
 
             return EXPORT_LOGS_PROGRESS_VALUE_MAX;
         }
-        this.#chunks.push(chunk);
+        this.#chunks.push(new Blob([chunk]));
         if (this.#chunks.length === this.#numChunks) {
             this.#download();
             this.#chunks.length = 0;
