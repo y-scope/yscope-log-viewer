@@ -13,7 +13,8 @@ divided into two categories:
 
 ## Search parameters
 
-Search parameters appear after the `?` in the URL, and are used to initialize the log viewer.
+Search parameters appear after the `?` in the URL. When the page loads, the viewer reads these
+parameters to set its initial state.
 
 :::{note}
 Modifying search parameters causes the page to reload.
