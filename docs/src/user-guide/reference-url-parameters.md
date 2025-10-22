@@ -23,7 +23,7 @@ Modifying search parameters causes the page to reload.
 |------------|--------|---------|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `filePath` | String | ""      | Specifies the log file to load on startup | `?filePath=https://example.com/app-log.clp.zst` <details><summary>Demo</summary><a href="https://y-scope.github.io/yscope-log-viewer/?filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst">https://y-scope.github.io/yscope-log-viewer/?<b>filePath=https://yscope.s3.us-east-2.amazonaws.com/sample-logs/yarn-ubuntu-resourcemanager-ip-172-31-17-135.log.1.clp.zst</b></a></details> |
 
-NOTE:
+Below are some important details to be aware of when you're working with search parameters.
 
 - A `filePath` value can be a local file URL or remote HTTP(S) URL.
 - If a `filePath` URL isn't [percent-encoded][rfc-3986-percent-encoding] as per RFC 3986, it must be
