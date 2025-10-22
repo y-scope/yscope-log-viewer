@@ -34,7 +34,9 @@ const convertToLogLevelValue = (field: JsonValue | undefined): LOG_LEVEL => {
         return logLevelValue;
     }
 
-    const logLevelName = String(field);
+    const logLevelName = "string" === typeof field ?
+        field :
+        "";
 
     const uppercaseLogLevelName = logLevelName.toUpperCase();
     if (uppercaseLogLevelName in LOG_LEVEL) {

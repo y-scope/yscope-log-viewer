@@ -29,7 +29,7 @@ interface EditorAction {
  * Actions that can be performed in the editor. Actions without a name are not triggered by Monaco
  * but will be displayed in a help dialog.
  */
-const EDITOR_ACTIONS : EditorAction[] = [
+const EDITOR_ACTIONS: EditorAction[] = [
     {
         actionName: null,
         keyBindings: [monaco.KeyCode.Backquote],

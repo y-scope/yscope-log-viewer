@@ -24,8 +24,10 @@ import {
  * Handles hash change events by updating the application state based on the URL hash parameters.
  */
 const handleHashChange = () => {
-    updateViewHashParams();
-    if (updateQueryHashParams()) {
+    const isViewQueryModified = updateViewHashParams();
+    const isQueryParamsModified = updateQueryHashParams();
+
+    if (isQueryParamsModified || isViewQueryModified) {
         const {setActiveTabName} = useUiStore.getState();
         setActiveTabName(TAB_NAME.SEARCH);
         const {startQuery} = useQueryStore.getState();

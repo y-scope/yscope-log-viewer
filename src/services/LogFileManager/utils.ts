@@ -130,8 +130,7 @@ const getLastEventCursorData = (
  * @return A promise that resolves with an object containing the file name and file data.
  * @throws {Error} If the file source type is not supported.
  */
-const loadFile = async (fileSrc: FileSrcType)
-: Promise<{
+const loadFile = async (fileSrc: FileSrcType): Promise<{
     fileName: string;
     fileData: Uint8Array;
 }> => {
