@@ -31,7 +31,7 @@ const createViewFilterSlice: StateCreator<ViewState, [], [], ViewFilterSlice> = 
             const {logFileManagerProxy} = useLogFileManagerStore.getState();
             await logFileManagerProxy.setFilter(logLevelFilter, kqlFilter);
 
-            updateWindowUrlHashParams({query: kqlFilter});
+            updateWindowUrlHashParams({filter: kqlFilter});
         })().catch(handleErrorWithNotification);
     },
     setKqlFilter: (newValue) => {
