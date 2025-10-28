@@ -151,8 +151,8 @@ const updateViewHashParams = () => {
  * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
-    const {queryIsCaseSensitive, queryIsRegex, search} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, search});
+    const {searchIsCaseSensitive, searchIsRegex, search} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({ searchIsCaseSensitive, searchIsRegex, search});
 
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -164,11 +164,11 @@ const updateQueryHashParams = () => {
     } = useQueryStore.getState();
 
     let isQueryModified = false;
-    isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
-    setQueryIsCaseSensitive(queryIsCaseSensitive);
+    isQueryModified ||= searchIsCaseSensitive !== currentQueryIsCaseSensitive;
+    setQueryIsCaseSensitive(searchIsCaseSensitive);
 
-    isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
-    setQueryIsRegex(queryIsRegex);
+    isQueryModified ||= searchIsRegex !== currentQueryIsRegex;
+    setQueryIsRegex(searchIsRegex);
 
     isQueryModified ||= search !== currentQueryString;
     setQueryString(search);

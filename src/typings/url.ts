@@ -9,8 +9,8 @@ enum HASH_PARAM_NAMES {
     FILTER_STRING = "filter",
     IS_PRETTIFIED = "isPrettified",
     LOG_EVENT_NUM = "logEventNum",
-    QUERY_IS_CASE_SENSITIVE = "queryIsCaseSensitive",
-    QUERY_IS_REGEX = "queryIsRegex",
+    QUERY_IS_CASE_SENSITIVE = "searchIsCaseSensitive",
+    QUERY_IS_REGEX = "searchIsRegex",
     QUERY_STRING = "search",
     TIMESTAMP = "timestamp",
 }
