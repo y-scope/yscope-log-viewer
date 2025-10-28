@@ -31,7 +31,7 @@ A guide to filtering log events by their levels.
 :link: reference-url-parameters
 Reference
 ^^^
-Reference docs like URL parameters, etc.
+Reference information about URL parameters, etc.
 :::
 ::::
 
