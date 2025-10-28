@@ -68,7 +68,7 @@ Below are some important details to be aware of when you're working with hash pa
   recommend that you do not specify both parameters simultaneously.
 - Timestamp navigation behavior:
   - If the log contains at least one exact match for the specified timestamp, the viewer navigates
-    to the most recent match.
+    to the lowest matched log event index.
   - If no exact match exists, the viewer navigates to the log event closest to and before the
     specified timestamp, unless all log events are after the specified timestamp. In this case, the
     viewer navigates to the first log event.
