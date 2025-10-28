@@ -151,7 +151,7 @@ const updateViewHashParams = () => {
  * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
-    const {searchIsCaseSensitive, searchIsRegex, search} = getWindowUrlHashParams();
+    const {search, searchIsCaseSensitive, searchIsRegex} = getWindowUrlHashParams();
     updateWindowUrlHashParams({searchIsCaseSensitive, searchIsRegex, search});
 
     const {
