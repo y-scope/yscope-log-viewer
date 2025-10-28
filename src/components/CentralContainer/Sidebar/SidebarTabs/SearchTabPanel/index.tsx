@@ -68,9 +68,9 @@ const SearchTabPanel = () => {
         copyPermalinkToClipboard({}, {
             filter: kqlFilterInput,
             logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
+            search: queryString,
             searchIsCaseSensitive: queryIsCaseSensitive,
             searchIsRegex: queryIsRegex,
-            search: queryString,
         });
     }, []);
 
