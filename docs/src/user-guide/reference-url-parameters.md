@@ -62,8 +62,8 @@ Below are some important details to be aware of when you're working with hash pa
   This behavior is under review and may be removed in future versions.
   :::
 
-- `timestamp` is in milliseconds since the Unix epoch, with a default value of `-1`. We do not
-  support negative timestamps.
+- `timestamp` values should be given as milliseconds since the Unix epoch, with a default value of
+  `-1`. We don't support negative timestamps.
 - When both `logEventNum` and `timestamp` are specified, `timestamp` takes precedence. We strongly
   recommend that you do not specify both parameters simultaneously.
 - Timestamp navigation behavior:
