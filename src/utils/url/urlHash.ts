@@ -134,19 +134,19 @@ const updateViewHashParams = () => {
 
     let cursor = getCursorFromHashParams({isPrettified, logEventNum, timestamp});
 
-    if (filter !== kqlFilter) {
-        // The log viewer needs to reload the page if the KQL filter is updated, even if
-        // the log event is on the current page.
-        // This could cause a double page load if query parameters are also being changed.
-        cursor = {
-            code: CURSOR_CODE.EVENT_NUM,
-            args: {eventNum: logEventNum},
-        };
-    }
-
     if (null === cursor) {
-        // If no cursor was set, we can return early.
-        return isQueryModified;
+        if (filter !== kqlFilter) {
+            // The log viewer needs to reload the page if the KQL filter is updated, even if
+            // the log event is on the current page.
+            // This could cause a double page load if query parameters are also being changed.
+            cursor = {
+                code: CURSOR_CODE.EVENT_NUM,
+                args: {eventNum: logEventNum},
+            };
+        } else {
+            // If no cursor was set, we can return early.
+            return isQueryModified;
+        }
     }
 
     const {loadPageByCursor} = useViewStore.getState();
