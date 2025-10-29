@@ -107,9 +107,9 @@ const getCursorFromHashParams = ({isPrettified, logEventNum, timestamp}: {
  * @return Whether any query-related parameters were modified.
  */
 const updateViewHashParams = () => {
-    const {isPrettified, logEventNum, query, timestamp} = getWindowUrlHashParams();
+    const {filter, isPrettified, logEventNum, timestamp} = getWindowUrlHashParams();
     updateWindowUrlHashParams({
-        query: query,
+        filter: filter,
         isPrettified: isPrettified,
         timestamp: URL_HASH_PARAMS_DEFAULT.timestamp,
     });
@@ -123,11 +123,11 @@ const updateViewHashParams = () => {
     } = useViewStore.getState();
 
     let isQueryModified = false;
-    if (query !== kqlFilter) {
+    if (filter !== kqlFilter) {
         if (kqlFilter === kqlFilterInput) {
-            setKqlFilterInput(query);
+            setKqlFilterInput(filter);
         }
-        setKqlFilter(query);
+        setKqlFilter(filter);
         filterLogs();
         isQueryModified = true;
     }
@@ -151,8 +151,8 @@ const updateViewHashParams = () => {
  * @return Whether any query-related parameters were modified.
  */
 const updateQueryHashParams = () => {
-    const {queryIsCaseSensitive, queryIsRegex, subquery} = getWindowUrlHashParams();
-    updateWindowUrlHashParams({queryIsCaseSensitive, queryIsRegex, subquery});
+    const {search, searchIsCaseSensitive, searchIsRegex} = getWindowUrlHashParams();
+    updateWindowUrlHashParams({search, searchIsCaseSensitive, searchIsRegex});
 
     const {
         queryIsCaseSensitive: currentQueryIsCaseSensitive,
@@ -164,14 +164,14 @@ const updateQueryHashParams = () => {
     } = useQueryStore.getState();
 
     let isQueryModified = false;
-    isQueryModified ||= queryIsCaseSensitive !== currentQueryIsCaseSensitive;
-    setQueryIsCaseSensitive(queryIsCaseSensitive);
+    isQueryModified ||= search !== currentQueryString;
+    setQueryString(search);
 
-    isQueryModified ||= queryIsRegex !== currentQueryIsRegex;
-    setQueryIsRegex(queryIsRegex);
+    isQueryModified ||= searchIsCaseSensitive !== currentQueryIsCaseSensitive;
+    setQueryIsCaseSensitive(searchIsCaseSensitive);
 
-    isQueryModified ||= subquery !== currentQueryString;
-    setQueryString(subquery);
+    isQueryModified ||= searchIsRegex !== currentQueryIsRegex;
+    setQueryIsRegex(searchIsRegex);
 
     return isQueryModified;
 };

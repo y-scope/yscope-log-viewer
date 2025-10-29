@@ -24,12 +24,12 @@ const URL_SEARCH_PARAMS_DEFAULT = Object.freeze({
  * Default values of the hash parameters.
  */
 const URL_HASH_PARAMS_DEFAULT = Object.freeze({
-    [HASH_PARAM_NAMES.FILTER_STRING]: "",
+    [HASH_PARAM_NAMES.FILTER]: "",
     [HASH_PARAM_NAMES.IS_PRETTIFIED]: false,
     [HASH_PARAM_NAMES.LOG_EVENT_NUM]: 0,
-    [HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE]: false,
-    [HASH_PARAM_NAMES.QUERY_IS_REGEX]: false,
-    [HASH_PARAM_NAMES.QUERY_STRING]: "",
+    [HASH_PARAM_NAMES.SEARCH_IS_CASE_SENSITIVE]: false,
+    [HASH_PARAM_NAMES.SEARCH_IS_REGEX]: false,
+    [HASH_PARAM_NAMES.SEARCH_STRING]: "",
     [HASH_PARAM_NAMES.TIMESTAMP]: -1,
 });
 
@@ -189,14 +189,14 @@ const parseWindowUrlHashParams = (): Partial<UrlHashParams> => {
             case HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE:
 
                 // Fall through
-            case HASH_PARAM_NAMES.QUERY_IS_REGEX:
+            case HASH_PARAM_NAMES.SEARCH_IS_REGEX:
                 parsedHashParams[key] = "true" === value;
                 break;
 
-            case HASH_PARAM_NAMES.FILTER_STRING:
+            case HASH_PARAM_NAMES.FILTER:
                 parsedHashParams[key] = value;
                 break;
-            case HASH_PARAM_NAMES.QUERY_STRING:
+            case HASH_PARAM_NAMES.SEARCH_STRING:
                 parsedHashParams[key] = value;
                 break;
             default:

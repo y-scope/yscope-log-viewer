@@ -34,7 +34,7 @@ const QueryInputBox = () => {
 
     const handleQueryInputChange = useCallback((ev: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newQueryString = ev.target.value;
-        updateWindowUrlHashParams({subquery: newQueryString});
+        updateWindowUrlHashParams({search: newQueryString});
         const {setQueryString, startQuery} = useQueryStore.getState();
         setQueryString(newQueryString);
         startQuery();
@@ -42,7 +42,7 @@ const QueryInputBox = () => {
 
     const handleCaseSensitivityButtonClick = useCallback(() => {
         const newQueryIsSensitive = !isCaseSensitive;
-        updateWindowUrlHashParams({queryIsCaseSensitive: newQueryIsSensitive});
+        updateWindowUrlHashParams({searchIsCaseSensitive: newQueryIsSensitive});
         const {setQueryIsCaseSensitive, startQuery} = useQueryStore.getState();
         setQueryIsCaseSensitive(newQueryIsSensitive);
         startQuery();
@@ -50,7 +50,7 @@ const QueryInputBox = () => {
 
     const handleRegexButtonClick = useCallback(() => {
         const newQueryIsRegex = !isRegex;
-        updateWindowUrlHashParams({queryIsRegex: newQueryIsRegex});
+        updateWindowUrlHashParams({searchIsRegex: newQueryIsRegex});
         const {setQueryIsRegex, startQuery} = useQueryStore.getState();
         setQueryIsRegex(newQueryIsRegex);
         startQuery();
