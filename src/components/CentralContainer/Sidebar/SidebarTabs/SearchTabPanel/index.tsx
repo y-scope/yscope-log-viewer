@@ -66,11 +66,11 @@ const SearchTabPanel = () => {
         setQueryString(queryString);
 
         copyPermalinkToClipboard({}, {
+            filter: kqlFilterInput,
             logEventNum: URL_HASH_PARAMS_DEFAULT.logEventNum,
-            query: kqlFilterInput,
-            queryIsCaseSensitive: queryIsCaseSensitive,
-            queryIsRegex: queryIsRegex,
-            subquery: queryString,
+            search: queryString,
+            searchIsCaseSensitive: queryIsCaseSensitive,
+            searchIsRegex: queryIsRegex,
         });
     }, []);
 
