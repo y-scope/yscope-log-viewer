@@ -69,7 +69,34 @@ const convertToDayjsTimestamp = (field: JsonValue | bigint | undefined): dayjs.D
         field = INVALID_TIMESTAMP_VALUE;
     }
 
-    let dayjsTimestamp: Dayjs = dayjs.utc(field);
+    let timestampInMs: number | string = field;
+
+    // Auto-detect timestamp resolution and convert to milliseconds
+    if ("number" === typeof field || "bigint" === typeof field) {
+        const numValue = "bigint" === typeof field ? Number(field) : field;
+
+        // Detection based on timestamp magnitude:
+        // - Seconds: < 10^11 (covers dates up to year 5138)
+        // - Milliseconds: 10^11 <= t < 10^14
+        // - Microseconds: 10^14 <= t < 10^17
+        // - Nanoseconds: >= 10^17
+        if (numValue < 1e11) {
+            // Seconds -> convert to milliseconds
+            timestampInMs = numValue * 1000;
+        } else if (numValue < 1e14) {
+            // Milliseconds -> use as-is
+            timestampInMs = numValue;
+        } else if (numValue < 1e17) {
+            // Microseconds -> convert to milliseconds
+            timestampInMs = numValue / 1000;
+        } else {
+            // Nanoseconds -> convert to milliseconds
+            timestampInMs = numValue / 1e6;
+        }
+    }
+
+    // dayjs.utc() expects millisecond input
+    let dayjsTimestamp: Dayjs = dayjs.utc(timestampInMs);
 
     // Sanitize invalid (e.g., "deadbeef") timestamps to `INVALID_TIMESTAMP_VALUE`; otherwise
     // they'll show up in UI as "Invalid Date".
