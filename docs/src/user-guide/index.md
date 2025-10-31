@@ -26,6 +26,13 @@ Log level filtering
 ^^^
 A guide to filtering log events by their levels.
 :::
+
+:::{grid-item-card}
+:link: reference-url-parameters
+Reference
+^^^
+Reference information about URL parameters, etc.
+:::
 ::::
 
 :::{toctree}
@@ -50,4 +57,11 @@ struct-logs/specifying-keys
 :caption: Log level filtering
 
 log-level-filtering
+:::
+
+:::{toctree}
+:hidden:
+:caption: Reference
+
+reference-url-parameters
 :::
