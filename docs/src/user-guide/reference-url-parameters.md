@@ -65,10 +65,10 @@ Modifying hash parameters does NOT cause the page to reload.
 * When both `logEventNum` and `timestamp` are specified, `timestamp` takes precedence. We strongly
   recommend that you do not specify both parameters simultaneously.
 * Timestamp navigation behavior:
-  * If the log contains at least one exact match for the specified timestamp, the viewer navigates
-    to the lowest matched log event index.
+  * If the log file contains one or more events with the specified timestamp, the viewer navigates
+    to the matched log event that has the lowest index.
   * If no exact match exists, the viewer navigates to the log event closest to and before the
-    specified timestamp, unless all log events are after the specified timestamp. In this case, the
-    viewer navigates to the first log event.
+    specified timestamp, unless all log events are after the specified timestamp. In the latter
+    case, the viewer navigates to the first log event.
 
 [rfc-3986-percent-encoding]: https://datatracker.ietf.org/doc/html/rfc3986#section-2.1
