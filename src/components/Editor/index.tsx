@@ -12,16 +12,14 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
+import {ACTION_NAME} from "../../typings/actions";
 import {Nullable} from "../../typings/common";
 import {
     CONFIG_KEY,
     THEME_NAME,
 } from "../../typings/config";
 import {BeginLineNumToLogEventNumMap} from "../../typings/worker";
-import {
-    ACTION_NAME,
-    EDITOR_ACTIONS,
-} from "../../utils/actions";
+import {EDITOR_ACTIONS} from "../../utils/actions";
 import {
     CONFIG_DEFAULT,
     getConfig,

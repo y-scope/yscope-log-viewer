@@ -14,8 +14,22 @@ export default defineConfig({
         assetsDir: "",
         rollupOptions: {
             output: {
-                manualChunks: {
-                    "monaco-editor": ["monaco-editor"],
+                manualChunks: (id) => {
+                    if (id.includes("node_modules")) {
+                        if (id.includes("monaco-editor")) {
+                            return "monaco-editor";
+                        }
+                        if (
+                            id.includes("react-dom") ||
+                            id.includes("react") ||
+                            id.includes("@mui") ||
+                            id.includes("@emotion")
+                        ) {
+                            return "vendor";
+                        }
+                    }
+
+                    return null;
                 },
             },
         },

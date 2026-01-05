@@ -4,7 +4,7 @@
 
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
-import {ACTION_NAME} from "../../../utils/actions";
+import {ACTION_NAME} from "../../../typings/actions";
 
 
 enum TOKEN_NAME {
