@@ -1,5 +1,9 @@
 import {StateCreator} from "zustand";
 
+import {
+    ACTION_NAME,
+    NavigationAction,
+} from "../../typings/actions";
 import {Nullable} from "../../typings/common";
 import {UI_STATE} from "../../typings/states";
 import {
@@ -8,10 +12,6 @@ import {
     EVENT_POSITION_ON_PAGE,
     PageData,
 } from "../../typings/worker";
-import {
-    ACTION_NAME,
-    NavigationAction,
-} from "../../utils/actions";
 import {clamp} from "../../utils/math";
 import {updateWindowUrlHashParams} from "../../utils/url";
 import useLogFileManagerStore from "../logFileManagerProxyStore";

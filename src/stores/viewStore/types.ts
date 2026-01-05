@@ -1,10 +1,10 @@
+import {NavigationAction} from "../../typings/actions";
 import {LogLevelFilter} from "../../typings/logs";
 import {
     BeginLineNumToLogEventNumMap,
     CursorType,
     PageData,
 } from "../../typings/worker";
-import {NavigationAction} from "../../utils/actions";
 
 
 interface ViewPageValues {

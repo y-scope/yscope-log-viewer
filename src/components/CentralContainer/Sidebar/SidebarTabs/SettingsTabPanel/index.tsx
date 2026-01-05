@@ -14,6 +14,7 @@ import {
 
 import useNotificationStore from "../../../../../stores/notificationStore";
 import useViewStore from "../../../../../stores/viewStore";
+import {ACTION_NAME} from "../../../../../typings/actions";
 import {Nullable} from "../../../../../typings/common";
 import {
     CONFIG_KEY,
@@ -25,7 +26,6 @@ import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
 } from "../../../../../typings/tab";
-import {ACTION_NAME} from "../../../../../utils/actions";
 import {
     getConfig,
     setConfig,

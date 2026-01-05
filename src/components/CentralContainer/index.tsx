@@ -1,5 +1,5 @@
 import DropFileContainer from "../DropFileContainer";
-import Editor from "../Editor";
+import EditorLoader from "../Editor/EditorLoader";
 import Sidebar from "./Sidebar";
 
 import "./index.css";
@@ -15,7 +15,7 @@ const CentralContainer = () => {
         <div className={"central-container"}>
             <Sidebar/>
             <DropFileContainer>
-                <Editor/>
+                <EditorLoader/>
             </DropFileContainer>
         </div>
     );
