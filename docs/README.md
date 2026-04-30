@@ -12,8 +12,8 @@ this project:
   * We use Git LFS to store the images in the docs; this is to avoid significant increases in
     the size of repo as we add and update images.
 * [Node.js] >= 16 to be able to [view the output](#viewing-the-output)
-* Python 3.10 or later
-* [Task] >= 3.40.0
+* Python >= 3.10
+* [Task] >= 3.49.1
 
 ## Build commands
 

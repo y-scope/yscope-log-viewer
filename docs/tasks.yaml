@@ -56,7 +56,7 @@ tasks:
           INCLUDE_PATTERNS: ["{{.OUTPUT_DIR}}"]
     sources:
       - "{{.G_DOCS_VENV_CHECKSUM_FILE}}"
-      - "{{.ROOT_DIR}}/taskfile.yaml"
+      - "{{.ROOT_TASKFILE}}"
       - "{{.TASKFILE}}"
       - "conf/**/*"
       - "src/**/*"
@@ -87,7 +87,7 @@ tasks:
           INCLUDE_PATTERNS: ["{{.OUTPUT_DIR}}"]
     sources:
       - "{{.REQUIREMENTS_FILE}}"
-      - "{{.ROOT_DIR}}/taskfile.yaml"
+      - "{{.ROOT_TASKFILE}}"
       - "{{.TASKFILE}}"
     generates: ["{{.CHECKSUM_FILE}}"]
 
@@ -111,6 +111,6 @@ tasks:
           CHECKSUM_FILE: "{{.CHECKSUM_FILE}}"
           INCLUDE_PATTERNS: ["{{.OUTPUT_DIR}}"]
     sources:
-      - "{{.ROOT_DIR}}/taskfile.yaml"
+      - "{{.ROOT_TASKFILE}}"
       - "{{.TASKFILE}}"
     generates: ["{{.CHECKSUM_FILE}}"]

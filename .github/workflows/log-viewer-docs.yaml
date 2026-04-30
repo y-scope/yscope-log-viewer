@@ -40,8 +40,6 @@ jobs:
           version: "3.10"
 
       - uses: "./tools/yscope-dev-utils/exports/github/actions/install-go-task"
-        with:
-          version: "3.48.0"
 
       - name: "Build docs"
         shell: "bash"
