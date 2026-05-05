@@ -6,6 +6,7 @@ import {
 } from "@mui/joy";
 
 import AbcIcon from "@mui/icons-material/Abc";
+import DataObjectIcon from "@mui/icons-material/DataObject";
 import StorageIcon from "@mui/icons-material/Storage";
 
 import useLogFileStore from "../../../../../stores/logFileStore";
@@ -20,12 +21,13 @@ import MetadataListItem from "./MetadataListItem";
 
 
 /**
- * Displays a panel containing the file name and on-disk size of the selected file.
+ * Displays a panel containing the file name, file type, on-disk size, and metadata
  *
  * @return
  */
 const FileInfoTabPanel = () => {
     const fileName = useLogFileStore((state) => state.fileName);
+    const fileTypeInfo = useLogFileStore((state) => state.fileTypeInfo);
     const onDiskFileSizeInBytes = useLogFileStore((state) => state.onDiskFileSizeInBytes);
 
     const isFileUnloaded = 0 === fileName.length;
@@ -47,6 +49,11 @@ const FileInfoTabPanel = () => {
                         icon={<AbcIcon/>}
                         slotProps={{content: {sx: {wordBreak: "break-word"}}}}
                         title={"Name"}/>
+                    <Divider/>
+                    <CustomListItem
+                        content={fileTypeInfo?.name ?? ""}
+                        icon={<DataObjectIcon/>}
+                        title={"File Type"}/>
                     <Divider/>
                     <CustomListItem
                         content={formattedOnDiskSize}
