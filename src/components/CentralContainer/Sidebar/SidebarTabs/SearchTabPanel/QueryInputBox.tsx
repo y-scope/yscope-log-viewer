@@ -9,6 +9,7 @@ import {
 import useLogFileStore from "../../../../../stores/logFileStore";
 import useQueryStore from "../../../../../stores/queryStore";
 import useUiStore from "../../../../../stores/uiStore";
+import {FILE_TYPE_NAME} from "../../../../../typings/file";
 import {QUERY_PROGRESS_VALUE_MAX} from "../../../../../typings/query";
 import {UI_ELEMENT} from "../../../../../typings/states";
 import {isDisabled} from "../../../../../utils/states";
@@ -59,7 +60,7 @@ const QueryInputBox = () => {
     const isQueryInputBoxDisabled = isDisabled(uiState, UI_ELEMENT.QUERY_INPUT_BOX);
 
     const isKqlFilteringEnabled = null !== fileTypeInfo &&
-        "CLP IR" === fileTypeInfo.name &&
+        FILE_TYPE_NAME.CLP_IR === fileTypeInfo.name &&
         true === fileTypeInfo.isStructured;
     const placeholder = isKqlFilteringEnabled ?
         "Search (in filtered logs)" :

@@ -17,6 +17,7 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import useLogFileStore from "../../../../../stores/logFileStore";
 import useQueryStore from "../../../../../stores/queryStore";
 import useViewStore from "../../../../../stores/viewStore";
+import {FILE_TYPE_NAME} from "../../../../../typings/file";
 import {
     TAB_DISPLAY_NAMES,
     TAB_NAME,
@@ -75,7 +76,7 @@ const SearchTabPanel = () => {
     }, []);
 
     const isKqlFilteringEnabled = null !== fileTypeInfo &&
-        "CLP IR" === fileTypeInfo.name &&
+        FILE_TYPE_NAME.CLP_IR === fileTypeInfo.name &&
         true === fileTypeInfo.isStructured;
 
     return (
