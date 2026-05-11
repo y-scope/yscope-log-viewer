@@ -27,6 +27,13 @@ export default defineConfig({
                         ) {
                             return "vendor";
                         }
+                        if (id.includes("@aws-sdk")) {
+                            return "aws-sdk";
+                        }
+                    }
+
+                    if (id.includes("plugin-s3-scanner")) {
+                        return "plugin-s3-scanner";
                     }
 
                     return null;

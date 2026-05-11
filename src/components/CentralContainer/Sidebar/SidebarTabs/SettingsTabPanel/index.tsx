@@ -12,6 +12,8 @@ import {
     Textarea,
 } from "@mui/joy";
 
+import pluginRegistry from "../../../../../services/PluginRegistry";
+import pluginContext from "../../../../../services/PluginRegistry/PluginContext";
 import useNotificationStore from "../../../../../stores/notificationStore";
 import useViewStore from "../../../../../stores/viewStore";
 import {ACTION_NAME} from "../../../../../typings/actions";
@@ -31,6 +33,7 @@ import {
     setConfig,
 } from "../../../../../utils/config";
 import CustomTabPanel from "../CustomTabPanel";
+import PluginConfigSections from "./PluginConfigSections";
 import ThemeSwitchFormField from "./ThemeSwitchFormField";
 
 import "./index.css";
@@ -126,6 +129,26 @@ const getConfigFormFields = () => [
 ];
 
 /**
+ * Persists plugin config values from form data.
+ *
+ * @param formData
+ */
+const persistPluginConfig = (formData: FormData) => {
+    for (const plugin of pluginRegistry.getAllPlugins()) {
+        if (!plugin.configSchema) {
+            continue;
+        }
+        for (const field of plugin.configSchema) {
+            const formKey = `plugin.${plugin.id}.${field.key}`;
+            const value = formData.get(formKey) as string | null;
+            if (null !== value) {
+                pluginContext.setConfig(plugin.id, field.key, value);
+            }
+        }
+    }
+};
+
+/**
  * Handles the reset event for the configuration form.
  *
  * @param ev
@@ -176,6 +199,7 @@ const SettingsTabPanel = () => {
                 title: "Unable to apply config.",
             });
         } else {
+            persistPluginConfig(formData);
             loadPageByAction({code: ACTION_NAME.RELOAD, args: null});
         }
     }, [loadPageByAction]);
@@ -213,6 +237,9 @@ const SettingsTabPanel = () => {
                     ))}
                 </Box>
                 <Divider/>
+
+                <PluginConfigSections/>
+
                 <Button
                     color={"primary"}
                     type={"submit"}
