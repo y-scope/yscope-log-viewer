@@ -40,7 +40,7 @@ const PageNumInput = () => {
 
     const disabled = isDisabled(uiState, UI_ELEMENT.NAVIGATION_BAR);
 
-    const handleSubmit = useCallback((ev?: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = useCallback((ev?: React.SyntheticEvent<HTMLFormElement>) => {
         if ("undefined" !== typeof ev) {
             ev.preventDefault();
         }
