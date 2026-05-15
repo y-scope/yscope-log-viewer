@@ -13,6 +13,7 @@ import useLogFileStore from "../../stores/logFileStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
 import {ACTION_NAME} from "../../typings/actions";
+import {FILE_TYPE_NAME} from "../../typings/file";
 import {UI_ELEMENT} from "../../typings/states";
 import {isDisabled} from "../../utils/states";
 import {copyPermalinkToClipboard} from "../../utils/url";
@@ -36,12 +37,15 @@ const handleCopyLinkButtonClick = () => {
  * @return
  */
 const StatusBar = () => {
+    const fileTypeInfo = useLogFileStore((state) => state.fileTypeInfo);
     const isPrettified = useViewStore((state) => state.isPrettified);
     const logEventNum = useViewStore((state) => state.logEventNum);
     const numEvents = useLogFileStore((state) => state.numEvents);
     const uiState = useUiStore((state) => state.uiState);
 
     const isPrettifyButtonDisabled = isDisabled(uiState, UI_ELEMENT.PRETTIFY_BUTTON);
+    const isLogLevelFilterVisible = null !== fileTypeInfo &&
+        FILE_TYPE_NAME.PLAIN_TEXT !== fileTypeInfo.name;
 
     return (
         <Sheet className={"status-bar"}>
@@ -67,8 +71,8 @@ const StatusBar = () => {
             </Tooltip>
             <Divider orientation={"vertical"}/>
 
-            <LogLevelSelect/>
-            <Divider orientation={"vertical"}/>
+            {isLogLevelFilterVisible && <LogLevelSelect/>}
+            {isLogLevelFilterVisible && <Divider orientation={"vertical"}/>}
 
             <StatusBarToggleButton
                 data-action-name={ACTION_NAME.TOGGLE_PRETTIFY}
