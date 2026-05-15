@@ -108,7 +108,7 @@ const Sidebar = () => {
             return;
         }
 
-        if (activeTabName === TAB_NAME.NONE) {
+        if ((TAB_NAME.NONE as string) === activeTabName) {
             setPanelWidth(tabListRef.current.clientWidth);
 
             return;
@@ -126,7 +126,7 @@ const Sidebar = () => {
     return (
         <div className={"sidebar-tabs-container"}>
             <SidebarTabs ref={tabListRef}/>
-            {TAB_NAME.NONE !== activeTabName && (
+            {(TAB_NAME.NONE as string) !== activeTabName && (
                 <ResizeHandle
                     onHandleRelease={handleResizeHandleRelease}
                     onResize={handleResize}/>
