@@ -51,7 +51,7 @@ const FileInfoTabPanel = () => {
                         title={"Name"}/>
                     <Divider/>
                     <CustomListItem
-                        content={fileTypeInfo?.name ?? ""}
+                        content={fileTypeInfo?.name ?? "Unknown"}
                         icon={<DataObjectIcon/>}
                         title={"File Type"}/>
                     <Divider/>
