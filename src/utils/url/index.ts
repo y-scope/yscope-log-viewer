@@ -186,7 +186,7 @@ const parseWindowUrlHashParams = (): Partial<UrlHashParams> => {
             case HASH_PARAM_NAMES.IS_PRETTIFIED:
 
                 // Fall through
-            case HASH_PARAM_NAMES.QUERY_IS_CASE_SENSITIVE:
+            case HASH_PARAM_NAMES.SEARCH_IS_CASE_SENSITIVE:
 
                 // Fall through
             case HASH_PARAM_NAMES.SEARCH_IS_REGEX:
