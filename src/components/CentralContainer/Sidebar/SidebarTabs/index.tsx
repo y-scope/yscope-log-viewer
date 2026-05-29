@@ -1,11 +1,17 @@
 import {
     Ref,
+    Suspense,
     useCallback,
+    useMemo,
 } from "react";
 
 import {
+    Skeleton,
+    Tab,
     TabList,
+    TabPanel,
     Tabs,
+    Tooltip,
 } from "@mui/joy";
 import SvgIcon from "@mui/material/SvgIcon";
 
@@ -14,6 +20,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
+import pluginRegistry from "../../../../services/PluginRegistry";
+import pluginContext from "../../../../services/PluginRegistry/PluginContext";
 import useUiStore from "../../../../stores/uiStore";
 import {TAB_NAME} from "../../../../typings/tab";
 import {openInNewTab} from "../../../../utils/url";
@@ -52,8 +60,14 @@ interface SidebarTabsProps {
 const SidebarTabs = ({ref}: SidebarTabsProps) => {
     const activeTabName = useUiStore((state) => state.activeTabName);
 
-    const handleTabButtonClick = useCallback((tabName: TAB_NAME) => {
-        switch (tabName) {
+    const pluginPanels = useMemo(
+        () => pluginRegistry.getSidebarPanelProviders()
+            .filter((panel) => !panel.shouldShow || panel.shouldShow(pluginContext)),
+        []
+    );
+
+    const handleTabButtonClick = useCallback((tabName: string) => {
+        switch (tabName as TAB_NAME) {
             case TAB_NAME.DOCUMENTATION:
                 openInNewTab(DOCUMENTATION_URL);
                 break;
@@ -86,6 +100,33 @@ const SidebarTabs = ({ref}: SidebarTabsProps) => {
                         onTabButtonClick={handleTabButtonClick}/>
                 ))}
 
+                {/* Plugin tabs appear after built-in tabs and before the spacer. */}
+                {pluginPanels.map((panel) => (
+                    <Tooltip
+                        key={panel.id}
+                        placement={"right"}
+                        title={panel.label}
+                    >
+                        <Tab
+                            className={"sidebar-tab-button"}
+                            color={"neutral"}
+                            indicatorPlacement={"left"}
+                            value={panel.id}
+                            slotProps={{
+                                root: {
+                                    onClick: () => {
+                                        handleTabButtonClick(panel.id);
+                                    },
+                                },
+                            }}
+                        >
+                            {panel.icon ?
+                                <panel.icon className={"sidebar-tab-button-icon"}/> :
+                                null}
+                        </Tab>
+                    </Tooltip>
+                ))}
+
                 {/* Forces the help and settings tabs to the bottom of the sidebar. */}
                 <div className={"sidebar-tab-list-spacing"}/>
 
@@ -102,6 +143,19 @@ const SidebarTabs = ({ref}: SidebarTabsProps) => {
             <FileInfoTabPanel/>
             <SearchTabPanel/>
             <SettingsTabPanel/>
+
+            {/* Plugin tab panels */}
+            {pluginPanels.map((panel) => (
+                <TabPanel
+                    className={"sidebar-tab-panel"}
+                    key={panel.id}
+                    value={panel.id}
+                >
+                    <Suspense fallback={<Skeleton/>}>
+                        <panel.component/>
+                    </Suspense>
+                </TabPanel>
+            ))}
         </Tabs>
     );
 };

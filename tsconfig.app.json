@@ -40,6 +40,7 @@
   },
   "include": [
     "src",
-    "test"
+    "test",
+    "packages"
   ]
 }

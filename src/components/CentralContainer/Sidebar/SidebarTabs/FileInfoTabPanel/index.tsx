@@ -1,14 +1,19 @@
-import {useMemo} from "react";
+import {
+    Suspense,
+    useMemo,
+} from "react";
 
 import {
     Divider,
     List,
+    Skeleton,
 } from "@mui/joy";
 
 import AbcIcon from "@mui/icons-material/Abc";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import StorageIcon from "@mui/icons-material/Storage";
 
+import pluginRegistry from "../../../../../services/PluginRegistry";
 import useLogFileStore from "../../../../../stores/logFileStore";
 import {
     TAB_DISPLAY_NAMES,
@@ -34,6 +39,11 @@ const FileInfoTabPanel = () => {
     const formattedOnDiskSize = useMemo(
         () => formatSizeInBytes(onDiskFileSizeInBytes, false),
         [onDiskFileSizeInBytes]
+    );
+
+    const fileInfoAugmentProviders = useMemo(
+        () => pluginRegistry.getFileInfoAugmentProviders(),
+        []
     );
 
     return (
@@ -62,6 +72,14 @@ const FileInfoTabPanel = () => {
                     <Divider/>
                     <MetadataListItem/>
                 </List>}
+            {fileInfoAugmentProviders.map(({component: Component}) => (
+                <Suspense
+                    fallback={<Skeleton/>}
+                    key={Component.name}
+                >
+                    <Component/>
+                </Suspense>
+            ))}
         </CustomTabPanel>
     );
 };

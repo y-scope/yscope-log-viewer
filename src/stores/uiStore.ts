@@ -2,17 +2,16 @@ import {create} from "zustand";
 
 import {CONFIG_KEY} from "../typings/config";
 import {UI_STATE} from "../typings/states";
-import {TAB_NAME} from "../typings/tab";
 import {getConfig} from "../utils/config";
 
 
 interface UiStoreValues {
-    activeTabName: TAB_NAME;
+    activeTabName: string;
     uiState: UI_STATE;
 }
 
 interface UiStoreActions {
-    setActiveTabName: (tabName: TAB_NAME) => void;
+    setActiveTabName: (tabName: string) => void;
     setUiState: (newUIState: UI_STATE) => void;
 }
 

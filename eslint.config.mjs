@@ -11,6 +11,7 @@ const EslintConfig = [
             "build/",
             "dist/",
             "node_modules/",
+            "tests/s3-plugin.e2e.cjs",
         ],
     },
     CommonConfig,
@@ -21,6 +22,8 @@ const EslintConfig = [
             "src/**/*.ts",
             "src/**/*.tsx",
             "test/**/*.ts",
+            "packages/**/*.ts",
+            "packages/**/*.tsx",
         ],
         "tsconfig.app.json"
     ),
