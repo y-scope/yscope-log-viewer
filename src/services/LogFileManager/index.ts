@@ -276,7 +276,7 @@ class LogFileManager {
 
             messages.push(printedMsg);
             beginLineNumToLogEventNum.set(currentLine, logEventNum);
-            currentLine += message.split("\n").length - 1;
+            currentLine += printedMsg.split("\n").length - 1;
         });
         const newNumPages: number = getChunkNum(numActiveEvents, this.#pageSize);
         const newPageNum: number = getChunkNum(pageBegin + 1, this.#pageSize);
