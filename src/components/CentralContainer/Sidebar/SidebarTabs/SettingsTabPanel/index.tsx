@@ -130,7 +130,7 @@ const getConfigFormFields = () => [
  *
  * @param ev
  */
-const handleConfigFormReset = (ev: React.FormEvent) => {
+const handleConfigFormReset = (ev: React.SyntheticEvent<HTMLFormElement>) => {
     ev.preventDefault();
     window.localStorage.clear();
     window.location.reload();
@@ -144,9 +144,9 @@ const handleConfigFormReset = (ev: React.FormEvent) => {
 const SettingsTabPanel = () => {
     const loadPageByAction = useViewStore((state) => state.loadPageByAction);
 
-    const handleConfigFormSubmit = useCallback((ev: React.FormEvent) => {
+    const handleConfigFormSubmit = useCallback((ev: React.SubmitEvent<HTMLFormElement>) => {
         ev.preventDefault();
-        const formData = new FormData(ev.target as HTMLFormElement);
+        const formData = new FormData(ev.currentTarget);
         const getFormDataValue = (key: string) => formData.get(key) as string;
 
         const formatString = getFormDataValue(LOCAL_STORAGE_KEY.DECODER_OPTIONS_FORMAT_STRING);
