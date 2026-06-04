@@ -188,7 +188,7 @@ class LogFileManager {
      *
      * @param logLevelFilter
      * @param kqlFilter
-     * @throws {Error} If the log level filter couldn't be set.
+     * @throws {Error} If the decoder encounters an error while updating applicable filters.
      */
     setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string) {
         const result = this.#decoder.setLogLevelFilter(logLevelFilter, kqlFilter);
