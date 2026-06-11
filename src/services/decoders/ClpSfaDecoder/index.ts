@@ -1,5 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
+import {ClpArchiveReader} from "clp-ffi-js/sfa";
+
 import {Nullable} from "../../../typings/common";
 import {
     Decoder,
@@ -11,8 +13,6 @@ import {
 } from "../../../typings/decoders";
 import {LogLevelFilter} from "../../../typings/logs";
 
-
-const NOT_IMPLEMENTED_ERROR_MESSAGE = "ClpSfaDecoder is not implemented.";
 
 /**
  * Marks skeleton parameters as used while the decoder implementation is pending.
@@ -29,43 +29,67 @@ const markAsUsed = (...values: unknown[]): void => {
 
 
 class ClpSfaDecoder implements Decoder {
-    constructor (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
-        markAsUsed(dataArray, decoderOptions);
+    #archiveReader: ClpArchiveReader;
+
+    #decodedLogEvents: Nullable<DecodeResult[]> = null;
+
+    constructor (archiveReader: ClpArchiveReader) {
+        this.#archiveReader = archiveReader;
     }
 
+    /**
+     * Creates a new ClpSfaDecoder instance.
+     *
+     * @param dataArray The input data array to be passed to the decoder.
+     * @param decoderOptions
+     * @return The created ClpSfaDecoder instance.
+     */
     static async create (
         dataArray: Uint8Array,
         decoderOptions: DecoderOptions
     ): Promise<ClpSfaDecoder> {
-        return Promise.resolve(new ClpSfaDecoder(dataArray, decoderOptions));
+        markAsUsed(decoderOptions);
+
+        return new ClpSfaDecoder(await ClpArchiveReader.create(dataArray));
     }
 
     getEstimatedNumEvents (): number {
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return Number(this.#archiveReader.getEventCount());
     }
 
     getFilteredLogEventMap (): FilteredLogEventMap {
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return null;
     }
 
     getMetadata (): Metadata {
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return {
+            fileInfos: this.#archiveReader.getFileInfos().map((fileInfo) => ({
+                fileName: fileInfo.fileName,
+                logEventCount: Number(fileInfo.logEventCount),
+                logEventIdxEnd: Number(fileInfo.logEventIdxEnd),
+                logEventIdxStart: Number(fileInfo.logEventIdxStart),
+            })),
+            fileNames: this.#archiveReader.getFileNames(),
+        };
     }
 
     setLogLevelFilter (logLevelFilter: LogLevelFilter, kqlFilter: string): boolean {
         markAsUsed(logLevelFilter, kqlFilter);
 
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return true;
     }
 
     build (): LogEventCount {
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return {
+            numInvalidEvents: 0,
+            numValidEvents: this.#getDecodedLogEvents().length,
+        };
     }
 
     setFormatterOptions (options: DecoderOptions): boolean {
         markAsUsed(options);
 
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        return false;
     }
 
     decodeRange (
@@ -73,15 +97,46 @@ class ClpSfaDecoder implements Decoder {
         endIdx: number,
         useFilter: boolean
     ): Nullable<DecodeResult[]> {
-        markAsUsed(beginIdx, endIdx, useFilter);
+        markAsUsed(useFilter);
 
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        const decodedLogEvents = this.#getDecodedLogEvents();
+        if (0 > beginIdx || endIdx > decodedLogEvents.length || endIdx < beginIdx) {
+            return null;
+        }
+
+        return decodedLogEvents.slice(beginIdx, endIdx);
     }
 
     findNearestLogEventByTimestamp (timestamp: number): Nullable<number> {
-        markAsUsed(timestamp);
+        const decodedLogEvents = this.#getDecodedLogEvents();
+        if (0 === decodedLogEvents.length) {
+            return null;
+        }
 
-        throw new Error(NOT_IMPLEMENTED_ERROR_MESSAGE);
+        let firstIdxAfterTimestamp = decodedLogEvents.findIndex((logEvent) => logEvent.timestamp >
+            BigInt(timestamp));
+
+        if (-1 === firstIdxAfterTimestamp) {
+            firstIdxAfterTimestamp = decodedLogEvents.length - 1;
+        }
+
+        return 0 === firstIdxAfterTimestamp ?
+            0 :
+            firstIdxAfterTimestamp - 1;
+    }
+
+    #getDecodedLogEvents (): DecodeResult[] {
+        if (null === this.#decodedLogEvents) {
+            this.#decodedLogEvents = this.#archiveReader.decodeAll().map((logEvent) => ({
+                logEventNum: Number(logEvent.logEventIdx) + 1,
+                logLevel: 0,
+                message: `${logEvent.message}\n`,
+                timestamp: logEvent.timestamp,
+                utcOffset: BigInt(0),
+            }));
+        }
+
+        return this.#decodedLogEvents;
     }
 }
 
