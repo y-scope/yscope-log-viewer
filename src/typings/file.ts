@@ -1,5 +1,8 @@
+import {CLP_SFA_MAGIC_BYTES} from "clp-ffi-js/sfa";
+
 import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
+import ClpSfaDecoder from "../services/decoders/ClpSfaDecoder";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
 import {Decoder} from "./decoders";
@@ -9,6 +12,7 @@ type OnFileOpenCallback = (file: File) => void;
 
 enum FILE_TYPE_NAME {
     CLP_IR = "CLP IR",
+    CLP_SFA = "CLP Single File Archive",
     JSON_LINES = "JSON Lines",
     PLAIN_TEXT = "Plain Text",
 }
@@ -27,7 +31,8 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder | typeof PlainTextDecoder;
+    DecoderFactory: typeof ClpIrDecoder | typeof ClpSfaDecoder | typeof JsonlDecoder |
+        typeof PlainTextDecoder;
 
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
     extensions: FileTypeInfo["extension"][];
@@ -44,6 +49,13 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
         extensions: [".clp.zst"],
         name: FILE_TYPE_NAME.CLP_IR,
         signature: [0x28, 0xb5, 0x2f, 0xfd],
+    },
+    {
+        DecoderFactory: ClpSfaDecoder,
+        checkIsStructured: () => true,
+        extensions: [".clp"],
+        name: FILE_TYPE_NAME.CLP_SFA,
+        signature: [...CLP_SFA_MAGIC_BYTES],
     },
     {
         DecoderFactory: JsonlDecoder,
