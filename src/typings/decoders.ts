@@ -134,10 +134,15 @@ interface Decoder {
     findNearestLogEventByTimestamp(timestamp: number): Nullable<number>;
 }
 
+interface DecoderFactoryType {
+    create(dataArray: Uint8Array, decoderOptions: DecoderOptions): Promise<Decoder>;
+}
+
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
     DecodeResult,
+    DecoderFactoryType,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,
