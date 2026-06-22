@@ -5,7 +5,10 @@ import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import ClpSfaDecoder from "../services/decoders/ClpSfaDecoder";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
-import {Decoder} from "./decoders";
+import {
+    Decoder,
+    DecoderFactoryType,
+} from "./decoders";
 
 
 type OnFileOpenCallback = (file: File) => void;
@@ -31,9 +34,7 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: typeof ClpIrDecoder | typeof ClpSfaDecoder | typeof JsonlDecoder |
-        typeof PlainTextDecoder;
-
+    DecoderFactory: DecoderFactoryType;
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
     extensions: FileTypeInfo["extension"][];
     name: FileTypeInfo["name"];
