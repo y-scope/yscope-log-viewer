@@ -4,7 +4,7 @@ import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
 import {
     Decoder,
-    DecoderFactoryType,
+    DecoderFactory,
 } from "./decoders";
 
 
@@ -24,8 +24,8 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: DecoderFactoryType;
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
+    decoderFactory: DecoderFactory;
     extensions: FileTypeInfo["extension"][];
     name: FileTypeInfo["name"];
     signature: FileTypeInfo["signature"];
@@ -34,23 +34,23 @@ interface FileTypeDef {
 /* eslint-disable @stylistic/array-element-newline, no-magic-numbers */
 const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
     {
-        DecoderFactory: ClpIrDecoder,
         checkIsStructured: (decoder) => decoder instanceof ClpIrDecoder &&
             decoder.irStreamType === CLP_IR_STREAM_TYPE.STRUCTURED,
+        decoderFactory: ClpIrDecoder,
         extensions: [".clp.zst"],
         name: "CLP IR",
         signature: [0x28, 0xb5, 0x2f, 0xfd],
     },
     {
-        DecoderFactory: JsonlDecoder,
         checkIsStructured: () => true,
+        decoderFactory: JsonlDecoder,
         extensions: [".jsonl", ".ndjson"],
         name: "JSON Lines",
         signature: ["{".charCodeAt(0)],
     },
     {
-        DecoderFactory: PlainTextDecoder,
         checkIsStructured: () => false,
+        decoderFactory: PlainTextDecoder,
         extensions: [".err", ".log", ".out", ".txt"],
         name: "Plain Text",
         signature: [],

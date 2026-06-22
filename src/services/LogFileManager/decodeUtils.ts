@@ -37,7 +37,7 @@ const tryCreateDecoderByExtension = async (
 
         try {
             return {
-                decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
+                decoder: await entry.decoderFactory.create(fileData, decoderOptions),
                 matchingExtension: matchingExtension,
                 fileTypeDef: entry,
             };
@@ -73,7 +73,7 @@ const tryCreateDecoderBySignature = async (
         if (isSignatureMatching) {
             try {
                 return {
-                    decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
+                    decoder: await entry.decoderFactory.create(fileData, decoderOptions),
                     fileTypeDef: entry,
                 };
             } catch (e) {
