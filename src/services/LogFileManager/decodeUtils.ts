@@ -9,41 +9,27 @@ import {
     FileTypeInfo,
 } from "../../typings/file";
 import {MAX_V8_STRING_LENGTH} from "../../typings/js";
-import {getFileFullExtension} from "../../utils/file";
+import {getFileMatchingExtension} from "../../utils/file";
 import {formatSizeInBytes} from "../../utils/units";
 
 
 /**
- * Attempts to create a decoder based on the file extension.
+ * Attempts to create a decoder for the given file type.
  *
- * @param fileName
+ * @param fileTypeDef
  * @param fileData
  * @param decoderOptions
- * @return The decoder, matching extension, and file type definition if successful, null
- * otherwise.
+ * @return The decoder if successful, null otherwise.
  */
-const tryCreateDecoderByExtension = async (
-    fileName: string,
+const tryCreateDecoder = async (
+    fileTypeDef: FileTypeDef,
     fileData: Uint8Array,
     decoderOptions: DecoderOptions
-): Promise<Nullable<{
-    decoder: Decoder; matchingExtension: string; fileTypeDef: FileTypeDef;
-}>> => {
-    for (const entry of FILE_TYPE_DEFINITIONS) {
-        const matchingExtension = entry.extensions.find((ext) => fileName.endsWith(ext));
-        if ("undefined" === typeof matchingExtension) {
-            continue;
-        }
-
-        try {
-            return {
-                decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
-                matchingExtension: matchingExtension,
-                fileTypeDef: entry,
-            };
-        } catch (e) {
-            console.warn(`File extension matches ${entry.name}, but decoder creation failed.`, e);
-        }
+): Promise<Nullable<Decoder>> => {
+    try {
+        return await fileTypeDef.DecoderFactory.create(fileData, decoderOptions);
+    } catch (e) {
+        console.warn(`Failed to create ${fileTypeDef.name} decoder.`, e);
     }
 
     return null;
@@ -54,13 +40,19 @@ const tryCreateDecoderByExtension = async (
  *
  * @param fileData
  * @param decoderOptions
- * @return The decoder and file type definition if successful, null otherwise.
+ * @return The decoder and matched file type definition, or null if no signature matches. The
+ * decoder is null if its creation fails, but the matched signature is still returned.
  */
 const tryCreateDecoderBySignature = async (
     fileData: Uint8Array,
     decoderOptions: DecoderOptions
-): Promise<Nullable<{decoder: Decoder; fileTypeDef: FileTypeDef}>> => {
+): Promise<Nullable<{decoder: Nullable<Decoder>; fileTypeDef: FileTypeDef}>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
+        // Skip decoders that don't define a signature
+        if (0 === entry.signature.length) {
+            continue;
+        }
+
         if (fileData.length < entry.signature.length) {
             continue;
         }
@@ -71,15 +63,13 @@ const tryCreateDecoderBySignature = async (
             .every((byte, idx) => byte === entry.signature[idx]);
 
         if (isSignatureMatching) {
-            try {
-                return {
-                    decoder: await entry.DecoderFactory.create(fileData, decoderOptions),
-                    fileTypeDef: entry,
-                };
-            } catch (e) {
-                console.warn(`Magic number matches ${entry.name}, but decoder creation failed:`, e);
-                break;
-            }
+            console.info(`Magic number matches ${entry.name}. Creating decoder.`);
+            const decoder = await tryCreateDecoder(entry, fileData, decoderOptions);
+
+            return {
+                decoder: decoder,
+                fileTypeDef: entry,
+            };
         }
     }
 
@@ -110,33 +100,38 @@ const resolveDecoderAndFileType = async (
         } due to a limitation in Chromium-based browsers.`);
     }
 
-    let fileExtension = getFileFullExtension(fileName);
+    const {
+        extension: fileExtension,
+        fileTypeDef: extensionFileTypeDef,
+    } = getFileMatchingExtension(fileName);
+
     let fileTypeDef = null;
     let decoder = null;
 
-    // Try to create a decoder based on the file extension.
-    if (0 < fileExtension.length) {
-        const extensionResult = await tryCreateDecoderByExtension(
-            fileName,
+    // Try to create a decoder based on the file's magic header.
+    const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
+    if (null !== signatureResult) {
+        ({decoder, fileTypeDef} = signatureResult);
+    }
+
+    // If no decoder was created from a signature, try to create one based on the file extension.
+    if (null === decoder && null !== extensionFileTypeDef) {
+        console.info(`No decoder was created from a file signature. Creating decoder based on ${
+            fileExtension
+        }.`);
+        decoder = await tryCreateDecoder(
+            extensionFileTypeDef,
             fileData,
-            decoderOptions,
+            decoderOptions
         );
 
-        if (null !== extensionResult) {
-            ({decoder, matchingExtension: fileExtension, fileTypeDef} = extensionResult);
+        if (null !== decoder) {
+            fileTypeDef = extensionFileTypeDef;
         }
     }
 
-    // If no decoder was found by extension, try to create one based on the file's magic number.
-    if (null === decoder) {
-        console.warn(`No valid decoder was found for file extension "${fileExtension}". ` +
-            "Trying to match by signature.");
-        const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
-        if (null !== signatureResult) {
-            ({decoder, fileTypeDef} = signatureResult);
-        }
-    }
-
+    // eslint-disable-next-line no-warning-comments
+    // TODO: support `UNKNOWN` file type definition.
     if (null === decoder || null === fileTypeDef) {
         throw new Error(`No decoder supports the file "${fileName}".`);
     }
