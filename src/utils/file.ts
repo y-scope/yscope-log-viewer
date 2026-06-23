@@ -1,4 +1,8 @@
-import type {OnFileOpenCallback} from "../typings/file";
+import {
+    FILE_TYPE_DEFINITIONS,
+    FileTypeDef,
+    OnFileOpenCallback,
+} from "../typings/file";
 
 
 /**
@@ -17,16 +21,44 @@ const downloadBlob = (blob: Blob, fileName: string) => {
 };
 
 /**
- * Gets the full file extension from a filename.
+ * Finds the longest matching extension registered in `FILE_TYPE_DEFINITIONS`.
+ *
+ * TODO: return UNKNOWN file type for unmatched file names.
  *
  * @param filename
- * @return The full file extension, or an empty string if no extension is found.
+ * @return The matching extension and file type definition. If no registered extension matches,
+ * returns the shortest suffix (empty string if the suffix does not exist) and a null file type
+ * definition.
  */
-const getFileFullExtension = (filename: string) => {
-    const parts = filename.split(".");
-    return 1 < parts.length ?
-        parts.slice(1).join(".") :
-        "";
+const getFileMatchingExtension = (filename: string): {
+    extension: string;
+    fileTypeDef: FileTypeDef | null;
+} => {
+    let extension = "";
+    let fileTypeDef = null;
+
+    for (const entry of FILE_TYPE_DEFINITIONS) {
+        for (const candidateExtension of entry.extensions) {
+            if (filename.endsWith(candidateExtension) &&
+                extension.length < candidateExtension.length
+            ) {
+                extension = candidateExtension;
+                fileTypeDef = entry;
+            }
+        }
+    }
+
+    if (null === fileTypeDef) {
+        const finalDotIdx = filename.lastIndexOf(".");
+        extension = -1 === finalDotIdx ?
+            "" :
+            filename.slice(finalDotIdx);
+    }
+
+    return {
+        extension: extension,
+        fileTypeDef: fileTypeDef,
+    };
 };
 
 /**
@@ -52,6 +84,6 @@ const openFile = (onOpen: OnFileOpenCallback) => {
 
 export {
     downloadBlob,
-    getFileFullExtension,
+    getFileMatchingExtension,
     openFile,
 };
