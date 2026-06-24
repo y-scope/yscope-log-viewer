@@ -2,7 +2,7 @@ import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
-import {
+import type {
     Decoder,
     DecoderFactory,
 } from "./decoders";
