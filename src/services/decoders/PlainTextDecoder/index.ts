@@ -36,7 +36,8 @@ class PlainTextDecoder implements Decoder {
 
     // eslint-disable-next-line class-methods-use-this
     setLogLevelFilter (): boolean {
-        return false;
+        // Log level filtering doesn't apply to plain text logs, so this no-op always succeeds.
+        return true;
     }
 
     build (): LogEventCount {

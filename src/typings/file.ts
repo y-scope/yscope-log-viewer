@@ -10,13 +10,19 @@ import {
 
 type OnFileOpenCallback = (file: File) => void;
 
+enum FILE_TYPE_NAME {
+    CLP_IR = "CLP IR",
+    JSON_LINES = "JSON Lines",
+    PLAIN_TEXT = "Plain Text",
+}
+
 /**
  * Describes a file type for display in the UI.
  */
 interface FileTypeInfo {
     extension: string;
     isStructured: boolean;
-    name: string;
+    name: FILE_TYPE_NAME;
     signature: number[];
 }
 
@@ -38,21 +44,21 @@ const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
             decoder.irStreamType === CLP_IR_STREAM_TYPE.STRUCTURED,
         decoderFactory: ClpIrDecoder,
         extensions: [".clp.zst"],
-        name: "CLP IR",
+        name: FILE_TYPE_NAME.CLP_IR,
         signature: [0x28, 0xb5, 0x2f, 0xfd],
     },
     {
         checkIsStructured: () => true,
         decoderFactory: JsonlDecoder,
         extensions: [".jsonl", ".ndjson"],
-        name: "JSON Lines",
+        name: FILE_TYPE_NAME.JSON_LINES,
         signature: ["{".charCodeAt(0)],
     },
     {
         checkIsStructured: () => false,
         decoderFactory: PlainTextDecoder,
         extensions: [".err", ".log", ".out", ".txt"],
-        name: "Plain Text",
+        name: FILE_TYPE_NAME.PLAIN_TEXT,
         signature: [],
     },
 ];
@@ -64,4 +70,7 @@ export type {
     FileTypeInfo,
     OnFileOpenCallback,
 };
-export {FILE_TYPE_DEFINITIONS};
+export {
+    FILE_TYPE_DEFINITIONS,
+    FILE_TYPE_NAME,
+};
