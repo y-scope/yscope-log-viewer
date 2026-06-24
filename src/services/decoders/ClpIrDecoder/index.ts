@@ -67,8 +67,13 @@ class ClpIrDecoder implements Decoder {
     }
 
     /**
+     * Creates a new ClpIrDecoder instance.
      * NOTE: `decoderOptions` only affects decode results if the stream type is
      * {@link CLP_IR_STREAM_TYPE.STRUCTURED}.
+     *
+     * @param dataArray
+     * @param decoderOptions
+     * @return The created ClpIrDecoder instance.
      */
     static async create (
         dataArray: Uint8Array,
