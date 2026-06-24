@@ -64,7 +64,10 @@ class JsonlDecoder implements Decoder {
         this.#formatter = new YscopeFormatter({formatString: decoderOptions.formatString});
     }
 
-    static async create (dataArray: Uint8Array, decoderOptions: DecoderOptions) {
+    static async create (
+        dataArray: Uint8Array,
+        decoderOptions: DecoderOptions
+    ): Promise<JsonlDecoder> {
         if (0 < dataArray.length && "{".charCodeAt(0) !== dataArray[0]) {
             throw new Error("Invalid JSONL data: First byte is not '{'.");
         }
@@ -157,7 +160,7 @@ class JsonlDecoder implements Decoder {
      *
      * NOTE: `#dataArray` is freed after the very first run of this method.
      */
-    #deserialize () {
+    #deserialize (): void {
         if (null === this.#dataArray) {
             return;
         }
@@ -186,7 +189,7 @@ class JsonlDecoder implements Decoder {
      *
      * @param line
      */
-    #parseJson (line: string) {
+    #parseJson (line: string): void {
         let fields: JsonValue;
         let level: LOG_LEVEL;
         let timestamp: Dayjs;
@@ -227,7 +230,7 @@ class JsonlDecoder implements Decoder {
      *
      * @param logLevelFilter
      */
-    #filterLogEvents (logLevelFilter: LogLevelFilter) {
+    #filterLogEvents (logLevelFilter: LogLevelFilter): void {
         if (null === logLevelFilter) {
             this.#filteredLogEventMap = null;
 

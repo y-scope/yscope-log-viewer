@@ -2,7 +2,10 @@ import ClpIrDecoder from "../services/decoders/ClpIrDecoder";
 import {CLP_IR_STREAM_TYPE} from "../services/decoders/ClpIrDecoder/utils";
 import JsonlDecoder from "../services/decoders/JsonlDecoder";
 import PlainTextDecoder from "../services/decoders/PlainTextDecoder";
-import {Decoder} from "./decoders";
+import type {
+    Decoder,
+    DecoderFactory,
+} from "./decoders";
 
 
 type OnFileOpenCallback = (file: File) => void;
@@ -27,9 +30,8 @@ interface FileTypeInfo {
  * Represents a file type with its identifying properties and decoder.
  */
 interface FileTypeDef {
-    DecoderFactory: typeof ClpIrDecoder | typeof JsonlDecoder | typeof PlainTextDecoder;
-
     checkIsStructured: (decoder: Decoder) => FileTypeInfo["isStructured"];
+    decoderFactory: DecoderFactory;
     extensions: FileTypeInfo["extension"][];
     name: FileTypeInfo["name"];
     signature: FileTypeInfo["signature"];
@@ -38,23 +40,23 @@ interface FileTypeDef {
 /* eslint-disable @stylistic/array-element-newline, no-magic-numbers */
 const FILE_TYPE_DEFINITIONS: FileTypeDef[] = [
     {
-        DecoderFactory: ClpIrDecoder,
         checkIsStructured: (decoder) => decoder instanceof ClpIrDecoder &&
             decoder.irStreamType === CLP_IR_STREAM_TYPE.STRUCTURED,
+        decoderFactory: ClpIrDecoder,
         extensions: [".clp.zst"],
         name: FILE_TYPE_NAME.CLP_IR,
         signature: [0x28, 0xb5, 0x2f, 0xfd],
     },
     {
-        DecoderFactory: JsonlDecoder,
         checkIsStructured: () => true,
+        decoderFactory: JsonlDecoder,
         extensions: [".jsonl", ".ndjson"],
         name: FILE_TYPE_NAME.JSON_LINES,
         signature: ["{".charCodeAt(0)],
     },
     {
-        DecoderFactory: PlainTextDecoder,
         checkIsStructured: () => false,
+        decoderFactory: PlainTextDecoder,
         extensions: [".err", ".log", ".out", ".txt"],
         name: FILE_TYPE_NAME.PLAIN_TEXT,
         signature: [],

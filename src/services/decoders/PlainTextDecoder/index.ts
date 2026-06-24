@@ -16,7 +16,7 @@ class PlainTextDecoder implements Decoder {
         this.#logs = textDecoder.decode(dataArray).split(/\r\n|\r|\n/);
     }
 
-    static async create (dataArray: Uint8Array) {
+    static async create (dataArray: Uint8Array): Promise<PlainTextDecoder> {
         return Promise.resolve(new PlainTextDecoder(dataArray));
     }
 
