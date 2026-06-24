@@ -14,6 +14,7 @@ import useLogFileStore from "../../stores/logFileStore";
 import {handleErrorWithNotification} from "../../stores/notificationStore";
 import useUiStore from "../../stores/uiStore";
 import useViewStore from "../../stores/viewStore";
+import {FILE_TYPE_NAME} from "../../typings/file";
 import {UI_ELEMENT} from "../../typings/states";
 import {CURSOR_CODE} from "../../typings/worker";
 import {openFile} from "../../utils/file";
@@ -32,8 +33,11 @@ import "./index.css";
  * @return
  */
 const MenuBar = () => {
+    const fileTypeInfo = useLogFileStore((state) => state.fileTypeInfo);
     const fileName = useLogFileStore((state) => state.fileName);
     const uiState = useUiStore((state) => state.uiState);
+    const isTimestampQueryVisible = null !== fileTypeInfo &&
+        FILE_TYPE_NAME.PLAIN_TEXT !== fileTypeInfo.name;
 
     const handleOpenFile = useCallback(() => {
         openFile((file) => {
@@ -87,7 +91,7 @@ const MenuBar = () => {
                     </Typography>
                 </Box>
 
-                <TimestampQueryContainer/>
+                {isTimestampQueryVisible && <TimestampQueryContainer/>}
 
                 <NavigationBar/>
                 <Divider orientation={"vertical"}/>

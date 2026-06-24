@@ -79,6 +79,7 @@ interface Decoder {
      * @param logLevelFilter
      * @param kqlFilter
      * @return Whether the filter was successfully set.
+     * @throws {Error} If the decoder encounters an error while updating applicable filters.
      */
     setLogLevelFilter(logLevelFilter: LogLevelFilter, kqlFilter: string): boolean;
 
