@@ -71,7 +71,7 @@ class ClpIrDecoder implements Decoder {
      * NOTE: `decoderOptions` only affects decode results if the stream type is
      * {@link CLP_IR_STREAM_TYPE.STRUCTURED}.
      *
-     * @param dataArray The input data array to be passed to the decoder.
+     * @param dataArray
      * @param decoderOptions
      * @return The created ClpIrDecoder instance.
      */

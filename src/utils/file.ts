@@ -1,7 +1,7 @@
 import {
     FILE_TYPE_DEFINITIONS,
-    FileTypeDef,
-    OnFileOpenCallback,
+    type FileTypeDef,
+    type OnFileOpenCallback,
 } from "../typings/file";
 
 
@@ -34,12 +34,13 @@ const getFileMatchingExtension = (filename: string): {
     extension: string;
     fileTypeDef: FileTypeDef | null;
 } => {
+    const lowercaseFilename = filename.toLowerCase();
     let extension = "";
     let fileTypeDef = null;
 
     for (const entry of FILE_TYPE_DEFINITIONS) {
         for (const candidateExtension of entry.extensions) {
-            if (filename.endsWith(candidateExtension) &&
+            if (lowercaseFilename.endsWith(candidateExtension.toLowerCase()) &&
                 extension.length < candidateExtension.length
             ) {
                 extension = candidateExtension;
