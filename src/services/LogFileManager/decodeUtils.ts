@@ -40,13 +40,12 @@ const tryCreateDecoder = async (
  *
  * @param fileData
  * @param decoderOptions
- * @return The decoder and matched file type definition, or null if no signature matches. The
- * decoder is null if its creation fails, but the matched signature is still returned.
+ * @return The decoder and file type definition if successful, null otherwise.
  */
 const tryCreateDecoderBySignature = async (
     fileData: Uint8Array,
     decoderOptions: DecoderOptions
-): Promise<Nullable<{decoder: Nullable<Decoder>; fileTypeDef: FileTypeDef}>> => {
+): Promise<Nullable<{decoder: Decoder; fileTypeDef: FileTypeDef}>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
         // Skip decoders that don't define a signature
         if (0 === entry.signature.length) {
@@ -63,8 +62,14 @@ const tryCreateDecoderBySignature = async (
             .every((byte, idx) => byte === entry.signature[idx]);
 
         if (isSignatureMatching) {
+            const decoder = await tryCreateDecoder(entry, fileData, decoderOptions);
+            if (null === decoder) {
+                console.warn(`Magic number matches ${entry.name}, but decoder creation failed.`);
+                continue;
+            }
+
             return {
-                decoder: await tryCreateDecoder(entry, fileData, decoderOptions),
+                decoder: decoder,
                 fileTypeDef: entry,
             };
         }
@@ -117,7 +122,6 @@ const resolveDecoderAndFileType = async (
         console.warn(`No valid decoder was found for file extension "${fileExtension}". ` +
             "Trying to match by signature.");
         const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
-
         if (null !== signatureResult) {
             ({decoder, fileTypeDef} = signatureResult);
         }

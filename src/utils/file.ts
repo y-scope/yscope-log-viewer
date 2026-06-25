@@ -35,7 +35,6 @@ const getFileMatchingExtension = (filename: string): {
     fileTypeDef: FileTypeDef | null;
 } => {
     const lowercaseFilename = filename.toLowerCase();
-
     let extension = "";
     let fileTypeDef = null;
 
