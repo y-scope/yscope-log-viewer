@@ -97,35 +97,29 @@ const resolveDecoderAndFileType = async (
         } due to a limitation in Chromium-based browsers.`);
     }
 
-    const {
+    let {
         extension: fileExtension,
-        fileTypeDef: extensionFileTypeDef,
+        fileTypeDef,
     } = getFileMatchingExtension(fileName);
 
-    let fileTypeDef = extensionFileTypeDef;
-    let decoder = null;
-
     // Try to create a decoder based on the file extension.
-    if (null !== extensionFileTypeDef) {
+    let decoder = null;
+    if (null !== fileTypeDef) {
         decoder = await tryCreateDecoder(
-            extensionFileTypeDef,
+            fileTypeDef,
             fileData,
-            decoderOptions
+            decoderOptions,
         );
     }
 
-    // If no decoder was created from the extension, try matching the file signature.
+    // If no decoder was found by extension, try to create one based on the file's magic number.
     if (null === decoder) {
-        console.warn(`No decoder was created from file extension "${fileExtension}". ` +
+        console.warn(`No valid decoder was found for file extension "${fileExtension}". ` +
             "Trying to match by signature.");
         const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
 
         if (null !== signatureResult) {
             ({decoder, fileTypeDef} = signatureResult);
-            if (null === decoder) {
-                console.warn(`File signature matches ${fileTypeDef.name}, ` +
-                    "but decoder creation failed.");
-            }
         }
     }
 
