@@ -135,10 +135,24 @@ interface Decoder {
     findNearestLogEventByTimestamp(timestamp: number): Nullable<number>;
 }
 
+interface DecoderFactory {
+
+    /**
+     * Creates a new Decoder instance.
+     *
+     * @param dataArray The input data array to be passed to the decoder.
+     * @param decoderOptions Customizable parsing and formatting options. These options affect
+     * decode results only when the underlying data is structured.
+     * @return The created Decoder instance.
+     */
+    create(dataArray: Uint8Array, decoderOptions: DecoderOptions): Promise<Decoder>;
+}
+
 export type {
     ActiveLogCollectionEventIdx,
     Decoder,
     DecodeResult,
+    DecoderFactory,
     DecoderOptions,
     FilteredLogEventMap,
     LogEventCount,

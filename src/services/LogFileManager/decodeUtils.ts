@@ -27,7 +27,7 @@ const tryCreateDecoder = async (
     decoderOptions: DecoderOptions
 ): Promise<Nullable<Decoder>> => {
     try {
-        return await fileTypeDef.DecoderFactory.create(fileData, decoderOptions);
+        return await fileTypeDef.decoderFactory.create(fileData, decoderOptions);
     } catch (e) {
         console.warn(`Failed to create ${fileTypeDef.name} decoder.`, e);
     }
