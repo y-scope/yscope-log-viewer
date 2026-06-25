@@ -63,11 +63,8 @@ const tryCreateDecoderBySignature = async (
             .every((byte, idx) => byte === entry.signature[idx]);
 
         if (isSignatureMatching) {
-            console.info(`Magic number matches ${entry.name}. Creating decoder.`);
-            const decoder = await tryCreateDecoder(entry, fileData, decoderOptions);
-
             return {
-                decoder: decoder,
+                decoder: await tryCreateDecoder(entry, fileData, decoderOptions),
                 fileTypeDef: entry,
             };
         }
@@ -105,28 +102,30 @@ const resolveDecoderAndFileType = async (
         fileTypeDef: extensionFileTypeDef,
     } = getFileMatchingExtension(fileName);
 
-    let fileTypeDef = null;
+    let fileTypeDef = extensionFileTypeDef;
     let decoder = null;
 
-    // Try to create a decoder based on the file's magic header.
-    const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
-    if (null !== signatureResult) {
-        ({decoder, fileTypeDef} = signatureResult);
-    }
-
-    // If no decoder was created from a signature, try to create one based on the file extension.
-    if (null === decoder && null !== extensionFileTypeDef) {
-        console.info(`No decoder was created from a file signature. Creating decoder based on ${
-            fileExtension
-        }.`);
+    // Try to create a decoder based on the file extension.
+    if (null !== extensionFileTypeDef) {
         decoder = await tryCreateDecoder(
             extensionFileTypeDef,
             fileData,
             decoderOptions
         );
+    }
 
-        if (null !== decoder) {
-            fileTypeDef = extensionFileTypeDef;
+    // If no decoder was created from the extension, try matching the file signature.
+    if (null === decoder) {
+        console.warn(`No decoder was created from file extension "${fileExtension}". ` +
+            "Trying to match by signature.");
+        const signatureResult = await tryCreateDecoderBySignature(fileData, decoderOptions);
+
+        if (null !== signatureResult) {
+            ({decoder, fileTypeDef} = signatureResult);
+            if (null === decoder) {
+                console.warn(`File signature matches ${fileTypeDef.name}, ` +
+                    "but decoder creation failed.");
+            }
         }
     }
 
