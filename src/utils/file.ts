@@ -1,4 +1,8 @@
-import type {OnFileOpenCallback} from "../typings/file";
+import {
+    FILE_TYPE_DEFINITIONS,
+    type FileTypeDef,
+    type OnFileOpenCallback,
+} from "../typings/file";
 
 
 /**
@@ -17,16 +21,45 @@ const downloadBlob = (blob: Blob, fileName: string) => {
 };
 
 /**
- * Gets the full file extension from a filename.
+ * Finds the longest matching extension registered in `FILE_TYPE_DEFINITIONS`.
+ *
+ * TODO: return UNKNOWN file type for unmatched file names.
  *
  * @param filename
- * @return The full file extension, or an empty string if no extension is found.
+ * @return The matching extension and file type definition. If no registered extension matches,
+ * returns the shortest suffix (empty string if the suffix does not exist) and a null file type
+ * definition.
  */
-const getFileFullExtension = (filename: string) => {
-    const parts = filename.split(".");
-    return 1 < parts.length ?
-        parts.slice(1).join(".") :
-        "";
+const getFileMatchingExtension = (filename: string): {
+    fileExtension: string;
+    fileTypeDef: FileTypeDef | null;
+} => {
+    const lowercaseFilename = filename.toLowerCase();
+    let fileExtension = "";
+    let fileTypeDef = null;
+
+    for (const entry of FILE_TYPE_DEFINITIONS) {
+        for (const candidateExtension of entry.extensions) {
+            if (lowercaseFilename.endsWith(candidateExtension.toLowerCase()) &&
+                fileExtension.length < candidateExtension.length
+            ) {
+                fileExtension = filename.slice(filename.length - candidateExtension.length);
+                fileTypeDef = entry;
+            }
+        }
+    }
+
+    if (null === fileTypeDef) {
+        const finalDotIdx = filename.lastIndexOf(".");
+        fileExtension = -1 === finalDotIdx ?
+            "" :
+            filename.slice(finalDotIdx);
+    }
+
+    return {
+        fileExtension: fileExtension,
+        fileTypeDef: fileTypeDef,
+    };
 };
 
 /**
@@ -52,6 +85,6 @@ const openFile = (onOpen: OnFileOpenCallback) => {
 
 export {
     downloadBlob,
-    getFileFullExtension,
+    getFileMatchingExtension,
     openFile,
 };
