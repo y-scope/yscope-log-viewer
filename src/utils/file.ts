@@ -43,7 +43,7 @@ const getFileMatchingExtension = (filename: string): {
             if (lowercaseFilename.endsWith(candidateExtension.toLowerCase()) &&
                 fileExtension.length < candidateExtension.length
             ) {
-                fileExtension = candidateExtension;
+                fileExtension = filename.slice(filename.length - candidateExtension.length);
                 fileTypeDef = entry;
             }
         }
