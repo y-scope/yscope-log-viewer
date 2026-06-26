@@ -98,7 +98,7 @@ const resolveDecoderAndFileType = async (
     }
 
     let {
-        extension: fileExtension,
+        fileExtension,
         fileTypeDef,
     } = getFileMatchingExtension(fileName);
 
