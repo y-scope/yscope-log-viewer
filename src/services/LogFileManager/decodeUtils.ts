@@ -47,11 +47,12 @@ const tryCreateDecoderBySignature = async (
     decoderOptions: DecoderOptions
 ): Promise<Nullable<{decoder: Decoder; fileTypeDef: FileTypeDef}>> => {
     for (const entry of FILE_TYPE_DEFINITIONS) {
-        // Skip decoders that don't define a signature
+        // Skip decoders that do not define a signature
         if (0 === entry.signature.length) {
             continue;
         }
 
+        // Skip if there is not enough bytes in the file to match the signature
         if (fileData.length < entry.signature.length) {
             continue;
         }
@@ -103,7 +104,7 @@ const resolveDecoderAndFileType = async (
     }
 
     let {
-        extension: fileExtension,
+        fileExtension,
         fileTypeDef,
     } = getFileMatchingExtension(fileName);
 

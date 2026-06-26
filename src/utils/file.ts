@@ -31,19 +31,19 @@ const downloadBlob = (blob: Blob, fileName: string) => {
  * definition.
  */
 const getFileMatchingExtension = (filename: string): {
-    extension: string;
+    fileExtension: string;
     fileTypeDef: FileTypeDef | null;
 } => {
     const lowercaseFilename = filename.toLowerCase();
-    let extension = "";
+    let fileExtension = "";
     let fileTypeDef = null;
 
     for (const entry of FILE_TYPE_DEFINITIONS) {
         for (const candidateExtension of entry.extensions) {
             if (lowercaseFilename.endsWith(candidateExtension.toLowerCase()) &&
-                extension.length < candidateExtension.length
+                fileExtension.length < candidateExtension.length
             ) {
-                extension = candidateExtension;
+                fileExtension = filename.slice(filename.length - candidateExtension.length);
                 fileTypeDef = entry;
             }
         }
@@ -51,13 +51,13 @@ const getFileMatchingExtension = (filename: string): {
 
     if (null === fileTypeDef) {
         const finalDotIdx = filename.lastIndexOf(".");
-        extension = -1 === finalDotIdx ?
+        fileExtension = -1 === finalDotIdx ?
             "" :
             filename.slice(finalDotIdx);
     }
 
     return {
-        extension: extension,
+        fileExtension: fileExtension,
         fileTypeDef: fileTypeDef,
     };
 };
