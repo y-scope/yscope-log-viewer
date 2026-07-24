@@ -27,7 +27,7 @@ jobs:
           submodules: "recursive"
       - uses: "actions/setup-node@v4"
         with:
-          node-version: "24"
+          node-version-file: ".node-version"
           cache: "npm"
           cache-dependency-path: "./package-lock.json"
       - run: "npm clean-install"
