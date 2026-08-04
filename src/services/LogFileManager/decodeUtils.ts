@@ -114,7 +114,7 @@ const resolveDecoderAndFileType = async (
         decoder = await tryCreateDecoder(
             fileTypeDef,
             fileData,
-            decoderOptions,
+            decoderOptions
         );
     }
 
