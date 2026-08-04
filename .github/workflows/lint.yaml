@@ -31,7 +31,7 @@ jobs:
           submodules: "recursive"
       - uses: "actions/setup-node@v4"
         with:
-          node-version: 22
+          node-version-file: ".node-version"
       - run: "npm clean-install"
       - name: "Set up Stylelint Problem Matcher"
         run: "echo '::add-matcher::${{env.STYLELINT_MATCHER_PATH}}'"
