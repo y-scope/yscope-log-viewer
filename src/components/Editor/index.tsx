@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import {useColorScheme} from "@mui/joy";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as monaco from "monaco-editor/editor";
 
 import useQueryStore from "../../stores/queryStore";
 import useViewStore from "../../stores/viewStore";
