@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as monaco from "monaco-editor/editor";
 
 import {THEME_NAME} from "../../../typings/config";
 import {TOKEN_NAME} from "./typings";

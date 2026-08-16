@@ -2,7 +2,7 @@
 // make MonacoInstance a reusable component for other projects.
 
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import type * as monaco from "monaco-editor/editor";
 
 import {ACTION_NAME} from "../../../typings/actions";
 

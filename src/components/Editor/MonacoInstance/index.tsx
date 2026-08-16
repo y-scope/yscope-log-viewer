@@ -3,7 +3,7 @@ import {
     useRef,
 } from "react";
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as monaco from "monaco-editor/editor";
 
 import {EditorAction} from "../../../utils/actions";
 import {

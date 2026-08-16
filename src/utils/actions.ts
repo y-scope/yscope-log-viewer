@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import * as monaco from "monaco-editor/editor";
 
 import {ACTION_NAME} from "../typings/actions";
 import {Nullable} from "../typings/common";
